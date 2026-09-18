@@ -48,6 +48,15 @@ def test_topological_nodes_are_defined_in_tp(converted):
     assert "<cim:IdentifiedObject.name>BUS-1</cim:IdentifiedObject.name>" in tp
 
 
+def test_branches_are_stated_in_service(converted):
+    """Guards the workaround for cimoxide not writing `Equipment.inService`
+    for lines and transformers (see matpower_to_cgmes._state_in_service);
+    cgmes2pgm converts no branch without it."""
+    _, paths = converted("case14")
+    ssh = next(p for p in paths if "_SSH" in p.name).read_text()
+    assert len(re.findall(r'<cim:Equipment rdf:about="#_', ssh)) == 20   # 17 lines + 3 transformers
+
+
 def test_checker_catches_a_sign_flip(converted):
     """pandapower's CGMES importer drops the sign of a negative line
     reactance; the same change in a file must be caught."""

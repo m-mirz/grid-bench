@@ -1,7 +1,7 @@
 """Static SVG charts for the README, from result JSON only.
 
-One chart per (operation, family): time vs case size, log-log, one line per
-tool in its fixed colour. Only `smoke` and `scaling` cases are plotted: a
+One chart per (operation, family): time (solve, import) or peak memory vs
+case size, log-log, one line per tool in its fixed colour. Only `smoke` and `scaling` cases are plotted: a
 line through feature cases of different grid families (RTE, PEGASE, Polish)
 at similar sizes would draw a trend that is not there. They are in the tables. Filled markers: the oracle accepted the solution;
 hollow markers: the tool converged to a solution of a different problem
@@ -26,9 +26,25 @@ from tools.palette import DARK, LIGHT, LIGHT_TO_DARK  # noqa: E402
 
 from tools.benchmark_data import FAMILY_TITLES  # noqa: E402
 
-TITLES = {(op, fam): f"{label}, {FAMILY_TITLES[fam][0].lower() + FAMILY_TITLES[fam][1:]}"
-          for op, label in (("solve", "Warm AC power-flow solve"), ("import", "Import from file"))
+def _lower_first(text: str) -> str:
+    """'MATPOWER cases' stays as is; 'CGMES ...' too; 'Other' -> 'other'."""
+    word = text.split()[0]
+    return text if word.isupper() else text[0].lower() + text[1:]
+
+
+TITLES = {(op, fam): f"{label}, {_lower_first(FAMILY_TITLES[fam])}"
+          for op, label in (("solve", "Warm AC power-flow solve"), ("import", "Import from file"),
+                            ("memory", "Peak memory of loading and solving"))
           for fam in FAMILY_TITLES}
+MEMORY_FLOOR_MB = 1.0   # log axis: smaller additions are drawn at this line
+
+
+def memory_added_mb(extra: dict) -> float | None:
+    """Peak RSS over loading and one solve (or loading alone, if the solve
+    failed), minus the baseline after importing the tool (adapters/memory.py)."""
+    if "rss_import_mb" not in extra:
+        return None
+    return extra.get("rss_solve_mb", extra["rss_import_mb"]) - extra["rss_baseline_mb"]
 
 
 def _spread(ys: list[float], min_gap: float) -> list[float]:
@@ -49,10 +65,16 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
         for case in res.cases(family):
             if not PLOTTED_GROUPS & set(CASES[case]["groups"]):
                 continue
-            rec = res.get(tool, case, operation)
-            if rec is not None:
-                ok = rec.extra.get("oracle_ok", True) if operation == "solve" else True
-                pts.append((case_size(case), rec.median_ms, ok, case))
+            rec = res.get(tool, case, "import" if operation == "memory" else operation)
+            if rec is None:
+                continue
+            if operation == "memory":
+                mb = memory_added_mb(rec.extra)
+                if mb is not None:   # hollow: loading only, the solve failed
+                    pts.append((case_size(case), max(mb, MEMORY_FLOOR_MB), "rss_solve_mb" in rec.extra, case))
+                continue
+            ok = rec.extra.get("oracle_ok", True) if operation == "solve" else True
+            pts.append((case_size(case), rec.median_ms, ok, case))
         if pts:
             color = res.tools[tool]["color"]
             series.append((res.tools[tool]["display_name"], LIGHT_TO_DARK.get(color, color) if dark else color, pts))
@@ -78,7 +100,8 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
         axis.set_major_formatter(plain)
         axis.set_minor_formatter(matplotlib.ticker.NullFormatter())
     ax.set_xlabel("published nodes" if family == "cgmes" else "buses", color=theme["text2"])
-    ax.set_ylabel("median time (ms)", color=theme["text2"])
+    ax.set_ylabel("MB added over the import baseline" if operation == "memory" else "median time (ms)",
+                  color=theme["text2"])
     ax.set_title(TITLES[(operation, family)], loc="left", color=theme["text"], fontsize=12, pad=12)
     ax.grid(True, which="major", color=theme["grid"], linewidth=0.8, zorder=0)
     for side in ("top", "right"):
@@ -98,13 +121,18 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
         ax.annotate(name, xy=(xmax * 1.15, 10 ** ly), color=theme["text"], fontsize=9, va="center",
                     annotation_clip=False)
     ax.set_xlim(right=xmax * 1.1)
-    legend = fig.legend(loc="lower left", bbox_to_anchor=(0.08, 0.05), frameon=False, fontsize=9, ncols=6,
+    legend = fig.legend(loc="lower left", bbox_to_anchor=(0.08, 0.075), frameon=False, fontsize=9, ncols=4,
                         handlelength=1.5, columnspacing=1.2)
     for text in legend.get_texts():
         text.set_color(theme["text"])
-    fig.text(0.09, 0.01, "Filled: solution verified by the oracle. Hollow: converged to a different problem. "
-             "Missing: the tool failed (see comparison.md).", color=theme["text2"], fontsize=8)
-    fig.subplots_adjust(left=0.09, right=0.76, top=0.9, bottom=0.25)
+    note = ("Peak RSS of a fresh process loading the case and solving it once, minus the peak after importing the tool.\n"
+            f"Hollow: loading only (the solve failed). Below {MEMORY_FLOOR_MB:g} MB drawn at {MEMORY_FLOOR_MB:g} MB. "
+            "Exact values: comparison.md."
+            if operation == "memory" else
+            "Filled: solution verified by the oracle. Hollow: converged to a different problem.\n"
+            "Missing: the tool failed (see comparison.md).")
+    fig.text(0.09, 0.01, note, color=theme["text2"], fontsize=8)
+    fig.subplots_adjust(left=0.09, right=0.76, top=0.9, bottom=0.27)
     fig.savefig(path, facecolor=theme["surface"])
     plt.close(fig)
     return True

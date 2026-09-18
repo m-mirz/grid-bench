@@ -244,7 +244,8 @@ def generate(directory: Path, res: Results) -> str:
         "## Memory",
         "",
         "Peak RSS added by loading and solving the case, in MB, measured in a fresh process; "
-        "in parentheses, the peak after merely importing the tool.",
+        "in parentheses, the peak after merely importing the tool. Charts: `graphs/memory_<family>.svg`. "
+        "Only the benchmark process is measured: cgmes2pgm's Fuseki server is not included.",
         "",
         per_family(res, memory_section),
         "## Accuracy",

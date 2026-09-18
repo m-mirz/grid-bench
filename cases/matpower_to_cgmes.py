@@ -46,6 +46,8 @@ Modelling decisions (MATPOWER manual, "Branch model" / `bustypes.m`):
   The slack is the REF bus generator, `referencePriority = 1`.
 - Out-of-service branches and isolated buses are omitted: they do not enter
   the power-flow equations.
+- Every line and transformer is stated in service in SSH, as a
+  `cim:Equipment` element (the CGMES 3.0 form; see `_state_in_service`).
 - Each profile gets a complete FullModel header (UUID URN, scenario time,
   modelling authority, SSH and TP depending on EQ). cimoxide synthesizes a
   header when none is present, but its minimal one (`urn:uuid:cimoxide-SSH`,
@@ -237,6 +239,22 @@ def _define_topological_nodes(tp: str, builder: Builder) -> str:
     return re.sub(r'<cim:TopologicalNode rdf:about="#([^"]+)">', define, tp)
 
 
+def _state_in_service(ssh: str, builder: Builder) -> str:
+    """Workaround for a cimoxide 0.3.1 encoder gap: CGMES 3.0 states
+    `Equipment.inService` for equipment classes the SSH profile does not list
+    (lines, transformers, switches) as `<cim:Equipment rdf:about=...>` elements,
+    which is why the SSH RDFS declares Equipment concrete. cimoxide writes a
+    field only for a class whose own profile origins include SSH, so these
+    elements are never written: a decode/encode of the SmallGrid fixture
+    drops all 314 of them. cgmes2pgm requires the statement and otherwise
+    converts no lines at all. Appends them for every branch."""
+    elements = "".join(
+        f'  <cim:Equipment rdf:about="#{obj["id"]}">\n'
+        f'    <cim:Equipment.inService>true</cim:Equipment.inService>\n  </cim:Equipment>\n'
+        for obj in builder.objects.values() if obj["_type"] in ("ACLineSegment", "PowerTransformer"))
+    return ssh.replace("</rdf:RDF>", elements + "</rdf:RDF>")
+
+
 def write(builder: Builder, out_dir: Path, case_name: str) -> list[Path]:
     import cimoxide
 
@@ -256,7 +274,9 @@ def write(builder: Builder, out_dir: Path, case_name: str) -> list[Path]:
     for profile in ("EQ", "SSH", "TP"):
         path = out_dir / f"{case_name}_{profile}.xml"
         xml = ds.to_xml_for_profile(profile)
-        path.write_text(_define_topological_nodes(xml, builder) if profile == "TP" else xml)
+        xml = _define_topological_nodes(xml, builder) if profile == "TP" else xml
+        xml = _state_in_service(xml, builder) if profile == "SSH" else xml
+        path.write_text(xml)
         paths.append(path)
     return paths
 

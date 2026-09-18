@@ -1,0 +1,22 @@
+# Dependencies of the cgmes2pgm benchmark image. cgmes2pgm_suite pins
+# power-grid-model ~= 1.12.60 (and numpy ~= 2.3, pandas ~= 2.3), so this image
+# carries its own PGM, separate from the pgm image's 1.13. The suite is
+# needed for its Fuseki upload (RdfXmlDirectoryImport); see
+# adapters/cgmes2pgm_adapter.py.
+[project]
+name = "grid-bench-cgmes2pgm"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+    "cgmes2pgm_suite==0.4.3",
+    "cgmes2pgm_converter==0.4.3",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"

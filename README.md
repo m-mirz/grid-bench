@@ -6,13 +6,14 @@ tools *read* CGMES grid models, grid-bench compares what the tools are for:
 **solving** them. It does not stop at speed. Every solve is checked by an
 oracle that none of the tools under test takes part in.
 
-v1 covers AC power flow in six open-source tools:
+v1 covers AC power flow in seven open-source tool setups:
 [pandapower](https://github.com/e2nIEE/pandapower),
 [lightsim2grid](https://github.com/Grid2op/lightsim2grid),
 [PyPSA](https://github.com/PyPSA/PyPSA),
 [power-grid-model](https://github.com/PowerGridModel/power-grid-model),
 [pypowsybl](https://github.com/powsybl/pypowsybl) (OpenLoadFlow) and
-[VeraGrid](https://github.com/SanPen/VeraGrid).
+[VeraGrid](https://github.com/SanPen/VeraGrid), and power-grid-model on CGMES
+through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
 **Results:** [`results-docker/comparison.md`](results-docker/comparison.md) ·
 [site](docs/index.html) (GitHub Pages: sortable, filterable, with hover detail)
@@ -20,6 +21,11 @@ v1 covers AC power flow in six open-source tools:
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="results-docker/graphs/solve_matpower-dark.svg">
   <img alt="Warm AC power-flow solve time versus buses, log-log, one line per tool" src="results-docker/graphs/solve_matpower.svg">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="results-docker/graphs/memory_matpower-dark.svg">
+  <img alt="Peak memory added by loading and solving versus buses, log-log, one line per tool" src="results-docker/graphs/memory_matpower.svg">
 </picture>
 
 ### What the first sweep found
@@ -115,7 +121,42 @@ Findings from solving the converted cases, each traced to its cause:
   as the defining profile. The converter patches its TP output until that is
   fixed. Its synthesized FullModel headers are also too thin for PowSyBl,
   which then skips the whole SSH profile, so the converter writes complete
-  ones.
+  ones. And it never writes `Equipment.inService` for lines and transformers
+  (CGMES 3.0's `<cim:Equipment>` elements in SSH), so the converter adds
+  those too.
+
+## power-grid-model on CGMES: cgmes2pgm
+
+[cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite) (SOPTIM) brings
+power-grid-model to the CGMES families as its own column, "PGM via
+cgmes2pgm". It runs the way its suite runs it: CGMES is uploaded to an
+Apache Jena Fuseki server (the suite's own image, as a sidecar container on
+an internal network), converted by SPARQL queries, and solved by PGM. That
+upload and conversion is its timed import. It pins power-grid-model 1.12.x,
+so it has its own image.
+
+cgmes2pgm is built for **state estimation**, and converts accordingly:
+generators become fixed P/Q injections (their voltage target is read but
+not used), and the slack is a source at **nominal** voltage rather than the
+generator's setpoint. That is a different problem from the one every other
+tool is given, so its power-flow results miss the case's solution by design.
+It is benchmarked as it is built; the oracle shows by how much.
+
+Traced to their cause:
+- The slack at nominal voltage and the unregulated generators: every
+  converted case misses its voltage setpoints, and the fixtures miss their
+  published solution (PowerFlow 4.3%, MicroGrid-BE 3.1% median).
+- It **refers a transformer's end-2 series impedance by k²** before handing
+  it to PGM's `generic_branch`, which takes the impedance on the to side
+  unchanged (checked on a two-bus model). Files that give the impedance on
+  end 2 (valid CGMES; PowSyBl's export and most fixtures use end 1) come
+  out wrong at every off-nominal transformer.
+- It requires a slack (`referencePriority` > 0) and so rejects pypowsybl's
+  export: "Grid has no SynchronousMachines or ExternalNetworkInjections".
+- It requires `Equipment.inService` for lines and transformers, which CGMES
+  3.0 states as `<cim:Equipment>` elements in SSH. cimoxide 0.3.1 does not
+  write those (a SmallGrid round trip drops all 314), so the cimoxide
+  converter adds them itself; without them, cgmes2pgm converts no lines.
 
 ## Why an oracle
 
@@ -176,7 +217,8 @@ deliberately does *not* do.
   reported. This is how the tools are used in practice. It also avoids
   comparing one-time setup: in gridoxide's benchmark, a 1.3 to 1.7x cold gap
   traced entirely to symbolic factorization being redone.
-- **Import:** file to model, median of 3 cold loads after one warm-up load.
+- **Import:** file to model, median of 3 cold loads after one warm-up load
+  (a single timed load when the warm-up alone takes over 30 s).
   Input conversion that the benchmark itself does (`cases/prep.py`) is never
   inside a tool's timing.
 - **Memory:** peak RSS of a *freshly spawned* process after loading and
@@ -213,6 +255,7 @@ from [CGMES-Test-Configurations](https://github.com/m-mirz/CGMES-Test-Configurat
 | power-grid-model | PGM JSON via `gridoxide.matpower` | — | NR with experimental voltage regulators |
 | pypowsybl | `network.load` (.mat) | `network.load` (zip); slack from `referencePriority` | OpenLoadFlow |
 | VeraGrid | `parse_matpower_file` (.m) | `open_cgmes` | NR |
+| PGM via cgmes2pgm | — | upload to Fuseki, `CgmesToPgmConverter` | PGM 1.12 NR (generators as fixed P/Q) |
 
 The converted-CGMES families use the CGMES column. Every tool reads the same
 case file through its **own importer** wherever it has one. (gridoxide's benchmark fed pandapower and lightsim2grid from

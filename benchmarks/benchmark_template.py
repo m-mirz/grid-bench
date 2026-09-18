@@ -8,7 +8,9 @@ the tool can read (selected by `--groups` / `--cases`, see conftest.py):
 
 - `test_import[case]`: cold load from disk into the tool's model.
   1 untimed warm-up round (lazy imports, first-call setup), then
-  `IMPORT_ROUNDS` timed rounds. Peak memory is measured separately in a
+  `IMPORT_ROUNDS` timed rounds, or 1 if the warm-up alone took longer than
+  `SLOW_IMPORT_SECONDS` (cgmes2pgm uploading RealGrid to Fuseki would
+  otherwise approach the 30-minute test timeout). Peak memory is measured separately in a
   fresh process (adapters/memory.py) and attached to this record.
 - `test_solve[case]`: repeated solves on ONE persistent model, as every tool
   is used in practice and as every tool here supports. 1 untimed warm-up
@@ -36,6 +38,7 @@ from cases.registry import CASES
 from oracle.evaluate import evaluate
 
 IMPORT_ROUNDS = 3
+SLOW_IMPORT_SECONDS = 30.0
 TARGET_SECONDS = 2.0
 MIN_ROUNDS, MAX_ROUNDS = 5, 200
 RESULTS = Path(os.environ.get("GRID_BENCH_RESULTS", Path(__file__).resolve().parent.parent / "results"))
@@ -62,7 +65,10 @@ def create_benchmarks(tool: str) -> None:
 
     def test_import(benchmark, case):
         _record(benchmark, adapter, case, "import")
-        benchmark.pedantic(adapter.load, args=(case,), rounds=IMPORT_ROUNDS, warmup_rounds=1, iterations=1)
+        t0 = time.perf_counter()
+        adapter.load(case)                        # warm-up, timed only to choose the round count
+        rounds = 1 if time.perf_counter() - t0 > SLOW_IMPORT_SECONDS else IMPORT_ROUNDS
+        benchmark.pedantic(adapter.load, args=(case,), rounds=rounds, iterations=1)
         benchmark.extra_info.update(memory.measure(tool, case))
 
     def test_solve(benchmark, case):

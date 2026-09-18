@@ -39,3 +39,7 @@ $compose run --rm reports
 for t in "${failed[@]}"; do
     [ -f "results-docker/$t.json" ] || echo "WARNING: $t produced no results"
 done
+
+# Stop the Fuseki sidecar that `run` starts for cgmes2pgm.
+$compose stop fuseki >/dev/null 2>&1
+$compose rm -f fuseki >/dev/null 2>&1

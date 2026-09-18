@@ -6,6 +6,8 @@ cd "$(dirname "$0")/.."
 export DOCKER_BUILDKIT=1
 
 docker build -f docker/base.dockerfile -t grid-bench/base:latest .
+# Fuseki, the SPARQL store cgmes2pgm reads from (see docker/fuseki/PROVENANCE.md).
+docker build -t grid-bench/fuseki:latest docker/fuseki
 targets=("$@")
 if [ ${#targets[@]} -eq 0 ]; then
     targets=(harness $(ls tool-configs | grep -v '^harness$'))

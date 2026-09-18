@@ -11,7 +11,30 @@ x-bench: &bench
     - ..:/bench:ro,z
     - ../results-docker:/output:z
 
+# cgmes2pgm reads CGMES through a SPARQL endpoint: it gets a Fuseki sidecar on
+# an internal network (no route out), instead of `network_mode: none`.
+networks:
+  fuseki:
+    internal: true
+
 services:
+  fuseki:
+    image: grid-bench/fuseki:latest
+    networks: [fuseki]
+
+  cgmes2pgm:
+    image: grid-bench/cgmes2pgm:latest
+    depends_on: [fuseki]
+    networks: [fuseki]
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      GIT_SHA: ${GIT_SHA:-unknown}
+      FUSEKI_URL: http://fuseki:3030
+    volumes:
+      - ..:/bench:ro,z
+      - ../results-docker:/output:z
+    command: pytest benchmarks/cgmes2pgm_benchmark.py --benchmark-json=/output/cgmes2pgm.json
+
   prep:
     image: grid-bench/harness:latest
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"

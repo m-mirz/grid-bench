@@ -8,6 +8,7 @@ ADAPTERS = {
     "pgm": "adapters.pgm_adapter:PgmAdapter",
     "pypowsybl": "adapters.pypowsybl_adapter:PypowsyblAdapter",
     "veragrid": "adapters.veragrid_adapter:VeragridAdapter",
+    "cgmes2pgm": "adapters.cgmes2pgm_adapter:Cgmes2pgmAdapter",
 }
 
 

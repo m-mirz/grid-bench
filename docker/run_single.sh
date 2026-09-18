@@ -11,3 +11,7 @@ $compose run --rm prep
 $compose run --rm prep-pypowsybl
 $compose run --rm conversion-check
 $compose run --rm "$tool" pytest "benchmarks/${tool}_benchmark.py" "--benchmark-json=/output/$tool.json" "$@"
+
+# Stop the Fuseki sidecar that `run` starts for cgmes2pgm.
+$compose stop fuseki >/dev/null 2>&1
+$compose rm -f fuseki >/dev/null 2>&1

@@ -5,8 +5,8 @@ Contributor guide for grid-bench (people and coding agents alike).
 ## What this is
 
 A benchmark of power system analysis software. v1 covers AC power flow for
-six tools: pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl and
-VeraGrid. The infrastructure follows cim-bench (adapters, one container per
+pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl, VeraGrid, and
+power-grid-model on CGMES through cgmes2pgm. The infrastructure follows cim-bench (adapters, one container per
 tool, JSON as the only contract between measuring and reporting). The
 methodology follows gridoxide's `scripts/bench` (warm solves on persistent
 models, justified settings, a tool-independent oracle).
@@ -73,7 +73,9 @@ uv run python -m cases.prep [case ...]         # tool inputs into data/.case-cac
 ```
 
 Source is mounted into containers read-only, so editing an adapter needs no
-rebuild; changing `tool-configs/` does.
+rebuild; changing `tool-configs/` does. Tool containers have no network,
+except cgmes2pgm, which reaches its Fuseki sidecar (`docker/fuseki/`) on an
+internal compose network; the run scripts stop the sidecar afterwards.
 
 ## Adding a tool
 
