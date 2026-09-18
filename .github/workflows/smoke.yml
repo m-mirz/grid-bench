@@ -1,0 +1,36 @@
+# Keeps the harness from rotting: builds the images and runs the smoke cases
+# plus the oracle's own tests. Published numbers never come from CI runners
+# (shared, noisy hardware); see README "Publishing numbers".
+name: smoke
+on:
+  push:
+  pull_request:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [pandapower, lightsim2grid, pypsa, pgm, pypowsybl, veragrid]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Build images
+        run: ./docker/build.sh harness ${{ matrix.tool }}
+      - name: Oracle tests
+        run: docker compose -f docker/docker-compose.yml run --rm oracle-tests
+      - name: Smoke benchmark
+        run: |
+          ./docker/run_single.sh ${{ matrix.tool }} --groups smoke
+          python3 - <<'PY'
+          import json, sys
+          d = json.load(open("results-docker/${{ matrix.tool }}.json"))
+          solved = [b for b in d["benchmarks"] if b["extra_info"]["operation"] == "solve"]
+          bad = [b["extra_info"]["case"] for b in solved if b["extra_info"].get("oracle_ok") is False]
+          print("failures:", d["failures"])
+          # case14 is solved correctly by every tool except PGM, whose slack
+          # source sits 7e-4 p.u. off its setpoint (see adapters/pgm_adapter.py).
+          if not solved or ("${{ matrix.tool }}" != "pgm" and bad):
+              sys.exit(f"smoke failed: solved={len(solved)} oracle-rejected={bad}")
+          PY

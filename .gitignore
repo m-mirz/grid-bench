@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.benchmarks/
+
+# Derived tool inputs, rebuilt by `python -m cases.prep`.
+data/.case-cache/
+
+# Full per-bus solutions: large, and only needed to build the tier-3
+# cross-tool table when reports are generated on the measuring machine.
+results/solutions/
+results-docker/solutions/
+
+# Native runs are for development; published numbers come from containers.
+results/

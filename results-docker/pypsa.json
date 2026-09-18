@@ -1,0 +1,1421 @@
+{
+    "machine_info": {
+        "node": "c4947bfa8e37",
+        "processor": "",
+        "machine": "x86_64",
+        "python_compiler": "Clang 22.1.3 ",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.14",
+        "python_version": "3.13.14",
+        "python_build": [
+            "main",
+            "Jul 18 2026 17:02:37"
+        ],
+        "release": "7.0.0-31-generic",
+        "system": "Linux",
+        "cpu": {
+            "python_version": "3.13.14.final.0 (64 bit)",
+            "cpuinfo_version": [
+                10,
+                1,
+                1
+            ],
+            "cpuinfo_version_string": "10.1.1",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 16,
+            "arch_string_raw": "x86_64",
+            "vendor_id_raw": "AuthenticAMD",
+            "brand_raw": "AMD Ryzen 7 250 w/ Radeon 780M Graphics",
+            "hz_advertised_friendly": "1.8500 GHz",
+            "hz_actual_friendly": "1.8500 GHz",
+            "hz_advertised": [
+                1849952000,
+                0
+            ],
+            "hz_actual": [
+                1849952000,
+                0
+            ],
+            "stepping": 2,
+            "model": 117,
+            "family": 25,
+            "flags": [
+                "3dnowprefetch",
+                "abm",
+                "adx",
+                "aes",
+                "amd_lbr_pmc_freeze",
+                "amd_lbr_v2",
+                "aperfmperf",
+                "apic",
+                "arat",
+                "avx",
+                "avx2",
+                "avx512_bf16",
+                "avx512_bitalg",
+                "avx512_vbmi2",
+                "avx512_vnni",
+                "avx512_vpopcntdq",
+                "avx512bitalg",
+                "avx512bw",
+                "avx512cd",
+                "avx512dq",
+                "avx512f",
+                "avx512ifma",
+                "avx512vbmi",
+                "avx512vbmi2",
+                "avx512vl",
+                "avx512vnni",
+                "avx512vpopcntdq",
+                "bmi1",
+                "bmi2",
+                "bpext",
+                "cat_l3",
+                "cdp_l3",
+                "clflush",
+                "clflushopt",
+                "clwb",
+                "clzero",
+                "cmov",
+                "cmp_legacy",
+                "constant_tsc",
+                "cpb",
+                "cppc",
+                "cpuid",
+                "cpuid_fault",
+                "cqm",
+                "cqm_llc",
+                "cqm_mbm_local",
+                "cqm_mbm_total",
+                "cqm_occup_llc",
+                "cr8_legacy",
+                "cx16",
+                "cx8",
+                "dbx",
+                "de",
+                "decodeassists",
+                "erms",
+                "extapic",
+                "extd_apicid",
+                "f16c",
+                "flush_l1d",
+                "flushbyasid",
+                "fma",
+                "fpu",
+                "fsgsbase",
+                "fsrm",
+                "fxsr",
+                "fxsr_opt",
+                "gfni",
+                "ht",
+                "hw_pstate",
+                "ibpb",
+                "ibrs",
+                "ibrs_enhanced",
+                "ibs",
+                "invpcid",
+                "irperf",
+                "lahf_lm",
+                "lbrv",
+                "lm",
+                "mba",
+                "mca",
+                "mce",
+                "misalignsse",
+                "mmx",
+                "mmxext",
+                "monitor",
+                "movbe",
+                "msr",
+                "mtrr",
+                "mwaitx",
+                "nonstop_tsc",
+                "nopl",
+                "npt",
+                "nrip_save",
+                "nx",
+                "ospke",
+                "osvw",
+                "osxsave",
+                "overflow_recov",
+                "pae",
+                "pat",
+                "pausefilter",
+                "pci_l2i",
+                "pclmulqdq",
+                "pdpe1gb",
+                "perfctr_core",
+                "perfctr_llc",
+                "perfctr_nb",
+                "perfmon_v2",
+                "pfthreshold",
+                "pge",
+                "pku",
+                "pni",
+                "popcnt",
+                "pqe",
+                "pqm",
+                "pse",
+                "pse36",
+                "rapl",
+                "rdpid",
+                "rdpru",
+                "rdrand",
+                "rdrnd",
+                "rdseed",
+                "rdt_a",
+                "rdtscp",
+                "rep_good",
+                "sep",
+                "sha",
+                "sha_ni",
+                "skinit",
+                "smap",
+                "smca",
+                "smep",
+                "ssbd",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "sse4a",
+                "ssse3",
+                "stibp",
+                "succor",
+                "svm",
+                "svm_lock",
+                "syscall",
+                "tce",
+                "topoext",
+                "tsc",
+                "tsc_scale",
+                "umip",
+                "user_shstk",
+                "v_spec_ctrl",
+                "vaes",
+                "vgif",
+                "vmcb_clean",
+                "vme",
+                "vmmcall",
+                "vnmi",
+                "vpclmulqdq",
+                "wbnoinvd",
+                "wdt",
+                "x2apic",
+                "x2avic",
+                "xgetbv1",
+                "xsave",
+                "xsavec",
+                "xsaveerptr",
+                "xsaveopt",
+                "xsaves",
+                "xtopology"
+            ],
+            "l3_cache_size": 1048576,
+            "l2_cache_size": 8388608,
+            "l1_data_cache_size": 262144,
+            "l1_instruction_cache_size": 262144,
+            "l2_cache_line_size": 1024,
+            "l2_cache_associativity": 6
+        }
+    },
+    "commit_info": {
+        "id": "unknown",
+        "time": null,
+        "author_time": null,
+        "dirty": false,
+        "error": "FileNotFoundError(2, 'No such file or directory')",
+        "project": "bench",
+        "branch": "(unknown)"
+    },
+    "benchmarks": [
+        {
+            "group": "import:case14",
+            "name": "test_import[case14]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case14]",
+            "params": {
+                "case": "case14"
+            },
+            "param": "case14",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case14",
+                "family": "matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 241.24609375,
+                "rss_import_mb": 242.91015625,
+                "rss_solve_mb": 245.25
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.05519843799993396,
+                "max": 0.060668023000289395,
+                "mean": 0.05794304933351668,
+                "stddev": 0.0027348453790839076,
+                "rounds": 3,
+                "median": 0.057962687000326696,
+                "iqr": 0.004102188750266578,
+                "q1": 0.05588950025003214,
+                "q3": 0.05999168900029872,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.05519843799993396,
+                "hd15iqr": 0.060668023000289395,
+                "ops": 17.2583253988595,
+                "total": 0.17382914800055005,
+                "data": [
+                    0.05519843799993396,
+                    0.060668023000289395,
+                    0.057962687000326696
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case118",
+            "name": "test_import[case118]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case118]",
+            "params": {
+                "case": "case118"
+            },
+            "param": "case118",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case118",
+                "family": "matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 241.88671875,
+                "rss_import_mb": 243.43359375,
+                "rss_solve_mb": 245.98046875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.051730070000303385,
+                "max": 0.05511265499990259,
+                "mean": 0.05326621566685693,
+                "stddev": 0.0017125075005608667,
+                "rounds": 3,
+                "median": 0.05295592200036481,
+                "iqr": 0.0025369387496994023,
+                "q1": 0.05203653300031874,
+                "q3": 0.05457347175001814,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.051730070000303385,
+                "hd15iqr": 0.05511265499990259,
+                "ops": 18.773625786639386,
+                "total": 0.15979864700057078,
+                "data": [
+                    0.051730070000303385,
+                    0.05511265499990259,
+                    0.05295592200036481
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case300",
+            "name": "test_import[case300]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case300]",
+            "params": {
+                "case": "case300"
+            },
+            "param": "case300",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case300",
+                "family": "matpower",
+                "groups": [
+                    "scaling",
+                    "feature"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 241.6796875,
+                "rss_import_mb": 243.34765625,
+                "rss_solve_mb": 246.44921875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.05261413900007028,
+                "max": 0.056064190000142844,
+                "mean": 0.05437709000034374,
+                "stddev": 0.00172627576200332,
+                "rounds": 3,
+                "median": 0.0544529410008181,
+                "iqr": 0.002587538250054422,
+                "q1": 0.053073839500257236,
+                "q3": 0.05566137775031166,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.05261413900007028,
+                "hd15iqr": 0.056064190000142844,
+                "ops": 18.390097741414234,
+                "total": 0.16313127000103123,
+                "data": [
+                    0.0544529410008181,
+                    0.056064190000142844,
+                    0.05261413900007028
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case1354pegase",
+            "name": "test_import[case1354pegase]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case1354pegase]",
+            "params": {
+                "case": "case1354pegase"
+            },
+            "param": "case1354pegase",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case1354pegase",
+                "family": "matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 241.5390625,
+                "rss_import_mb": 243.30859375,
+                "rss_solve_mb": 280.33203125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.06414144999962446,
+                "max": 0.1689039139992019,
+                "mean": 0.09983253766646764,
+                "stddev": 0.059828724032686444,
+                "rounds": 3,
+                "median": 0.06645224900057656,
+                "iqr": 0.07857184799968309,
+                "q1": 0.06471914974986248,
+                "q3": 0.14329099774954557,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.06414144999962446,
+                "hd15iqr": 0.1689039139992019,
+                "ops": 10.016774324027686,
+                "total": 0.2994976129994029,
+                "data": [
+                    0.06414144999962446,
+                    0.06645224900057656,
+                    0.1689039139992019
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2869pegase",
+            "name": "test_import[case2869pegase]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case2869pegase]",
+            "params": {
+                "case": "case2869pegase"
+            },
+            "param": "case2869pegase",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case2869pegase",
+                "family": "matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 241.48046875,
+                "rss_import_mb": 244.4296875,
+                "rss_solve_mb": 416.82421875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.07856936099960876,
+                "max": 0.08047969900053431,
+                "mean": 0.07934297666694572,
+                "stddev": 0.0010056006452624944,
+                "rounds": 3,
+                "median": 0.07897987000069406,
+                "iqr": 0.0014327535006941616,
+                "q1": 0.07867198824988009,
+                "q3": 0.08010474175057425,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.07856936099960876,
+                "hd15iqr": 0.08047969900053431,
+                "ops": 12.603510001870147,
+                "total": 0.23802893000083714,
+                "data": [
+                    0.07856936099960876,
+                    0.08047969900053431,
+                    0.07897987000069406
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case9241pegase",
+            "name": "test_import[case9241pegase]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case9241pegase]",
+            "params": {
+                "case": "case9241pegase"
+            },
+            "param": "case9241pegase",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case9241pegase",
+                "family": "matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 241.33984375,
+                "rss_import_mb": 259.76171875,
+                "rss_solve_mb": 2048.38671875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.14034512800026278,
+                "max": 0.15620052899976145,
+                "mean": 0.1469949133334012,
+                "stddev": 0.008230895257071883,
+                "rounds": 3,
+                "median": 0.14443908300017938,
+                "iqr": 0.011891550749624002,
+                "q1": 0.14136861675024193,
+                "q3": 0.15326016749986593,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.14034512800026278,
+                "hd15iqr": 0.15620052899976145,
+                "ops": 6.802956492323555,
+                "total": 0.4409847400002036,
+                "data": [
+                    0.15620052899976145,
+                    0.14443908300017938,
+                    0.14034512800026278
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case3120sp",
+            "name": "test_import[case3120sp]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case3120sp]",
+            "params": {
+                "case": "case3120sp"
+            },
+            "param": "case3120sp",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case3120sp",
+                "family": "matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 241.71875,
+                "rss_import_mb": 244.1640625,
+                "rss_solve_mb": 447.90234375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.07557186700068996,
+                "max": 0.07976433000021643,
+                "mean": 0.07703205733347811,
+                "stddev": 0.0023680860623847147,
+                "rounds": 3,
+                "median": 0.07575997499952791,
+                "iqr": 0.003144347249644852,
+                "q1": 0.07561889400039945,
+                "q3": 0.0787632412500443,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.07557186700068996,
+                "hd15iqr": 0.07976433000021643,
+                "ops": 12.981608366902599,
+                "total": 0.2310961720004343,
+                "data": [
+                    0.07575997499952791,
+                    0.07976433000021643,
+                    0.07557186700068996
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2848rte",
+            "name": "test_import[case2848rte]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case2848rte]",
+            "params": {
+                "case": "case2848rte"
+            },
+            "param": "case2848rte",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case2848rte",
+                "family": "matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 242.04296875,
+                "rss_import_mb": 244.38671875,
+                "rss_solve_mb": 413.6484375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.07297993500014854,
+                "max": 0.076432472000306,
+                "mean": 0.07443370933348585,
+                "stddev": 0.0017896262590519816,
+                "rounds": 3,
+                "median": 0.07388872100000299,
+                "iqr": 0.002589402750118097,
+                "q1": 0.07320713150011215,
+                "q3": 0.07579653425023025,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.07297993500014854,
+                "hd15iqr": 0.076432472000306,
+                "ops": 13.434773155260787,
+                "total": 0.22330112800045754,
+                "data": [
+                    0.07297993500014854,
+                    0.076432472000306,
+                    0.07388872100000299
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case1888rte",
+            "name": "test_import[case1888rte]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case1888rte]",
+            "params": {
+                "case": "case1888rte"
+            },
+            "param": "case1888rte",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case1888rte",
+                "family": "matpower",
+                "groups": [
+                    "robustness"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 241.90625,
+                "rss_import_mb": 243.91796875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0670356360005826,
+                "max": 0.07113087400011864,
+                "mean": 0.06843985333368134,
+                "stddev": 0.002331231580566249,
+                "rounds": 3,
+                "median": 0.06715305000034277,
+                "iqr": 0.003071428499652029,
+                "q1": 0.06706498950052264,
+                "q3": 0.07013641800017467,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.0670356360005826,
+                "hd15iqr": 0.07113087400011864,
+                "ops": 14.611369710634222,
+                "total": 0.205319560001044,
+                "data": [
+                    0.06715305000034277,
+                    0.0670356360005826,
+                    0.07113087400011864
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case6495rte",
+            "name": "test_import[case6495rte]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_import[case6495rte]",
+            "params": {
+                "case": "case6495rte"
+            },
+            "param": "case6495rte",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case6495rte",
+                "family": "matpower",
+                "groups": [
+                    "robustness"
+                ],
+                "operation": "import",
+                "rss_baseline_mb": 241.53125,
+                "rss_import_mb": 251.296875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11037133500030905,
+                "max": 0.1117931660000977,
+                "mean": 0.11119130266676318,
+                "stddev": 0.0007355800249355338,
+                "rounds": 3,
+                "median": 0.11140940699988278,
+                "iqr": 0.0010663732498414902,
+                "q1": 0.11063085300020248,
+                "q3": 0.11169722625004397,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.11037133500030905,
+                "hd15iqr": 0.1117931660000977,
+                "ops": 8.993509168581003,
+                "total": 0.3335739080002895,
+                "data": [
+                    0.11037133500030905,
+                    0.11140940699988278,
+                    0.1117931660000977
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case14",
+            "name": "test_solve[case14]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_solve[case14]",
+            "params": {
+                "case": "case14"
+            },
+            "param": "case14",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case14",
+                "family": "matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "solve",
+                "iterations": 4,
+                "n_reported": 14,
+                "residual_max_dp_mw": 2.55351295663786e-13,
+                "residual_max_dq_mvar": 4.2743586448068527e-13,
+                "residual_max_dvm_pu": 0.0,
+                "residual_worst_bus": "9",
+                "residual_n_checked": 14,
+                "residual_n_buses": 14,
+                "residual_failing": {},
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.07147383500068827,
+                "max": 0.20310046699978557,
+                "mean": 0.07804475450010225,
+                "stddev": 0.024590331274493994,
+                "rounds": 28,
+                "median": 0.07263632800004416,
+                "iqr": 0.0020632584996747028,
+                "q1": 0.07192990650037245,
+                "q3": 0.07399316500004716,
+                "iqr_outliers": 4,
+                "stddev_outliers": 1,
+                "outliers": "1;4",
+                "ld15iqr": 0.07147383500068827,
+                "hd15iqr": 0.07717478199992911,
+                "ops": 12.813160940863616,
+                "total": 2.1852531260028627,
+                "data": [
+                    0.07188458499967965,
+                    0.07236175199977879,
+                    0.07192267800019181,
+                    0.07245594100004382,
+                    0.07940358399991965,
+                    0.07378445300037129,
+                    0.07170332100031374,
+                    0.07150862100024824,
+                    0.07579226599955291,
+                    0.07278063700050552,
+                    0.07387758000004396,
+                    0.07717478199992911,
+                    0.07337574700068217,
+                    0.07215889700000844,
+                    0.0719371350005531,
+                    0.07410875000005035,
+                    0.07185132200083899,
+                    0.07359842000005301,
+                    0.07286917500005075,
+                    0.07363881699984631,
+                    0.20310046699978557,
+                    0.07725101699998049,
+                    0.0724920189995828,
+                    0.07615562699993461,
+                    0.0724885629997516,
+                    0.07241778800016618,
+                    0.07147383500068827,
+                    0.0716853470003116
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case118",
+            "name": "test_solve[case118]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_solve[case118]",
+            "params": {
+                "case": "case118"
+            },
+            "param": "case118",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case118",
+                "family": "matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "iterations": 4,
+                "n_reported": 118,
+                "residual_max_dp_mw": 1.1450730638534756e-11,
+                "residual_max_dq_mvar": 3.9765021853096876e-11,
+                "residual_max_dvm_pu": 0.0,
+                "residual_worst_bus": "38",
+                "residual_n_checked": 118,
+                "residual_n_buses": 118,
+                "residual_failing": {},
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.09186736399988149,
+                "max": 0.10442944100032037,
+                "mean": 0.09713703719037203,
+                "stddev": 0.003194551852527593,
+                "rounds": 21,
+                "median": 0.09642922799957887,
+                "iqr": 0.0046670630001699465,
+                "q1": 0.09473561674985831,
+                "q3": 0.09940267975002826,
+                "iqr_outliers": 0,
+                "stddev_outliers": 4,
+                "outliers": "4;0",
+                "ld15iqr": 0.09186736399988149,
+                "hd15iqr": 0.10442944100032037,
+                "ops": 10.294734417729567,
+                "total": 2.039877780997813,
+                "data": [
+                    0.09452986099950067,
+                    0.09420895099992777,
+                    0.09521139499975106,
+                    0.09416221299943572,
+                    0.09753745199941477,
+                    0.09669715699965309,
+                    0.09405873600007908,
+                    0.09480420199997752,
+                    0.10120068900050683,
+                    0.1021935749995464,
+                    0.0988774370007377,
+                    0.09930969800007006,
+                    0.09568659699925774,
+                    0.09968162499990285,
+                    0.10442944100032037,
+                    0.10009757399984665,
+                    0.09482412899978954,
+                    0.09642922799957887,
+                    0.09517673900063528,
+                    0.09889371799999935,
+                    0.09186736399988149
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case300",
+            "name": "test_solve[case300]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_solve[case300]",
+            "params": {
+                "case": "case300"
+            },
+            "param": "case300",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case300",
+                "family": "matpower",
+                "groups": [
+                    "scaling",
+                    "feature"
+                ],
+                "operation": "solve",
+                "iterations": 5,
+                "n_reported": 300,
+                "residual_max_dp_mw": 8.621992009238966e-11,
+                "residual_max_dq_mvar": 1.2829182161055996e-10,
+                "residual_max_dvm_pu": 0.0,
+                "residual_worst_bus": "49",
+                "residual_n_checked": 300,
+                "residual_n_buses": 300,
+                "residual_failing": {},
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.1371352520000073,
+                "max": 0.2700098630002685,
+                "mean": 0.14896442093334675,
+                "stddev": 0.03361687141859487,
+                "rounds": 15,
+                "median": 0.13893386800009466,
+                "iqr": 0.005985882499317086,
+                "q1": 0.13797186350006996,
+                "q3": 0.14395774599938704,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.1371352520000073,
+                "hd15iqr": 0.2700098630002685,
+                "ops": 6.713012367211121,
+                "total": 2.2344663140002012,
+                "data": [
+                    0.14527404899945395,
+                    0.14123107100022025,
+                    0.1376005560005069,
+                    0.2700098630002685,
+                    0.13880775899997388,
+                    0.14322738099963317,
+                    0.138190024999858,
+                    0.14564571500068269,
+                    0.1378991430001406,
+                    0.14067578600042907,
+                    0.13893386800009466,
+                    0.13840758799960895,
+                    0.13722705700001825,
+                    0.1371352520000073,
+                    0.144201200999305
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case1354pegase",
+            "name": "test_solve[case1354pegase]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_solve[case1354pegase]",
+            "params": {
+                "case": "case1354pegase"
+            },
+            "param": "case1354pegase",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case1354pegase",
+                "family": "matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "iterations": 5,
+                "n_reported": 1354,
+                "residual_max_dp_mw": 2.8925016982741506e-10,
+                "residual_max_dq_mvar": 4.2329195704127187e-10,
+                "residual_max_dvm_pu": 0.0,
+                "residual_worst_bus": "6624",
+                "residual_n_checked": 1354,
+                "residual_n_buses": 1354,
+                "residual_failing": {},
+                "oracle_ok": true,
+                "residual_zero_shift_max_dp_mw": 21.78493281795596,
+                "residual_zero_shift_max_dq_mvar": 0.9545317852750201
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.4008866100002706,
+                "max": 0.5291131329995551,
+                "mean": 0.43343161979992145,
+                "stddev": 0.053776811159946494,
+                "rounds": 5,
+                "median": 0.4130416950001745,
+                "iqr": 0.03728171649936485,
+                "q1": 0.40665285750014846,
+                "q3": 0.4439345739995133,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.4008866100002706,
+                "hd15iqr": 0.5291131329995551,
+                "ops": 2.3071690073318023,
+                "total": 2.1671580989996073,
+                "data": [
+                    0.5291131329995551,
+                    0.40857494000010774,
+                    0.4155417209994994,
+                    0.4008866100002706,
+                    0.4130416950001745
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case2869pegase",
+            "name": "test_solve[case2869pegase]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_solve[case2869pegase]",
+            "params": {
+                "case": "case2869pegase"
+            },
+            "param": "case2869pegase",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case2869pegase",
+                "family": "matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "iterations": 5,
+                "n_reported": 2869,
+                "residual_max_dp_mw": 1.481423317351016e-09,
+                "residual_max_dq_mvar": 4.492556326951558e-09,
+                "residual_max_dvm_pu": 0.0,
+                "residual_worst_bus": "7640",
+                "residual_n_checked": 2869,
+                "residual_n_buses": 2869,
+                "residual_failing": {},
+                "oracle_ok": true,
+                "residual_zero_shift_max_dp_mw": 72.91165382945893,
+                "residual_zero_shift_max_dq_mvar": 4.935303299117604
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.9753738939998584,
+                "max": 1.106103016999441,
+                "mean": 1.0453777879996777,
+                "stddev": 0.06256243204663396,
+                "rounds": 5,
+                "median": 1.0540222780000477,
+                "iqr": 0.12138039399951595,
+                "q1": 0.9837655734997952,
+                "q3": 1.1051459674993112,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.9753738939998584,
+                "hd15iqr": 1.106103016999441,
+                "ops": 0.9565919722796982,
+                "total": 5.226888939998389,
+                "data": [
+                    0.9753738939998584,
+                    1.1048269509992679,
+                    0.9865627999997741,
+                    1.106103016999441,
+                    1.0540222780000477
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case9241pegase",
+            "name": "test_solve[case9241pegase]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_solve[case9241pegase]",
+            "params": {
+                "case": "case9241pegase"
+            },
+            "param": "case9241pegase",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case9241pegase",
+                "family": "matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "iterations": 6,
+                "n_reported": 9241,
+                "residual_max_dp_mw": 6.711964317673846e-10,
+                "residual_max_dq_mvar": 9.585221505403752e-10,
+                "residual_max_dvm_pu": 0.0,
+                "residual_worst_bus": "4168",
+                "residual_n_checked": 9241,
+                "residual_n_buses": 9241,
+                "residual_failing": {},
+                "oracle_ok": true,
+                "residual_zero_shift_max_dp_mw": 72.01742011929456,
+                "residual_zero_shift_max_dq_mvar": 4.67098590543193
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.117098346000603,
+                "max": 5.238355995999882,
+                "mean": 5.1883404436001,
+                "stddev": 0.06405007496408621,
+                "rounds": 5,
+                "median": 5.232631126000342,
+                "iqr": 0.11651558149969787,
+                "q1": 5.118780283250089,
+                "q3": 5.235295864749787,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 5.117098346000603,
+                "hd15iqr": 5.238355995999882,
+                "ops": 0.1927398579315503,
+                "total": 25.9417022180005,
+                "data": [
+                    5.232631126000342,
+                    5.119340928999918,
+                    5.2342758209997555,
+                    5.117098346000603,
+                    5.238355995999882
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case3120sp",
+            "name": "test_solve[case3120sp]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_solve[case3120sp]",
+            "params": {
+                "case": "case3120sp"
+            },
+            "param": "case3120sp",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case3120sp",
+                "family": "matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "iterations": 6,
+                "n_reported": 3120,
+                "residual_max_dp_mw": 5.182458364687605e-10,
+                "residual_max_dq_mvar": 2358.792132004488,
+                "residual_max_dvm_pu": 0.0,
+                "residual_worst_bus": "2573",
+                "residual_n_checked": 3120,
+                "residual_n_buses": 3120,
+                "residual_failing": {
+                    "pv_without_online_gen": 101
+                },
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.3516538889998628,
+                "max": 1.4873372880001625,
+                "mean": 1.4291136357998766,
+                "stddev": 0.0635981064168118,
+                "rounds": 5,
+                "median": 1.457232558999749,
+                "iqr": 0.11579628800018327,
+                "q1": 1.3654799192497649,
+                "q3": 1.4812762072499481,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.3516538889998628,
+                "hd15iqr": 1.4873372880001625,
+                "ops": 0.6997344192579191,
+                "total": 7.145568178999383,
+                "data": [
+                    1.4792558469998767,
+                    1.3700885959997322,
+                    1.4873372880001625,
+                    1.3516538889998628,
+                    1.457232558999749
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case2848rte",
+            "name": "test_solve[case2848rte]",
+            "fullname": "benchmarks/pypsa_benchmark.py::test_solve[case2848rte]",
+            "params": {
+                "case": "case2848rte"
+            },
+            "param": "case2848rte",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case2848rte",
+                "family": "matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "iterations": 10,
+                "n_reported": 2848,
+                "residual_max_dp_mw": 6.910583216779287e-10,
+                "residual_max_dq_mvar": 16.41361887587481,
+                "residual_max_dvm_pu": 0.0,
+                "residual_worst_bus": "172",
+                "residual_n_checked": 2848,
+                "residual_n_buses": 2848,
+                "residual_failing": {
+                    "pv_without_online_gen": 25
+                },
+                "oracle_ok": false,
+                "residual_zero_shift_max_dp_mw": 10654.169894643846,
+                "residual_zero_shift_max_dq_mvar": 1486.8157797506722
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.985632942999473,
+                "max": 1.1199060520002604,
+                "mean": 1.038935615599985,
+                "stddev": 0.06674168977429537,
+                "rounds": 5,
+                "median": 0.9962507230002302,
+                "iqr": 0.11898711375010862,
+                "q1": 0.9885319524998977,
+                "q3": 1.1075190662500063,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.985632942999473,
+                "hd15iqr": 1.1199060520002604,
+                "ops": 0.9625235529369165,
+                "total": 5.194678077999924,
+                "data": [
+                    0.9962507230002302,
+                    1.1033900709999216,
+                    0.9894982890000392,
+                    1.1199060520002604,
+                    0.985632942999473
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-09-18T07:17:14.997872+00:00",
+    "version": "5.3.0",
+    "grid_bench": {
+        "schema_version": 1,
+        "git_sha": "a94cd257109c600ada1c3dc2134d5ea4cda40590",
+        "container_image": "grid-bench/pypsa",
+        "tools": {
+            "pypsa": {
+                "display_name": "PyPSA",
+                "color": "#1baf7a",
+                "tags": [
+                    "powerflow",
+                    "ac",
+                    "newton-raphson",
+                    "python"
+                ],
+                "language": "python",
+                "version": "1.2.4",
+                "dependencies": {
+                    "numpy": "2.5.3",
+                    "scipy": "1.18.1",
+                    "pandas": "3.0.5",
+                    "xarray": "2026.7.0",
+                    "netcdf4": "1.7.4",
+                    "linopy": "0.9.1",
+                    "matplotlib": "3.11.1",
+                    "plotly": "7.0.0",
+                    "pydeck": "0.9.3",
+                    "seaborn": "0.13.2",
+                    "geopandas": "1.1.4",
+                    "shapely": "2.1.2",
+                    "networkx": "3.6.1",
+                    "deprecation": "2.1.0",
+                    "validators": "0.35.0",
+                    "highspy": "1.15.1",
+                    "levenshtein": "0.27.4",
+                    "platformdirs": "4.11.8"
+                },
+                "settings": {
+                    "algorithm": "nr",
+                    "transformer_model": "pi",
+                    "init": "flat",
+                    "tolerance_pu": 1e-08
+                },
+                "families": [
+                    "matpower"
+                ]
+            }
+        }
+    },
+    "failures": [
+        {
+            "tool": "pypsa",
+            "case": "case1888rte",
+            "operation": "solve",
+            "error": "DidNotConverge: pf did not converge after 77 iterations"
+        },
+        {
+            "tool": "pypsa",
+            "case": "case6495rte",
+            "operation": "solve",
+            "error": "DidNotConverge: pf did not converge after 88 iterations"
+        }
+    ]
+}

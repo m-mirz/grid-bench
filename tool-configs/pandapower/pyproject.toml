@@ -1,0 +1,20 @@
+# Dependencies of the pandapower benchmark image. The tool is pinned exactly: a
+# version change is a deliberate, recorded event, never a side effect of a
+# rebuild. See adapters/pandapower_adapter.py for how the tool is driven.
+[project]
+name = "grid-bench-pandapower"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+    "pandapower[converter]==3.3.3",   # the extra brings lxml, needed by cim2pp (CGMES)
+    "numba>=0.61",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"

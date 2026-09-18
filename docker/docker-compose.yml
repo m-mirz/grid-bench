@@ -1,0 +1,65 @@
+# Which benchmarks exist and how each runs. docker/run_benchmark.sh runs
+# the services one at a time, never concurrently.
+# Containers run as the invoking user (the scripts export HOST_UID/HOST_GID),
+# so everything they write into the checkout stays owned by that user.
+x-bench: &bench
+  network_mode: none
+  user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+  environment:
+    GIT_SHA: ${GIT_SHA:-unknown}
+  volumes:
+    - ..:/bench:ro,z
+    - ../results-docker:/output:z
+
+services:
+  prep:
+    image: grid-bench/harness:latest
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    volumes:
+      - ..:/bench:ro,z
+      - ../data/.case-cache:/bench/data/.case-cache:z
+    command: python -m cases.prep
+
+  oracle-tests:
+    <<: *bench
+    image: grid-bench/harness:latest
+    command: pytest tests -q
+
+  reports:
+    <<: *bench
+    image: grid-bench/harness:latest
+    volumes:
+      - ..:/bench:ro,z
+      - ../results-docker:/output:z
+      - ../docs:/bench/docs:z
+    command: python -m tools.generate_all /output
+
+  pandapower:
+    <<: *bench
+    image: grid-bench/pandapower:latest
+    command: pytest benchmarks/pandapower_benchmark.py --benchmark-json=/output/pandapower.json
+
+  lightsim2grid:
+    <<: *bench
+    image: grid-bench/lightsim2grid:latest
+    command: pytest benchmarks/lightsim2grid_benchmark.py --benchmark-json=/output/lightsim2grid.json
+
+  pypsa:
+    <<: *bench
+    image: grid-bench/pypsa:latest
+    command: pytest benchmarks/pypsa_benchmark.py --benchmark-json=/output/pypsa.json
+
+  pgm:
+    <<: *bench
+    image: grid-bench/pgm:latest
+    command: pytest benchmarks/pgm_benchmark.py --benchmark-json=/output/pgm.json
+
+  pypowsybl:
+    <<: *bench
+    image: grid-bench/pypowsybl:latest
+    command: pytest benchmarks/pypowsybl_benchmark.py --benchmark-json=/output/pypowsybl.json
+
+  veragrid:
+    <<: *bench
+    image: grid-bench/veragrid:latest
+    command: pytest benchmarks/veragrid_benchmark.py --benchmark-json=/output/veragrid.json
