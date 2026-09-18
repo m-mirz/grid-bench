@@ -10,50 +10,50 @@ Median of repeated solves on one persistent model, flat start every time, in ms,
 
 | case | buses | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| case14 | 14 | 5.809 ✓ | 0.011 ✓ | 71.2 ✓ | 0.123 ✗¹ | 0.662 ✓ | 3.133 ✓ | — |
-| case118 | 118 | 6.680 ✓ | 0.066 ✓ | 92.8 ✓ | FAILED² | 2.584 ✗³ | 6.146 ✓ | — |
-| case300 | 300 | 9.148 ✗⁴ | 0.239 ✓ | 137.0 ✓ | FAILED⁵ | 5.009 ✗⁶ | 11.3 ✓ | — |
-| case1354pegase | 1,354 | 19.1 ✓ | 1.078 ✓ | 398.4 ✓ | FAILED⁷ | 33.8 ✓ | 45.4 ✓ | — |
-| case2848rte | 2,848 | 55.9 ✗⁸ | 5.603 ✗⁹ | 978.2 ✗¹⁰ | FAILED¹¹ | FAILED¹² | 91.6 ✗¹³ | — |
-| case2869pegase | 2,869 | 36.6 ✓ | 3.593 ✓ | 968.3 ✓ | FAILED¹⁴ | 86.7 ✓ | 99.1 ✓ | — |
-| case3120sp | 3,120 | 43.6 ✗¹⁵ | 3.376 ✓ | 1,327 ✗¹⁶ | FAILED¹⁷ | 58.2 ✗¹⁸ | 97.9 ✗¹⁹ | — |
-| case9241pegase | 9,241 | 140.7 ✗²⁰ | 17.6 ✓ | 5,032 ✓ | FAILED²¹ | 403.0 ✓ | 373.2 ✓ | — |
+| case14 | 14 | 5.980 ✓ | 0.011 ✓ | 71.7 ✓ | 0.119 ✗¹ | 0.708 ✓ | 3.113 ✓ | — |
+| case118 | 118 | 6.695 ✓ | 0.066 ✓ | 100.7 ✓ | FAILED² | 2.468 ✗³ | 6.112 ✓ | — |
+| case300 | 300 | 9.146 ✗⁴ | 0.234 ✓ | 142.2 ✓ | FAILED⁵ | 5.479 ✗⁶ | 11.2 ✓ | — |
+| case1354pegase | 1,354 | 19.2 ✓ | 1.056 ✓ | 449.4 ✓ | FAILED⁷ | 32.2 ✓ | 45.4 ✓ | — |
+| case2848rte | 2,848 | 54.4 ✗⁸ | 5.654 ✗⁹ | 976.6 ✗¹⁰ | FAILED¹¹ | FAILED¹² | 91.0 ✗¹³ | — |
+| case2869pegase | 2,869 | 37.1 ✓ | 3.393 ✓ | 974.4 ✓ | FAILED¹⁴ | 79.0 ✓ | 98.2 ✓ | — |
+| case3120sp | 3,120 | 43.8 ✗¹⁵ | 3.346 ✓ | 1,617 ✗¹⁶ | FAILED¹⁷ | 57.6 ✗¹⁸ | 96.8 ✗¹⁹ | — |
+| case9241pegase | 9,241 | 142.1 ✗²⁰ | 16.8 ✓ | 5,283 ✓ | FAILED²¹ | 373.7 ✓ | 373.1 ✓ | — |
 
 ### CGMES conformity fixtures
 
 | case | nodes | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|---:|
-| cgmes_powerflow | 2 | 7.824 | 0.640 | 2.641 | 0.065 |
-| cgmes_microgrid_be | 7 | FAILED²² | 0.781 | 3.164 | 0.088 |
+| cgmes_powerflow | 2 | 7.775 | 0.553 | 2.618 | 0.065 |
+| cgmes_microgrid_be | 7 | FAILED²² | 1.203 | 3.146 | 0.089 |
 | cgmes_minigrid | 11 | FAILED²³ | FAILED²⁴ | FAILED²⁵ | 0.081 |
-| cgmes_svedala | 108 | 13.6 | 1.976 | 55.9 | 0.200 |
-| cgmes_smallgrid | 127 | 8.513 | 2.335 | 33.0 | FAILED²⁶ |
-| cgmes_realgrid | 6,051 | FAILED²⁷ | 142.2 | FAILED²⁸ | FAILED²⁹ |
+| cgmes_svedala | 108 | 11.5 | 2.559 | 55.8 | 0.202 |
+| cgmes_smallgrid | 127 | 8.114 | 2.899 | 32.0 | FAILED²⁶ |
+| cgmes_realgrid | 6,051 | FAILED²⁷ | 137.6 | FAILED²⁸ | FAILED²⁹ |
 
 ### MATPOWER cases as CGMES, converted with cimoxide
 
 | case | buses | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|---:|
-| case14@cimoxide | 14 | 6.321 ✓ | 0.738 ✓ | 3.182 ✗³⁰ | 0.096 ✗³¹ |
-| case118@cimoxide | 118 | 6.697 ✓ | 3.123 ✓ | 6.536 ✓ | FAILED³² |
-| case300@cimoxide | 300 | 9.046 ✗³³ | 5.070 ✓ | 12.9 ✗³⁴ | FAILED³⁵ |
-| case1354pegase@cimoxide | 1,354 | 23.6 ✓ | 32.5 ✓ | 61.1 ✗³⁶ | 3.315 ✗³⁷ |
-| case2848rte@cimoxide | 2,848 | 68.9 ✓ | FAILED³⁸ | FAILED³⁹ | 5.429 ✗⁴⁰ |
-| case2869pegase@cimoxide | 2,869 | 44.3 ✓ | 79.5 ✓ | 131.4 ✗⁴¹ | FAILED⁴² |
-| case3120sp@cimoxide | 3,120 | 51.8 ✗⁴³ | 61.6 ✓ | FAILED⁴⁴ | FAILED⁴⁵ |
-| case9241pegase@cimoxide | 9,241 | 153.1 ✗⁴⁶ | 370.1 ✓ | 475.8 ✗⁴⁷ | FAILED⁴⁸ |
+| case14@cimoxide | 14 | 5.600 ✓ | 0.734 ✓ | 3.176 ✗³⁰ | 0.096 ✗³¹ |
+| case118@cimoxide | 118 | 6.397 ✓ | 3.086 ✓ | 6.468 ✓ | FAILED³² |
+| case300@cimoxide | 300 | 8.781 ✗³³ | 5.976 ✓ | 12.5 ✗³⁴ | FAILED³⁵ |
+| case1354pegase@cimoxide | 1,354 | 22.4 ✓ | 30.8 ✓ | 59.9 ✗³⁶ | 3.358 ✗³⁷ |
+| case2848rte@cimoxide | 2,848 | 65.5 ✓ | FAILED³⁸ | FAILED³⁹ | 5.494 ✗⁴⁰ |
+| case2869pegase@cimoxide | 2,869 | 39.9 ✓ | 78.7 ✓ | 128.1 ✗⁴¹ | FAILED⁴² |
+| case3120sp@cimoxide | 3,120 | 43.5 ✗⁴³ | 60.8 ✓ | FAILED⁴⁴ | FAILED⁴⁵ |
+| case9241pegase@cimoxide | 9,241 | 146.1 ✗⁴⁶ | 381.1 ✓ | 470.5 ✗⁴⁷ | FAILED⁴⁸ |
 
 ### MATPOWER cases as CGMES, converted with pypowsybl
 
 | case | buses | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|---:|
-| case14@pypowsybl | 14 | FAILED⁴⁹ | 0.616 ✗⁵⁰ | 7.773 ✗⁵¹ | FAILED⁵² |
-| case118@pypowsybl | 118 | FAILED⁵³ | 2.264 ✗⁵⁴ | 45.4 ✗⁵⁵ | FAILED⁵⁶ |
-| case300@pypowsybl | 300 | FAILED⁵⁷ | FAILED⁵⁸ | 115.8 ✗⁵⁹ | FAILED⁶⁰ |
-| case1354pegase@pypowsybl | 1,354 | FAILED⁶¹ | 31.4 ✗⁶² | 557.5 ✗⁶³ | FAILED⁶⁴ |
-| case2848rte@pypowsybl | 2,848 | FAILED⁶⁵ | FAILED⁶⁶ | 1,134 ✗⁶⁷ | FAILED⁶⁸ |
-| case2869pegase@pypowsybl | 2,869 | FAILED⁶⁹ | 78.7 ✗⁷⁰ | 1,229 ✗⁷¹ | FAILED⁷² |
-| case3120sp@pypowsybl | 3,120 | FAILED⁷³ | 56.6 ✗⁷⁴ | FAILED⁷⁵ | FAILED⁷⁶ |
+| case14@pypowsybl | 14 | FAILED⁴⁹ | 0.699 ✗⁵⁰ | 7.684 ✗⁵¹ | FAILED⁵² |
+| case118@pypowsybl | 118 | FAILED⁵³ | 2.496 ✗⁵⁴ | 44.7 ✗⁵⁵ | FAILED⁵⁶ |
+| case300@pypowsybl | 300 | FAILED⁵⁷ | FAILED⁵⁸ | 114.4 ✗⁵⁹ | FAILED⁶⁰ |
+| case1354pegase@pypowsybl | 1,354 | FAILED⁶¹ | 31.5 ✗⁶² | 549.8 ✗⁶³ | FAILED⁶⁴ |
+| case2848rte@pypowsybl | 2,848 | FAILED⁶⁵ | FAILED⁶⁶ | 1,142 ✗⁶⁷ | FAILED⁶⁸ |
+| case2869pegase@pypowsybl | 2,869 | FAILED⁶⁹ | 77.6 ✗⁷⁰ | 1,246 ✗⁷¹ | FAILED⁷² |
+| case3120sp@pypowsybl | 3,120 | FAILED⁷³ | 53.0 ✗⁷⁴ | FAILED⁷⁵ | FAILED⁷⁶ |
 | case9241pegase@pypowsybl | 9,241 | FAILED⁷⁷ | FAILED⁷⁸ | FAILED⁷⁹ | FAILED⁸⁰ |
 
 ## Robustness
@@ -73,51 +73,51 @@ Median of 3 cold loads after one warm-up load, in ms.
 
 | case | buses | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| case14 | 14 | 81.3 | 0.325 | 55.2 | 0.475 | 0.519 | 5.588 | — |
-| case118 | 118 | 82.1 | 0.915 | 58.6 | 1.077 | 2.359 | 19.5 | — |
-| case300 | 300 | 79.7 | 1.681 | 59.0 | 1.930 | 5.104 | 39.6 | — |
-| case1354pegase | 1,354 | 81.2 | 8.151 | 69.6 | 8.418 | 26.1 | 577.3 | — |
-| case2848rte | 2,848 | 85.7 | 14.8 | 76.1 | 13.9 | 47.9 | 1,181 | — |
-| case2869pegase | 2,869 | 90.1 | 18.1 | 86.6 | 19.5 | 36.7 | 1,370 | — |
-| case3120sp | 3,120 | 83.4 | 15.1 | 82.4 | 14.1 | 48.4 | 1,231 | — |
-| case9241pegase | 9,241 | 101.8 | 89.7 | 153.3 | 65.9 | 159.6 | 4,410 | — |
+| case14 | 14 | 78.0 | 0.304 | 54.9 | 0.393 | 0.501 | 5.749 | — |
+| case118 | 118 | 80.4 | 0.856 | 52.8 | 1.050 | 2.299 | 19.8 | — |
+| case300 | 300 | 85.7 | 1.654 | 54.1 | 1.905 | 4.684 | 38.8 | — |
+| case1354pegase | 1,354 | 84.6 | 7.860 | 69.4 | 8.540 | 23.8 | 619.2 | — |
+| case2848rte | 2,848 | 83.9 | 14.0 | 78.6 | 13.8 | 23.9 | 1,148 | — |
+| case2869pegase | 2,869 | 88.2 | 17.2 | 108.1 | 18.5 | 34.9 | 1,421 | — |
+| case3120sp | 3,120 | 87.6 | 15.2 | 77.6 | 14.1 | 24.5 | 1,195 | — |
+| case9241pegase | 9,241 | 107.1 | 76.6 | 205.4 | 65.7 | 135.6 | 4,400 | — |
 
 ### CGMES conformity fixtures
 
 | case | nodes | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|---:|
-| cgmes_powerflow | 2 | 309.1 | 21.4 | 9.324 | 404.1 |
-| cgmes_microgrid_be | 7 | 388.9 | 34.2 | 28.2 | 501.2 |
-| cgmes_minigrid | 11 | 369.2 | 47.1 | 65.0 | 822.3 |
-| cgmes_svedala | 108 | 513.4 | 411.5 | 1,161 | 7,076 |
-| cgmes_smallgrid | 127 | 479.6 | 401.0 | 1,021 | 6,643 |
-| cgmes_realgrid | 6,051 | 3,436 | 5,330 | 16,255 | FAILED²⁹ |
+| cgmes_powerflow | 2 | 312.3 | 18.5 | 7.814 | 388.9 |
+| cgmes_microgrid_be | 7 | 389.4 | 40.5 | 27.2 | 483.8 |
+| cgmes_minigrid | 11 | 385.8 | 44.3 | 64.0 | 839.9 |
+| cgmes_svedala | 108 | 511.2 | 376.5 | 1,126 | 7,018 |
+| cgmes_smallgrid | 127 | 479.0 | 433.8 | 972.1 | 6,764 |
+| cgmes_realgrid | 6,051 | 3,288 | 5,292 | 15,749 | FAILED²⁹ |
 
 ### MATPOWER cases as CGMES, converted with cimoxide
 
 | case | buses | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|---:|
-| case14@cimoxide | 14 | 311.2 | 23.3 | 17.0 | 350.4 |
-| case118@cimoxide | 118 | 323.9 | 66.2 | 134.3 | 1,187 |
-| case300@cimoxide | 300 | 345.6 | 126.3 | 291.7 | 2,440 |
-| case1354pegase@cimoxide | 1,354 | 892.4 | 593.8 | 2,119 | 11,092 |
-| case2848rte@cimoxide | 2,848 | 1,298 | 1,686 | 5,549 | 34,741 |
-| case2869pegase@cimoxide | 2,869 | 1,243 | 1,366 | 4,767 | 24,466 |
-| case3120sp@cimoxide | 3,120 | 795.2 | 1,123 | 3,981 | 19,279 |
-| case9241pegase@cimoxide | 9,241 | 3,019 | 4,816 | 19,284 | 85,156 |
+| case14@cimoxide | 14 | 292.8 | 21.8 | 17.1 | 341.4 |
+| case118@cimoxide | 118 | 323.4 | 62.8 | 132.4 | 1,161 |
+| case300@cimoxide | 300 | 349.9 | 123.6 | 293.8 | 2,466 |
+| case1354pegase@cimoxide | 1,354 | 616.7 | 578.9 | 2,060 | 11,177 |
+| case2848rte@cimoxide | 2,848 | 1,457 | 1,619 | 5,503 | 35,460 |
+| case2869pegase@cimoxide | 2,869 | 986.8 | 1,378 | 4,591 | 24,833 |
+| case3120sp@cimoxide | 3,120 | 1,294 | 1,034 | 4,019 | 19,326 |
+| case9241pegase@cimoxide | 9,241 | 2,840 | 4,629 | 18,830 | 86,159 |
 
 ### MATPOWER cases as CGMES, converted with pypowsybl
 
 | case | buses | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|---:|
-| case14@pypowsybl | 14 | 312.5 | 21.9 | 20.8 | FAILED⁵² |
-| case118@pypowsybl | 118 | 338.7 | 80.8 | 159.0 | FAILED⁵⁶ |
-| case300@pypowsybl | 300 | 366.9 | 158.4 | 348.9 | FAILED⁶⁰ |
-| case1354pegase@pypowsybl | 1,354 | 1,103 | 803.4 | 2,618 | FAILED⁶⁴ |
-| case2848rte@pypowsybl | 2,848 | 1,085 | 1,755 | 5,254 | FAILED⁶⁸ |
-| case2869pegase@pypowsybl | 2,869 | 2,387 | 1,811 | 5,942 | FAILED⁷² |
-| case3120sp@pypowsybl | 3,120 | 1,221 | 1,899 | 6,157 | FAILED⁷⁶ |
-| case9241pegase@pypowsybl | 9,241 | 4,233 | 6,431 | 22,114 | FAILED⁸⁰ |
+| case14@pypowsybl | 14 | 377.6 | 23.7 | 21.1 | FAILED⁵² |
+| case118@pypowsybl | 118 | 391.0 | 90.0 | 162.2 | FAILED⁵⁶ |
+| case300@pypowsybl | 300 | 423.3 | 166.5 | 343.1 | FAILED⁶⁰ |
+| case1354pegase@pypowsybl | 1,354 | 827.6 | 829.1 | 2,651 | FAILED⁶⁴ |
+| case2848rte@pypowsybl | 2,848 | 1,183 | 1,693 | 5,175 | FAILED⁶⁸ |
+| case2869pegase@pypowsybl | 2,869 | 1,343 | 1,862 | 5,838 | FAILED⁷² |
+| case3120sp@pypowsybl | 3,120 | 1,158 | 1,988 | 6,124 | FAILED⁷⁶ |
+| case9241pegase@pypowsybl | 9,241 | 3,636 | 6,280 | 21,887 | FAILED⁸⁰ |
 
 ## Memory
 
@@ -127,51 +127,51 @@ Peak RSS added by loading and solving the case, in MB, measured in a fresh proce
 
 | case | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid |
 |---|---:|---:|---:|---:|---:|---:|
-| case14 | 77 (+236) | 17 (+49) | 4 (+242) | 2 (+44) | 25 (+159) | 128 (+436) |
-| case118 | 78 (+236) | 17 (+49) | 4 (+242) | 1 (+44) | 29 (+159) | 45 (+438) |
-| case300 | 80 (+237) | 16 (+49) | 5 (+243) | 1 (+44) | 37 (+160) | 53 (+437) |
-| case1354pegase | 79 (+239) | 19 (+49) | 39 (+242) | 2 (+44) | 78 (+160) | 117 (+438) |
-| case2848rte | 82 (+238) | 19 (+49) | 172 (+242) | 4 (+44) | 59 (+160) | 172 (+435) |
-| case2869pegase | 85 (+236) | 22 (+49) | 175 (+242) | 6 (+44) | 126 (+160) | 214 (+435) |
-| case3120sp | 84 (+236) | 20 (+49) | 206 (+243) | 4 (+44) | 121 (+159) | 186 (+437) |
-| case9241pegase | 105 (+239) | 40 (+49) | 1810 (+243) | 18 (+44) | 442 (+159) | 621 (+435) |
+| case14 | 75 (+234) | 17 (+49) | 4 (+242) | 2 (+44) | 23 (+157) | 126 (+420) |
+| case118 | 75 (+231) | 17 (+49) | 4 (+243) | 1 (+44) | 28 (+157) | 44 (+418) |
+| case300 | 75 (+231) | 18 (+49) | 5 (+243) | 1 (+44) | 34 (+157) | 52 (+423) |
+| case1354pegase | 78 (+235) | 19 (+49) | 39 (+243) | 2 (+44) | 75 (+157) | 114 (+421) |
+| case2848rte | 83 (+234) | 20 (+50) | 172 (+243) | 4 (+44) | 58 (+157) | 170 (+422) |
+| case2869pegase | 81 (+234) | 21 (+49) | 175 (+242) | 6 (+44) | 123 (+157) | 213 (+420) |
+| case3120sp | 84 (+235) | 21 (+49) | 206 (+242) | 4 (+44) | 121 (+157) | 186 (+421) |
+| case9241pegase | 103 (+234) | 40 (+49) | 1809 (+243) | 18 (+44) | 460 (+157) | 617 (+422) |
 
 ### CGMES conformity fixtures
 
 | case | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|
-| cgmes_powerflow | 75 (+236) | 72 (+159) | 38 (+439) | 7 (+96) |
-| cgmes_microgrid_be | 7 (+238) | 74 (+159) | 40 (+437) | 10 (+96) |
-| cgmes_minigrid | 8 (+236) | 71 (+160) | 3 (+437) | 24 (+96) |
-| cgmes_svedala | 77 (+236) | 171 (+159) | 92 (+438) | 120 (+96) |
-| cgmes_smallgrid | 77 (+239) | 172 (+160) | 90 (+437) | 120 (+96) |
-| cgmes_realgrid | 517 (+236) | 1179 (+159) | 617 (+436) | — |
+| cgmes_powerflow | 72 (+231) | 71 (+157) | 37 (+421) | 6 (+95) |
+| cgmes_microgrid_be | 7 (+234) | 73 (+157) | 39 (+422) | 10 (+95) |
+| cgmes_minigrid | 8 (+231) | 69 (+157) | 3 (+423) | 25 (+95) |
+| cgmes_svedala | 73 (+234) | 169 (+157) | 90 (+422) | 118 (+95) |
+| cgmes_smallgrid | 77 (+234) | 169 (+157) | 88 (+423) | 117 (+95) |
+| cgmes_realgrid | 517 (+234) | 1208 (+157) | 615 (+424) | — |
 
 ### MATPOWER cases as CGMES, converted with cimoxide
 
 | case | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|
-| case14@cimoxide | 74 (+239) | 72 (+159) | 40 (+435) | 8 (+96) |
-| case118@cimoxide | 76 (+236) | 81 (+159) | 46 (+437) | 34 (+96) |
-| case300@cimoxide | 76 (+237) | 126 (+159) | 62 (+437) | 66 (+96) |
-| case1354pegase@cimoxide | 87 (+239) | 230 (+159) | 152 (+436) | 162 (+96) |
-| case2848rte@cimoxide | 186 (+237) | 455 (+160) | 287 (+435) | 436 (+96) |
-| case2869pegase@cimoxide | 139 (+236) | 463 (+159) | 289 (+437) | 307 (+96) |
-| case3120sp@cimoxide | 119 (+236) | 445 (+160) | 182 (+438) | 244 (+96) |
-| case9241pegase@cimoxide | 392 (+236) | 1266 (+160) | 879 (+437) | 965 (+96) |
+| case14@cimoxide | 74 (+235) | 72 (+157) | 39 (+420) | 7 (+95) |
+| case118@cimoxide | 72 (+235) | 80 (+158) | 45 (+421) | 34 (+95) |
+| case300@cimoxide | 77 (+234) | 126 (+157) | 61 (+423) | 66 (+95) |
+| case1354pegase@cimoxide | 85 (+234) | 230 (+157) | 152 (+420) | 163 (+95) |
+| case2848rte@cimoxide | 185 (+234) | 434 (+157) | 286 (+423) | 430 (+95) |
+| case2869pegase@cimoxide | 138 (+233) | 484 (+157) | 289 (+420) | 307 (+95) |
+| case3120sp@cimoxide | 115 (+235) | 449 (+158) | 182 (+423) | 244 (+95) |
+| case9241pegase@cimoxide | 388 (+235) | 1231 (+157) | 878 (+422) | 961 (+95) |
 
 ### MATPOWER cases as CGMES, converted with pypowsybl
 
 | case | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm |
 |---|---:|---:|---:|---:|
-| case14@pypowsybl | 6 (+239) | 66 (+159) | 43 (+438) | — |
-| case118@pypowsybl | 7 (+236) | 83 (+158) | 58 (+436) | — |
-| case300@pypowsybl | 8 (+239) | 122 (+158) | 88 (+435) | — |
-| case1354pegase@pypowsybl | 67 (+236) | 390 (+159) | 263 (+435) | — |
-| case2848rte@pypowsybl | 163 (+236) | 435 (+160) | 494 (+432) | — |
-| case2869pegase@pypowsybl | 161 (+236) | 583 (+160) | 651 (+436) | — |
-| case3120sp@pypowsybl | 191 (+236) | 582 (+159) | 292 (+436) | — |
-| case9241pegase@pypowsybl | 569 (+236) | 1316 (+159) | 1024 (+436) | — |
+| case14@pypowsybl | 7 (+235) | 65 (+157) | 41 (+421) | — |
+| case118@pypowsybl | 7 (+231) | 83 (+157) | 56 (+423) | — |
+| case300@pypowsybl | 7 (+233) | 122 (+157) | 88 (+422) | — |
+| case1354pegase@pypowsybl | 67 (+232) | 389 (+158) | 261 (+424) | — |
+| case2848rte@pypowsybl | 162 (+231) | 448 (+157) | 492 (+422) | — |
+| case2869pegase@pypowsybl | 160 (+231) | 574 (+157) | 650 (+423) | — |
+| case3120sp@pypowsybl | 190 (+235) | 580 (+157) | 292 (+421) | — |
+| case9241pegase@pypowsybl | 570 (+231) | 1311 (+157) | 1024 (+422) | — |
 
 ## Accuracy
 
@@ -372,10 +372,10 @@ Machine: AMD Ryzen 7 250 w/ Radeon 780M Graphics, 16 logical CPUs; Linux 7.0.0-3
 
 | tool | version | core | settings | commit | run |
 |---|---:|---:|---:|---:|---:|
-| pandapower | 3.3.3 | python | algorithm=nr, init=flat, enforce_q_lims=False, distributed_slack=False, tolerance_pu=1e-08, max_iteration=30, numba=True, lightsim2grid_backend=False | a390d8c152dd | 2026-09-18T12:42 |
-| lightsim2grid (KLU) | 1.0.0 | c++ | algorithm=NR_KLU, init=flat, tolerance_pu=1e-08, max_iteration=30 | a390d8c152dd | 2026-09-18T12:36 |
-| PyPSA | 1.2.4 | python | algorithm=nr, transformer_model=pi, init=flat, tolerance_pu=1e-08 | a390d8c152dd | 2026-09-18T12:49 |
-| power-grid-model | 1.13.169 | c++ | calculation_method=newton_raphson, voltage_regulators=experimental, reactive_limits=False, tolerance_pu=1e-08, max_iteration=30 | a390d8c152dd | 2026-09-18T12:42 |
-| pypowsybl (OpenLoadFlow) | 1.16.1 | java | voltage_init_mode=UNIFORM_VALUES, distributed_slack=False, use_reactive_limits=False, outer_loop_controls=off, remote_voltage_control=True, connected_component_mode=MAIN, tolerance_pu=1e-08, max_iteration=30 | a390d8c152dd | 2026-09-18T12:47 |
-| VeraGrid | 6.5.29 | python | solver_type=NR, retry_with_other_methods=False, init=flat, distributed_slack=False, outer_loop_controls=off, remote_voltage_control=True, tolerance_pu=1e-08, max_iteration=30 | a390d8c152dd | 2026-09-18T13:06 |
-| PGM via cgmes2pgm | 0.4.3 | c++ | converter=cgmes2pgm 0.4.3, default ConverterOptions, rdf_store=Jena Fuseki (in-memory), generators=const_power (no voltage regulation), slack=source, u_ref = 1 (nominal), calculation_method=newton_raphson, tolerance_pu=1e-08, max_iteration=30 | a390d8c152dd | 2026-09-18T12:36 |
+| pandapower | 3.3.3 | python | algorithm=nr, init=flat, enforce_q_lims=False, distributed_slack=False, tolerance_pu=1e-08, max_iteration=30, numba=True, lightsim2grid_backend=False | 23e4a222713e | 2026-09-18T16:34 |
+| lightsim2grid (KLU) | 1.0.0 | c++ | algorithm=NR_KLU, init=flat, tolerance_pu=1e-08, max_iteration=30 | 23e4a222713e | 2026-09-18T16:28 |
+| PyPSA | 1.2.4 | python | algorithm=nr, transformer_model=pi, init=flat, tolerance_pu=1e-08 | 23e4a222713e | 2026-09-18T16:41 |
+| power-grid-model | 1.13.169 | c++ | calculation_method=newton_raphson, voltage_regulators=experimental, reactive_limits=False, tolerance_pu=1e-08, max_iteration=30 | 23e4a222713e | 2026-09-18T16:34 |
+| pypowsybl (OpenLoadFlow) | 1.16.1 | java | voltage_init_mode=UNIFORM_VALUES, distributed_slack=False, use_reactive_limits=False, outer_loop_controls=off, remote_voltage_control=True, connected_component_mode=MAIN, tolerance_pu=1e-08, max_iteration=30 | 23e4a222713e | 2026-09-18T16:39 |
+| VeraGrid | 6.5.29 | python | solver_type=NR, retry_with_other_methods=False, init=flat, distributed_slack=False, outer_loop_controls=off, remote_voltage_control=True, tolerance_pu=1e-08, max_iteration=30 | 23e4a222713e | 2026-09-18T16:58 |
+| PGM via cgmes2pgm | 0.4.3 | c++ | converter=cgmes2pgm 0.4.3, default ConverterOptions, rdf_store=Jena Fuseki (in-memory), generators=const_power (no voltage regulation), slack=source, u_ref = 1 (nominal), calculation_method=newton_raphson, tolerance_pu=1e-08, max_iteration=30 | 23e4a222713e | 2026-09-18T16:28 |
