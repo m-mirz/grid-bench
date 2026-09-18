@@ -37,6 +37,7 @@ services:
 
   prep:
     image: grid-bench/harness:latest
+    network_mode: none
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     volumes:
       - ..:/bench:ro,z

@@ -14,7 +14,7 @@ Writes into `data/.case-cache/`:
   image converts with cimoxide and the pypowsybl image
   (`python -m cases.prep --family converted-pypowsybl`) with pypowsybl.
 - `<case>.pgm.json`: power-grid-model input, converted by
-  `gridoxide.matpower.convert` (see cases/pgm_converter.py). power-grid-model
+  `gridoxide.matpower.convert` (vendored: cases/gridoxide_matpower.py). power-grid-model
   has no MATPOWER importer; this converter is the one gridoxide's own
   benchmark feeds PGM with. Its known loss: PGM's transformer `clock` cannot
   hold a continuous phase shift, so every MATPOWER phase shift is rounded to
@@ -35,15 +35,14 @@ import zipfile
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
-from cases import matpower, pgm_converter
+from cases import gridoxide_matpower, matpower
 from cases.registry import CACHE, CASES, FAMILIES, cgmes_files, mat_path, pgm_json_path
 
 
 def _cache_key(case: dict) -> str:
     h = hashlib.sha256()
-    for p in (case["file"], Path(__file__), Path(matpower.__file__)):
+    for p in (case["file"], Path(__file__), Path(matpower.__file__), Path(gridoxide_matpower.__file__)):
         h.update(Path(p).read_bytes())
-    h.update(pgm_converter.SDIST_SHA256.encode())
     return h.hexdigest()
 
 
@@ -102,7 +101,7 @@ def prepare(key: str) -> None:
     digest = _cache_key(case)
     if stamp.exists() and stamp.read_text() == digest and mat_path(key).exists() and pgm_json_path(key).exists():
         return
-    convert = pgm_converter.converter().convert
+    convert = gridoxide_matpower.convert
     mpc = matpower.normalize_for_tools(matpower.parse_m(case["file"]))
     matpower.write_mat(mpc, mat_path(key))
     convert(mat_path(key), pgm_json_path(key))
