@@ -63,6 +63,7 @@ docs/index.html  generated site
 
 ```bash
 docker/build.sh [tool ...]                     # images (base, harness, tools)
+docker/lock.sh                                 # re-resolve every uv.lock (review, then commit)
 docker/run_benchmark.sh [tool ...] [-- --groups smoke]   # prep, oracle tests, tools, reports
 docker/run_single.sh pandapower --cases case14,case300   # one tool, quick iteration
 docker compose -f docker/docker-compose.yml run --rm reports   # regenerate reports only
@@ -89,6 +90,8 @@ internal compose network; the run scripts stop the sidecar afterwards.
 3. `benchmarks/<tool>_benchmark.py`: three lines, copy another.
 4. `tool-configs/<tool>/pyproject.toml`: copy another, pin the tool exactly
    (a release at least 7 days old; `exclude-newer = "P7D"` enforces it).
+   Then `docker/lock.sh` to write its `uv.lock`, and commit both: images
+   install exactly the lockfile.
 5. A service in `docker/docker-compose.yml`, copy another.
 6. `docker/build.sh <tool> && docker/run_single.sh <tool> --groups smoke`.
    Then check the oracle: on case14 a correct tool shows residuals around
@@ -112,6 +115,15 @@ and the checker disagree, check the reading of CGMES against a third party
 Add it to `CASES` in `cases/registry.py` with its groups. MATPOWER cases
 come from the `data/benchmark-grids` submodule; CGMES cases need an SV
 profile, which is used as the reference and never given to a tool.
+
+## Pinning
+
+Everything a build fetches is pinned; keep it that way. Base images and the
+uv image by digest, CPython by exact version (`docker/base.dockerfile`),
+Python packages by the committed `tool-configs/*/uv.lock` (and `uv.lock` for
+the native path), the Fuseki jar by SHA-256 (`docker/fuseki/Dockerfile`),
+the CI checkout action by commit. Do not add `apt`/`apk` installs. To
+update anything, change the pin deliberately and say why in the commit.
 
 ## Style
 

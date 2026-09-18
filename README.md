@@ -228,6 +228,13 @@ deliberately does *not* do.
 - **Isolation:** one container per tool (`docker/`), no network, run one at
   a time. Tool versions are pinned exactly, and only releases at least a
   week old are used.
+- **Reproducible builds:** everything a build fetches is pinned. Base images
+  and uv are pinned by digest, and CPython by exact version (uv checks it
+  against its own checksum). Every Python package comes from a committed
+  `uv.lock` per image, which records file hashes (`uv sync --frozen`). The
+  Fuseki jar is checked against a pinned SHA-256 whose Apache PGP signature
+  was verified. No OS packages are installed. `docker/lock.sh` re-locks
+  deliberately.
 
 ## Cases
 

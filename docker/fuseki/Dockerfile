@@ -31,7 +31,8 @@ ARG FUSEKI_JAR=jena-fuseki-server-${JENA_VERSION}.jar
 ARG JAVA_MINIMAL=/opt/java-minimal
 
 ## ---- Stage: Download and build java.
-FROM eclipse-temurin:${JAVA_VERSION}-alpine AS base
+# Pinned by digest (grid-bench); the tag alone can move.
+FROM eclipse-temurin:${JAVA_VERSION}-alpine@sha256:cd87715a8d45cfaa42419207c64680234f62785c49055cccd20437b5c9018380 AS base
 
 ARG JAVA_MINIMAL
 ARG JENA_VERSION
@@ -43,24 +44,16 @@ ARG JAR_URL=${REPO}/org/apache/jena/jena-fuseki-server/${JENA_VERSION}/${FUSEKI_
 RUN [ "${JENA_VERSION}" != "" ] || { echo -e '\n**** Set JENA_VERSION ****\n' ; exit 1 ; }
 RUN echo && echo "==== Docker build for Apache Jena Fuseki ${JENA_VERSION} ====" && echo
 
-# Alpine: For objcopy used in jlink
-RUN apk add --no-cache curl binutils
-
-## -- Fuseki installed and runs in /fuseki.
+## -- Download the jar file and check it against a pinned SHA-256 (grid-bench).
+## The upstream download.sh fetched the checksum from the same server as the
+## jar; this hash was taken from a jar whose Apache PGP signature verified
+## (Andy Seaborne's code-signing key, in https://downloads.apache.org/jena/KEYS)
+## and whose SHA-1 matched Maven Central's. busybox wget replaces the unpinned
+## `apk add curl`.
+ARG JAR_SHA256=c8611d326ac387f1e5a854f9c56571e5f3961b9ec945783c9249a1fa01e0f820
 WORKDIR $FUSEKI_DIR
-
-## -- Download the jar file.
-COPY download.sh .
-RUN chmod a+x download.sh
-
-# Download, with check of the SHA1 checksum.
-RUN ./download.sh --chksum sha1 "$JAR_URL"
-
-## -- Alternatives to download : copy already downloaded.
-## COPY ${FUSEKI_JAR} .
-
-## Use Docker ADD - does not retry, does not check checksum, and may run every build.
-## ADD "$JAR_URL"
+RUN wget -q -O "${FUSEKI_JAR}" "$JAR_URL" && \
+    echo "${JAR_SHA256}  ${FUSEKI_JAR}" | sha256sum -c -
 
 ## -- Make reduced Java JDK
 
@@ -76,7 +69,7 @@ ADD entrypoint.sh .
 ADD log4j2.properties .
 
 ## ---- Stage: Build runtime
-FROM alpine:${ALPINE_VERSION}
+FROM alpine:${ALPINE_VERSION}@sha256:56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
 
 ## Import ARGs
 ARG JENA_VERSION
