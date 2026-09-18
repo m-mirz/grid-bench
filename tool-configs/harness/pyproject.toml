@@ -1,0 +1,25 @@
+# The harness image: input preparation (cases/prep.py, including the
+# cimoxide MATPOWER -> CGMES conversion), the oracle's own tests, the
+# conversion check, and report generation. No tool under test is installed here.
+[project]
+name = "grid-bench-harness"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "matplotlib>=3.10",
+    "pytest-timeout>=2.3",
+    "cimoxide==0.3.3",       # writes the MATPOWER -> CGMES conversion (cases/matpower_to_cgmes.py)
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"
+# cimoxide 0.3.3 (2026-09-18) carries the TopologicalNode, FullModel header,
+# Equipment.inService and Equipment-primary fixes this benchmark needed;
+# taken before the one-week rule allows it, at the maintainer's request,
+# after checking its output object by object against the previous conversion.
+exclude-newer-package = { cimoxide = "2026-09-18T18:00:00Z" }

@@ -1,0 +1,26 @@
+# Keeps the harness from rotting: builds the images and runs the smoke cases
+# plus the oracle's own tests. Published numbers never come from CI runners
+# (shared, noisy hardware); see README "Publishing numbers".
+name: smoke
+on:
+  push:
+  pull_request:
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [pandapower, lightsim2grid, pypsa, pgm, pypowsybl, veragrid, cgmes2pgm]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
+        with:
+          submodules: true
+      - name: Build images
+        run: ./docker/build.sh harness ${{ matrix.tool }}
+      - name: Oracle tests
+        run: docker compose -f docker/docker-compose.yml run --rm oracle-tests
+      - name: Smoke benchmark
+        run: ./docker/run_single.sh ${{ matrix.tool }} --groups smoke
+      - name: Check smoke outcomes against benchmarks/smoke_expectations.json
+        run: python3 tools/check_smoke.py ${{ matrix.tool }}

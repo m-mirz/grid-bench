@@ -1,0 +1,46 @@
+[project]
+name = "grid-bench"
+version = "0.1.0"
+description = "Benchmark of power system analysis software: speed, graded by a tool-independent oracle"
+requires-python = "==3.13.*"
+license = "Apache-2.0"
+# The harness and oracle need only these. Each tool is an extra, so the
+# native path can install one tool or all; containers use tool-configs/.
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+    "cimoxide==0.3.3",   # MATPOWER -> CGMES conversion (cases/matpower_to_cgmes.py)
+]
+
+[project.optional-dependencies]
+pandapower = ["pandapower[converter]==3.3.3", "numba>=0.61"]
+lightsim2grid = ["lightsim2grid==1.0.0"]
+pypsa = ["pypsa==1.2.4"]
+pgm = ["power-grid-model==1.13.169"]
+pypowsybl = ["pypowsybl==1.16.1"]
+veragrid = ["VeraGridEngine==6.5.29"]
+reports = ["matplotlib>=3.10"]
+all = ["grid-bench[pandapower,lightsim2grid,pypsa,pgm,pypowsybl,veragrid,reports]"]
+
+[tool.uv]
+package = false
+# Never resolve a release younger than a week: a fresh release is not yet
+# the version most users run, and a yanked one would poison the lockfile.
+exclude-newer = "P7D"
+# cimoxide 0.3.3 (2026-09-18) carries the TopologicalNode, FullModel header,
+# Equipment.inService and Equipment-primary fixes this benchmark needed;
+# taken before the one-week rule allows it, at the maintainer's request,
+# after checking its output object by object against the previous conversion.
+exclude-newer-package = { cimoxide = "2026-09-18T18:00:00Z" }
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["benchmarks", "tests"]
+python_files = ["*_benchmark.py", "test_*.py"]
+addopts = "-p no:cacheprovider --benchmark-columns=min,median,mean,stddev,rounds"
+timeout = 1800
+timeout_method = "signal"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::FutureWarning"]
