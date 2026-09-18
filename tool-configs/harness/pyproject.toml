@@ -1,5 +1,6 @@
-# The harness image: input preparation (cases/prep.py), the oracle's own
-# tests, and report generation. No tool under test is installed here.
+# The harness image: input preparation (cases/prep.py, including the
+# cimoxide MATPOWER -> CGMES conversion), the oracle's own tests, the
+# conversion check, and report generation. No tool under test is installed here.
 [project]
 name = "grid-bench-harness"
 version = "0.1.0"
@@ -10,6 +11,8 @@ dependencies = [
     "pytest>=8.3",
     "pytest-benchmark>=5.1",
     "matplotlib>=3.10",
+    "pytest-timeout>=2.3",
+    "cimoxide==0.3.1",       # writes the MATPOWER -> CGMES conversion (cases/matpower_to_cgmes.py)
 ]
 
 [tool.uv]

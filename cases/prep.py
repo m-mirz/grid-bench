@@ -8,6 +8,11 @@ Writes into `data/.case-cache/`:
   pandapower and lightsim2grid (each through its own MATPOWER importer).
 - `<case>.zip` (cgmes cases): the profiles a tool is given, zipped, for
   pypowsybl, whose importer reads one file.
+- `<case>@<converter>/` and `.zip`: the case converted to CGMES 3.0 by each
+  converter (`cases/matpower_to_cgmes.py` on cimoxide, `cases/convert_pypowsybl.py`).
+  A converter whose library is not installed is skipped, so the harness
+  image converts with cimoxide and the pypowsybl image
+  (`python -m cases.prep --family converted-pypowsybl`) with pypowsybl.
 - `<case>.pgm.json`: power-grid-model input, converted by
   `gridoxide.matpower.convert` (see cases/pgm_converter.py). power-grid-model
   has no MATPOWER importer; this converter is the one gridoxide's own
@@ -24,12 +29,14 @@ the file's mere existence.
 """
 import hashlib
 import json
+import shutil
 import sys
 import zipfile
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from cases import matpower, pgm_converter
-from cases.registry import CACHE, CASES, cgmes_files, mat_path, pgm_json_path
+from cases.registry import CACHE, CASES, FAMILIES, cgmes_files, mat_path, pgm_json_path
 
 
 def _cache_key(case: dict) -> str:
@@ -40,14 +47,48 @@ def _cache_key(case: dict) -> str:
     return h.hexdigest()
 
 
+def _zip(key: str) -> None:
+    with zipfile.ZipFile(CACHE / f"{key}.zip", "w", zipfile.ZIP_DEFLATED) as z:
+        for f in cgmes_files(key):
+            z.write(f, f.name)
+
+
 def prepare_cgmes(key: str) -> None:
     out = CACHE / f"{key}.zip"
-    files = cgmes_files(key)
-    if out.exists() and out.stat().st_mtime >= max(f.stat().st_mtime for f in files):
+    if out.exists() and out.stat().st_mtime >= max(f.stat().st_mtime for f in cgmes_files(key)):
         return
-    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
-        for f in files:
-            z.write(f, f.name)
+    _zip(key)
+    print(f"prepared {key}", file=sys.stderr)
+
+
+def prepare_converted(key: str) -> None:
+    case = CASES[key]
+    base, conv = case["source_case"], case["converter"]
+    module = {"cimoxide": "cases.matpower_to_cgmes", "pypowsybl": "cases.convert_pypowsybl"}[conv]
+    try:
+        lib_version = version(conv)
+    except PackageNotFoundError:
+        print(f"skipped {key}: {conv} not installed here", file=sys.stderr)
+        return
+    stamp = CACHE / f"{key}.key"
+    h = hashlib.sha256()
+    for p in (CASES[base]["file"], Path(__file__), Path(matpower.__file__),
+              Path(__file__).parent / f"{module.split('.')[-1]}.py"):
+        h.update(Path(p).read_bytes())
+    h.update(lib_version.encode())
+    if stamp.exists() and stamp.read_text() == h.hexdigest() and (CACHE / f"{key}.zip").exists():
+        return
+    prepare(base)
+    shutil.rmtree(case["dir"], ignore_errors=True)
+    if conv == "cimoxide":
+        from cases import matpower_to_cgmes
+        matpower_to_cgmes.write(matpower_to_cgmes.convert(matpower.parse_m(CASES[base]["file"]), base),
+                                case["dir"], base)
+    else:
+        from cases import convert_pypowsybl
+        convert_pypowsybl.convert(mat_path(base), case["dir"])
+    _zip(key)
+    stamp.write_text(h.hexdigest())
     print(f"prepared {key}", file=sys.stderr)
 
 
@@ -55,6 +96,8 @@ def prepare(key: str) -> None:
     case = CASES[key]
     if case["family"] == "cgmes":
         return prepare_cgmes(key)
+    if "converter" in case:
+        return prepare_converted(key)
     stamp = CACHE / f"{key}.key"
     digest = _cache_key(case)
     if stamp.exists() and stamp.read_text() == digest and mat_path(key).exists() and pgm_json_path(key).exists():
@@ -81,7 +124,11 @@ def _strip_reactive_limits(path: Path) -> None:
 
 def main(argv: list[str]) -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
-    for key in argv or list(CASES):
+    if argv[:1] == ["--family"]:
+        keys = [k for k, c in CASES.items() if c["family"] == argv[1]]
+    else:
+        keys = argv or [k for fam in FAMILIES for k, c in CASES.items() if c["family"] == fam]
+    for key in keys:
         prepare(key)
 
 

@@ -12,6 +12,7 @@ done
 export GRID_BENCH_RESULTS=results GIT_SHA="$(git rev-parse HEAD)$(git diff --quiet || echo -dirty)"
 mkdir -p results
 uv run python -m cases.prep
+uv run python -m oracle.check_conversion results
 for t in "${tools[@]}"; do
     uv run pytest "benchmarks/${t}_benchmark.py" "--benchmark-json=results/$t.json" "${extra[@]}"
 done

@@ -29,6 +29,16 @@ Settings, mirroring powsybl-benchmark's BASIC parameters:
   component is solved; the oracle's `n_checked` shows what was left out.
 - `newtonRaphsonConvEpsPerEq=TOLERANCE_PU`: the common tolerance (OLF's
   default is 1e-4 p.u., four orders looser than the other tools).
+- Slack: the case's own. The MATPOWER importer records the REF bus as a
+  `slackTerminal` extension, which OpenLoadFlow reads. The CGMES importer
+  records `SynchronousMachine.referencePriority` only as a
+  `referencePriorities` extension, which OpenLoadFlow uses for the angle
+  reference but not for the slack: it would pick its own slack
+  (`MOST_MESHED`), a different problem (on a converted case14, a 6e-3 MW
+  mismatch appears at bus 4 instead of the slack). So for CGMES input the
+  priority-1 generator's voltage level is passed as
+  `slackBusSelectionMode=NAME`. A case without priorities keeps
+  OpenLoadFlow's choice.
 - Not applied: powsybl-benchmark's `MatpowerUtil` phase-shift zeroing for
   the RTE cases. That would change the problem being solved.
 """
@@ -46,7 +56,7 @@ class PypowsyblAdapter(SolverAdapter):
     package = "pypowsybl"
     modules = ("pypowsybl", "pypowsybl.network", "pypowsybl.loadflow")
     language = "java"
-    families = ("matpower", "cgmes")
+    families = ("matpower", "cgmes", "converted-cimoxide", "converted-pypowsybl")
     settings = {"voltage_init_mode": "UNIFORM_VALUES", "distributed_slack": False, "use_reactive_limits": False,
                 "outer_loop_controls": "off", "remote_voltage_control": True, "connected_component_mode": "MAIN", "tolerance_pu": TOLERANCE_PU,
                 "max_iteration": MAX_ITERATIONS}
@@ -68,11 +78,24 @@ class PypowsyblAdapter(SolverAdapter):
     def load(self, case):
         import pypowsybl.network as pn
         path = mat_path(case) if CASES[case]["family"] == "matpower" else CACHE / f"{case}.zip"
-        return {"network": pn.load(str(path)), "iterations": None}
+        network = pn.load(str(path))
+        return {"network": network, "iterations": None, "params": self._params_for(network)}
+
+    def _params_for(self, network):
+        prio = network.get_extensions("referencePriorities")
+        prio = prio[prio["priority"] > 0] if len(prio) else prio
+        if not len(prio):
+            return self.params
+        import copy
+        gen = prio["priority"].idxmin()
+        params = copy.deepcopy(self.params)
+        params.provider_parameters = {**params.provider_parameters, "slackBusSelectionMode": "NAME",
+                                      "slackBusesIds": network.get_generators().at[gen, "voltage_level_id"]}
+        return params
 
     def solve(self, model):
         import pypowsybl.loadflow as lf
-        result = lf.run_ac(model["network"], parameters=self.params)[0]
+        result = lf.run_ac(model["network"], parameters=model["params"])[0]
         if result.status != lf.ComponentStatus.CONVERGED:
             raise DidNotConverge(f"{result.status.name}: {result.status_text}")
         model["iterations"] = result.iteration_count

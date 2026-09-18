@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from cases.registry import CASES
-from tools.benchmark_data import Results, case_size, load_solution
+from tools.benchmark_data import FAMILY_TITLES, Results, case_size, load_solution
 
 
 class Notes:
@@ -69,7 +69,7 @@ def cell(res: Results, notes: Notes, tool: str, case: str, operation: str) -> st
         err = res.failure(tool, case, operation)
         return f"FAILED{notes.ref(f'{tool} on {case}: `{err}`')}" if err else "not run"
     text = fmt_ms(rec.median_ms)
-    if operation != "solve" or rec.family != "matpower":
+    if operation != "solve" or "oracle_ok" not in rec.extra:
         return text
     if rec.extra["oracle_ok"]:
         return f"{text} ✓"
@@ -81,12 +81,23 @@ def table(header: list[str], rows: list[list[str]]) -> str:
     return "\n".join(out + ["| " + " | ".join(r) + " |" for r in rows])
 
 
+def family_tools(res: Results, family: str) -> list[str]:
+    return [t for t in res.tool_order() if family in res.tools[t]["families"]]
+
+
 def timing_section(res: Results, operation: str, family: str, notes: Notes) -> str:
-    tools = res.tool_order()
+    tools = family_tools(res, family) if family != "matpower" else res.tool_order()
     rows = [[f"{c}", f"{case_size(c):,}"] + [cell(res, notes, t, c, operation) for t in tools]
             for c in res.cases(family)]
-    return table(["case", "buses" if family == "matpower" else "nodes"] +
+    return table(["case", "nodes" if family == "cgmes" else "buses"] +
                  [res.tools[t]["display_name"] for t in tools], rows)
+
+
+def per_family(res: Results, render, *args) -> str:
+    parts = []
+    for fam in res.families():
+        parts += [f"### {FAMILY_TITLES[fam]}", "", render(res, *args, fam) if args else render(res, fam), ""]
+    return "\n".join(parts)
 
 
 def robustness_section(res: Results, notes: Notes) -> str:
@@ -97,7 +108,7 @@ def robustness_section(res: Results, notes: Notes) -> str:
 
 
 def memory_section(res: Results, family: str) -> str:
-    tools = res.tool_order()
+    tools = family_tools(res, family)
     rows = []
     for c in res.cases(family):
         row = [c]
@@ -113,15 +124,15 @@ def memory_section(res: Results, family: str) -> str:
     return table(["case"] + [res.tools[t]["display_name"] for t in tools], rows)
 
 
-def accuracy_matpower(res: Results) -> str:
-    tools = res.tool_order()
+def accuracy_residual(res: Results, family: str = "matpower") -> str:
+    tools = family_tools(res, family)
     rows = []
-    for c in res.cases("matpower"):
+    for c in res.cases(family):
         row = [c]
         for t in tools:
             rec = res.get(t, c, "solve")
             if rec is None:
-                row.append("—" if "matpower" not in res.tools[t]["families"] else "failed")
+                row.append("failed")
                 continue
             e = rec.extra
             worst = max(e["residual_max_dp_mw"], e["residual_max_dq_mvar"])
@@ -131,14 +142,14 @@ def accuracy_matpower(res: Results) -> str:
 
 
 def accuracy_cgmes(res: Results) -> str:
-    tools = res.tool_order()
+    tools = family_tools(res, "cgmes")
     rows = []
     for c in res.cases("cgmes"):
         row = [c]
         for t in tools:
             rec = res.get(t, c, "solve")
             if rec is None:
-                row.append("—" if "cgmes" not in res.tools[t]["families"] else "failed")
+                row.append("failed")
                 continue
             e = rec.extra
             if not e.get("sv_n"):
@@ -171,6 +182,22 @@ def cross_tool(res: Results, directory: Path) -> str:
     return table(["case", "shared buses"] + [res.tools[t]["display_name"] for t in tools], rows)
 
 
+def conversion_section(res: Results) -> str:
+    if not res.conversion:
+        return "Not run."
+    rows = []
+    for r in res.conversion:
+        if "error" in r:
+            rows.append([r["case"], "—", "—", "—", "—", "—", r["error"]])
+            continue
+        rows.append([r["source_case"], r["converter"], f"{r['buses']}/{r['buses_expected']}",
+                     f"{r['max_dy_rel']:.1e}", f"{r['max_ds_mva']:.1e}",
+                     f"{r['setpoints_missing']} / {r['setpoints_extra']}", "yes" if r["slack_defined"] else "**no**"])
+    rows.sort(key=lambda row: (case_size(row[0]) if row[0] in CASES else 0, row[0], row[1]))
+    return table(["case", "converter", "buses", "max rel. |ΔYbus|", "max |ΔS| MVA",
+                  "setpoints missing / extra", "slack defined"], rows)
+
+
 def environment(res: Results) -> str:
     rows = []
     for t in res.tool_order():
@@ -196,21 +223,12 @@ def generate(directory: Path, res: Results) -> str:
         "",
         "## AC power flow: warm solve",
         "",
-        "Median of repeated solves on one persistent model, flat start every time, in ms. "
+        "Median of repeated solves on one persistent model, flat start every time, in ms, per case family. "
         "✓: the solution satisfies the case's power-flow equations to 1e-3 MVA at every bus and holds every "
         "generator voltage setpoint (oracle tier 1, independent of every tool). "
         "✗: the tool converged, but to a solution of a different problem; the note says where.",
         "",
-        "### MATPOWER cases",
-        "",
-        timing_section(res, "solve", "matpower", notes),
-        "",
-        "### CGMES cases",
-        "",
-        "Accuracy for these is the deviation from the published SV solution, in the accuracy section.",
-        "",
-        timing_section(res, "solve", "cgmes", notes),
-        "",
+        per_family(res, lambda r, fam: timing_section(r, "solve", fam, notes)),
         "## Robustness",
         "",
         "Cases known not to converge from a flat start in any tool tested here. Kept out of the tables above; "
@@ -222,35 +240,25 @@ def generate(directory: Path, res: Results) -> str:
         "",
         "Median of 3 cold loads after one warm-up load, in ms.",
         "",
-        "### MATPOWER cases",
-        "",
-        timing_section(res, "import", "matpower", notes),
-        "",
-        "### CGMES cases",
-        "",
-        timing_section(res, "import", "cgmes", notes),
-        "",
+        per_family(res, lambda r, fam: timing_section(r, "import", fam, notes)),
         "## Memory",
         "",
         "Peak RSS added by loading and solving the case, in MB, measured in a fresh process; "
         "in parentheses, the peak after merely importing the tool.",
         "",
-        "### MATPOWER cases",
-        "",
-        memory_section(res, "matpower"),
-        "",
-        "### CGMES cases",
-        "",
-        memory_section(res, "cgmes"),
-        "",
+        per_family(res, memory_section),
         "## Accuracy",
         "",
         "### Tier 1: residual against the MATPOWER case (MVA, worst bus)",
         "",
+        "Also applied to converted cases: tool voltages are mapped back to MATPOWER buses by TopologicalNode name "
+        "(`BUS-<n>`) and graded against the original `.m`.",
+        "",
         "Largest |ΔP| or |ΔQ| of `V·conj(Ybus·V) − S` over the buses where it is specified, "
         "with Ybus built from the `.m` file by `oracle/ybus.py`. Every tool was asked to converge to 1e-8 p.u.",
         "",
-        accuracy_matpower(res),
+        "\n\n".join(f"**{FAMILY_TITLES[fam]}**\n\n" + accuracy_residual(res, fam)
+                    for fam in res.families() if fam != "cgmes"),
         "",
         "### Tier 2: deviation from the published CGMES solution",
         "",
@@ -258,6 +266,14 @@ def generate(directory: Path, res: Results) -> str:
         "solution comes from the fixture author's own tool and settings; it is a reference, not ground truth.",
         "",
         accuracy_cgmes(res),
+        "",
+        "### Converting MATPOWER to CGMES",
+        "",
+        "Each converter's output checked without any tool (`oracle/check_conversion.py`): Ybus, specified injections "
+        "and voltage setpoints rebuilt from the CGMES files by a parser that shares no code with either converter, "
+        "compared with the original `.m`. A missing slack leaves every tool to choose its own slack bus.",
+        "",
+        conversion_section(res),
         "",
         "### Tier 3: agreement between tools (weakest evidence)",
         "",

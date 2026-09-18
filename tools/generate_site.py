@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from cases.registry import CASES
-from tools.benchmark_data import Results, case_size
+from tools.benchmark_data import FAMILY_TITLES, Results, case_size
 from tools.palette import DARK, LIGHT, LIGHT_TO_DARK
 
 KEEP = ("iterations", "oracle_ok", "residual_max_dp_mw", "residual_max_dq_mvar", "residual_max_dvm_pu",
@@ -22,12 +22,14 @@ def payload(res: Results) -> dict:
              for t in res.tool_order() for m in [res.tools[t]]]
     cases = {c: {"family": CASES[c]["family"], "size": case_size(c), "groups": CASES[c]["groups"],
                  "source": CASES[c]["source"], "note": CASES[c]["note"]}
-             for fam in ("matpower", "cgmes") for rob in (False, True) for c in res.cases(fam, rob)}
+             for fam in res.families() for rob in (False, True) for c in res.cases(fam, rob)}
     rows = [{"tool": r.tool, "case": r.case, "op": r.operation, "median": r.median_ms, "min": r.min_ms,
              "rounds": r.rounds, **{k: r.extra[k] for k in KEEP if k in r.extra}} for r in res.records]
     run = next((r for r in res.runs if r["machine"]), {})
     cpu = run.get("machine", {}).get("cpu", {})
-    return {"tools": tools, "cases": cases, "rows": rows, "failures": res.failures,
+    families = [[f, {"matpower": "MATPOWER", "cgmes": "CGMES fixtures", "converted-cimoxide": "Converted (cimoxide)",
+                      "converted-pypowsybl": "Converted (pypowsybl)"}[f], FAMILY_TITLES[f]] for f in res.families()]
+    return {"tools": tools, "cases": cases, "rows": rows, "failures": res.failures, "families": families,
             "run": {"cpu": cpu.get("brand_raw", "?"), "cores": cpu.get("count", "?"),
                     "os": f"{run.get('machine', {}).get('system', '?')} {run.get('machine', {}).get('release', '')}",
                     "git": str(run.get("git_sha", "?"))[:12], "date": str(run.get("datetime", "?"))[:10]}}
@@ -89,7 +91,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <body>
 <main>
 <h1>grid-bench</h1>
-<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in.</p>
+<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in. MATPOWER cases are also converted to CGMES by two converters, and tools are graded on those against the original case.</p>
 <p class="meta" id="meta"></p>
 
 <div class="controls">
@@ -123,7 +125,9 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 </main>
 <script>
 const D = __DATA__;
-const state = {op: "solve", fam: "matpower", off: new Set()};
+const state = {op: "solve", fam: (D.families[0] || ["matpower"])[0], off: new Set()};
+const famTitle = f => (D.families.find(x => x[0] === f) || [f, f, f])[2];
+const graded = f => f !== "cgmes";   // tier-1 residual against a MATPOWER case
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const dark = () => document.documentElement.dataset.theme === "dark" ||
@@ -149,7 +153,7 @@ $("#toolchips").onclick = e => { const b = e.target.closest(".chip"); if (!b) re
   state.off.has(b.dataset.t) ? state.off.delete(b.dataset.t) : state.off.add(b.dataset.t); render(); };
 
 function chart() {
-  const svg = $("#chart"), W = 960, H = 440, m = {l: 64, r: 150, t: 20, b: 48};
+  const svg = $("#chart"), W = 960, H = 440, m = {l: 64, r: 200, t: 20, b: 48};
   const tools = D.tools.filter(t => !state.off.has(t.name) && t.families.includes(state.fam));
   const cases = casesOf(state.fam).filter(c => D.cases[c].groups.some(g => g === "smoke" || g === "scaling"));
   const series = tools.map(t => ({t, pts: cases.map(c => ({c, r: row(t.name, c, state.op)})).filter(p => p.r)
@@ -163,7 +167,7 @@ function chart() {
   let s = "";
   for (let e = y0; e <= y1; e++) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(10**e)}" y2="${Y(10**e)}" stroke="${css("--grid")}"/><text x="${m.l - 8}" y="${Y(10**e) + 4}" text-anchor="end" font-size="12" fill="${css("--text2")}">${10**e >= 1 ? (10**e).toLocaleString() : 10**e}</text>`;
   for (let e = x0; e <= x1; e++) s += `<line x1="${X(10**e)}" x2="${X(10**e)}" y1="${m.t}" y2="${H - m.b}" stroke="${css("--grid")}"/><text x="${X(10**e)}" y="${H - m.b + 18}" text-anchor="middle" font-size="12" fill="${css("--text2")}">${(10**e).toLocaleString()}</text>`;
-  s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="${css("--text2")}">${state.fam === "matpower" ? "buses" : "published nodes"}</text>`;
+  s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="${css("--text2")}">${state.fam === "cgmes" ? "published nodes" : "buses"}</text>`;
   s += `<text transform="translate(16 ${(H - m.b + m.t) / 2}) rotate(-90)" text-anchor="middle" font-size="12" fill="${css("--text2")}">median ${state.op} time (ms)</text>`;
   const labels = [];
   for (const {t, pts} of series) {
@@ -184,7 +188,7 @@ function chart() {
     let acc = "";
     if (r.op === "solve" && r.oracle_ok !== undefined) acc = r.oracle_ok ? "oracle: verified" : `oracle: FAILED, worst |ΔS| ${Math.max(r.residual_max_dp_mw, r.residual_max_dq_mvar).toExponential(1)} MVA at bus ${r.residual_worst_bus}`;
     else if (r.sv_n) acc = `vs published SV: median ${(r.sv_dv_median * 100).toFixed(3)}%, max ${(r.sv_dv_max * 100).toFixed(2)}%`;
-    tip.innerHTML = `<b>${esc(t.display)} · ${esc(p.c)}</b><span>${p.x.toLocaleString()} ${state.fam === "matpower" ? "buses" : "nodes"} · median ${fmt(r.median)} ms (min ${fmt(r.min)}, ${r.rounds} rounds)${r.iterations ? ` · ${r.iterations} iterations` : ""}<br>${acc}</span>`;
+    tip.innerHTML = `<b>${esc(t.display)} · ${esc(p.c)}</b><span>${p.x.toLocaleString()} ${state.fam === "cgmes" ? "nodes" : "buses"} · median ${fmt(r.median)} ms (min ${fmt(r.min)}, ${r.rounds} rounds)${r.iterations ? ` · ${r.iterations} iterations` : ""}<br>${acc}</span>`;
     tip.hidden = false; tip.style.left = Math.min(e.clientX + 14, innerWidth - 330) + "px"; tip.style.top = (e.clientY + 14) + "px"; };
   svg.onmouseleave = () => { $("#tip").hidden = true; };
 }
@@ -201,10 +205,10 @@ function sortable(table) {
 
 function tables() {
   const tools = D.tools.filter(t => !state.off.has(t.name));
-  const cases = casesOf(state.fam), unit = state.fam === "matpower" ? "buses" : "nodes";
-  $("#t-title").textContent = `${state.op === "solve" ? "Warm solve" : "Import"}, ${state.fam === "matpower" ? "MATPOWER" : "CGMES"} cases (median ms)`;
+  const cases = casesOf(state.fam), unit = state.fam === "cgmes" ? "nodes" : "buses";
+  $("#t-title").textContent = `${state.op === "solve" ? "Warm solve" : "Import"}: ${famTitle(state.fam)} (median ms)`;
   $("#t-desc").textContent = state.op === "solve"
-    ? (state.fam === "matpower" ? "✓: the solution satisfies the case's equations at every bus (tier 1). ✗: converged to a different problem; hover the cell for where." : "Accuracy for CGMES cases is judged against the published SV solution, below.")
+    ? (graded(state.fam) ? "✓: the solution satisfies the original MATPOWER case's equations at every bus (tier 1). ✗: converged to a different problem; hover the cell for where." : "Accuracy for CGMES fixtures is judged against the published SV solution, below.")
     : "File to model: median of 3 cold loads after one warm-up load. Memory: hover a cell.";
   let h = `<thead><tr><th>case</th><th>${unit}</th>${tools.map(t => `<th>${esc(t.display)}</th>`).join("")}</tr></thead><tbody>`;
   for (const c of cases) {
@@ -223,7 +227,7 @@ function tables() {
   }
   $("#timing").innerHTML = h + "</tbody>"; sortable($("#timing"));
 
-  const mp = state.fam === "matpower";
+  const mp = graded(state.fam);
   $("#a-desc").textContent = mp
     ? "Tier 1: largest |ΔP| or |ΔQ| in MVA of V·conj(Ybus·V) − S over the buses where it is specified; Ybus built from the .m file. Every tool was asked for 1e-8 p.u."
     : "Tier 2: |ΔV|/V against the published SvVoltage, median / max, with matched / published TopologicalNodes. The published solution is a reference, not ground truth.";
@@ -250,7 +254,7 @@ function tables() {
 
 function render() {
   seg($("#op"), "op", [["solve", "Solve"], ["import", "Import"]]);
-  seg($("#fam"), "fam", [["matpower", "MATPOWER"], ["cgmes", "CGMES"]]);
+  seg($("#fam"), "fam", D.families.map(([f, label]) => [f, label]));
   chips(); chart(); tables();
 }
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);

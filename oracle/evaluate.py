@@ -9,12 +9,17 @@ Returns flat fields that go straight into a result record's `extra_info`:
   cannot represent phase shift (power-grid-model via its converter) passes
   that one and fails the real one, which identifies the loss.
 - cgmes: tier 2, deviation from the published SvVoltage (`oracle.cgmes_sv`).
+- converted-*: MATPOWER cases converted to CGMES. The tool's TopologicalNode
+  voltages are mapped back to MATPOWER buses (`oracle.cgmes_model`) and graded
+  by tier 1 against the original `.m`: the converter's losses and the
+  tool's importer losses both show up here, and `oracle.cgmes_model.fidelity`
+  separates the converter's share.
 """
 from functools import lru_cache
 
 from cases.matpower import ANGLE, parse_m
-from cases.registry import CASES, cgmes_sv_file
-from oracle import cgmes_sv
+from cases.registry import CASES, cgmes_files, cgmes_sv_file
+from oracle import cgmes_model, cgmes_sv
 from oracle.residual import residual
 
 RESIDUAL_OK_MVA = 1e-3   # all tools are asked to converge to 1e-8 p.u. (1e-6 MVA on 100 MVA)
@@ -31,9 +36,17 @@ def _sv(case: str) -> dict:
     return cgmes_sv.published_voltages(cgmes_sv_file(case))
 
 
+@lru_cache(maxsize=None)
+def _cgmes_objects(case: str) -> dict:
+    return cgmes_model.read(cgmes_files(case))
+
+
 def evaluate(case: str, vm: dict[str, float], va_deg: dict[str, float]) -> dict:
     if CASES[case]["family"] == "cgmes":
         return cgmes_sv.deviation(_sv(case), vm, va_deg)
+    if "source_case" in CASES[case]:
+        vm, va_deg = cgmes_model.to_matpower_ids(_cgmes_objects(case), vm, va_deg)
+        case = CASES[case]["source_case"]
     mpc = _mpc(case)
     r = residual(mpc, vm, va_deg, tol_mva=RESIDUAL_OK_MVA, tol_pu=SETPOINT_OK_PU)
     out = {f"residual_{k}": v for k, v in r.asdict().items()}

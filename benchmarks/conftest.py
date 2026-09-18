@@ -47,7 +47,7 @@ def extract_error(text: str) -> str:
     lines = [re.sub(r"^E\s+", "", ln).strip() for ln in text.splitlines()]
     lines = [ln for ln in lines if ln and "validate_input_data" not in ln and "validate_batch_data" not in ln]
     for ln in reversed(lines):
-        if re.match(r"^[\w.]+(Error|Exception|Diverge|Converge|Unsupported)\w*:\s", ln) or ln.startswith("Failed: Timeout"):
+        if re.match(r"^[\w.]+(Error|Exception|Warning|Diverge|Converge|Unsupported)\w*:\s", ln) or ln.startswith("Failed: Timeout"):
             return re.sub(r"^(\w+\.)+(?=\w+:)", "", ln)[:300]   # drop the module path of the class
     return (lines[-1] if lines else "failed")[:300]
 

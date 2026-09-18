@@ -9,7 +9,12 @@ Inputs:
   shows large residuals where that conversion changes the problem (e.g.
   case300, case3120sp). That is reported as pandapower's result, not fixed.
   pandapower creates bus index = MATPOWER bus number - 1.
-- cgmes: `from_cim` (cim2pp); `net.bus.cim_topnode` is the TopologicalNode.
+- cgmes (fixtures and converted cases): `from_cim` (cim2pp);
+  `net.bus.cim_topnode` is the TopologicalNode. cim2pp drops the sign of a
+  negative ACLineSegment reactance (converted case300: -48.89 ohm in the
+  file, +48.89 ohm in `net.line`); the oracle reports it. It needs a slack
+  in the file (`referencePriority`), so it cannot solve pypowsybl's CGMES
+  export, which writes none.
 
 Settings, each the closest match to the common problem definition:
 - `algorithm="nr"`: Newton-Raphson, like every other tool here.
@@ -43,7 +48,7 @@ class PandapowerAdapter(SolverAdapter):
     package = "pandapower"
     modules = ("pandapower", "pandapower.converter.matpower.from_mpc", "pandapower.converter.cim.cim2pp.from_cim")
     language = "python"
-    families = ("matpower", "cgmes")
+    families = ("matpower", "cgmes", "converted-cimoxide", "converted-pypowsybl")
     settings = {"algorithm": "nr", "init": "flat", "enforce_q_lims": False, "distributed_slack": False,
                 "tolerance_pu": TOLERANCE_PU, "max_iteration": MAX_ITERATIONS, "numba": True,
                 "lightsim2grid_backend": False}

@@ -33,6 +33,7 @@ class Results:
     records: list = field(default_factory=list)
     failures: list = field(default_factory=list)    # {tool, case, operation, error}
     runs: list = field(default_factory=list)        # {tool, datetime, git_sha, image, machine}
+    conversion: list = field(default_factory=list)  # oracle.check_conversion output, one entry per converted case
 
     def get(self, tool: str, case: str, operation: str) -> Record | None:
         return next((r for r in self.records if (r.tool, r.case, r.operation) == (tool, case, operation)), None)
@@ -40,6 +41,12 @@ class Results:
     def failure(self, tool: str, case: str, operation: str) -> str | None:
         return next((f["error"] for f in self.failures
                      if (f["tool"], f["case"], f["operation"]) == (tool, case, operation)), None)
+
+    def families(self) -> list[str]:
+        """Families with results, in registry order."""
+        from cases.registry import FAMILIES
+        seen = {r.family for r in self.records} | {CASES[f["case"]]["family"] for f in self.failures}
+        return [f for f in FAMILIES if f in seen]
 
     def cases(self, family: str, robustness: bool = False) -> list[str]:
         """Cases with results, by size. Robustness-only cases (expected to fail
@@ -54,9 +61,22 @@ class Results:
         return [t for t in ADAPTERS if t in self.tools]
 
 
+FAMILY_TITLES = {
+    "matpower": "MATPOWER cases",
+    "cgmes": "CGMES conformity fixtures",
+    "converted-cimoxide": "MATPOWER cases as CGMES, converted with cimoxide",
+    "converted-pypowsybl": "MATPOWER cases as CGMES, converted with pypowsybl",
+}
+
+
 def load(directory: Path) -> Results:
     res = Results()
+    conversion = Path(directory) / "conversion.json"
+    if conversion.exists():
+        res.conversion = json.loads(conversion.read_text())
     for path in sorted(Path(directory).glob("*.json")):
+        if path.name == "conversion.json":
+            continue
         data = json.loads(path.read_text())
         if "grid_bench" not in data:
             continue
@@ -75,8 +95,11 @@ def load(directory: Path) -> Results:
 
 @lru_cache(maxsize=None)
 def case_size(case: str) -> int:
-    """Energized buses for MATPOWER, published TopologicalNodes for CGMES."""
+    """Energized buses for MATPOWER (and cases converted from it), published
+    TopologicalNodes for CGMES fixtures."""
     c = CASES[case]
+    if "source_case" in c:
+        return case_size(c["source_case"])
     if c["family"] == "matpower":
         return int((parse_m(c["file"])["bus"][:, 1] != ISOLATED).sum())
     return len(published_voltages(cgmes_sv_file(case)))

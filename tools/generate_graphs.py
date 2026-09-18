@@ -24,12 +24,11 @@ from tools.benchmark_data import Results, case_size  # noqa: E402
 PLOTTED_GROUPS = {"smoke", "scaling"}
 from tools.palette import DARK, LIGHT, LIGHT_TO_DARK  # noqa: E402
 
-TITLES = {
-    ("solve", "matpower"): "Warm AC power-flow solve, MATPOWER cases",
-    ("solve", "cgmes"): "Warm AC power-flow solve, CGMES cases",
-    ("import", "matpower"): "Import from file, MATPOWER cases",
-    ("import", "cgmes"): "Import from file, CGMES cases",
-}
+from tools.benchmark_data import FAMILY_TITLES  # noqa: E402
+
+TITLES = {(op, fam): f"{label}, {FAMILY_TITLES[fam][0].lower() + FAMILY_TITLES[fam][1:]}"
+          for op, label in (("solve", "Warm AC power-flow solve"), ("import", "Import from file"))
+          for fam in FAMILY_TITLES}
 
 
 def _spread(ys: list[float], min_gap: float) -> list[float]:
@@ -78,7 +77,7 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
     for axis in (ax.xaxis, ax.yaxis):
         axis.set_major_formatter(plain)
         axis.set_minor_formatter(matplotlib.ticker.NullFormatter())
-    ax.set_xlabel("buses" if family == "matpower" else "published nodes", color=theme["text2"])
+    ax.set_xlabel("published nodes" if family == "cgmes" else "buses", color=theme["text2"])
     ax.set_ylabel("median time (ms)", color=theme["text2"])
     ax.set_title(TITLES[(operation, family)], loc="left", color=theme["text"], fontsize=12, pad=12)
     ax.grid(True, which="major", color=theme["grid"], linewidth=0.8, zorder=0)

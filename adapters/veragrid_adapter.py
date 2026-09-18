@@ -7,7 +7,10 @@ Inputs:
 - cgmes: `IO.file_open.open_cgmes` on the profile list. (The generic
   `open_file` rejects a list of CGMES files in 6.5.x with an empty error
   log.) VeraGrid builds one bus per ConnectivityNode; `Bus.idtag` is the
-  ConnectivityNode mRID without dashes, mapped to TopologicalNodes via TP.
+  ConnectivityNode mRID without dashes, mapped to TopologicalNodes via TP
+  (for a bus-branch file, the TopologicalNode itself). VeraGrid's CGMES
+  import sets `tap_phase = 0` for PhaseTapChangerTabular, i.e. drops every
+  phase shift of the converted cases; the oracle reports it.
 
 Settings, every automatic control off for comparability:
 - `solver_type=NR`, `retry_with_other_methods=False`: no fallback to
@@ -37,7 +40,7 @@ class VeragridAdapter(SolverAdapter):
     package = "VeraGridEngine"
     modules = ("VeraGridEngine", "VeraGridEngine.IO.file_open")
     language = "python"
-    families = ("matpower", "cgmes")
+    families = ("matpower", "cgmes", "converted-cimoxide", "converted-pypowsybl")
     settings = {"solver_type": "NR", "retry_with_other_methods": False, "init": "flat", "distributed_slack": False,
                 "outer_loop_controls": "off", "remote_voltage_control": True, "tolerance_pu": TOLERANCE_PU, "max_iteration": MAX_ITERATIONS}
 

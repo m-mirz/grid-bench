@@ -20,9 +20,12 @@ def by_node(case: str, per_bus: dict[str, tuple[float, float]], key: str) -> tup
     as selected by `key`) to (v, angle_deg); returns (vm, va) keyed by TN."""
     terminals, cns = tp_maps(case)
     lookup = terminals if key == "terminal" else cns
+    nodes = set(terminals.values()) | set(cns.values())
     vm, va = {}, {}
     for elem, (v, a) in per_bus.items():
-        tn = lookup.get(mrid(elem))
+        # A bus-branch model has no ConnectivityNodes; a tool's bus is then
+        # the TopologicalNode itself.
+        tn = lookup.get(mrid(elem)) or (mrid(elem) if mrid(elem) in nodes else None)
         if tn is not None:
             vm[tn], va[tn] = v, a
     return vm, va

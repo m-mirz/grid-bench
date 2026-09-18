@@ -1,6 +1,6 @@
 """Every benchmark case, in one place. The only case configuration there is.
 
-Two families:
+Four families:
 
 - `matpower`: MATPOWER `.m` files from the `data/benchmark-grids` submodule
   (see its PROVENANCE.md). The `.m` is the case definition; the oracle checks
@@ -9,6 +9,12 @@ Two families:
   `data/CGMES-Test-Configurations` submodule. These ship an SV profile with a
   published solution, used as the reference. The SV profile is never given to
   a tool: it would hand the solver the answer as its starting point.
+- `converted-cimoxide`, `converted-pypowsybl`: MATPOWER cases converted to
+  CGMES 3.0 by two converters (`cases/matpower_to_cgmes.py` on cimoxide, and
+  pypowsybl's MATPOWER import + CGMES export, `cases/convert_pypowsybl.py`).
+  Read by the CGMES-capable tools and graded by the tier-1 residual against
+  the original `.m` (TopologicalNodes are named `BUS-<n>`). The converters
+  themselves are graded tool-free by `oracle.cgmes_model.fidelity`.
 
 Groups say what a case is *for* (a case can be in several):
 
@@ -33,6 +39,8 @@ MATPOWER_DIR = DATA / "benchmark-grids" / "matpower"
 CGMES_DIR = DATA / "CGMES-Test-Configurations" / "v3.0"
 
 DEFAULT_GROUPS = ("smoke", "scaling", "feature", "robustness")
+CONVERTERS = ("cimoxide", "pypowsybl")
+FAMILIES = ("matpower", "cgmes") + tuple(f"converted-{c}" for c in CONVERTERS)
 
 
 def _mp(file: str, groups: list[str], source: str, note: str = "") -> dict:
@@ -74,6 +82,18 @@ CASES: dict[str, dict] = {
 }
 
 
+# The headline MATPOWER cases (not robustness), each converted by every converter.
+CONVERTED_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c["groups"]
+                  and c["groups"] != ["robustness"]]
+for _base in CONVERTED_FROM:
+    for _conv in CONVERTERS:
+        CASES[f"{_base}@{_conv}"] = {
+            "family": f"converted-{_conv}", "dir": CACHE / f"{_base}@{_conv}", "groups": CASES[_base]["groups"],
+            "source": f"{_base} via {_conv}", "source_case": _base, "converter": _conv, "boundary": None,
+            "note": CASES[_base]["note"],
+        }
+
+
 def select(family: str, groups=DEFAULT_GROUPS, names=None) -> list[str]:
     """Case keys of one family, filtered by explicit names or by group."""
     keys = [k for k, c in CASES.items() if c["family"] == family]
@@ -90,6 +110,11 @@ def cgmes_files(key: str) -> list[Path]:
     skip = ("_SV", "_DL", "_GL", "_DY", "_OP", "_SC")
     files = sorted(p for p in case["dir"].glob("*.xml") if not any(s in p.name for s in skip))
     return files + ([case["boundary"]] if case["boundary"] else [])
+
+
+def is_cgmes(key: str) -> bool:
+    """Read through a tool's CGMES importer (fixtures and converted cases)."""
+    return CASES[key]["family"] != "matpower"
 
 
 def cgmes_sv_file(key: str) -> Path:

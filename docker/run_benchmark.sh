@@ -22,6 +22,8 @@ compose="docker compose -f docker/docker-compose.yml"
 mkdir -p results-docker data/.case-cache
 
 $compose run --rm prep || { echo "input preparation failed"; exit 1; }
+$compose run --rm prep-pypowsybl || { echo "pypowsybl conversion failed"; exit 1; }
+$compose run --rm conversion-check || { echo "conversion check failed"; exit 1; }
 $compose run --rm oracle-tests || { echo "oracle tests failed; refusing to benchmark"; exit 1; }
 
 failed=()

@@ -16,8 +16,10 @@ models, justified settings, a tool-independent oracle).
 1. **No speed number without a correctness number.** Every solve record
    carries the oracle's verdict. Never add a timing path that skips
    `oracle.evaluate`.
-2. **The oracle imports no tool.** `oracle/` and `cases/` depend on
-   numpy/scipy only. Anything that needs a tool object goes in `adapters/`.
+2. **The oracle imports no tool.** `oracle/` depends on numpy/scipy only.
+   Anything that needs a tool object goes in `adapters/`. In `cases/`, only
+   the converters (`matpower_to_cgmes.py`, `convert_pypowsybl.py`) import a
+   library, lazily; the rest is numpy/scipy.
 3. **Same problem for every tool** (see `adapters/solver_adapter.py`): flat
    start on every solve, single slack, no reactive limits, no outer-loop
    controls, generator voltage regulation as the case defines it, tolerance
@@ -39,16 +41,19 @@ models, justified settings, a tool-independent oracle).
 ## Layout
 
 ```
-cases/       registry.py (every case, groups), matpower.py (.m reader), prep.py (tool inputs),
-             pgm_converter.py (pinned, hash-checked MATPOWER->PGM converter)
-oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), evaluate.py (entry point)
+cases/       registry.py (every case, groups, families), matpower.py (.m reader), prep.py (tool inputs),
+             pgm_converter.py (pinned, hash-checked MATPOWER->PGM converter),
+             matpower_to_cgmes.py (cimoxide converter), convert_pypowsybl.py (pypowsybl converter)
+oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), evaluate.py (entry point),
+             cgmes_model.py (tool-free CGMES reader: TN->bus join, converter fidelity),
+             check_conversion.py (writes conversion.json)
 adapters/    solver_adapter.py (the ABC), <tool>_adapter.py, cgmes_ids.py, memory.py
 benchmarks/  benchmark_template.py (generates tests), conftest.py (selection, failures, metadata),
              <tool>_benchmark.py (3 lines each)
 tools/       benchmark_data.py (loader) + generate_{comparison,graphs,site,all}.py, palette.py
 tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned exactly)
 docker/      base.dockerfile, tool.dockerfile, docker-compose.yml, build.sh, run_*.sh
-tests/       the oracle's own tests
+tests/       the oracle's own tests, and the converter's (exactness + planted errors)
 data/        submodules: benchmark-grids (MATPOWER), CGMES-Test-Configurations
 results-docker/  published results: <tool>.json, comparison.md, graphs/
 docs/index.html  generated site
@@ -74,7 +79,8 @@ rebuild; changing `tool-configs/` does.
 
 1. `adapters/<tool>_adapter.py`: subclass `SolverAdapter`. Set `name`,
    `display_name`, `color` (the next unused slot in `tools/palette.py`; a
-   tool keeps its colour for life), `package`, `module`, `language`,
+   tool keeps its colour for life), `package`, `modules` (everything `load`
+   and `solve` import, for the memory baseline), `language`,
    `families`, `settings`. Implement `load`, `solve`, `solution`. Docstring:
    input path, bus-id mapping, and every setting with its justification.
 2. Register it in `adapters/__init__.py` (order = colour-slot order).
@@ -86,6 +92,18 @@ rebuild; changing `tool-configs/` does.
    Then check the oracle: on case14 a correct tool shows residuals around
    1e-9 MVA. If it does not, find out why before anything else.
 7. `docker/run_single.sh <tool>` for all default cases, then regenerate reports.
+
+## Case families
+
+`matpower`, `cgmes` (conformity fixtures, graded against their SV), and
+`converted-<converter>` (MATPOWER cases converted to CGMES, graded by the
+tier-1 residual against the original `.m`). A tool declares the families it
+reads in `SolverAdapter.families`. Converted cases are keyed `<case>@<converter>`.
+
+`oracle/cgmes_model.py` must stay independent of both converters: it is
+ElementTree only, and must not import cimoxide or pypowsybl. When a converter
+and the checker disagree, check the reading of CGMES against a third party
+(the pypowsybl export, a tool's importer) before changing either.
 
 ## Adding a case
 

@@ -20,6 +20,22 @@ services:
       - ../data/.case-cache:/bench/data/.case-cache:z
     command: python -m cases.prep
 
+  # pypowsybl's MATPOWER -> CGMES conversion needs pypowsybl, so it runs in
+  # that image; the cimoxide conversion runs in `prep`.
+  prep-pypowsybl:
+    image: grid-bench/pypowsybl:latest
+    network_mode: none
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    volumes:
+      - ..:/bench:ro,z
+      - ../data/.case-cache:/bench/data/.case-cache:z
+    command: python -m cases.prep --family converted-pypowsybl
+
+  conversion-check:
+    <<: *bench
+    image: grid-bench/harness:latest
+    command: python -m oracle.check_conversion /output
+
   oracle-tests:
     <<: *bench
     image: grid-bench/harness:latest

@@ -51,13 +51,71 @@ column is the more interesting one:
   (matching what gridoxide's benchmark recorded).
 - **CGMES:** pypowsybl is the only tool that solves every fixture except
   MiniGrid (which none of the three solves), including RealGrid (6,051 nodes,
-  207 ms). pandapower's `cim2pp` output crashes its own solver on MicroGrid-BE
+  139 ms). pandapower's `cim2pp` output crashes its own solver on MicroGrid-BE
   and MiniGrid.
 - **Container isolation caught a mislabelled number:** with lightsim2grid
   installed, `pandapower.runpp` silently hands its solve to lightsim2grid
   (`lightsim2grid="auto"`), which made "pandapower" look 3x faster. See
   [CONTAINERIZATION_VALIDATION.md](CONTAINERIZATION_VALIDATION.md).
 
+
+## MATPOWER cases as CGMES: two converters
+
+The CGMES fixtures come with a weak reference (someone else's solver and
+settings) and no size ladder between 127 and 6,051 nodes. So the headline
+MATPOWER cases are also converted to CGMES 3.0 twice, and the CGMES-capable
+tools (pandapower, pypowsybl, VeraGrid) solve them, graded by the **tier-1
+residual against the original `.m`**. TopologicalNodes are named `BUS-<n>`,
+which joins each tool's voltages back to MATPOWER buses.
+
+- **pypowsybl:** its MATPOWER importer followed by its CGMES exporter
+  (`cases/convert_pypowsybl.py`).
+- **cimoxide:** written for this benchmark on top of
+  [cimoxide](https://github.com/m-mirz/cimoxide) (`cases/matpower_to_cgmes.py`).
+  It uses only constructs whose meaning tools cannot disagree on. For example,
+  transformer line charging becomes two bus shunts rather than transformer-end
+  susceptances, because tools place those differently.
+
+Each converter is first checked **without any tool**. `oracle/check_conversion.py`
+rebuilds Ybus, injections and setpoints from the CGMES files, with a parser
+that shares no code with either converter, and compares them with the `.m`:
+
+| | cimoxide converter | pypowsybl export |
+|---|---|---|
+| Ybus | exact (≤ 3e-16 relative) on all 8 cases | exact on 6 cases; off by up to 3e-4 on case118 and case300: transformer line charging moved to one side (its MATPOWER importer's loss) |
+| injections | exact | exact |
+| voltage setpoints | exact | missing at 100 generators on case3120sp: the importer disables regulation when Qmin = Qmax |
+| slack | written (`referencePriority = 1`) | **not written**: every tool must choose its own |
+
+Findings from solving the converted cases, each traced to its cause:
+
+- **pypowsybl solves every cimoxide-converted case exactly** except
+  case2848rte, which it cannot solve from MATPOWER either ("Unrealistic
+  state"). That includes case118, case300 and case3120sp, which its own
+  MATPOWER importer gets wrong: the cimoxide converter plus pypowsybl's CGMES
+  importer is a lossless path where its MATPOWER importer is not.
+  This requires honouring the case's slack: OpenLoadFlow ignores CGMES
+  `referencePriority` for slack selection, so the adapter passes it
+  explicitly (without that, it moves the slack; a 30 MW mismatch appears on
+  case1354pegase). The same change improves RealGrid's deviation from its
+  published SV from 0.099% to 0.011% median.
+- **pandapower's CGMES importer drops the sign of negative reactances**
+  (case300's line 1201–120: −48.89 Ω in the file, +48.89 Ω in pandapower).
+  It reads the other five cimoxide conversions exactly, including
+  case2848rte, which it gets wrong from MATPOWER. It refuses pypowsybl's
+  export, which defines no slack.
+- **VeraGrid ignores `PhaseTapChangerTabular`** (every phase shifter imports
+  with a zero angle), and gets one of case14's three off-nominal transformer
+  ratios wrong. On pypowsybl's export (no slack, everything at 1 kV) its
+  voltages are off by up to 1.1 p.u.
+- **cimoxide 0.3.1** writes TopologicalNodes in the TP profile as bare
+  references, without `rdf:ID`, mRID or name. A plain round trip of the
+  SmallGrid fixture loses all 167. The cause: `profile_meta.rs` lists the
+  class's origins as `["SV", "TP"]`, and the encoder treats the first entry
+  as the defining profile. The converter patches its TP output until that is
+  fixed. Its synthesized FullModel headers are also too thin for PowSyBl,
+  which then skips the whole SSH profile, so the converter writes complete
+  ones.
 
 ## Why an oracle
 
@@ -96,7 +154,10 @@ Every adapter configures its tool to solve the same problem:
 - flat start on **every** solve (a warm start from the previous solution
   would make repeated timings meaningless; pandapower's default
   `init="auto"` does exactly that)
-- one slack bus, no reactive limits
+- one slack bus, and the case's own: pypowsybl is told the CGMES
+  `referencePriority` slack explicitly, because OpenLoadFlow would otherwise
+  pick its own
+- no reactive limits
 - no outer-loop controls (tap changers, phase-shifter regulation, switched shunts)
 - generator voltage regulation as the case defines it. For CGMES that
   includes a remote regulated terminal: switching it off moves pypowsybl
@@ -150,11 +211,11 @@ from [CGMES-Test-Configurations](https://github.com/m-mirz/CGMES-Test-Configurat
 | lightsim2grid | `init_from_matpower` (.mat) | — | `NR_KLU` |
 | PyPSA | `import_from_pypower_ppc`, transformers as pi-model | — | `pf()` |
 | power-grid-model | PGM JSON via `gridoxide.matpower` | — | NR with experimental voltage regulators |
-| pypowsybl | `network.load` (.mat) | `network.load` (zip) | OpenLoadFlow |
+| pypowsybl | `network.load` (.mat) | `network.load` (zip); slack from `referencePriority` | OpenLoadFlow |
 | VeraGrid | `parse_matpower_file` (.m) | `open_cgmes` | NR |
 
-Every tool reads the same case file through its **own importer** wherever it
-has one. (gridoxide's benchmark fed pandapower and lightsim2grid from
+The converted-CGMES families use the CGMES column. Every tool reads the same
+case file through its **own importer** wherever it has one. (gridoxide's benchmark fed pandapower and lightsim2grid from
 `pandapower.networks`, whose bundled copies of these cases provably differ
 from the `.m` files.)
 

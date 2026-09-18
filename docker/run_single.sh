@@ -8,4 +8,6 @@ export GIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)$(git diff --qu
 mkdir -p results-docker data/.case-cache
 compose="docker compose -f docker/docker-compose.yml"
 $compose run --rm prep
+$compose run --rm prep-pypowsybl
+$compose run --rm conversion-check
 $compose run --rm "$tool" pytest "benchmarks/${tool}_benchmark.py" "--benchmark-json=/output/$tool.json" "$@"
