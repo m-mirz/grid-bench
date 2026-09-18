@@ -97,6 +97,12 @@ internal compose network; the run scripts stop the sidecar afterwards.
    Then check the oracle: on case14 a correct tool shows residuals around
    1e-9 MVA. If it does not, find out why before anything else.
 7. `docker/run_single.sh <tool>` for all default cases, then regenerate reports.
+8. Add the tool's smoke outcomes to `benchmarks/smoke_expectations.json` and
+   the tool to the CI matrix (`.github/workflows/smoke.yml`). CI checks each
+   smoke case against its known outcome (`tools/check_smoke.py`), including
+   expected oracle rejections, so a documented finding is not a CI failure
+   but a change in any outcome is. Update an entry only when a behaviour
+   change is understood.
 
 ## Case families
 

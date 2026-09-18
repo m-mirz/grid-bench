@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tool: [pandapower, lightsim2grid, pypsa, pgm, pypowsybl, veragrid]
+        tool: [pandapower, lightsim2grid, pypsa, pgm, pypowsybl, veragrid, cgmes2pgm]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
         with:
@@ -21,16 +21,6 @@ jobs:
       - name: Oracle tests
         run: docker compose -f docker/docker-compose.yml run --rm oracle-tests
       - name: Smoke benchmark
-        run: |
-          ./docker/run_single.sh ${{ matrix.tool }} --groups smoke
-          python3 - <<'PY'
-          import json, sys
-          d = json.load(open("results-docker/${{ matrix.tool }}.json"))
-          solved = [b for b in d["benchmarks"] if b["extra_info"]["operation"] == "solve"]
-          bad = [b["extra_info"]["case"] for b in solved if b["extra_info"].get("oracle_ok") is False]
-          print("failures:", d["failures"])
-          # case14 is solved correctly by every tool except PGM, whose slack
-          # source sits 7e-4 p.u. off its setpoint (see adapters/pgm_adapter.py).
-          if not solved or ("${{ matrix.tool }}" != "pgm" and bad):
-              sys.exit(f"smoke failed: solved={len(solved)} oracle-rejected={bad}")
-          PY
+        run: ./docker/run_single.sh ${{ matrix.tool }} --groups smoke
+      - name: Check smoke outcomes against benchmarks/smoke_expectations.json
+        run: python3 tools/check_smoke.py ${{ matrix.tool }}
