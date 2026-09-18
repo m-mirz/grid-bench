@@ -17,7 +17,7 @@ done
 [ ${#tools[@]} -eq 0 ] && tools=($(ls tool-configs | grep -v '^harness$'))
 
 export HOST_UID="$(id -u)" HOST_GID="$(id -g)"
-export GIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)$(git diff --quiet 2>/dev/null || echo -dirty)"
+export GIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)$(git diff --quiet HEAD -- . ":!results-docker" ":!results" ":!docs" 2>/dev/null || echo -dirty)"
 compose="docker compose -f docker/docker-compose.yml"
 mkdir -p results-docker data/.case-cache
 

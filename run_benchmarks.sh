@@ -9,7 +9,7 @@ while [ $# -gt 0 ]; do
     tools+=("$1"); shift
 done
 [ ${#tools[@]} -eq 0 ] && tools=(pandapower lightsim2grid pypsa pgm pypowsybl veragrid)
-export GRID_BENCH_RESULTS=results GIT_SHA="$(git rev-parse HEAD)$(git diff --quiet || echo -dirty)"
+export GRID_BENCH_RESULTS=results GIT_SHA="$(git rev-parse HEAD)$(git diff --quiet HEAD -- . ":!results-docker" ":!results" ":!docs" || echo -dirty)"
 mkdir -p results
 uv run python -m cases.prep
 uv run python -m oracle.check_conversion results
