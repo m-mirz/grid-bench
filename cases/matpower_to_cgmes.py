@@ -52,7 +52,7 @@ Modelling decisions (MATPOWER manual, "Branch model" / `bustypes.m`):
   authority, with SSH and TP depending on EQ. (cimoxide >= 0.3.2 would
   synthesize a valid header itself; these carry the real values.)
 
-Requires cimoxide >= 0.3.2: earlier versions wrote TopologicalNodes in TP as
+Requires cimoxide >= 0.3.2 (pinned: 0.3.3): earlier versions wrote TopologicalNodes in TP as
 bare references, dropped `Equipment.inService` for lines and transformers,
 and synthesized headers PowSyBl ignores. This module patched those until the
 fixes were released.

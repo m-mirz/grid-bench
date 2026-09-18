@@ -12,7 +12,7 @@ dependencies = [
     "pytest>=8.3",
     "pytest-benchmark>=5.1",
     "pytest-timeout>=2.3",
-    "cimoxide==0.3.2",   # MATPOWER -> CGMES conversion (cases/matpower_to_cgmes.py)
+    "cimoxide==0.3.3",   # MATPOWER -> CGMES conversion (cases/matpower_to_cgmes.py)
 ]
 
 [project.optional-dependencies]
@@ -30,11 +30,11 @@ package = false
 # Never resolve a release younger than a week: a fresh release is not yet
 # the version most users run, and a yanked one would poison the lockfile.
 exclude-newer = "P7D"
-# cimoxide 0.3.2 (2026-09-18) carries the TopologicalNode, FullModel header
-# and Equipment.inService fixes this benchmark needed; taken before the
-# one-week rule allows it, at the maintainer's request, after checking its
-# output object by object against the previous conversion.
-exclude-newer-package = { cimoxide = "2026-09-18T17:00:00Z" }
+# cimoxide 0.3.3 (2026-09-18) carries the TopologicalNode, FullModel header,
+# Equipment.inService and Equipment-primary fixes this benchmark needed;
+# taken before the one-week rule allows it, at the maintainer's request,
+# after checking its output object by object against the previous conversion.
+exclude-newer-package = { cimoxide = "2026-09-18T18:00:00Z" }
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

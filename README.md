@@ -114,8 +114,10 @@ Findings from solving the converted cases, each traced to its cause:
   with a zero angle), and gets one of case14's three off-nominal transformer
   ratios wrong. On pypowsybl's export (no slack, everything at 1 kV) its
   voltages are off by up to 1.1 p.u.
-- **cimoxide 0.3.1** had three encoder issues this work found, all fixed in
-  **0.3.2**, which the converter now uses without any patching:
+- **cimoxide 0.3.1** had three encoder issues this work found, fixed in
+  0.3.2, plus a regression in the first of those fixes (SSH wrote
+  equipment defined in EQ as its own definitions), fixed in **0.3.3**,
+  which the converter now uses without any patching:
   TopologicalNodes were written to TP as bare references (a SmallGrid round
   trip lost all 167 definitions); synthesized FullModel headers lacked the
   Header profile's mandatory fields, so PowSyBl ignored the SSH profile; and
@@ -153,7 +155,7 @@ Traced to their cause:
   export: "Grid has no SynchronousMachines or ExternalNetworkInjections".
 - It requires `Equipment.inService` for lines and transformers, which CGMES
   3.0 states as `<cim:Equipment>` elements in SSH; without them it converts
-  no lines (cimoxide writes them from 0.3.2 on).
+  no lines (cimoxide writes them from 0.3.2 on; the converter uses 0.3.3).
 
 ## Why an oracle
 
