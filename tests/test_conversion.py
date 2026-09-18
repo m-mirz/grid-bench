@@ -40,8 +40,8 @@ def test_conversion_is_exact(converted, case):
 
 
 def test_topological_nodes_are_defined_in_tp(converted):
-    """Guards the workaround for cimoxide writing TP TopologicalNodes as bare
-    references (see matpower_to_cgmes._define_topological_nodes)."""
+    """TopologicalNodes are defined in TP with mRID and name (cimoxide < 0.3.2
+    wrote bare references); the oracle joins tools' results through the name."""
     _, paths = converted("case14")
     tp = next(p for p in paths if "_TP" in p.name).read_text()
     assert len(re.findall(r'<cim:TopologicalNode rdf:ID="_', tp)) == 14
@@ -49,9 +49,9 @@ def test_topological_nodes_are_defined_in_tp(converted):
 
 
 def test_branches_are_stated_in_service(converted):
-    """Guards the workaround for cimoxide not writing `Equipment.inService`
-    for lines and transformers (see matpower_to_cgmes._state_in_service);
-    cgmes2pgm converts no branch without it."""
+    """Lines and transformers are stated in service in SSH as
+    `<cim:Equipment rdf:about>` (cimoxide < 0.3.2 dropped them); cgmes2pgm
+    converts no branch without it."""
     _, paths = converted("case14")
     ssh = next(p for p in paths if "_SSH" in p.name).read_text()
     assert len(re.findall(r'<cim:Equipment rdf:about="#_', ssh)) == 20   # 17 lines + 3 transformers

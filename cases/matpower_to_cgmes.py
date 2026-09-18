@@ -46,13 +46,16 @@ Modelling decisions (MATPOWER manual, "Branch model" / `bustypes.m`):
   The slack is the REF bus generator, `referencePriority = 1`.
 - Out-of-service branches and isolated buses are omitted: they do not enter
   the power-flow equations.
-- Every line and transformer is stated in service in SSH, as a
-  `cim:Equipment` element (the CGMES 3.0 form; see `_state_in_service`).
-- Each profile gets a complete FullModel header (UUID URN, scenario time,
-  modelling authority, SSH and TP depending on EQ). cimoxide synthesizes a
-  header when none is present, but its minimal one (`urn:uuid:cimoxide-SSH`,
-  profile only) makes PowSyBl skip the SSH values entirely (loads, generator
-  targets and shunt sections all come out empty).
+- Every line and transformer is in service (`Equipment.inService`, which
+  cimoxide writes in SSH as the CGMES 3.0 `<cim:Equipment rdf:about>` form).
+- Each profile gets a FullModel header naming grid-bench as modelling
+  authority, with SSH and TP depending on EQ. (cimoxide >= 0.3.2 would
+  synthesize a valid header itself; these carry the real values.)
+
+Requires cimoxide >= 0.3.2: earlier versions wrote TopologicalNodes in TP as
+bare references, dropped `Equipment.inService` for lines and transformers,
+and synthesized headers PowSyBl ignores. This module patched those until the
+fixes were released.
 """
 import sys
 import uuid
@@ -220,41 +223,6 @@ def convert(mpc: dict, case_name: str) -> Builder:
     return b
 
 
-def _define_topological_nodes(tp: str, builder: Builder) -> str:
-    """Workaround for a cimoxide 0.3.1 encoder bug: it takes the first entry of
-    a class's profile-origin list as the defining profile, and lists
-    TopologicalNode as ["SV", "TP"] (`cimstructs/src/profile_meta.rs`). So TP
-    writes every TopologicalNode as an `rdf:about` reference without mRID or
-    name, although CGMES 3.0 defines them in TP (a plain decode/encode of the
-    SmallGrid fixture loses all 167 the same way). Rewrites those elements as
-    definitions. Remove once cimoxide picks the defining profile."""
-    import re
-
-    def define(match: re.Match) -> str:
-        m = match.group(1).lstrip("_")
-        name = builder.objects[m]["name"]
-        return (f'<cim:TopologicalNode rdf:ID="_{m}">\n    <cim:IdentifiedObject.mRID>{m}</cim:IdentifiedObject.mRID>'
-                f'\n    <cim:IdentifiedObject.name>{name}</cim:IdentifiedObject.name>')
-
-    return re.sub(r'<cim:TopologicalNode rdf:about="#([^"]+)">', define, tp)
-
-
-def _state_in_service(ssh: str, builder: Builder) -> str:
-    """Workaround for a cimoxide 0.3.1 encoder gap: CGMES 3.0 states
-    `Equipment.inService` for equipment classes the SSH profile does not list
-    (lines, transformers, switches) as `<cim:Equipment rdf:about=...>` elements,
-    which is why the SSH RDFS declares Equipment concrete. cimoxide writes a
-    field only for a class whose own profile origins include SSH, so these
-    elements are never written: a decode/encode of the SmallGrid fixture
-    drops all 314 of them. cgmes2pgm requires the statement and otherwise
-    converts no lines at all. Appends them for every branch."""
-    elements = "".join(
-        f'  <cim:Equipment rdf:about="#{obj["id"]}">\n'
-        f'    <cim:Equipment.inService>true</cim:Equipment.inService>\n  </cim:Equipment>\n'
-        for obj in builder.objects.values() if obj["_type"] in ("ACLineSegment", "PowerTransformer"))
-    return ssh.replace("</rdf:RDF>", elements + "</rdf:RDF>")
-
-
 def write(builder: Builder, out_dir: Path, case_name: str) -> list[Path]:
     import cimoxide
 
@@ -273,10 +241,7 @@ def write(builder: Builder, out_dir: Path, case_name: str) -> list[Path]:
     paths = []
     for profile in ("EQ", "SSH", "TP"):
         path = out_dir / f"{case_name}_{profile}.xml"
-        xml = ds.to_xml_for_profile(profile)
-        xml = _define_topological_nodes(xml, builder) if profile == "TP" else xml
-        xml = _state_in_service(xml, builder) if profile == "SSH" else xml
-        path.write_text(xml)
+        path.write_text(ds.to_xml_for_profile(profile))
         paths.append(path)
     return paths
 

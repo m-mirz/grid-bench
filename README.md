@@ -114,16 +114,14 @@ Findings from solving the converted cases, each traced to its cause:
   with a zero angle), and gets one of case14's three off-nominal transformer
   ratios wrong. On pypowsybl's export (no slack, everything at 1 kV) its
   voltages are off by up to 1.1 p.u.
-- **cimoxide 0.3.1** writes TopologicalNodes in the TP profile as bare
-  references, without `rdf:ID`, mRID or name. A plain round trip of the
-  SmallGrid fixture loses all 167. The cause: `profile_meta.rs` lists the
-  class's origins as `["SV", "TP"]`, and the encoder treats the first entry
-  as the defining profile. The converter patches its TP output until that is
-  fixed. Its synthesized FullModel headers are also too thin for PowSyBl,
-  which then skips the whole SSH profile, so the converter writes complete
-  ones. And it never writes `Equipment.inService` for lines and transformers
-  (CGMES 3.0's `<cim:Equipment>` elements in SSH), so the converter adds
-  those too.
+- **cimoxide 0.3.1** had three encoder issues this work found, all fixed in
+  **0.3.2**, which the converter now uses without any patching:
+  TopologicalNodes were written to TP as bare references (a SmallGrid round
+  trip lost all 167 definitions); synthesized FullModel headers lacked the
+  Header profile's mandatory fields, so PowSyBl ignored the SSH profile; and
+  `Equipment.inService` was never written for lines and transformers (the
+  CGMES 3.0 `<cim:Equipment>` elements), which dropped 40 `false` statements
+  across SmallGrid and Svedala and left cgmes2pgm with no lines.
 
 ## power-grid-model on CGMES: cgmes2pgm
 
@@ -154,9 +152,8 @@ Traced to their cause:
 - It requires a slack (`referencePriority` > 0) and so rejects pypowsybl's
   export: "Grid has no SynchronousMachines or ExternalNetworkInjections".
 - It requires `Equipment.inService` for lines and transformers, which CGMES
-  3.0 states as `<cim:Equipment>` elements in SSH. cimoxide 0.3.1 does not
-  write those (a SmallGrid round trip drops all 314), so the cimoxide
-  converter adds them itself; without them, cgmes2pgm converts no lines.
+  3.0 states as `<cim:Equipment>` elements in SSH; without them it converts
+  no lines (cimoxide writes them from 0.3.2 on).
 
 ## Why an oracle
 
