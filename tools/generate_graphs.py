@@ -36,7 +36,8 @@ TITLES = {(op, fam): f"{label}, {_lower_first(FAMILY_TITLES[fam])}"
           for op, label in (("solve", "Warm AC power-flow solve"), ("import", "Import from file"),
                             ("memory", "Peak memory of loading and solving"))
           for fam in FAMILY_TITLES}
-MEMORY_FLOOR_MB = 1.0   # log axis: smaller additions are drawn at this line
+MEMORY_FLOOR_MB = 1.0
+MAX_DIRECT_LABELS = 4   # log axis: smaller additions are drawn at this line
 
 
 def memory_added_mb(extra: dict) -> float | None:
@@ -114,16 +115,19 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
         ax.spines[side].set_color(theme["axis"])
     ax.tick_params(colors=theme["text2"], which="both")
 
-    # Direct labels, in text ink, only for lines that reach the right edge:
-    # a label there for a line that stopped earlier would sit beside the
-    # wrong data. The legend names every line.
+    # Direct labels, in text ink, only for lines that reach the right edge
+    # (a label there for a line that stopped earlier would sit beside the
+    # wrong data), and only when at most four do: more get pushed apart,
+    # away from their lines. The legend names every line.
     xmax = max(x for x, _, _ in ends)
     ends = [e for e in ends if e[0] == xmax]
-    lo, hi = ax.get_ylim()
-    gap = (math.log10(hi) - math.log10(lo)) * 0.055
-    for (_, _, name), ly in zip(ends, _spread([math.log10(y) for _, y, _ in ends], gap)):
-        ax.annotate(name, xy=(xmax * 1.15, 10 ** ly), color=theme["text"], fontsize=9, va="center",
-                    annotation_clip=False)
+    labelled = len(ends) <= MAX_DIRECT_LABELS
+    if labelled:
+        lo, hi = ax.get_ylim()
+        gap = (math.log10(hi) - math.log10(lo)) * 0.055
+        for (_, _, name), ly in zip(ends, _spread([math.log10(y) for _, y, _ in ends], gap)):
+            ax.annotate(name, xy=(xmax * 1.15, 10 ** ly), color=theme["text"], fontsize=9, va="center",
+                        annotation_clip=False)
     ax.set_xlim(right=xmax * 1.1)
     legend = fig.legend(loc="lower left", bbox_to_anchor=(0.08, 0.075), frameon=False, fontsize=9, ncols=4,
                         handlelength=1.5, columnspacing=1.2)
@@ -136,7 +140,7 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
             "Filled: solution verified by the oracle. Hollow: converged to a different problem.\n"
             "Missing: the tool failed (see comparison.md).")
     fig.text(0.09, 0.01, note, color=theme["text2"], fontsize=8)
-    fig.subplots_adjust(left=0.09, right=0.76, top=0.9, bottom=0.27)
+    fig.subplots_adjust(left=0.09, right=0.76 if labelled else 0.97, top=0.9, bottom=0.27)
     fig.savefig(path, facecolor=theme["surface"], metadata={"Date": None})
     plt.close(fig)
     return True

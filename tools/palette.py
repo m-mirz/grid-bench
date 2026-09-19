@@ -3,7 +3,12 @@ life (colour follows the tool, never its rank). The eight slots below are
 the dataviz reference palette in its validated order; checked with its
 validator in both modes (worst adjacent CVD dE 9.1 light / 8.4 dark,
 normal-vision 19.6 / 19.3). All eight are taken: a ninth tool needs a
-different encoding (small multiples, "other"), never a generated hue. Three light-mode slots sit below 3:1 contrast on
+different encoding (small multiples, "other"), never a generated hue.
+Checked all-pairs, as a chart showing every tool at once needs, the palette
+fails: slot 8 red vs slot 2 orange is dE 7.1 even with full colour vision,
+and several pairs sit below 4 under colour-vision deficiency. The legend,
+the site's hover and tool toggles, and comparison.md carry identity; small
+multiples would fix it properly. Three light-mode slots sit below 3:1 contrast on
 the surface, so every chart carries direct labels and a table view.
 """
 LIGHT_TO_DARK = {
