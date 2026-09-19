@@ -29,7 +29,7 @@ class Lightsim2gridAdapter(SolverAdapter):
     package = "lightsim2grid"
     modules = ("lightsim2grid", "lightsim2grid.network", "lightsim2grid.algorithm")
     language = "c++"
-    families = ("matpower",)
+    families = ("matpower", "distribution")
     settings = {"algorithm": "NR_KLU", "init": "flat", "tolerance_pu": TOLERANCE_PU, "max_iteration": MAX_ITERATIONS}
 
     def load(self, case):

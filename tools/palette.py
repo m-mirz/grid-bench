@@ -1,8 +1,14 @@
 """Colours for reports and the site. Each tool keeps one categorical slot for
-life (colour follows the tool, never its rank). The seven slots below are the
-first seven of the dataviz reference palette in its validated order; checked
-with its validator in both modes (worst adjacent CVD dE 9.1 light / 8.4 dark,
-normal-vision 19.6 / 19.3). Three light-mode slots sit below 3:1 contrast on
+life (colour follows the tool, never its rank). The eight slots below are
+the dataviz reference palette in its validated order; checked with its
+validator in both modes (worst adjacent CVD dE 9.1 light / 8.4 dark,
+normal-vision 19.6 / 19.3). All eight are taken: a ninth tool needs a
+different encoding (small multiples, "other"), never a generated hue.
+Checked all-pairs, as a chart showing every tool at once needs, the palette
+fails: slot 8 red vs slot 2 orange is dE 7.1 even with full colour vision,
+and several pairs sit below 4 under colour-vision deficiency. The legend,
+the site's hover and tool toggles, and comparison.md carry identity; small
+multiples would fix it properly. Three light-mode slots sit below 3:1 contrast on
 the surface, so every chart carries direct labels and a table view.
 """
 LIGHT_TO_DARK = {
@@ -13,6 +19,12 @@ LIGHT_TO_DARK = {
     "#e87ba4": "#d55181",   # 5 magenta pypowsybl
     "#008300": "#008300",   # 6 green   VeraGrid
     "#4a3aa7": "#9085e9",   # 7 violet  PGM via cgmes2pgm
+    "#e34948": "#e66767",   # 8 red     Sienna (PowerFlows.jl)
 }
+# A reference implementation (MATPOWER) is not a ninth hue: neutral ink,
+# drawn dashed, so it reads as a reference line in both modes and without
+# colour vision.
+REFERENCE = "#52514e"
+LIGHT_TO_DARK[REFERENCE] = "#c3c2b7"
 LIGHT = {"surface": "#fcfcfb", "text": "#0b0b0b", "text2": "#52514e", "grid": "#e4e3df", "axis": "#8a8984"}
 DARK = {"surface": "#1a1a19", "text": "#ffffff", "text2": "#c3c2b7", "grid": "#33332f", "axis": "#6f6e69"}

@@ -3,7 +3,11 @@
 Inputs:
 - matpower: `parse_matpower_file` on the original `.m` (VeraGrid reads it
   directly, and does not need the `.mat` normalization). `Bus.code` holds the
-  MATPOWER bus number.
+  MATPOWER bus number. Known loss, reported by the oracle: a case whose
+  `baseMVA` is not 100 is solved wrongly (every MATPOWER distribution
+  feeder with baseMVA 1 or 10). case33bw rewritten at baseMVA 100 with the
+  same per-unit-scaled impedances passes to 1e-7 MW, as is it misses by
+  0.4 MW, so the parser does not apply the file's base power consistently.
 - cgmes: `IO.file_open.open_cgmes` on the profile list. (The generic
   `open_file` rejects a list of CGMES files in 6.5.x with an empty error
   log.) VeraGrid builds one bus per ConnectivityNode; `Bus.idtag` is the
@@ -30,7 +34,7 @@ import numpy as np
 
 from adapters.cgmes_ids import by_node
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge, Solution, SolverAdapter
-from cases.registry import CASES, cgmes_files
+from cases.registry import CASES, cgmes_files, is_cgmes
 
 
 class VeragridAdapter(SolverAdapter):
@@ -40,13 +44,13 @@ class VeragridAdapter(SolverAdapter):
     package = "VeraGridEngine"
     modules = ("VeraGridEngine", "VeraGridEngine.IO.file_open")
     language = "python"
-    families = ("matpower", "cgmes", "converted-cimoxide", "converted-pypowsybl")
+    families = ("matpower", "distribution", "cgmes", "converted-cimoxide", "converted-pypowsybl")
     settings = {"solver_type": "NR", "retry_with_other_methods": False, "init": "flat", "distributed_slack": False,
                 "outer_loop_controls": "off", "remote_voltage_control": True, "tolerance_pu": TOLERANCE_PU, "max_iteration": MAX_ITERATIONS}
 
     def load(self, case):
         import VeraGridEngine as vg
-        if CASES[case]["family"] == "matpower":
+        if not is_cgmes(case):
             grid, _ = vg.parse_matpower_file(str(CASES[case]["file"]))
         else:
             from VeraGridEngine.IO.file_open import open_cgmes
@@ -66,7 +70,7 @@ class VeragridAdapter(SolverAdapter):
         results, buses = model["driver"].results, model["grid"].get_buses()
         v = results.voltage
         iterations = int(np.max(results.iterations)) if getattr(results, "iterations", None) is not None else None
-        if CASES[case]["family"] == "matpower":
+        if not is_cgmes(case):
             ids = [str(b.code) for b in buses]
             return Solution(dict(zip(ids, np.abs(v))), dict(zip(ids, np.rad2deg(np.angle(v)))), iterations)
         per_cn = {b.idtag: (abs(x) * b.Vnom, float(np.rad2deg(np.angle(x)))) for b, x in zip(buses, v)}

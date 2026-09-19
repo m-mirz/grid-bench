@@ -1,35 +1,49 @@
 {
-  "_about": "Known outcome of every smoke case per tool, checked in CI by tools/check_smoke.py. ok: solved and accepted by the tier-1 oracle; rejected: solved, but to a different problem (a documented importer finding); failed: the tool raised (recorded failure); solved: no tier-1 verdict (CGMES fixture, graded against its published SV). Derived from the full sweep at 23e4a22. When a tool's behaviour changes on purpose (e.g. a fixed importer), update the entry.",
+  "_about": "Known outcome of every smoke case per tool, checked in CI by tools/check_smoke.py. ok: solved and accepted by the tier-1 oracle; rejected: solved, but to a different problem (a documented importer finding); failed: the tool raised (recorded failure); solved: no tier-1 verdict (CGMES fixture, graded against its published SV). Derived from the full sweep at f0f01b2; sienna and matpower from their first runs. When a tool's behaviour changes on purpose (e.g. a fixed importer), update the entry.",
   "cgmes2pgm": {
     "cgmes_powerflow": "solved",
     "case14@cimoxide": "rejected",
     "case14@pypowsybl": "failed"
   },
   "lightsim2grid": {
-    "case14": "ok"
+    "case14": "ok",
+    "case33bw": "ok"
   },
   "pandapower": {
     "case14": "ok",
     "cgmes_powerflow": "solved",
     "case14@cimoxide": "ok",
-    "case14@pypowsybl": "failed"
+    "case14@pypowsybl": "failed",
+    "case33bw": "ok"
   },
   "pgm": {
-    "case14": "rejected"
+    "case14": "rejected",
+    "case33bw": "rejected"
   },
   "pypowsybl": {
     "case14": "ok",
     "cgmes_powerflow": "solved",
     "case14@cimoxide": "ok",
-    "case14@pypowsybl": "rejected"
+    "case14@pypowsybl": "rejected",
+    "case33bw": "ok"
   },
   "pypsa": {
-    "case14": "ok"
+    "case14": "ok",
+    "case33bw": "rejected"
   },
   "veragrid": {
     "case14": "ok",
     "cgmes_powerflow": "solved",
     "case14@cimoxide": "rejected",
-    "case14@pypowsybl": "rejected"
+    "case14@pypowsybl": "rejected",
+    "case33bw": "rejected"
+  },
+  "sienna": {
+    "case14": "ok",
+    "case33bw": "ok"
+  },
+  "matpower": {
+    "case14": "ok",
+    "case33bw": "ok"
   }
 }

@@ -5,9 +5,11 @@ Contributor guide for grid-bench (people and coding agents alike).
 ## What this is
 
 A benchmark of power system analysis software. v1 covers AC power flow for
-pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl, VeraGrid, and
-power-grid-model on CGMES through cgmes2pgm. The infrastructure follows cim-bench (adapters, one container per
-tool, JSON as the only contract between measuring and reporting). The
+pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl, VeraGrid,
+Sienna (PowerFlows.jl, Julia, through juliacall), MATPOWER (GNU Octave), and
+power-grid-model on CGMES through cgmes2pgm. The infrastructure follows cim-bench (adapters, one
+container per tool, JSON as the only contract between measuring and
+reporting). The
 methodology follows gridoxide's `scripts/bench` (warm solves on persistent
 models, justified settings, a tool-independent oracle).
 
@@ -47,11 +49,15 @@ cases/       registry.py (every case, groups, families), matpower.py (.m reader)
 oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), evaluate.py (entry point),
              cgmes_model.py (tool-free CGMES reader: TN->bus join, converter fidelity),
              check_conversion.py (writes conversion.json)
-adapters/    solver_adapter.py (the ABC), <tool>_adapter.py, cgmes_ids.py, memory.py
+adapters/    solver_adapter.py (the ABC), <tool>_adapter.py, cgmes_ids.py, memory.py,
+             octave_session.py + matpower_octave/ (MATPOWER's Octave side, timed inside Octave)
 benchmarks/  benchmark_template.py (generates tests), conftest.py (selection, failures, metadata),
              <tool>_benchmark.py (3 lines each)
 tools/       benchmark_data.py (loader) + generate_{comparison,graphs,site,all}.py, palette.py
 tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned exactly)
+tool-configs/matpower/Dockerfile      the official Octave image + uv Python + the MATPOWER release
+tool-configs/sienna/Dockerfile, julia/   Julia on top of the base image; Project.toml, Manifest.toml,
+             setup.jl (registry snapshot), GridBenchSienna (the adapter's Julia half, precompiled)
 docker/      base.dockerfile, tool.dockerfile, docker-compose.yml, build.sh, run_*.sh
 tests/       the oracle's own tests, and the converter's (exactness + planted errors)
 data/        submodules: benchmark-grids (MATPOWER), CGMES-Test-Configurations
@@ -63,7 +69,7 @@ docs/index.html  generated site
 
 ```bash
 docker/build.sh [tool ...]                     # images (base, harness, tools)
-docker/lock.sh                                 # re-resolve every uv.lock (review, then commit)
+docker/lock.sh                                 # re-resolve every uv.lock and Julia Manifest.toml (review, then commit)
 docker/run_benchmark.sh [tool ...] [-- --groups smoke]   # prep, oracle tests, tools, reports
 docker/run_single.sh pandapower --cases case14,case300   # one tool, quick iteration
 docker compose -f docker/docker-compose.yml run --rm reports   # regenerate reports only
@@ -82,8 +88,9 @@ internal compose network; the run scripts stop the sidecar afterwards.
 
 1. `adapters/<tool>_adapter.py`: subclass `SolverAdapter`. Set `name`,
    `display_name`, `color` (the next unused slot in `tools/palette.py`; a
-   tool keeps its colour for life), `package`, `modules` (everything `load`
-   and `solve` import, for the memory baseline), `language`,
+   tool keeps its colour for life; all eight are taken, and a reference
+   implementation uses `REFERENCE`, drawn dashed), `package`, `modules`
+   (everything `load` and `solve` import, for the memory baseline), `language`,
    `families`, `settings`. Implement `load`, `solve`, `solution`. Docstring:
    input path, bus-id mapping, and every setting with its justification.
 2. Register it in `adapters/__init__.py` (order = colour-slot order).
@@ -92,7 +99,10 @@ internal compose network; the run scripts stop the sidecar afterwards.
    (a release at least 7 days old; `exclude-newer = "P7D"` enforces it).
    Then `docker/lock.sh` to write its `uv.lock`, and commit both: images
    install exactly the lockfile.
-5. A service in `docker/docker-compose.yml`, copy another.
+5. A service in `docker/docker-compose.yml`, copy another. A tool that
+   needs more than Python packages brings `tool-configs/<tool>/Dockerfile`
+   (built by `docker/build.sh` in place of `docker/tool.dockerfile`; see
+   sienna's, which adds Julia).
 6. `docker/build.sh <tool> && docker/run_single.sh <tool> --groups smoke`.
    Then check the oracle: on case14 a correct tool shows residuals around
    1e-9 MVA. If it does not, find out why before anything else.
@@ -106,10 +116,13 @@ internal compose network; the run scripts stop the sidecar afterwards.
 
 ## Case families
 
-`matpower`, `cgmes` (conformity fixtures, graded against their SV), and
-`converted-<converter>` (MATPOWER cases converted to CGMES, graded by the
-tier-1 residual against the original `.m`). A tool declares the families it
-reads in `SolverAdapter.families`. Converted cases are keyed `<case>@<converter>`.
+`matpower` (meshed transmission), `distribution` (radial feeders and
+generated MV/LV grids, same `.m` format and grading), `cgmes` (conformity
+fixtures, graded against their SV), and `converted-<converter>` (MATPOWER
+cases converted to CGMES, graded by the tier-1 residual against the original
+`.m`). A tool declares the families it reads in `SolverAdapter.families`.
+Converted cases are keyed `<case>@<converter>`. Branch on a case's input
+format with `is_cgmes(case)` (the `format` field), never on its family.
 
 `oracle/cgmes_model.py` must stay independent of both converters: it is
 ElementTree only, and must not import cimoxide or pypowsybl. When a converter
@@ -119,16 +132,25 @@ and the checker disagree, check the reading of CGMES against a third party
 ## Adding a case
 
 Add it to `CASES` in `cases/registry.py` with its groups. MATPOWER cases
-come from the `data/benchmark-grids` submodule; CGMES cases need an SV
-profile, which is used as the reference and never given to a tool.
+come from the `data/benchmark-grids` submodule, and new data goes there
+first (with its provenance), never directly into this repo. A `.m` file
+must be plain data: MATPOWER's distribution files convert units in MATLAB
+code that no importer runs, so the registry reads the submodule's
+`matpower-plain/` copies (`tests/test_cases.py` guards this). CGMES cases
+need an SV profile, which is used as the reference and never given to a tool.
 
 ## Pinning
 
 Everything a build fetches is pinned; keep it that way. Base images and the
 uv image by digest, CPython by exact version (`docker/base.dockerfile`),
 Python packages by the committed `tool-configs/*/uv.lock` (and `uv.lock` for
-the native path), the Fuseki jar by SHA-256 (`docker/fuseki/Dockerfile`),
-the CI checkout action by commit. Do not add `apt`/`apk` installs. To
+the native path), Julia by the official image's digest and Julia packages by
+`tool-configs/sienna/julia/Manifest.toml`, resolved against the General
+registry at a commit at least 7 days old (`REGISTRY_COMMIT` in `setup.jl`;
+move it forward deliberately, like `exclude-newer`), the Fuseki jar by
+SHA-256 (`docker/fuseki/Dockerfile`), GNU Octave by the official image's
+digest and the MATPOWER release zip by SHA-256
+(`tool-configs/matpower/Dockerfile`), the CI checkout action by commit. Do not add `apt`/`apk` installs. To
 update anything, change the pin deliberately and say why in the commit.
 
 ## Style

@@ -6,14 +6,17 @@ tools *read* CGMES grid models, grid-bench compares what the tools are for:
 **solving** them. It does not stop at speed. Every solve is checked by an
 oracle that none of the tools under test takes part in.
 
-v1 covers AC power flow in seven open-source tool setups:
+v1 covers AC power flow in nine open-source tool setups:
 [pandapower](https://github.com/e2nIEE/pandapower),
 [lightsim2grid](https://github.com/Grid2op/lightsim2grid),
 [PyPSA](https://github.com/PyPSA/PyPSA),
 [power-grid-model](https://github.com/PowerGridModel/power-grid-model),
 [pypowsybl](https://github.com/powsybl/pypowsybl) (OpenLoadFlow) and
-[VeraGrid](https://github.com/SanPen/VeraGrid), and power-grid-model on CGMES
-through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
+[VeraGrid](https://github.com/SanPen/VeraGrid), NREL's Julia platform
+[Sienna](https://github.com/Sienna-Platform) (PowerSystems.jl +
+PowerFlows.jl), [MATPOWER](https://matpower.org) itself on GNU Octave, and
+power-grid-model on CGMES through
+[cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
 **Results:** [`results-docker/comparison.md`](results-docker/comparison.md) ·
 [site](docs/index.html) (GitHub Pages: sortable, filterable, with hover detail)
@@ -157,6 +160,52 @@ Traced to their cause:
   3.0 states as `<cim:Equipment>` elements in SSH; without them it converts
   no lines (cimoxide writes them from 0.3.2 on; the converter uses 0.3.3).
 
+## Sienna: Julia through juliacall
+
+[Sienna](https://github.com/Sienna-Platform)'s PowerFlows.jl solves a
+PowerSystems.jl `System` read from the `.m` by PowerSystems' own MATPOWER
+parser. The benchmark drives it from Python with
+[juliacall](https://github.com/JuliaPy/PythonCall.jl), which runs Julia
+inside the benchmark process, so a call costs microseconds and the timing is
+Julia's. The adapter's Julia half (`tool-configs/sienna/julia/GridBenchSienna`)
+is compiled into the image with a precompile workload; without it, every
+fresh process spends ~40 s in the JIT on its first case, and the memory
+measurement would be the compiler's.
+
+Traced to their cause (`adapters/sienna_adapter.py`):
+- **Ybus is single precision** (`const YBUS_ELTYPE = ComplexF32` in
+  PowerNetworkMatrices). PowerFlows converges on the rounded matrix, which
+  leaves residuals of 1e-5 to 1e-3 MW where the other tools reach 1e-9,
+  growing with grid size.
+- PowerSystems' MATPOWER parser keeps only the from end's half of a
+  **transformer's line charging** and drops the other (case118, case300,
+  case3120sp, case2848rte).
+- **Pure phase shifters** (tap ratio 0) fail to parse (`KeyError:
+  "base_voltage_from"`), so no PEGASE case loads.
+- A PV bus without a generator is refused unless `correct_bustypes=true`,
+  which applies MATPOWER's own rule (treat it as PQ); the adapter sets it.
+
+## MATPOWER on GNU Octave
+
+MATPOWER defines the case format and the branch model the oracle follows,
+so it is the reference implementation, drawn as a neutral dashed line
+rather than a ninth colour. It runs on [GNU Octave](https://octave.org)
+(MATLAB needs a licence, so it cannot run in a container or in CI), in the
+official Octave image; MATPOWER is the 8.1 release, checked by SHA-256.
+
+A persistent `octave-cli` process is driven over its stdin
+(`adapters/octave_session.py`, standard library only), and every timed step
+is timed **inside Octave** with tic/toc: the harness takes those times
+instead of its own clock (`SolverAdapter.clock`), so the bridge (~1 ms per
+call) is in no number. Memory is the Octave process's. A solve is `runpf` on
+the loaded case, as MATPOWER is used.
+
+MATPOWER 8's `runpf` runs on its object-oriented MP-Core by default, which
+Octave executes slowly: about 40 ms per call before any work. Its legacy
+core solves the same problem faster (5 vs 40 ms on case14, 255 vs 442 ms on
+case9241pegase). The benchmark runs the default; these are not MATLAB's
+numbers.
+
 ## Why an oracle
 
 Comparing tools against each other cannot tell you which one is right.
@@ -230,8 +279,11 @@ deliberately does *not* do.
 - **Reproducible builds:** everything a build fetches is pinned. Base images
   and uv are pinned by digest, and CPython by exact version (uv checks it
   against its own checksum). Every Python package comes from a committed
-  `uv.lock` per image, which records file hashes (`uv sync --frozen`). The
-  Fuseki jar is checked against a pinned SHA-256 whose Apache PGP signature
+  `uv.lock` per image, which records file hashes (`uv sync --frozen`).
+  Julia and GNU Octave come from their official images by digest, the
+  MATPOWER release zip by SHA-256; every Julia package from a
+  committed `Manifest.toml` resolved against a General-registry snapshot at
+  least a week old, and fetched by content hash. The Fuseki jar is checked against a pinned SHA-256 whose Apache PGP signature
   was verified. No OS packages are installed. `docker/lock.sh` re-locks
   deliberately.
 
@@ -241,13 +293,29 @@ Chosen for what they exercise, not just their size (`cases/registry.py`):
 
 | group | cases | purpose |
 |---|---|---|
-| smoke | case14, CGMES PowerFlow | pipeline check. Timing here is call overhead. |
-| scaling | case118, case300, PEGASE 1354 / 2869 / 9241, CGMES SmallGrid / Svedala / RealGrid | the timing headline. PEGASE is one grid family at three sizes. |
-| feature | case300, case3120sp, case2848rte, CGMES MicroGrid-BE / MiniGrid | the accuracy headline: transformer line charging, negative reactances, PV buses without generators, offline equipment, every branch encoded as a transformer |
+| smoke | case14, case33bw, CGMES PowerFlow | pipeline check. Timing here is call overhead. |
+| scaling | case118, case300, PEGASE 1354 / 2869 / 9241, generated MV/LV grids mvlv1004 / 10616 / 29840, CGMES SmallGrid / Svedala / RealGrid | the timing headline. PEGASE is one grid family at three sizes; the MV/LV grids one generator at three. |
+| feature | case300, case3120sp, case2848rte, distribution feeders case4_dist / case18 / case33bw, CGMES MicroGrid-BE / MiniGrid | the accuracy headline: transformer line charging, negative reactances, PV buses without generators, offline equipment, every branch encoded as a transformer; radial feeders with high R/X, heavy loading and small base powers |
 | robustness | case1888rte, case6495rte | known not to converge from a flat start in any tool here. Reported separately. |
 
+The transmission cases are meshed. The `distribution` family is radial:
+the fifteen literature feeders MATPOWER bundles (4 to 141 buses), and four
+synthetic MV/LV grids (1,004 to 29,840 buses) from power-grid-model's grid
+generator, exported to MATPOWER format by a checked exporter in
+benchmark-grids (single-phase loads balanced, all loads constant power; see
+its PROVENANCE.md). The generated grids are loaded as power-grid-model's own
+benchmark loads them, down to 0.67 p.u.; a hard, but well-posed, power flow.
+MATPOWER's feeder files convert ohm and kW to per unit in MATLAB code no
+tool importer runs, so every tool reads plain-data copies with that code
+evaluated; case33bw and case69 reproduce their papers' losses and minimum
+voltage (`tests/test_cases.py`).
+
 `case_illinois200` and `case6515rte` (another snapshot of case6495rte's grid)
-stay available by name. MATPOWER files come from the
+stay available by name, as do the other twelve distribution feeders and
+mvlv2606: their outcomes repeat those of the default cases (the pattern
+across all fifteen feeders comes down to base power, tie switches and the
+slack setpoint, which case33bw and case4_dist cover), and some are
+near-duplicates (case33mg is case33bw at base power 1). MATPOWER files come from the
 [benchmark-grids](https://github.com/m-mirz/benchmark-grids) submodule; CGMES
 from [CGMES-Test-Configurations](https://github.com/m-mirz/CGMES-Test-Configurations).
 
@@ -261,6 +329,8 @@ from [CGMES-Test-Configurations](https://github.com/m-mirz/CGMES-Test-Configurat
 | power-grid-model | PGM JSON via `gridoxide.matpower` | — | NR with experimental voltage regulators |
 | pypowsybl | `network.load` (.mat) | `network.load` (zip); slack from `referencePriority` | OpenLoadFlow |
 | VeraGrid | `parse_matpower_file` (.m) | `open_cgmes` | NR |
+| Sienna | `PowerSystems.System` (.m) via juliacall | — | PowerFlows.jl NR (KLU) |
+| MATPOWER | `loadcase` (.m), in GNU Octave | — | `runpf`, NR (UMFPACK) |
 | PGM via cgmes2pgm | — | upload to Fuseki, `CgmesToPgmConverter` | PGM 1.12 NR (generators as fixed P/Q) |
 
 The converted-CGMES families use the CGMES column. Every tool reads the same

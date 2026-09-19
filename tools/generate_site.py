@@ -8,7 +8,7 @@ from pathlib import Path
 
 from cases.registry import CASES
 from tools.benchmark_data import FAMILY_TITLES, Results, case_size
-from tools.palette import DARK, LIGHT, LIGHT_TO_DARK
+from tools.palette import DARK, LIGHT, LIGHT_TO_DARK, REFERENCE
 
 KEEP = ("iterations", "oracle_ok", "residual_max_dp_mw", "residual_max_dq_mvar", "residual_max_dvm_pu",
         "residual_worst_bus", "residual_n_checked", "residual_n_buses", "sv_n", "sv_n_published",
@@ -17,7 +17,8 @@ KEEP = ("iterations", "oracle_ok", "residual_max_dp_mw", "residual_max_dq_mvar",
 
 def payload(res: Results) -> dict:
     tools = [{"name": t, "display": m["display_name"], "color": m["color"],
-              "colorDark": LIGHT_TO_DARK.get(m["color"], m["color"]), "version": m["version"],
+              "colorDark": LIGHT_TO_DARK.get(m["color"], m["color"]), "dash": m["color"] == REFERENCE,
+              "version": m["version"],
               "language": m["language"], "families": m["families"], "settings": m["settings"]}
              for t in res.tool_order() for m in [res.tools[t]]]
     cases = {c: {"family": CASES[c]["family"], "size": case_size(c), "groups": CASES[c]["groups"],
@@ -27,8 +28,9 @@ def payload(res: Results) -> dict:
              "rounds": r.rounds, **{k: r.extra[k] for k in KEEP if k in r.extra}} for r in res.records]
     run = next((r for r in res.runs if r["machine"]), {})
     cpu = run.get("machine", {}).get("cpu", {})
-    families = [[f, {"matpower": "MATPOWER", "cgmes": "CGMES fixtures", "converted-cimoxide": "Converted (cimoxide)",
-                      "converted-pypowsybl": "Converted (pypowsybl)"}[f], FAMILY_TITLES[f]] for f in res.families()]
+    families = [[f, {"matpower": "MATPOWER", "distribution": "Distribution", "cgmes": "CGMES fixtures",
+                      "converted-cimoxide": "Converted (cimoxide)", "converted-pypowsybl": "Converted (pypowsybl)"}[f],
+                 FAMILY_TITLES[f]] for f in res.families()]
     return {"tools": tools, "cases": cases, "rows": rows, "failures": res.failures, "families": families,
             "run": {"cpu": cpu.get("brand_raw", "?"), "cores": cpu.get("count", "?"),
                     "os": f"{run.get('machine', {}).get('system', '?')} {run.get('machine', {}).get('release', '')}",
@@ -152,7 +154,7 @@ function seg(el, key, options) {
   el.onclick = e => { const b = e.target.closest("button"); if (!b) return; state[key] = b.dataset.v; render(); };
 }
 function chips() {
-  $("#toolchips").innerHTML = D.tools.map(t => `<button class="chip" data-t="${t.name}" aria-pressed="${!state.off.has(t.name)}"><i style="background:${color(t)}"></i>${esc(t.display)}</button>`).join("");
+  $("#toolchips").innerHTML = D.tools.map(t => `<button class="chip" data-t="${t.name}" aria-pressed="${!state.off.has(t.name)}"><i style="${t.dash ? `width:16px;height:3px;border-radius:0;background:repeating-linear-gradient(90deg,${color(t)} 0 5px,transparent 5px 8px)` : `background:${color(t)}`}"></i>${esc(t.display)}</button>`).join("");
 }
 $("#toolchips").onclick = e => { const b = e.target.closest(".chip"); if (!b) return;
   state.off.has(b.dataset.t) ? state.off.delete(b.dataset.t) : state.off.add(b.dataset.t); render(); };
@@ -178,7 +180,7 @@ function chart() {
   const labels = [];
   for (const {t, pts} of series) {
     const c = color(t);
-    s += `<polyline fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p => `${X(p.x)},${Y(p.y)}`).join(" ")}"/>`;
+    s += `<polyline fill="none" stroke="${c}" stroke-width="2"${t.dash ? ' stroke-dasharray="6 4"' : ""} stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p => `${X(p.x)},${Y(p.y)}`).join(" ")}"/>`;
     for (const p of pts) s += `<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="4.5" fill="${p.ok ? c : css("--surface")}" stroke="${c}" stroke-width="2"/>`;
     const last = pts[pts.length - 1]; labels.push({y: Y(last.y), name: t.display});
   }

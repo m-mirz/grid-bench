@@ -63,6 +63,7 @@ class Results:
 
 FAMILY_TITLES = {
     "matpower": "MATPOWER cases",
+    "distribution": "Radial distribution grids (MATPOWER format)",
     "cgmes": "CGMES conformity fixtures",
     "converted-cimoxide": "MATPOWER cases as CGMES, converted with cimoxide",
     "converted-pypowsybl": "MATPOWER cases as CGMES, converted with pypowsybl",
@@ -100,7 +101,7 @@ def case_size(case: str) -> int:
     c = CASES[case]
     if "source_case" in c:
         return case_size(c["source_case"])
-    if c["family"] == "matpower":
+    if c["format"] == "matpower":
         return int((parse_m(c["file"])["bus"][:, 1] != ISOLATED).sum())
     return len(published_voltages(cgmes_sv_file(case)))
 

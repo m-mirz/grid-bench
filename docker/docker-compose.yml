@@ -103,3 +103,13 @@ services:
     <<: *bench
     image: grid-bench/veragrid:latest
     command: pytest benchmarks/veragrid_benchmark.py --benchmark-json=/output/veragrid.json
+
+  sienna:
+    <<: *bench
+    image: grid-bench/sienna:latest
+    command: pytest benchmarks/sienna_benchmark.py --benchmark-json=/output/sienna.json
+
+  matpower:
+    <<: *bench
+    image: grid-bench/matpower:latest
+    command: pytest benchmarks/matpower_benchmark.py --benchmark-json=/output/matpower.json

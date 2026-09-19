@@ -2,8 +2,16 @@
 
 Input: the prepared `.mat`, read with scipy and passed to
 `import_from_pypower_ppc`. PyPSA has no MATPOWER file reader, so the
-`loadmat` call is part of its timed import. No CGMES importer, so the cgmes
-family is not run.
+`loadmat` call is part of its timed import (one-row matrices, a case with a
+single generator, are restored to 2-D after `simplify_cells` squeezes them).
+No CGMES importer, so the cgmes family is not run.
+
+Known loss of the import, which the oracle reports rather than hides:
+`import_from_pypower_ppc` keeps a branch's MATPOWER status only as an unused
+`status` column and imports every line `active`, so out-of-service branches
+are in service. On the distribution feeders with open tie switches (case33bw,
+case33mg, case118zh, case136ma) PyPSA solves the meshed grid with every tie
+closed.
 
 Settings:
 - `transformers.model = "pi"`: PyPSA imports transformers with its default
@@ -31,7 +39,7 @@ class PypsaAdapter(SolverAdapter):
     package = "pypsa"
     modules = ("pypsa", "scipy.io")
     language = "python"
-    families = ("matpower",)
+    families = ("matpower", "distribution")
     settings = {"algorithm": "nr", "transformer_model": "pi", "init": "flat", "tolerance_pu": TOLERANCE_PU}
 
     def load(self, case):
@@ -39,6 +47,8 @@ class PypsaAdapter(SolverAdapter):
         import scipy.io
         logging.getLogger("pypsa").setLevel(logging.ERROR)
         mpc = scipy.io.loadmat(str(mat_path(case)), simplify_cells=True)["mpc"]
+        for key in ("bus", "gen", "branch"):          # simplify_cells squeezes a one-row matrix (one generator) to 1-D
+            mpc[key] = np.atleast_2d(mpc[key])
         n = pypsa.Network()
         n.import_from_pypower_ppc(mpc, overwrite_zero_s_nom=1e4)
         n.transformers["model"] = "pi"

@@ -10,3 +10,10 @@ docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e UV_CACHE_DIR=/tmp/loc
     -v "$PWD":/repo -w /repo grid-bench/base:latest bash -c '
     for d in tool-configs/*/; do (cd "$d" && uv lock && echo "locked $d"); done
     uv lock && echo "locked ./"'
+# Julia environments (tool-configs/*/julia/): Manifest.toml, resolved by the
+# tool's own pinned Julia image against the registry snapshot in setup.jl.
+for d in tool-configs/*/julia/; do
+    julia_image=$(sed -n 's/^FROM \(julia:[^ ]*\) AS julia$/\1/p' "$(dirname "$d")/Dockerfile")
+    docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e JULIA_DEPOT_PATH=/tmp/depot \
+        -v "$PWD/$d":/proj "$julia_image" julia /proj/setup.jl lock /proj && echo "locked $d"
+done

@@ -1,0 +1,18 @@
+# Dependencies of the matpower benchmark image: the Python harness only.
+# MATPOWER and GNU Octave are pinned in tool-configs/matpower/Dockerfile;
+# see adapters/matpower_adapter.py for how they are driven.
+[project]
+name = "grid-bench-matpower"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"

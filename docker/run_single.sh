@@ -8,7 +8,14 @@ export GIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)$(git diff --qu
 mkdir -p results-docker data/.case-cache
 compose="docker compose -f docker/docker-compose.yml"
 $compose run --rm prep
-$compose run --rm prep-pypowsybl
+# pypowsybl's MATPOWER -> CGMES conversion needs its image; without it (CI
+# builds only what the tool under test needs) the converted-pypowsybl cases
+# are not prepared, rather than Compose trying to pull a local-only image.
+if docker image inspect grid-bench/pypowsybl:latest >/dev/null 2>&1; then
+    $compose run --rm prep-pypowsybl
+else
+    echo "no grid-bench/pypowsybl image: pypowsybl conversions not prepared"
+fi
 $compose run --rm conversion-check
 $compose run --rm "$tool" pytest "benchmarks/${tool}_benchmark.py" "--benchmark-json=/output/$tool.json" "$@"
 

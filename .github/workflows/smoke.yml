@@ -11,13 +11,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tool: [pandapower, lightsim2grid, pypsa, pgm, pypowsybl, veragrid, cgmes2pgm]
+        tool: [pandapower, lightsim2grid, pypsa, pgm, pypowsybl, veragrid, cgmes2pgm, sienna, matpower]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
         with:
           submodules: true
       - name: Build images
-        run: ./docker/build.sh harness ${{ matrix.tool }}
+        # A tool that reads pypowsybl's CGMES export needs the pypowsybl
+        # image as well: run_single.sh converts with it.
+        run: |
+          extra=""
+          grep -q converted-pypowsybl "adapters/${{ matrix.tool }}_adapter.py" && extra=pypowsybl
+          ./docker/build.sh harness $extra ${{ matrix.tool }}
       - name: Oracle tests
         run: docker compose -f docker/docker-compose.yml run --rm oracle-tests
       - name: Smoke benchmark
