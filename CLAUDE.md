@@ -5,9 +5,11 @@ Contributor guide for grid-bench (people and coding agents alike).
 ## What this is
 
 A benchmark of power system analysis software. v1 covers AC power flow for
-pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl, VeraGrid, and
-power-grid-model on CGMES through cgmes2pgm. The infrastructure follows cim-bench (adapters, one container per
-tool, JSON as the only contract between measuring and reporting). The
+pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl, VeraGrid,
+Sienna (PowerFlows.jl, Julia, through juliacall), and power-grid-model on
+CGMES through cgmes2pgm. The infrastructure follows cim-bench (adapters, one
+container per tool, JSON as the only contract between measuring and
+reporting). The
 methodology follows gridoxide's `scripts/bench` (warm solves on persistent
 models, justified settings, a tool-independent oracle).
 
@@ -52,6 +54,8 @@ benchmarks/  benchmark_template.py (generates tests), conftest.py (selection, fa
              <tool>_benchmark.py (3 lines each)
 tools/       benchmark_data.py (loader) + generate_{comparison,graphs,site,all}.py, palette.py
 tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned exactly)
+tool-configs/sienna/Dockerfile, julia/   Julia on top of the base image; Project.toml, Manifest.toml,
+             setup.jl (registry snapshot), GridBenchSienna (the adapter's Julia half, precompiled)
 docker/      base.dockerfile, tool.dockerfile, docker-compose.yml, build.sh, run_*.sh
 tests/       the oracle's own tests, and the converter's (exactness + planted errors)
 data/        submodules: benchmark-grids (MATPOWER), CGMES-Test-Configurations
@@ -63,7 +67,7 @@ docs/index.html  generated site
 
 ```bash
 docker/build.sh [tool ...]                     # images (base, harness, tools)
-docker/lock.sh                                 # re-resolve every uv.lock (review, then commit)
+docker/lock.sh                                 # re-resolve every uv.lock and Julia Manifest.toml (review, then commit)
 docker/run_benchmark.sh [tool ...] [-- --groups smoke]   # prep, oracle tests, tools, reports
 docker/run_single.sh pandapower --cases case14,case300   # one tool, quick iteration
 docker compose -f docker/docker-compose.yml run --rm reports   # regenerate reports only
@@ -92,7 +96,10 @@ internal compose network; the run scripts stop the sidecar afterwards.
    (a release at least 7 days old; `exclude-newer = "P7D"` enforces it).
    Then `docker/lock.sh` to write its `uv.lock`, and commit both: images
    install exactly the lockfile.
-5. A service in `docker/docker-compose.yml`, copy another.
+5. A service in `docker/docker-compose.yml`, copy another. A tool that
+   needs more than Python packages brings `tool-configs/<tool>/Dockerfile`
+   (built by `docker/build.sh` in place of `docker/tool.dockerfile`; see
+   sienna's, which adds Julia).
 6. `docker/build.sh <tool> && docker/run_single.sh <tool> --groups smoke`.
    Then check the oracle: on case14 a correct tool shows residuals around
    1e-9 MVA. If it does not, find out why before anything else.
@@ -134,8 +141,11 @@ need an SV profile, which is used as the reference and never given to a tool.
 Everything a build fetches is pinned; keep it that way. Base images and the
 uv image by digest, CPython by exact version (`docker/base.dockerfile`),
 Python packages by the committed `tool-configs/*/uv.lock` (and `uv.lock` for
-the native path), the Fuseki jar by SHA-256 (`docker/fuseki/Dockerfile`),
-the CI checkout action by commit. Do not add `apt`/`apk` installs. To
+the native path), Julia by the official image's digest and Julia packages by
+`tool-configs/sienna/julia/Manifest.toml`, resolved against the General
+registry at a commit at least 7 days old (`REGISTRY_COMMIT` in `setup.jl`;
+move it forward deliberately, like `exclude-newer`), the Fuseki jar by
+SHA-256 (`docker/fuseki/Dockerfile`), the CI checkout action by commit. Do not add `apt`/`apk` installs. To
 update anything, change the pin deliberately and say why in the commit.
 
 ## Style

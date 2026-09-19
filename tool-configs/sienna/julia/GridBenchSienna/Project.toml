@@ -1,0 +1,10 @@
+name = "GridBenchSienna"
+uuid = "58b0905b-c6aa-4e14-baa2-7caa90366500"
+version = "0.1.0"
+
+[deps]
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+PowerFlows = "94fada2c-fd9a-4e89-8d82-81405f5cb4f6"
+PowerSystems = "bcd98974-b02a-5e2f-9ee0-a103f5c450dd"
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"

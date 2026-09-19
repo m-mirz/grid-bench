@@ -1,0 +1,17 @@
+# The Julia environment of the sienna image. Tools pinned exactly; every
+# transitive package is pinned by Manifest.toml, resolved by setup.jl against
+# a General registry snapshot at least 7 days old (see docker/lock.sh).
+[deps]
+GridBenchSienna = "58b0905b-c6aa-4e14-baa2-7caa90366500"
+PowerFlows = "94fada2c-fd9a-4e89-8d82-81405f5cb4f6"
+PowerSystems = "bcd98974-b02a-5e2f-9ee0-a103f5c450dd"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+
+[sources]
+GridBenchSienna = {path = "GridBenchSienna"}   # the adapter's Julia half, compiled into the image
+
+[compat]
+julia = "=1.12.7"
+PowerFlows = "=0.25.2"
+PowerSystems = "=5.12.3"
+PythonCall = "=0.9.35"    # exactly the version juliacall 0.9.35 requires
