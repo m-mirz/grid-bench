@@ -16,5 +16,10 @@ LIGHT_TO_DARK = {
     "#4a3aa7": "#9085e9",   # 7 violet  PGM via cgmes2pgm
     "#e34948": "#e66767",   # 8 red     Sienna (PowerFlows.jl)
 }
+# A reference implementation (MATPOWER) is not a ninth hue: neutral ink,
+# drawn dashed, so it reads as a reference line in both modes and without
+# colour vision.
+REFERENCE = "#52514e"
+LIGHT_TO_DARK[REFERENCE] = "#c3c2b7"
 LIGHT = {"surface": "#fcfcfb", "text": "#0b0b0b", "text2": "#52514e", "grid": "#e4e3df", "axis": "#8a8984"}
 DARK = {"surface": "#1a1a19", "text": "#ffffff", "text2": "#c3c2b7", "grid": "#33332f", "axis": "#6f6e69"}

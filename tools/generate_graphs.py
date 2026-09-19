@@ -22,7 +22,7 @@ from cases.registry import CASES  # noqa: E402
 from tools.benchmark_data import Results, case_size  # noqa: E402
 
 PLOTTED_GROUPS = {"smoke", "scaling"}
-from tools.palette import DARK, LIGHT, LIGHT_TO_DARK  # noqa: E402
+from tools.palette import DARK, LIGHT, LIGHT_TO_DARK, REFERENCE  # noqa: E402
 
 from tools.benchmark_data import FAMILY_TITLES  # noqa: E402
 
@@ -77,7 +77,8 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
             pts.append((case_size(case), rec.median_ms, ok, case))
         if pts:
             color = res.tools[tool]["color"]
-            series.append((res.tools[tool]["display_name"], LIGHT_TO_DARK.get(color, color) if dark else color, pts))
+            series.append((res.tools[tool]["display_name"], LIGHT_TO_DARK.get(color, color) if dark else color, pts,
+                           "--" if color == REFERENCE else "-"))
     if not series:
         return False
 
@@ -89,9 +90,9 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
     fig.patch.set_facecolor(theme["surface"])
     ax.set_facecolor(theme["surface"])
     ends = []
-    for name, color, pts in series:
+    for name, color, pts, style in series:
         xs, ys = [p[0] for p in pts], [p[1] for p in pts]
-        ax.plot(xs, ys, color=color, linewidth=2, zorder=2, label=name, solid_capstyle="round")
+        ax.plot(xs, ys, color=color, linewidth=2, zorder=2, label=name, linestyle=style, solid_capstyle="round")
         for x, y, ok, _ in pts:
             ax.plot([x], [y], marker="o", markersize=7, zorder=3, linestyle="none",
                     markerfacecolor=color if ok else theme["surface"], markeredgecolor=color, markeredgewidth=2)

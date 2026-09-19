@@ -6,7 +6,7 @@ tools *read* CGMES grid models, grid-bench compares what the tools are for:
 **solving** them. It does not stop at speed. Every solve is checked by an
 oracle that none of the tools under test takes part in.
 
-v1 covers AC power flow in eight open-source tool setups:
+v1 covers AC power flow in nine open-source tool setups:
 [pandapower](https://github.com/e2nIEE/pandapower),
 [lightsim2grid](https://github.com/Grid2op/lightsim2grid),
 [PyPSA](https://github.com/PyPSA/PyPSA),
@@ -14,7 +14,8 @@ v1 covers AC power flow in eight open-source tool setups:
 [pypowsybl](https://github.com/powsybl/pypowsybl) (OpenLoadFlow) and
 [VeraGrid](https://github.com/SanPen/VeraGrid), NREL's Julia platform
 [Sienna](https://github.com/Sienna-Platform) (PowerSystems.jl +
-PowerFlows.jl), and power-grid-model on CGMES through
+PowerFlows.jl), [MATPOWER](https://matpower.org) itself on GNU Octave, and
+power-grid-model on CGMES through
 [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
 **Results:** [`results-docker/comparison.md`](results-docker/comparison.md) ·
@@ -184,6 +185,27 @@ Traced to their cause (`adapters/sienna_adapter.py`):
 - A PV bus without a generator is refused unless `correct_bustypes=true`,
   which applies MATPOWER's own rule (treat it as PQ); the adapter sets it.
 
+## MATPOWER on GNU Octave
+
+MATPOWER defines the case format and the branch model the oracle follows,
+so it is the reference implementation, drawn as a neutral dashed line
+rather than a ninth colour. It runs on [GNU Octave](https://octave.org)
+(MATLAB needs a licence, so it cannot run in a container or in CI), in the
+official Octave image; MATPOWER is the 8.1 release, checked by SHA-256.
+
+A persistent `octave-cli` process is driven over its stdin
+(`adapters/octave_session.py`, standard library only), and every timed step
+is timed **inside Octave** with tic/toc: the harness takes those times
+instead of its own clock (`SolverAdapter.clock`), so the bridge (~1 ms per
+call) is in no number. Memory is the Octave process's. A solve is `runpf` on
+the loaded case, as MATPOWER is used.
+
+MATPOWER 8's `runpf` runs on its object-oriented MP-Core by default, which
+Octave executes slowly: about 40 ms per call before any work. Its legacy
+core solves the same problem faster (5 vs 40 ms on case14, 255 vs 442 ms on
+case9241pegase). The benchmark runs the default; these are not MATLAB's
+numbers.
+
 ## Why an oracle
 
 Comparing tools against each other cannot tell you which one is right.
@@ -258,7 +280,8 @@ deliberately does *not* do.
   and uv are pinned by digest, and CPython by exact version (uv checks it
   against its own checksum). Every Python package comes from a committed
   `uv.lock` per image, which records file hashes (`uv sync --frozen`).
-  Julia comes from the official image by digest; every Julia package from a
+  Julia and GNU Octave come from their official images by digest, the
+  MATPOWER release zip by SHA-256; every Julia package from a
   committed `Manifest.toml` resolved against a General-registry snapshot at
   least a week old, and fetched by content hash. The Fuseki jar is checked against a pinned SHA-256 whose Apache PGP signature
   was verified. No OS packages are installed. `docker/lock.sh` re-locks
@@ -307,6 +330,7 @@ from [CGMES-Test-Configurations](https://github.com/m-mirz/CGMES-Test-Configurat
 | pypowsybl | `network.load` (.mat) | `network.load` (zip); slack from `referencePriority` | OpenLoadFlow |
 | VeraGrid | `parse_matpower_file` (.m) | `open_cgmes` | NR |
 | Sienna | `PowerSystems.System` (.m) via juliacall | — | PowerFlows.jl NR (KLU) |
+| MATPOWER | `loadcase` (.m), in GNU Octave | — | `runpf`, NR (UMFPACK) |
 | PGM via cgmes2pgm | — | upload to Fuseki, `CgmesToPgmConverter` | PGM 1.12 NR (generators as fixed P/Q) |
 
 The converted-CGMES families use the CGMES column. Every tool reads the same

@@ -18,6 +18,9 @@ the tool can read (selected by `--groups` / `--cases`, see conftest.py):
   fill `TARGET_SECONDS`, clamped to [MIN_ROUNDS, MAX_ROUNDS]. The solution
   of the last round is graded by the oracle and attached to the record.
 
+A tool in a process of its own (`SolverAdapter.clock`) is timed by that
+process: the records hold the time measured inside the tool.
+
 Warm solve is the headline because cold numbers mostly measure one-time
 setup: in gridoxide's bench, a 1.3-1.7x cold gap to lightsim2grid traced
 entirely to symbolic factorization being redone.
@@ -46,6 +49,11 @@ RESULTS = Path(os.environ.get("GRID_BENCH_RESULTS", Path(__file__).resolve().par
 
 def _record(benchmark, adapter, case: str, operation: str) -> None:
     benchmark.group = f"{operation}:{case}"
+    if adapter.clock is not None:
+        # pytest-benchmark (pinned) measures each round as the difference of
+        # its `_timer` around the call: the tool's own clock makes that the
+        # time measured inside the tool, bridge excluded.
+        benchmark._timer = adapter.clock  # noqa: SLF001
     benchmark.extra_info.update({
         "tool": adapter.name, "case": case, "family": CASES[case]["family"],
         "groups": CASES[case]["groups"], "operation": operation,

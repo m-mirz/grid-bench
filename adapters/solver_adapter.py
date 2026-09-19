@@ -50,6 +50,16 @@ class SolverAdapter(ABC):
     language: str               # implementation language of the solver core
     families: tuple[str, ...]   # case families this tool can read
     settings: dict = {}         # the solver settings, recorded with every result
+    # A tool that runs in a process of its own (MATPOWER in Octave) is timed
+    # by that process, not across the bridge to it: `clock` returns seconds
+    # measured inside the tool, advanced by each `load` and `solve`, and
+    # replaces pytest-benchmark's timer for its records. None: timed here.
+    clock = None
+
+    def tool_pid(self) -> int | None:
+        """The process whose memory is the tool's, if not this one (started
+        on demand). None: this process."""
+        return None
 
     def tags(self) -> list[str]:
         return ["powerflow", "ac", "newton-raphson", self.language]
