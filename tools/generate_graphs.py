@@ -81,7 +81,10 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
     if not series:
         return False
 
-    plt.rcParams.update({"font.family": "sans-serif", "font.size": 10, "svg.fonttype": "none"})
+    # A fixed hash salt and no date: the same data gives byte-identical SVGs,
+    # so regenerating reports changes only the charts whose data changed.
+    plt.rcParams.update({"font.family": "sans-serif", "font.size": 10, "svg.fonttype": "none",
+                         "svg.hashsalt": "grid-bench"})
     fig, ax = plt.subplots(figsize=(9.6, 5.2), dpi=100)
     fig.patch.set_facecolor(theme["surface"])
     ax.set_facecolor(theme["surface"])
@@ -133,7 +136,7 @@ def chart(res: Results, operation: str, family: str, path: Path, dark: bool) -> 
             "Missing: the tool failed (see comparison.md).")
     fig.text(0.09, 0.01, note, color=theme["text2"], fontsize=8)
     fig.subplots_adjust(left=0.09, right=0.76, top=0.9, bottom=0.27)
-    fig.savefig(path, facecolor=theme["surface"])
+    fig.savefig(path, facecolor=theme["surface"], metadata={"Date": None})
     plt.close(fig)
     return True
 
