@@ -106,10 +106,13 @@ internal compose network; the run scripts stop the sidecar afterwards.
 
 ## Case families
 
-`matpower`, `cgmes` (conformity fixtures, graded against their SV), and
-`converted-<converter>` (MATPOWER cases converted to CGMES, graded by the
-tier-1 residual against the original `.m`). A tool declares the families it
-reads in `SolverAdapter.families`. Converted cases are keyed `<case>@<converter>`.
+`matpower` (meshed transmission), `distribution` (radial feeders and
+generated MV/LV grids, same `.m` format and grading), `cgmes` (conformity
+fixtures, graded against their SV), and `converted-<converter>` (MATPOWER
+cases converted to CGMES, graded by the tier-1 residual against the original
+`.m`). A tool declares the families it reads in `SolverAdapter.families`.
+Converted cases are keyed `<case>@<converter>`. Branch on a case's input
+format with `is_cgmes(case)` (the `format` field), never on its family.
 
 `oracle/cgmes_model.py` must stay independent of both converters: it is
 ElementTree only, and must not import cimoxide or pypowsybl. When a converter
@@ -119,8 +122,12 @@ and the checker disagree, check the reading of CGMES against a third party
 ## Adding a case
 
 Add it to `CASES` in `cases/registry.py` with its groups. MATPOWER cases
-come from the `data/benchmark-grids` submodule; CGMES cases need an SV
-profile, which is used as the reference and never given to a tool.
+come from the `data/benchmark-grids` submodule, and new data goes there
+first (with its provenance), never directly into this repo. A `.m` file
+must be plain data: MATPOWER's distribution files convert units in MATLAB
+code that no importer runs, so the registry reads the submodule's
+`matpower-plain/` copies (`tests/test_cases.py` guards this). CGMES cases
+need an SV profile, which is used as the reference and never given to a tool.
 
 ## Pinning
 

@@ -241,13 +241,29 @@ Chosen for what they exercise, not just their size (`cases/registry.py`):
 
 | group | cases | purpose |
 |---|---|---|
-| smoke | case14, CGMES PowerFlow | pipeline check. Timing here is call overhead. |
-| scaling | case118, case300, PEGASE 1354 / 2869 / 9241, CGMES SmallGrid / Svedala / RealGrid | the timing headline. PEGASE is one grid family at three sizes. |
-| feature | case300, case3120sp, case2848rte, CGMES MicroGrid-BE / MiniGrid | the accuracy headline: transformer line charging, negative reactances, PV buses without generators, offline equipment, every branch encoded as a transformer |
+| smoke | case14, case33bw, CGMES PowerFlow | pipeline check. Timing here is call overhead. |
+| scaling | case118, case300, PEGASE 1354 / 2869 / 9241, generated MV/LV grids mvlv1004 / 10616 / 29840, CGMES SmallGrid / Svedala / RealGrid | the timing headline. PEGASE is one grid family at three sizes; the MV/LV grids one generator at three. |
+| feature | case300, case3120sp, case2848rte, distribution feeders case4_dist / case18 / case33bw, CGMES MicroGrid-BE / MiniGrid | the accuracy headline: transformer line charging, negative reactances, PV buses without generators, offline equipment, every branch encoded as a transformer; radial feeders with high R/X, heavy loading and small base powers |
 | robustness | case1888rte, case6495rte | known not to converge from a flat start in any tool here. Reported separately. |
 
+The transmission cases are meshed. The `distribution` family is radial:
+the fifteen literature feeders MATPOWER bundles (4 to 141 buses), and four
+synthetic MV/LV grids (1,004 to 29,840 buses) from power-grid-model's grid
+generator, exported to MATPOWER format by a checked exporter in
+benchmark-grids (single-phase loads balanced, all loads constant power; see
+its PROVENANCE.md). The generated grids are loaded as power-grid-model's own
+benchmark loads them, down to 0.67 p.u.; a hard, but well-posed, power flow.
+MATPOWER's feeder files convert ohm and kW to per unit in MATLAB code no
+tool importer runs, so every tool reads plain-data copies with that code
+evaluated; case33bw and case69 reproduce their papers' losses and minimum
+voltage (`tests/test_cases.py`).
+
 `case_illinois200` and `case6515rte` (another snapshot of case6495rte's grid)
-stay available by name. MATPOWER files come from the
+stay available by name, as do the other twelve distribution feeders and
+mvlv2606: their outcomes repeat those of the default cases (the pattern
+across all fifteen feeders comes down to base power, tie switches and the
+slack setpoint, which case33bw and case4_dist cover), and some are
+near-duplicates (case33mg is case33bw at base power 1). MATPOWER files come from the
 [benchmark-grids](https://github.com/m-mirz/benchmark-grids) submodule; CGMES
 from [CGMES-Test-Configurations](https://github.com/m-mirz/CGMES-Test-Configurations).
 

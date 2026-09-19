@@ -5,9 +5,15 @@ Input: PGM JSON produced by `cases.prep` with `gridoxide.matpower.convert`
 which the oracle reports rather than hides:
 - PGM's transformer `clock` cannot hold a continuous phase shift, so every
   MATPOWER phase shift is rounded to zero (PEGASE and RTE cases).
-- The slack is a PGM `source`: an ideal voltage behind a tiny impedance
-  (sk = 1e10), not an ideal slack bus, so the slack voltage lands slightly
-  off its setpoint (visible as `max_dvm_pu`).
+- The slack is a PGM `source`: an ideal voltage behind an impedance
+  (sk = 1e10 VA), not an ideal slack bus, so the slack voltage lands off its
+  setpoint (visible as `max_dvm_pu`): slightly on transmission cases, by
+  2-3% on the heavily loaded 150 kV slack of the generated MV/LV grids
+  (2.25 ohm carrying ~1 kA).
+- The source's `u_ref` is the slack bus's `Vm` column, where MATPOWER's
+  setpoint is the generator's `Vg`: case4_dist and case18 (Vm 1, Vg 1.05)
+  are solved 0.05 p.u. low throughout. PGM's own power balance is exact on
+  every distribution case (1e-11 MW); it is the conversion that fails.
 No CGMES importer, so the cgmes family is not run.
 
 Settings:
@@ -38,7 +44,7 @@ class PgmAdapter(SolverAdapter):
     package = "power-grid-model"
     modules = ("power_grid_model", "power_grid_model.utils", "power_grid_model.errors")
     language = "c++"
-    families = ("matpower",)
+    families = ("matpower", "distribution")
     settings = {"calculation_method": "newton_raphson", "voltage_regulators": "experimental",
                 "reactive_limits": False, "tolerance_pu": TOLERANCE_PU, "max_iteration": MAX_ITERATIONS}
 

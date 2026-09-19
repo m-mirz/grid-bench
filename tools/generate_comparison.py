@@ -165,7 +165,7 @@ def cross_tool(res: Results, directory: Path) -> str:
     the per-bus median of every tool that solved the case."""
     tools = res.tool_order()
     rows = []
-    for c in res.cases("matpower"):
+    for c in [c for fam in ("matpower", "distribution") for c in res.cases(fam)]:
         sols = {t: s for t in tools if res.get(t, c, "solve") and (s := load_solution(directory, t, c))}
         if len(sols) < 3:
             continue

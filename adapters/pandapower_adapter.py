@@ -37,7 +37,7 @@ Settings, each the closest match to the common problem definition:
 import numpy as np
 
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge, Solution, SolverAdapter
-from cases.registry import CASES, cgmes_files, mat_path
+from cases.registry import cgmes_files, is_cgmes, mat_path
 from oracle.cgmes_sv import mrid
 
 
@@ -48,13 +48,13 @@ class PandapowerAdapter(SolverAdapter):
     package = "pandapower"
     modules = ("pandapower", "pandapower.converter.matpower.from_mpc", "pandapower.converter.cim.cim2pp.from_cim")
     language = "python"
-    families = ("matpower", "cgmes", "converted-cimoxide", "converted-pypowsybl")
+    families = ("matpower", "distribution", "cgmes", "converted-cimoxide", "converted-pypowsybl")
     settings = {"algorithm": "nr", "init": "flat", "enforce_q_lims": False, "distributed_slack": False,
                 "tolerance_pu": TOLERANCE_PU, "max_iteration": MAX_ITERATIONS, "numba": True,
                 "lightsim2grid_backend": False}
 
     def load(self, case):
-        if CASES[case]["family"] == "matpower":
+        if not is_cgmes(case):
             from pandapower.converter.matpower.from_mpc import from_mpc
             return from_mpc(str(mat_path(case)), f_hz=50)
         from pandapower.converter.cim.cim2pp.from_cim import from_cim
@@ -72,7 +72,7 @@ class PandapowerAdapter(SolverAdapter):
     def solution(self, net, case):
         res = net.res_bus
         iterations = int(net._ppc["iterations"]) if net._ppc and "iterations" in net._ppc else None
-        if CASES[case]["family"] == "matpower":
+        if not is_cgmes(case):
             ids = [str(int(i) + 1) for i in res.index]
             return Solution(dict(zip(ids, res.vm_pu)), dict(zip(ids, res.va_degree)), iterations)
         v_kv = res.vm_pu * net.bus.loc[res.index, "vn_kv"]

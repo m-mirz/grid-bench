@@ -44,7 +44,7 @@ Settings, mirroring powsybl-benchmark's BASIC parameters:
 """
 from adapters.cgmes_ids import by_node
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge, Solution, SolverAdapter
-from cases.registry import CACHE, CASES, mat_path
+from cases.registry import CACHE, is_cgmes, mat_path
 
 SIDES = {"ONE": "1", "TWO": "2", "THREE": "3"}
 
@@ -56,7 +56,7 @@ class PypowsyblAdapter(SolverAdapter):
     package = "pypowsybl"
     modules = ("pypowsybl", "pypowsybl.network", "pypowsybl.loadflow")
     language = "java"
-    families = ("matpower", "cgmes", "converted-cimoxide", "converted-pypowsybl")
+    families = ("matpower", "distribution", "cgmes", "converted-cimoxide", "converted-pypowsybl")
     settings = {"voltage_init_mode": "UNIFORM_VALUES", "distributed_slack": False, "use_reactive_limits": False,
                 "outer_loop_controls": "off", "remote_voltage_control": True, "connected_component_mode": "MAIN", "tolerance_pu": TOLERANCE_PU,
                 "max_iteration": MAX_ITERATIONS}
@@ -77,7 +77,7 @@ class PypowsyblAdapter(SolverAdapter):
 
     def load(self, case):
         import pypowsybl.network as pn
-        path = mat_path(case) if CASES[case]["family"] == "matpower" else CACHE / f"{case}.zip"
+        path = mat_path(case) if not is_cgmes(case) else CACHE / f"{case}.zip"
         network = pn.load(str(path))
         return {"network": network, "iterations": None, "params": self._params_for(network)}
 
@@ -103,7 +103,7 @@ class PypowsyblAdapter(SolverAdapter):
     def solution(self, model, case):
         net = model["network"]
         buses = net.get_buses()
-        if CASES[case]["family"] == "matpower":
+        if not is_cgmes(case):
             nominal = net.get_voltage_levels()["nominal_v"]
             vm, va = {}, {}
             for df in (net.get_lines(), net.get_2_windings_transformers()):

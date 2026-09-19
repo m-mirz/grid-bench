@@ -27,8 +27,9 @@ def payload(res: Results) -> dict:
              "rounds": r.rounds, **{k: r.extra[k] for k in KEEP if k in r.extra}} for r in res.records]
     run = next((r for r in res.runs if r["machine"]), {})
     cpu = run.get("machine", {}).get("cpu", {})
-    families = [[f, {"matpower": "MATPOWER", "cgmes": "CGMES fixtures", "converted-cimoxide": "Converted (cimoxide)",
-                      "converted-pypowsybl": "Converted (pypowsybl)"}[f], FAMILY_TITLES[f]] for f in res.families()]
+    families = [[f, {"matpower": "MATPOWER", "distribution": "Distribution", "cgmes": "CGMES fixtures",
+                      "converted-cimoxide": "Converted (cimoxide)", "converted-pypowsybl": "Converted (pypowsybl)"}[f],
+                 FAMILY_TITLES[f]] for f in res.families()]
     return {"tools": tools, "cases": cases, "rows": rows, "failures": res.failures, "families": families,
             "run": {"cpu": cpu.get("brand_raw", "?"), "cores": cpu.get("count", "?"),
                     "os": f"{run.get('machine', {}).get('system', '?')} {run.get('machine', {}).get('release', '')}",
