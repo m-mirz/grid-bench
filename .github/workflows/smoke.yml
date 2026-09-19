@@ -17,7 +17,12 @@ jobs:
         with:
           submodules: true
       - name: Build images
-        run: ./docker/build.sh harness ${{ matrix.tool }}
+        # A tool that reads pypowsybl's CGMES export needs the pypowsybl
+        # image as well: run_single.sh converts with it.
+        run: |
+          extra=""
+          grep -q converted-pypowsybl "adapters/${{ matrix.tool }}_adapter.py" && extra=pypowsybl
+          ./docker/build.sh harness $extra ${{ matrix.tool }}
       - name: Oracle tests
         run: docker compose -f docker/docker-compose.yml run --rm oracle-tests
       - name: Smoke benchmark
