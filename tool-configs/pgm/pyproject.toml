@@ -11,7 +11,7 @@ dependencies = [
     "pytest>=8.3",
     "pytest-benchmark>=5.1",
     "pytest-timeout>=2.3",
-    "power-grid-model==1.13.169",
+    "power-grid-model==1.13.172",
 ]
 
 [tool.uv]
