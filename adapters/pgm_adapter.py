@@ -1,19 +1,18 @@
 """power-grid-model: C++ Newton-Raphson.
 
 Input: PGM JSON produced by `cases.prep` with `gridoxide.matpower.convert`
-(PGM has no MATPOWER importer). Known losses of that conversion, both of
-which the oracle reports rather than hides:
+(PGM has no MATPOWER importer). Known loss of that conversion, which the
+oracle reports rather than hides:
 - PGM's transformer `clock` cannot hold a continuous phase shift, so every
   MATPOWER phase shift is rounded to zero (PEGASE and RTE cases).
-- The slack is a PGM `source`: an ideal voltage behind an impedance
-  (sk = 1e10 VA), not an ideal slack bus, so the slack voltage lands off its
-  setpoint (visible as `max_dvm_pu`): slightly on transmission cases, by
-  2-3% on the heavily loaded 150 kV slack of the generated MV/LV grids
-  (2.25 ohm carrying ~1 kA).
-- The source's `u_ref` is the slack bus's `Vm` column, where MATPOWER's
-  setpoint is the generator's `Vg`: case4_dist and case18 (Vm 1, Vg 1.05)
-  are solved 0.05 p.u. low throughout. PGM's own power balance is exact on
-  every distribution case (1e-11 MW); it is the conversion that fails.
+The slack is a PGM `source` (an ideal voltage behind an impedance) at the
+slack generator's `Vg` with sk = 1e15 VA, which makes it the ideal slack
+MATPOWER defines. gridoxide 0.0.2 used the bus's `Vm` column (case4_dist and
+case18: 0.05 p.u. low) and sk = 1e10 VA, 0.01 p.u. on a 100 MVA base, which
+held every slack off its setpoint (up to 0.029 p.u. on the MV/LV grids) and
+made case118 diverge. The vendored copy is corrected (lines marked
+"grid-bench:" in cases/gridoxide_matpower.py): the input then states the
+case's problem; it is not a fix of PGM.
 No CGMES importer, so the cgmes family is not run.
 
 Settings:
@@ -25,11 +24,26 @@ Settings:
 - Reactive limits are stripped from the regulators by `cases.prep`.
 - `error_tolerance=TOLERANCE_PU` (PGM's tolerance is on the voltage update,
   not the power mismatch), `max_iterations=MAX_ITERATIONS`.
-- PGM always initializes from its own flat start.
+- No flat start: PGM's Newton-Raphson has no initialization option and
+  always starts from its own linear guess (newton_raphson_pf_solver.hpp,
+  `initialize_derived_solver`, 1.13.172): one linear solve with every load
+  and generator as the admittance -conj(S) at 1 p.u. (a generator is a
+  negative conductance; a regulated one keeps only its P), then PV buses at
+  their setpoint with the guess's angle. This breaks the common flat-start
+  rule, and it cannot be configured.
 
-Result: PGM's experimental PV support diverges from case118 upward (same as
-gridoxide's bench records for power-grid-model 1.13.120); it converges on
-case14 and case_illinois200.
+Result: every case PGM converges on is accepted (case14, case118, all
+default distribution cases). From case300 upward it fails, and the start
+is the cause. The conversion is exact there: at known voltages, PGM's own
+branch flows (state estimation with every voltage measured) equal
+MATPOWER's to 1e-10 MVA on case300, case1354pegase and case2869pegase. A
+textbook polar Newton-Raphson on the oracle's Ybus reproduces PGM's outcome
+on all 16 cases when started from PGM's linear guess, and converges on all
+of them from a flat start: it diverges on case300, case3120sp, case2848rte
+and case1888rte (PGM: IterationDiverge), and hits an exactly singular
+Jacobian on the three PEGASE cases and case6495rte (PGM: SparseMatrixError).
+Removing the regulators is no control: with generators at Q = 0 even
+case118 has no solution.
 """
 import numpy as np
 

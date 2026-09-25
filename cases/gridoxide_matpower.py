@@ -1,8 +1,15 @@
 # Vendored from gridoxide 0.0.2 (Apache-2.0, https://github.com/m-mirz/gridoxide),
 # file python/gridoxide/matpower.py of the PyPI sdist gridoxide-0.0.2.tar.gz
 # (sdist sha256 19f9ef42a6268415a0ef16bc15a77b0b539b9ababd974c6651f37bbb0061f60e).
-# Everything below these header lines is byte-identical to that file
-# (sha256 b6156e79ed3e13f8fc6720662e26887faa5df49b954acef28f775731e7d8a76a).
+# Everything below these header lines is identical to that file
+# (sha256 b6156e79ed3e13f8fc6720662e26887faa5df49b954acef28f775731e7d8a76a)
+# except two lines, marked "grid-bench:", both so that the slack is the one
+# MATPOWER defines. The slack source's u_ref is the slack generator's Vg, not
+# the bus's Vm column (case4_dist and case18 have Vm 1.00, Vg 1.05, so
+# power-grid-model was graded on a slack held 0.05 p.u. too low). And its sk
+# is 1e15, not 1e10: 1e10 VA is 0.01 p.u. on a 100 MVA base, an impedance not
+# in the case, which held every slack off its setpoint (0.029 p.u. on
+# mvlv1004) and made case118 diverge. To be reported upstream.
 # It is the MATPOWER -> power-grid-model converter; see cases/prep.py.
 """Converts a raw MATPOWER case (`.mat`, MATPOWER's own bus/branch/gen
 matrix format, or `.m`, MATPOWER's plain-text case-file format) directly
@@ -131,7 +138,8 @@ F_BUS, T_BUS, BR_R, BR_X, BR_B, _RATE_A, _RATE_B, _RATE_C, RATIO, ANGLE, BR_STAT
 PQ, PV, REF, ISOLATED = 1, 2, 3, 4
 
 # Near-ideal-source defaults, matching this project's own PGM test fixtures.
-SOURCE_SK = 1e10
+# grid-bench: sk 1e15 instead of 1e10, so the source is an ideal slack as in MATPOWER
+SOURCE_SK = 1e15
 SOURCE_RX_RATIO = 0.1
 
 # One uniform per-unit voltage base for the whole network — see module
@@ -261,7 +269,9 @@ def convert(mat_path: Path, output_path: Path) -> None:
             continue
         if btype == REF:
             sources.append({"id": next_id(), "node": node_id, "status": 1,
-                             "u_ref": bus[row, VM], "sk": SOURCE_SK, "rx_ratio": SOURCE_RX_RATIO})
+                             # grid-bench: MATPOWER holds the slack at its generator's Vg, not the bus Vm column
+                             "u_ref": gen[first_active_gen_by_bus[node_id], VG], "sk": SOURCE_SK,
+                             "rx_ratio": SOURCE_RX_RATIO})
             continue
         p_mw = gen_p_by_bus.get(node_id)
         if p_mw is None:

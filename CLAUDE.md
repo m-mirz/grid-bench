@@ -45,7 +45,7 @@ models, justified settings, a tool-independent oracle).
 
 ```
 cases/       registry.py (every case, groups, families), matpower.py (.m reader), prep.py (tool inputs),
-             gridoxide_matpower.py (vendored MATPOWER->PGM converter, gridoxide 0.0.2),
+             gridoxide_matpower.py (vendored MATPOWER->PGM converter, gridoxide 0.0.2 + two slack fixes),
              matpower_to_cgmes.py (cimoxide converter), convert_pypowsybl.py (pypowsybl converter)
 oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), evaluate.py (entry point),
              cgmes_model.py (tool-free CGMES reader: TN->bus join, converter fidelity),
