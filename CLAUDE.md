@@ -6,7 +6,8 @@ Contributor guide for grid-bench (people and coding agents alike).
 
 A benchmark of power system analysis software. v1 covers AC power flow for
 pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl, VeraGrid,
-Sienna (PowerFlows.jl, Julia, through juliacall), MATPOWER (GNU Octave), and
+Sienna (PowerFlows.jl, Julia, through juliacall), Sparlectra.jl (Julia,
+through juliacall), MATPOWER (GNU Octave), and
 power-grid-model on CGMES through cgmes2pgm. The infrastructure follows cim-bench (adapters, one
 container per tool, JSON as the only contract between measuring and
 reporting). The
@@ -58,6 +59,7 @@ tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned ex
 tool-configs/matpower/Dockerfile      the official Octave image + uv Python + the MATPOWER release
 tool-configs/sienna/Dockerfile, julia/   Julia on top of the base image; Project.toml, Manifest.toml,
              setup.jl (registry snapshot), GridBenchSienna (the adapter's Julia half, precompiled)
+tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra)
 docker/      base.dockerfile, tool.dockerfile, docker-compose.yml, build.sh, run_*.sh
 tests/       the oracle's own tests, and the converter's (exactness + planted errors)
 data/        submodules: benchmark-grids (MATPOWER), CGMES-Test-Configurations
@@ -88,7 +90,8 @@ internal compose network; the run scripts stop the sidecar afterwards.
 
 1. `adapters/<tool>_adapter.py`: subclass `SolverAdapter`. Set `name`,
    `display_name`, `color` (the next unused slot in `tools/palette.py`; a
-   tool keeps its colour for life; all eight are taken, and a reference
+   tool keeps its colour for life; all nine are taken (the ninth past the
+   validated eight), and a reference
    implementation uses `REFERENCE`, drawn dashed), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,
    `families`, `settings`. Implement `load`, `solve`, `solution`. Docstring:
@@ -145,9 +148,10 @@ Everything a build fetches is pinned; keep it that way. Base images and the
 uv image by digest, CPython by exact version (`docker/base.dockerfile`),
 Python packages by the committed `tool-configs/*/uv.lock` (and `uv.lock` for
 the native path), Julia by the official image's digest and Julia packages by
-`tool-configs/sienna/julia/Manifest.toml`, resolved against the General
+`tool-configs/*/julia/Manifest.toml`, resolved against the General
 registry at a commit at least 7 days old (`REGISTRY_COMMIT` in `setup.jl`;
-move it forward deliberately, like `exclude-newer`), the Fuseki jar by
+move it forward deliberately, like `exclude-newer`; the one exception is
+sparlectra, pinned to its newest release on purpose, see its `setup.jl`), the Fuseki jar by
 SHA-256 (`docker/fuseki/Dockerfile`), GNU Octave by the official image's
 digest and the MATPOWER release zip by SHA-256
 (`tool-configs/matpower/Dockerfile`), the CI checkout action by commit. Do not add `apt`/`apk` installs. To

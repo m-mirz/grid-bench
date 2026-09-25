@@ -1,0 +1,16 @@
+# The Julia environment of the sparlectra image. The tool pinned exactly; every
+# transitive package is pinned by Manifest.toml, resolved by setup.jl against
+# a General registry snapshot (see docker/lock.sh and setup.jl for why this
+# one is not 7 days old).
+[deps]
+GridBenchSparlectra = "eae2b233-c753-4a71-815f-ed6b2e2b1b4d"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+Sparlectra = "31ce9bba-fd9d-44a1-b005-f5f509afda38"
+
+[sources]
+GridBenchSparlectra = {path = "GridBenchSparlectra"}   # the adapter's Julia half, compiled into the image
+
+[compat]
+julia = "=1.12.7"
+PythonCall = "=0.9.35"    # exactly the version juliacall 0.9.35 requires
+Sparlectra = "=0.17.3"

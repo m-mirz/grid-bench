@@ -1,0 +1,9 @@
+name = "GridBenchSparlectra"
+uuid = "eae2b233-c753-4a71-815f-ed6b2e2b1b4d"
+version = "0.1.0"
+
+[deps]
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+Sparlectra = "31ce9bba-fd9d-44a1-b005-f5f509afda38"
