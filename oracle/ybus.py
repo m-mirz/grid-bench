@@ -8,6 +8,15 @@ admittance ys = 1/(r + jx), total line charging b split half to each end, a
 complex tap t = ratio * exp(j*angle) on the *from* side, `ratio == 0` meaning
 "no transformer" (unity tap). Bus shunts Gs/Bs are in MW/MVAr at 1 p.u.
 voltage and go on the diagonal. Out-of-service branches are skipped.
+
+Branch SHIFT (column 10) is in degrees with MATPOWER's sign: t's angle is
++SHIFT, so a positive SHIFT makes the from side lead. RATIO (column 9) is the
+from-side turns ratio as written, never inverted. No per-case exception, the
+PEGASE cases included. Do not infer the convention from a case's bus VM/VA
+columns: on case1354pegase and case9241pegase they fit "radians, opposite
+sign" best but solve the equations under no reading (best fit still 39 MW /
+272 MW mismatch), whereas MATPOWER's own runpf under the convention above
+closes them to 1e-9 MW. Those columns are never used as a reference here.
 """
 import numpy as np
 import scipy.sparse as sp

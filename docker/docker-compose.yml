@@ -109,6 +109,11 @@ services:
     image: grid-bench/sienna:latest
     command: pytest benchmarks/sienna_benchmark.py --benchmark-json=/output/sienna.json
 
+  sparlectra:
+    <<: *bench
+    image: grid-bench/sparlectra:latest
+    command: pytest benchmarks/sparlectra_benchmark.py --benchmark-json=/output/sparlectra.json
+
   matpower:
     <<: *bench
     image: grid-bench/matpower:latest

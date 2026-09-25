@@ -14,7 +14,8 @@ v1 covers AC power flow in nine open-source tool setups:
 [pypowsybl](https://github.com/powsybl/pypowsybl) (OpenLoadFlow) and
 [VeraGrid](https://github.com/SanPen/VeraGrid), NREL's Julia platform
 [Sienna](https://github.com/Sienna-Platform) (PowerSystems.jl +
-PowerFlows.jl), [MATPOWER](https://matpower.org) itself on GNU Octave, and
+PowerFlows.jl), [Sparlectra.jl](https://github.com/Welthulk/Sparlectra.jl),
+[MATPOWER](https://matpower.org) itself on GNU Octave, and
 power-grid-model on CGMES through
 [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
@@ -185,11 +186,35 @@ Traced to their cause (`adapters/sienna_adapter.py`):
 - A PV bus without a generator is refused unless `correct_bustypes=true`,
   which applies MATPOWER's own rule (treat it as PQ); the adapter sets it.
 
+## Sparlectra.jl: Julia through juliacall
+
+[Sparlectra.jl](https://github.com/Welthulk/Sparlectra.jl) solves a
+rectangular complex-state Newton-Raphson on a `Net` read by its own MATPOWER
+parser or its own CGMES importer. It is driven like Sienna (juliacall, a
+precompiled Julia half in `tool-configs/sparlectra/julia/GridBenchSparlectra`).
+It is pinned to 0.17.3, the newest release when it was added, on purpose:
+the package releases almost daily, so this image alone waives the 7-day rule.
+Its model is exact: every MATPOWER case it converges on is accepted by the
+oracle, down to 1e-9 MW. Traced to their cause (`adapters/sparlectra_adapter.py`):
+- **Robustness of the rectangular formulation:** from the common flat start
+  (PV buses at their setpoints) it diverges on case9241pegase, its CGMES
+  conversion and cgmes_realgrid, where MATPOWER's polar Newton-Raphson
+  converges. Started with PV buses at 1 p.u., all three converge.
+- **A solve changes the model:** it writes its internal bus types back and
+  so turns isolated buses into PQ buses; a second solve on the same network
+  diverges. The adapter restores the types before every solve.
+- **Remote voltage regulation** (CGMES) exists only as an outer loop with a
+  deadband and Q limits, so it is off and such machines are held PV at their
+  own bus (MicroGrid-BE: 2.6% median from SV, pypowsybl 0.48%).
+- A tabular phase tap changer lands 2e-5 p.u. from SV (cgmes_powerflow),
+  consistent with its impedance being referred to the wrong side of the tap.
+- The keyword solver defaults to a damped step (0.2); the adapter sets 1.0.
+
 ## MATPOWER on GNU Octave
 
 MATPOWER defines the case format and the branch model the oracle follows,
 so it is the reference implementation, drawn as a neutral dashed line
-rather than a ninth colour. It runs on [GNU Octave](https://octave.org)
+rather than a colour of its own. It runs on [GNU Octave](https://octave.org)
 (MATLAB needs a licence, so it cannot run in a container or in CI), in the
 official Octave image; MATPOWER is the 8.1 release, checked by SHA-256.
 
@@ -330,6 +355,7 @@ from [CGMES-Test-Configurations](https://github.com/m-mirz/CGMES-Test-Configurat
 | pypowsybl | `network.load` (.mat) | `network.load` (zip); slack from `referencePriority` | OpenLoadFlow |
 | VeraGrid | `parse_matpower_file` (.m) | `open_cgmes` | NR |
 | Sienna | `PowerSystems.System` (.m) via juliacall | — | PowerFlows.jl NR (KLU) |
+| Sparlectra.jl | `createNetFromMatPowerFile` (.m) via juliacall | `importCGMES` (zip) | rectangular NR (UMFPACK) |
 | MATPOWER | `loadcase` (.m), in GNU Octave | — | `runpf`, NR (UMFPACK) |
 | PGM via cgmes2pgm | — | upload to Fuseki, `CgmesToPgmConverter` | PGM 1.12 NR (generators as fixed P/Q) |
 
