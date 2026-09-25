@@ -6,7 +6,7 @@ oracle reports rather than hides:
 - PGM's transformer `clock` cannot hold a continuous phase shift, so every
   MATPOWER phase shift is rounded to zero (PEGASE and RTE cases).
 The slack is a PGM `source` (an ideal voltage behind an impedance) at the
-slack generator's `Vg` with sk = 1e15 VA, which makes it the ideal slack
+slack generator's `Vg` with sk = 1e18 VA, which makes it the ideal slack
 MATPOWER defines. gridoxide 0.0.2 used the bus's `Vm` column (case4_dist and
 case18: 0.05 p.u. low) and sk = 1e10 VA, 0.01 p.u. on a 100 MVA base, which
 held every slack off its setpoint (up to 0.029 p.u. on the MV/LV grids) and
