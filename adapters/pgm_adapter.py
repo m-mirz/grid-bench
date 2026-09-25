@@ -1,10 +1,10 @@
 """power-grid-model: C++ Newton-Raphson.
 
 Input: PGM JSON produced by `cases.prep` with `gridoxide.matpower.convert`
-(PGM has no MATPOWER importer). Known loss of that conversion, which the
-oracle reports rather than hides:
-- PGM's transformer `clock` cannot hold a continuous phase shift, so every
-  MATPOWER phase shift is rounded to zero (PEGASE and RTE cases).
+(PGM has no MATPOWER importer). The conversion is exact: a phase-shifting
+branch becomes a `generic_branch`, whose pi-model is MATPOWER's with a
+continuous shift (a `transformer` clock would round it to 60 degrees, a
+residual of 20 to 60,000 MW on the PEGASE and RTE cases).
 The slack is a PGM `source` (an ideal voltage behind an impedance) at the
 slack generator's `Vg` with sk = 1e18 VA, which makes it the ideal slack
 MATPOWER defines. gridoxide 0.0.2 used the bus's `Vm` column (case4_dist and
@@ -43,7 +43,9 @@ of them from a flat start: it diverges on case300, case3120sp, case2848rte
 and case1888rte (PGM: IterationDiverge), and hits an exactly singular
 Jacobian on the three PEGASE cases and case6495rte (PGM: SparseMatrixError).
 Removing the regulators is no control: with generators at Q = 0 even
-case118 has no solution.
+case118 has no solution. With a flat start (a power-grid-model build with
+that option, m-mirz/power-grid-model branch feature/newton-raphson-flat-start),
+PGM is accepted on every case but case6495rte, which no tool solves.
 """
 import numpy as np
 

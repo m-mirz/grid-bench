@@ -3,13 +3,16 @@
 # (sdist sha256 19f9ef42a6268415a0ef16bc15a77b0b539b9ababd974c6651f37bbb0061f60e).
 # Everything below these header lines is identical to that file
 # (sha256 b6156e79ed3e13f8fc6720662e26887faa5df49b954acef28f775731e7d8a76a)
-# except two lines, marked "grid-bench:", both so that the slack is the one
+# except three changes, marked "grid-bench:". Two make the slack the one
 # MATPOWER defines. The slack source's u_ref is the slack generator's Vg, not
 # the bus's Vm column (case4_dist and case18 have Vm 1.00, Vg 1.05, so
 # power-grid-model was graded on a slack held 0.05 p.u. too low). And its sk
 # is 1e18, not 1e10: 1e10 VA is 0.01 p.u. on a 100 MVA base, an impedance not
 # in the case, which held every slack off its setpoint (0.029 p.u. on
-# mvlv1004) and made case118 diverge. To be reported upstream.
+# mvlv1004) and made case118 diverge. A phase-shifting branch becomes a
+# generic_branch, whose pi-model is MATPOWER's with a continuous shift, instead
+# of a transformer whose clock rounds the shift to 60 degrees. To be reported
+# upstream.
 # It is the MATPOWER -> power-grid-model converter; see cases/prep.py.
 """Converts a raw MATPOWER case (`.mat`, MATPOWER's own bus/branch/gen
 matrix format, or `.m`, MATPOWER's plain-text case-file format) directly
@@ -314,6 +317,7 @@ def convert(mat_path: Path, output_path: Path) -> None:
 
     lines = []
     transformers = []
+    generic_branches = []
     for row in range(len(branch)):
         if branch[row, BR_STATUS] == 0:
             continue
@@ -339,6 +343,17 @@ def convert(mat_path: Path, output_path: Path) -> None:
                            "from_status": 1, "to_status": 1,
                            "r1": r_ohm, "x1": x_ohm, "c1": c1, "tan1": 0.0,
                            "r0": r_ohm, "x0": x_ohm, "c0": c1, "tan0": 0.0})
+            continue
+
+        # grid-bench: a phase-shifting branch -> PGM generic_branch, MATPOWER's own
+        # pi-model (edge.hpp: Ytt = ys + jb/2, Yff = Ytt/|N|^2, N = k*e^(j*theta) on the
+        # from side), so the shift is continuous instead of a transformer clock
+        # rounded to 60 degrees.
+        if angle != 0.0:
+            generic_branches.append({"id": next_id(), "from_node": f_id, "to_node": t_id,
+                                     "from_status": 1, "to_status": 1,
+                                     "r1": r_ohm, "x1": x_ohm, "g1": 0.0, "b1": branch[row, BR_B] / z_base,
+                                     "k": ratio if ratio != 0.0 else 1.0, "theta": math.radians(angle)})
             continue
 
         # Off-nominal and/or phase-shifting branch -> PGM transformer. sn
@@ -421,6 +436,7 @@ def convert(mat_path: Path, output_path: Path) -> None:
         "data": {
             "node": nodes, "line": lines, "source": sources, "sym_load": sym_loads,
             "sym_gen": sym_gens, "shunt": shunts, "transformer": transformers,
+            "generic_branch": generic_branches,
             "voltage_regulator": voltage_regulators,
         },
     }

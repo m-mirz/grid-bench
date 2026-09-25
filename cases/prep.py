@@ -16,9 +16,9 @@ Writes into `data/.case-cache/`:
 - `<case>.pgm.json`: power-grid-model input, converted by
   `gridoxide.matpower.convert` (vendored: cases/gridoxide_matpower.py). power-grid-model
   has no MATPOWER importer; this converter is the one gridoxide's own
-  benchmark feeds PGM with. Its known loss: PGM's transformer `clock` cannot
-  hold a continuous phase shift, so every MATPOWER phase shift is rounded to
-  zero. The oracle reports that as a residual on the shifting branches.
+  benchmark feeds PGM with, with three changes marked "grid-bench:" (an ideal
+  slack, and phase shifters as `generic_branch`, which keeps the shift exact
+  where a transformer `clock` would round it to 60 degrees).
 
 Conversion happens here, not inside a tool's timed import, so a tool's
 import time never includes our own conversion code.

@@ -66,7 +66,10 @@ column is the more interesting one:
   from a flat start converges on all of them. The converter used to put the
   slack behind a 0.01 p.u. impedance at the bus's Vm instead of the
   generator's Vg, which held every slack off its setpoint and made case118
-  diverge; it now builds an ideal slack.
+  diverge; it now builds an ideal slack, and maps phase shifters to
+  `generic_branch`, so the shift is no longer rounded to 60 degrees. With a
+  flat start (not yet in a release), power-grid-model is accepted on every
+  case but case6495rte, which no tool solves.
 - **CGMES:** pypowsybl is the only tool that solves every fixture except
   MiniGrid (which none of the three solves), including RealGrid (6,051 nodes,
   139 ms). pandapower's `cim2pp` output crashes its own solver on MicroGrid-BE
