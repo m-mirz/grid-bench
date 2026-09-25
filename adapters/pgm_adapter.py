@@ -1,20 +1,18 @@
 """power-grid-model: C++ Newton-Raphson.
 
 Input: PGM JSON produced by `cases.prep` with `gridoxide.matpower.convert`
-(PGM has no MATPOWER importer). Known losses of that conversion, both of
-which the oracle reports rather than hides:
+(PGM has no MATPOWER importer). Known loss of that conversion, which the
+oracle reports rather than hides:
 - PGM's transformer `clock` cannot hold a continuous phase shift, so every
   MATPOWER phase shift is rounded to zero (PEGASE and RTE cases).
-- The slack is a PGM `source`: an ideal voltage behind an impedance
-  (sk = 1e10 VA), not an ideal slack bus, so the slack voltage lands off its
-  setpoint (visible as `max_dvm_pu`): slightly on transmission cases, by
-  2-3% on the heavily loaded 150 kV slack of the generated MV/LV grids
-  (2.25 ohm carrying ~1 kA).
-- The source's `u_ref` is the slack generator's `Vg`, MATPOWER's setpoint.
-  gridoxide 0.0.2 took the slack bus's `Vm` column, which solved case4_dist
-  and case18 (Vm 1, Vg 1.05) 0.05 p.u. low throughout; the vendored copy is
-  corrected (marked "grid-bench:" in cases/gridoxide_matpower.py). The
-  input then states the case's problem; it is not a fix of PGM.
+The slack is a PGM `source` (an ideal voltage behind an impedance) at the
+slack generator's `Vg` with sk = 1e15 VA, which makes it the ideal slack
+MATPOWER defines. gridoxide 0.0.2 used the bus's `Vm` column (case4_dist and
+case18: 0.05 p.u. low) and sk = 1e10 VA, 0.01 p.u. on a 100 MVA base, which
+held every slack off its setpoint (up to 0.029 p.u. on the MV/LV grids) and
+made case118 diverge. The vendored copy is corrected (lines marked
+"grid-bench:" in cases/gridoxide_matpower.py): the input then states the
+case's problem; it is not a fix of PGM.
 No CGMES importer, so the cgmes family is not run.
 
 Settings:
@@ -28,9 +26,11 @@ Settings:
   not the power mismatch), `max_iterations=MAX_ITERATIONS`.
 - PGM always initializes from its own flat start.
 
-Result: PGM's experimental PV support diverges from case118 upward (same as
-gridoxide's bench records for power-grid-model 1.13.120); it converges on
-case14 and case_illinois200.
+Result: every case PGM converges on is accepted (case14, case118, all
+default distribution cases). From case300 upward it diverges or reports a
+singular matrix at any source sk from 1e8 to 1e15 and also without voltage
+regulators, so neither the slack nor the experimental PV support explains
+that; not yet traced.
 """
 import numpy as np
 

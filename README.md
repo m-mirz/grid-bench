@@ -57,8 +57,11 @@ column is the more interesting one:
     field is normalized.
   - *PyPSA*'s default T-model transformers change the problem. The adapter
     selects the pi-model that MATPOWER uses.
-- **power-grid-model's** experimental PV-bus support converges only on case14
-  (matching what gridoxide's benchmark recorded).
+- **power-grid-model** is accepted on every case it converges on (case14,
+  case118, the distribution cases), and fails from case300 upward, not yet
+  traced. The converter used to put the slack behind a 0.01 p.u. impedance
+  at the bus's Vm instead of the generator's Vg, which held every slack off
+  its setpoint and made case118 diverge; it now builds an ideal slack.
 - **CGMES:** pypowsybl is the only tool that solves every fixture except
   MiniGrid (which none of the three solves), including RealGrid (6,051 nodes,
   139 ms). pandapower's `cim2pp` output crashes its own solver on MicroGrid-BE

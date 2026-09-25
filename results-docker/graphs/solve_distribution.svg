@@ -784,10 +784,10 @@ L 662.459735 48.161455
 " clip-path="url(#pc0a371b898)" style="fill: none; stroke: #1baf7a; stroke-width: 2; stroke-linecap: round"/>
    </g>
    <g id="line2d_102">
-    <path d="M 90.791416 238.621718 
-L 377.607399 199.128402 
-L 575.666201 165.641975 
-L 662.459735 152.896939 
+    <path d="M 90.791416 238.71224 
+L 377.607399 200.939422 
+L 575.666201 167.756584 
+L 662.459735 152.864427 
 " clip-path="url(#pc0a371b898)" style="fill: none; stroke: #eda100; stroke-width: 2; stroke-linecap: round"/>
    </g>
    <g id="line2d_103">
@@ -949,7 +949,7 @@ z
    </g>
    <g id="line2d_120">
     <defs>
-     <path id="mf71bebae7f" d="M 0 3.5 
+     <path id="m27cba2253d" d="M 0 3.5 
 C 0.928211 3.5 1.81853 3.131218 2.474874 2.474874 
 C 3.131218 1.81853 3.5 0.928211 3.5 0 
 C 3.5 -0.928211 3.131218 -1.81853 2.474874 -2.474874 
@@ -962,22 +962,22 @@ z
 " style="stroke: #eda100; stroke-width: 2"/>
     </defs>
     <g clip-path="url(#pc0a371b898)">
-     <use xlink:href="#mf71bebae7f" x="90.791416" y="238.621718" style="fill: #fcfcfb; stroke: #eda100; stroke-width: 2"/>
+     <use xlink:href="#m27cba2253d" x="90.791416" y="238.71224" style="fill: #eda100; stroke: #eda100; stroke-width: 2"/>
     </g>
    </g>
    <g id="line2d_121">
     <g clip-path="url(#pc0a371b898)">
-     <use xlink:href="#mf71bebae7f" x="377.607399" y="199.128402" style="fill: #fcfcfb; stroke: #eda100; stroke-width: 2"/>
+     <use xlink:href="#m27cba2253d" x="377.607399" y="200.939422" style="fill: #eda100; stroke: #eda100; stroke-width: 2"/>
     </g>
    </g>
    <g id="line2d_122">
     <g clip-path="url(#pc0a371b898)">
-     <use xlink:href="#mf71bebae7f" x="575.666201" y="165.641975" style="fill: #fcfcfb; stroke: #eda100; stroke-width: 2"/>
+     <use xlink:href="#m27cba2253d" x="575.666201" y="167.756584" style="fill: #eda100; stroke: #eda100; stroke-width: 2"/>
     </g>
    </g>
    <g id="line2d_123">
     <g clip-path="url(#pc0a371b898)">
-     <use xlink:href="#mf71bebae7f" x="662.459735" y="152.896939" style="fill: #fcfcfb; stroke: #eda100; stroke-width: 2"/>
+     <use xlink:href="#m27cba2253d" x="662.459735" y="152.864427" style="fill: #eda100; stroke: #eda100; stroke-width: 2"/>
     </g>
    </g>
    <g id="line2d_124">
