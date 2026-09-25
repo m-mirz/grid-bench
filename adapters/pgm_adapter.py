@@ -24,13 +24,26 @@ Settings:
 - Reactive limits are stripped from the regulators by `cases.prep`.
 - `error_tolerance=TOLERANCE_PU` (PGM's tolerance is on the voltage update,
   not the power mismatch), `max_iterations=MAX_ITERATIONS`.
-- PGM always initializes from its own flat start.
+- No flat start: PGM's Newton-Raphson has no initialization option and
+  always starts from its own linear guess (newton_raphson_pf_solver.hpp,
+  `initialize_derived_solver`, 1.13.172): one linear solve with every load
+  and generator as the admittance -conj(S) at 1 p.u. (a generator is a
+  negative conductance; a regulated one keeps only its P), then PV buses at
+  their setpoint with the guess's angle. This breaks the common flat-start
+  rule, and it cannot be configured.
 
 Result: every case PGM converges on is accepted (case14, case118, all
-default distribution cases). From case300 upward it diverges or reports a
-singular matrix at any source sk from 1e8 to 1e15 and also without voltage
-regulators, so neither the slack nor the experimental PV support explains
-that; not yet traced.
+default distribution cases). From case300 upward it fails, and the start
+is the cause. The conversion is exact there: at known voltages, PGM's own
+branch flows (state estimation with every voltage measured) equal
+MATPOWER's to 1e-10 MVA on case300, case1354pegase and case2869pegase. A
+textbook polar Newton-Raphson on the oracle's Ybus reproduces PGM's outcome
+on all 16 cases when started from PGM's linear guess, and converges on all
+of them from a flat start: it diverges on case300, case3120sp, case2848rte
+and case1888rte (PGM: IterationDiverge), and hits an exactly singular
+Jacobian on the three PEGASE cases and case6495rte (PGM: SparseMatrixError).
+Removing the regulators is no control: with generators at Q = 0 even
+case118 has no solution.
 """
 import numpy as np
 
