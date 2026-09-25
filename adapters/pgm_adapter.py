@@ -10,10 +10,11 @@ which the oracle reports rather than hides:
   setpoint (visible as `max_dvm_pu`): slightly on transmission cases, by
   2-3% on the heavily loaded 150 kV slack of the generated MV/LV grids
   (2.25 ohm carrying ~1 kA).
-- The source's `u_ref` is the slack bus's `Vm` column, where MATPOWER's
-  setpoint is the generator's `Vg`: case4_dist and case18 (Vm 1, Vg 1.05)
-  are solved 0.05 p.u. low throughout. PGM's own power balance is exact on
-  every distribution case (1e-11 MW); it is the conversion that fails.
+- The source's `u_ref` is the slack generator's `Vg`, MATPOWER's setpoint.
+  gridoxide 0.0.2 took the slack bus's `Vm` column, which solved case4_dist
+  and case18 (Vm 1, Vg 1.05) 0.05 p.u. low throughout; the vendored copy is
+  corrected (marked "grid-bench:" in cases/gridoxide_matpower.py). The
+  input then states the case's problem; it is not a fix of PGM.
 No CGMES importer, so the cgmes family is not run.
 
 Settings:

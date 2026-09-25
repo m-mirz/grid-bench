@@ -1,8 +1,12 @@
 # Vendored from gridoxide 0.0.2 (Apache-2.0, https://github.com/m-mirz/gridoxide),
 # file python/gridoxide/matpower.py of the PyPI sdist gridoxide-0.0.2.tar.gz
 # (sdist sha256 19f9ef42a6268415a0ef16bc15a77b0b539b9ababd974c6651f37bbb0061f60e).
-# Everything below these header lines is byte-identical to that file
-# (sha256 b6156e79ed3e13f8fc6720662e26887faa5df49b954acef28f775731e7d8a76a).
+# Everything below these header lines is identical to that file
+# (sha256 b6156e79ed3e13f8fc6720662e26887faa5df49b954acef28f775731e7d8a76a)
+# except one line, marked "grid-bench:": the slack source's u_ref is the
+# slack generator's Vg, as in MATPOWER, not the bus's Vm column (case4_dist
+# and case18 have Vm 1.00, Vg 1.05, so power-grid-model was graded on a slack
+# held 0.05 p.u. too low). To be reported upstream.
 # It is the MATPOWER -> power-grid-model converter; see cases/prep.py.
 """Converts a raw MATPOWER case (`.mat`, MATPOWER's own bus/branch/gen
 matrix format, or `.m`, MATPOWER's plain-text case-file format) directly
@@ -261,7 +265,9 @@ def convert(mat_path: Path, output_path: Path) -> None:
             continue
         if btype == REF:
             sources.append({"id": next_id(), "node": node_id, "status": 1,
-                             "u_ref": bus[row, VM], "sk": SOURCE_SK, "rx_ratio": SOURCE_RX_RATIO})
+                             # grid-bench: MATPOWER holds the slack at its generator's Vg, not the bus Vm column
+                             "u_ref": gen[first_active_gen_by_bus[node_id], VG], "sk": SOURCE_SK,
+                             "rx_ratio": SOURCE_RX_RATIO})
             continue
         p_mw = gen_p_by_bus.get(node_id)
         if p_mw is None:
