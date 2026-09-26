@@ -50,6 +50,12 @@ Groups say what a case is *for* (a case can be in several):
   reported separately, never in the timing headline.
 
 A case with no group stays available by name but is not run by default.
+
+Reports are organised by `grid`, the physical grid a case describes:
+`transmission` (the `matpower` family and its conversions, which are the
+same grids read another way), `distribution` and `fixtures` (the CGMES
+conformity fixtures). The family says how a tool reads a case; the grid
+says what it is.
 """
 from pathlib import Path
 
@@ -65,22 +71,23 @@ DEFAULT_GROUPS = ("smoke", "scaling", "feature", "robustness")
 CONVERTERS = ("cimoxide", "pypowsybl")
 SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstring
 FAMILIES = ("matpower", "distribution", "cgmes") + tuple(f"converted-{c}" for c in CONVERTERS)
+GRIDS = ("transmission", "distribution", "fixtures")
 
 
 def _mp(file: str, groups: list[str], source: str, note: str = "") -> dict:
-    return {"family": "matpower", "format": "matpower", "file": MATPOWER_DIR / file, "groups": groups,
-            "source": source, "note": note}
+    return {"family": "matpower", "grid": "transmission", "format": "matpower", "file": MATPOWER_DIR / file,
+            "groups": groups, "source": source, "note": note}
 
 
 def _dist(name: str, groups: list[str], source: str, note: str = "", where: Path = PLAIN_DIR) -> dict:
     """`where`: PLAIN_DIR for MATPOWER's feeders that convert units in MATLAB
     code, MATPOWER_DIR for the two that are plain data as shipped."""
-    return {"family": "distribution", "format": "matpower", "file": where / f"{name}.m", "groups": groups,
-            "source": source, "note": note}
+    return {"family": "distribution", "grid": "distribution", "format": "matpower", "file": where / f"{name}.m",
+            "groups": groups, "source": source, "note": note}
 
 
 def _cgmes(directory: str, groups: list[str], note: str = "", boundary: str | None = None) -> dict:
-    return {"family": "cgmes", "format": "cgmes", "dir": CGMES_DIR / directory, "groups": groups, "source": "ENTSO-E CGMES 3.0",
+    return {"family": "cgmes", "grid": "fixtures", "format": "cgmes", "dir": CGMES_DIR / directory, "groups": groups, "source": "ENTSO-E CGMES 3.0",
             "boundary": CGMES_DIR / boundary if boundary else None, "note": note}
 
 
@@ -141,7 +148,8 @@ CONVERTED_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c
 for _base in CONVERTED_FROM:
     for _conv in CONVERTERS:
         CASES[f"{_base}@{_conv}"] = {
-            "family": f"converted-{_conv}", "format": "cgmes", "dir": CACHE / f"{_base}@{_conv}",
+            "family": f"converted-{_conv}", "grid": CASES[_base]["grid"], "format": "cgmes",
+            "dir": CACHE / f"{_base}@{_conv}",
             "groups": CASES[_base]["groups"] if _conv in SOLVED_CONVERTERS else [],
             "source": f"{_base} via {_conv}", "source_case": _base, "converter": _conv, "boundary": None,
             "note": CASES[_base]["note"],

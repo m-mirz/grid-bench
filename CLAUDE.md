@@ -126,6 +126,8 @@ cases converted to CGMES, graded by the tier-1 residual against the original
 `.m`). A tool declares the families it reads in `SolverAdapter.families`.
 Converted cases are keyed `<case>@<converter>`. Branch on a case's input
 format with `is_cgmes(case)` (the `format` field), never on its family.
+Reports group cases by `grid` (transmission, distribution, fixtures): a
+converted case sits on its source case's grid, as a row under it.
 
 `oracle/cgmes_model.py` must stay independent of both converters: it is
 ElementTree only, and must not import cimoxide or pypowsybl. When a converter

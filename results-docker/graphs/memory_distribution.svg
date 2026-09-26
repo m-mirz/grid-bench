@@ -984,7 +984,7 @@ z
     </g>
    </g>
    <g id="text_11">
-    <text style="font-size: 12px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #0b0b0b" x="62.208" y="25.44" transform="rotate(-0 62.208 25.44)">Peak memory of loading and solving, radial distribution grids (MATPOWER format)</text>
+    <text style="font-size: 12px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #0b0b0b" x="62.208" y="25.44" transform="rotate(-0 62.208 25.44)">Peak memory of loading and solving, distribution grids (MATPOWER .m)</text>
    </g>
   </g>
   <g id="text_12">

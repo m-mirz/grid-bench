@@ -48,12 +48,29 @@ class Results:
         seen = {r.family for r in self.records} | {CASES[f["case"]]["family"] for f in self.failures}
         return [f for f in FAMILIES if f in seen]
 
+    def _seen(self) -> set[str]:
+        return {r.case for r in self.records} | {f["case"] for f in self.failures}
+
     def cases(self, family: str, robustness: bool = False) -> list[str]:
         """Cases with results, by size. Robustness-only cases (expected to fail
         everywhere) are kept out of headline tables unless asked for."""
-        seen = {r.case for r in self.records} | {f["case"] for f in self.failures}
-        return sorted((c for c in seen if CASES[c]["family"] == family
+        return sorted((c for c in self._seen() if CASES[c]["family"] == family
                        and (CASES[c]["groups"] == ["robustness"]) == robustness), key=lambda c: (case_size(c), c))
+
+    def grids(self) -> list[str]:
+        """Grids with results, in registry order."""
+        from cases.registry import GRIDS
+        seen = {CASES[c]["grid"] for c in self._seen()}
+        return [g for g in GRIDS if g in seen]
+
+    def grid_cases(self, grid: str, robustness: bool = False) -> list[str]:
+        """Cases with results on one grid, by size, each conversion right
+        after the case it was converted from."""
+        def key(c):
+            base = CASES[c].get("source_case", c)
+            return case_size(c), base, CASES[c].get("converter", "")
+        return sorted((c for c in self._seen() if CASES[c]["grid"] == grid
+                       and (CASES[c]["groups"] == ["robustness"]) == robustness), key=key)
 
     def tool_order(self) -> list[str]:
         """Registry order, i.e. colour-slot order; never re-ranked."""
@@ -62,12 +79,32 @@ class Results:
 
 
 FAMILY_TITLES = {
-    "matpower": "MATPOWER cases",
-    "distribution": "Radial distribution grids (MATPOWER format)",
+    "matpower": "Transmission grids (MATPOWER .m)",
+    "distribution": "Distribution grids (MATPOWER .m)",
     "cgmes": "CGMES conformity fixtures",
-    "converted-cimoxide": "MATPOWER cases as CGMES, converted with cimoxide",
-    "converted-pypowsybl": "MATPOWER cases as CGMES, converted with pypowsybl",
+    "converted-cimoxide": "Transmission grids as CGMES, converted with cimoxide",
+    "converted-pypowsybl": "Transmission grids as CGMES, converted with pypowsybl",
 }
+
+GRID_TITLES = {
+    "transmission": "Transmission grids (meshed)",
+    "distribution": "Distribution grids (radial)",
+    "fixtures": "CGMES conformity fixtures",
+}
+
+
+def input_label(case: str) -> str:
+    """How a tool reads the case: the `.m`, a converter's CGMES, or a fixture's own CGMES."""
+    c = CASES[case]
+    if "converter" in c:
+        return f"CGMES ({c['converter']})"
+    return "CGMES" if c["format"] == "cgmes" else "`.m`"
+
+
+def graded(case: str) -> bool:
+    """Tier 1 applies: there is a `.m` to grade against."""
+    c = CASES[case]
+    return c["format"] == "matpower" or "source_case" in c
 
 
 def load(directory: Path) -> Results:
