@@ -122,7 +122,7 @@ docstring justifies each setting and what it deliberately does not do:
   are recorded with the tool's real exception.
 - **Isolation:** one container per tool, no network, run one at a time.
   Everything a build fetches is pinned (images by digest, packages by
-  lockfile, downloads by SHA-256; see [CLAUDE.md](CLAUDE.md#pinning)), and
+  lockfile, downloads by SHA-256; see [AGENTS.md](AGENTS.md#pinning)), and
   tool releases are at least a week old (one documented exception).
 
 ## Cases
@@ -195,7 +195,7 @@ checks that the harness works. For an A/B comparison, interleave the runs
 
 ## Adding a tool
 
-See [CLAUDE.md](CLAUDE.md#adding-a-tool): one adapter, one three-line
+See [AGENTS.md](AGENTS.md#adding-a-tool): one adapter, one three-line
 benchmark file, one `tool-configs/<tool>/pyproject.toml`, one compose service.
 
 ## Credits
