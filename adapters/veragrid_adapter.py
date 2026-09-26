@@ -8,6 +8,11 @@ Inputs:
   feeder with baseMVA 1 or 10). case33bw rewritten at baseMVA 100 with the
   same per-unit-scaled impedances passes to 1e-7 MW, as is it misses by
   0.4 MW, so the parser does not apply the file's base power consistently.
+  Also reported: generators out of service still regulate voltage
+  (case3120sp: exactly its 101 PV buses whose generators are all offline),
+  and online generators on PQ-typed buses regulate voltage where MATPOWER
+  treats them as fixed P/Q injections (case2848rte: exactly its 48 such
+  buses).
 - cgmes: `IO.file_open.open_cgmes` on the profile list. (The generic
   `open_file` rejects a list of CGMES files in 6.5.x with an empty error
   log.) VeraGrid builds one bus per ConnectivityNode; `Bus.idtag` is the

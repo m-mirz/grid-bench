@@ -4,32 +4,52 @@ Every timing cell carries its oracle verdict, so no speed number appears
 without a correctness number next to it:
 
     0.234 ✓        warm solve median in ms; the oracle's residual check passed
+    **0.010 ✓**    the fastest ✓ in its row
     5.087 ✗³       converged, but the solution does not solve the case (see note 3)
     FAILED¹        the tool raised; note 1 has the real exception
-    —              the tool cannot read this case family
+    ·              the tool does not read this input
+
+Tables are split by grid (`cases.registry.GRIDS`). A transmission case read
+as CGMES is a row under the case it was converted from, so each row
+differing from the `.m` row shows what the input route changed.
 """
 import math
+import re
 from pathlib import Path
 
 import numpy as np
 
 from cases.registry import CASES
-from tools.benchmark_data import FAMILY_TITLES, Results, case_size, load_solution
+from tools.benchmark_data import (GRID_TITLES, Results, case_size, graded, input_label, load_solution, reads,
+                                  scoreboard)
 
 
 class Notes:
-    """Numbered footnotes, deduplicated by text."""
+    """Numbered footnotes, one per cause, each listing the cases it covers:
+    a wrong solution per (tool, input), a failure per (tool, message)."""
 
     def __init__(self):
-        self.items: list[str] = []
+        self.cases: dict[str, dict[str, str]] = {}   # head -> {case: detail}
 
-    def ref(self, text: str) -> str:
-        if text not in self.items:
-            self.items.append(text)
-        return "".join("⁰¹²³⁴⁵⁶⁷⁸⁹"[int(d)] for d in str(self.items.index(text) + 1))
+    def ref(self, head: str, case: str, detail: str = "") -> str:
+        self.cases.setdefault(head, {}).setdefault(case, detail)
+        return "".join("⁰¹²³⁴⁵⁶⁷⁸⁹"[int(d)] for d in str(list(self.cases).index(head) + 1))
 
     def render(self) -> str:
-        return "\n".join(f"{i}. {t}" for i, t in enumerate(self.items, 1))
+        out = []
+        for i, (head, cases) in enumerate(self.cases.items(), 1):
+            if any(cases.values()):
+                out += [f"{i}. {head}"] + [f"    - {c}: {d}" for c, d in cases.items()]
+            else:
+                out.append(f"{i}. {head}: {', '.join(cases)}")
+        return "\n".join(out)
+
+
+def normalize_error(err: str) -> str:
+    """Drops the numbers that differ per case (deviations, iteration counts),
+    so one message on several cases is one note. Numbers inside identifiers
+    (mRIDs) stay."""
+    return re.sub(r"\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b", "…", err)
 
 
 def fmt_ms(ms: float) -> str:
@@ -61,111 +81,157 @@ def residual_note(e: dict) -> str:
     return "; ".join(parts) + f" (worst: bus {e['residual_worst_bus']})"
 
 
+def failed(res: Results, notes: Notes, tool: str, case: str, operation: str) -> str:
+    err = res.failure(tool, case, operation)
+    if err is None:
+        return "not run"
+    return "FAILED" + notes.ref(f"FAILED · **{res.tools[tool]['display_name']}**: `{normalize_error(err)}`", case)
+
+
 def cell(res: Results, notes: Notes, tool: str, case: str, operation: str) -> str:
-    if CASES[case]["family"] not in res.tools[tool]["families"]:
-        return "—"
+    if not reads(res, tool, case):
+        return "·"
     rec = res.get(tool, case, operation)
     if rec is None:
-        err = res.failure(tool, case, operation)
-        return f"FAILED{notes.ref(f'{tool} on {case}: `{err}`')}" if err else "not run"
+        return failed(res, notes, tool, case, operation)
     text = fmt_ms(rec.median_ms)
-    if operation != "solve" or "oracle_ok" not in rec.extra:
+    if operation != "solve":
         return text
+    if "oracle_ok" not in rec.extra:   # a fixture: its tier-2 deviation, no verdict
+        return f"{text} · {rec.extra['sv_dv_median']:.3%}" if rec.extra.get("sv_n") else text
     if rec.extra["oracle_ok"]:
         return f"{text} ✓"
-    return f"{text} ✗{notes.ref(f'{tool} on {case}: {residual_note(rec.extra)}')}"
+    head = f"✗ · **{res.tools[tool]['display_name']}, {input_label(case)}**"
+    return f"{text} ✗{notes.ref(head, case, residual_note(rec.extra))}"
 
 
-def table(header: list[str], rows: list[list[str]]) -> str:
-    out = ["| " + " | ".join(header) + " |", "|" + "|".join("---:" if i else "---" for i in range(len(header))) + "|"]
+def fastest_ok(res: Results, tools: list[str], case: str) -> str | None:
+    ok = [r for t in tools if (r := res.get(t, case, "solve")) and r.extra.get("oracle_ok")]
+    return min(ok, key=lambda r: r.median_ms).tool if ok else None
+
+
+def table(header: list[str], rows: list[list[str]], left: tuple[int, ...] = (0,)) -> str:
+    """`left`: the text columns (left-aligned); the rest are numbers."""
+    out = ["| " + " | ".join(header) + " |",
+           "|" + "|".join("---" if i in left else "---:" for i in range(len(header))) + "|"]
     return "\n".join(out + ["| " + " | ".join(r) + " |" for r in rows])
 
 
-def family_tools(res: Results, family: str) -> list[str]:
-    return [t for t in res.tool_order() if family in res.tools[t]["families"]]
+def grid_tools(res: Results, cases: list[str]) -> list[str]:
+    """Tools that read at least one of these cases; a column that would be all `·` is left out."""
+    return [t for t in res.tool_order() if any(reads(res, t, c) for c in cases)]
 
 
-def timing_section(res: Results, operation: str, family: str, notes: Notes) -> str:
-    tools = family_tools(res, family) if family != "matpower" else res.tool_order()
-    rows = [[f"{c}", f"{case_size(c):,}"] + [cell(res, notes, t, c, operation) for t in tools]
-            for c in res.cases(family)]
-    return table(["case", "nodes" if family == "cgmes" else "buses"] +
-                 [res.tools[t]["display_name"] for t in tools], rows)
+def row_head(cases: list[str], c: str, with_input: bool) -> list[str]:
+    """Case name and size on the first row of a case; its conversions below show only the input."""
+    base = CASES[c].get("source_case", c)
+    first = base == c or base not in cases
+    head = [base if first else "", f"{case_size(c):,}" if first else ""]
+    return head + ([input_label(c)] if with_input else [])
 
 
-def per_family(res: Results, render, *args) -> str:
+def grid_table(res: Results, cases: list[str], render) -> str:
+    """One row per case; `render(tools, case)` gives the tool cells."""
+    tools = grid_tools(res, cases)
+    with_input = len({input_label(c) for c in cases}) > 1
+    unit = "buses" if all(graded(c) for c in cases) else "nodes"
+    header = ["case", unit] + (["input"] if with_input else []) + [res.tools[t]["display_name"] for t in tools]
+    rows = [row_head(cases, c, with_input) + render(tools, c) for c in cases]
+    return table(header, rows, (0, 2) if with_input else (0,))
+
+
+def timing_cells(res: Results, notes: Notes, operation: str):
+    def render(tools, case):
+        best = fastest_ok(res, tools, case) if operation == "solve" else None
+        return [f"**{text}**" if t == best else text
+                for t in tools for text in [cell(res, notes, t, case, operation)]]
+    return render
+
+
+def per_grid(res: Results, render, graded_only: bool = False) -> str:
     parts = []
-    for fam in res.families():
-        parts += [f"### {FAMILY_TITLES[fam]}", "", render(res, *args, fam) if args else render(res, fam), ""]
+    for grid in res.grids():
+        cases = res.grid_cases(grid)
+        if cases and not (graded_only and not all(graded(c) for c in cases)):
+            parts += [f"### {GRID_TITLES[grid]}", "", grid_table(res, cases, render), ""]
     return "\n".join(parts)
 
 
 def robustness_section(res: Results, notes: Notes) -> str:
-    tools = res.tool_order()
-    rows = [[c, f"{case_size(c):,}"] + [cell(res, notes, t, c, "solve") for t in tools]
-            for c in res.cases("matpower", robustness=True)]
-    return table(["case", "buses"] + [res.tools[t]["display_name"] for t in tools], rows) if rows else "Not run."
+    cases = [c for g in res.grids() for c in res.grid_cases(g, robustness=True)]
+    return grid_table(res, cases, timing_cells(res, notes, "solve")) if cases else "Not run."
 
 
-def memory_section(res: Results, family: str) -> str:
-    tools = family_tools(res, family)
-    rows = []
-    for c in res.cases(family):
-        row = [c]
+def scoreboard_section(res: Results) -> str:
+    columns, rows = scoreboard(res)
+    header = [f"[{label}](#{section})" if section else label for label, section in columns]
+    return table(["tool"] + header, [[res.tools[t]["display_name"]] + cells for t, cells in rows])
+
+
+def memory_cells(res: Results):
+    def render(tools, case):
+        row = []
         for t in tools:
-            rec = res.get(t, c, "import")
+            if not reads(res, t, case):
+                row.append("·")
+                continue
+            rec = res.get(t, case, "import")
             if rec is None or "rss_import_mb" not in rec.extra:
                 row.append("—")
                 continue
             e = rec.extra
             peak = e.get("rss_solve_mb", e["rss_import_mb"])
             row.append(f"{peak - e['rss_baseline_mb']:.0f} (+{e['rss_baseline_mb']:.0f})")
-        rows.append(row)
-    return table(["case"] + [res.tools[t]["display_name"] for t in tools], rows)
+        return row
+    return render
 
 
-def accuracy_residual(res: Results, family: str = "matpower") -> str:
-    tools = family_tools(res, family)
-    rows = []
-    for c in res.cases(family):
-        row = [c]
+def residual_cells(res: Results):
+    def render(tools, case):
+        row = []
         for t in tools:
-            rec = res.get(t, c, "solve")
-            if rec is None:
+            rec = res.get(t, case, "solve")
+            if not reads(res, t, case):
+                row.append("·")
+            elif rec is None:
                 row.append("failed")
-                continue
-            e = rec.extra
-            worst = max(e["residual_max_dp_mw"], e["residual_max_dq_mvar"])
-            row.append(f"{worst:.1e}" + ("" if e["oracle_ok"] else " ✗"))
-        rows.append(row)
-    return table(["case"] + [res.tools[t]["display_name"] for t in tools], rows)
+            else:
+                worst = max(rec.extra["residual_max_dp_mw"], rec.extra["residual_max_dq_mvar"])
+                row.append(f"{worst:.1e}" + ("" if rec.extra["oracle_ok"] else " ✗"))
+        return row
+    return render
 
 
-def accuracy_cgmes(res: Results) -> str:
-    tools = family_tools(res, "cgmes")
-    rows = []
-    for c in res.cases("cgmes"):
-        row = [c]
+def sv_cells(res: Results):
+    def render(tools, case):
+        row = []
         for t in tools:
-            rec = res.get(t, c, "solve")
-            if rec is None:
+            rec = res.get(t, case, "solve")
+            if not reads(res, t, case):
+                row.append("·")
+            elif rec is None:
                 row.append("failed")
-                continue
-            e = rec.extra
-            if not e.get("sv_n"):
+            elif not rec.extra.get("sv_n"):
                 row.append("n=0")
-                continue
-            row.append(f"{e['sv_dv_median']:.3%} / {e['sv_dv_max']:.2%} (n={e['sv_n']}/{e['sv_n_published']})")
-        rows.append(row)
-    return table(["case"] + [res.tools[t]["display_name"] for t in tools], rows)
+            else:
+                e = rec.extra
+                row.append(f"{e['sv_dv_median']:.3%} / {e['sv_dv_max']:.2%} (n={e['sv_n']}/{e['sv_n_published']})")
+        return row
+    return render
+
+
+def accuracy_sv(res: Results) -> str:
+    cases = [c for g in res.grids() for c in res.grid_cases(g) if not graded(c)]
+    return grid_table(res, cases, sv_cells(res)) if cases else "Not run."
 
 
 def cross_tool(res: Results, directory: Path) -> str:
     """Tier 3, the weakest evidence: each tool's largest |V| deviation from
     the per-bus median of every tool that solved the case."""
-    tools = res.tool_order()
+    cases = [c for g in res.grids() for c in res.grid_cases(g) if CASES[c]["format"] == "matpower"]
+    tools = grid_tools(res, cases)
     rows = []
-    for c in [c for fam in ("matpower", "distribution") for c in res.cases(fam)]:
+    for c in cases:
         sols = {t: s for t in tools if res.get(t, c, "solve") and (s := load_solution(directory, t, c))}
         if len(sols) < 3:
             continue
@@ -216,63 +282,79 @@ def environment(res: Results) -> str:
 
 def generate(directory: Path, res: Results) -> str:
     notes = Notes()
+    # Tables first, so notes are numbered in reading order; the scoreboard needs none.
+    solve = per_grid(res, timing_cells(res, notes, "solve"))
+    robust = robustness_section(res, notes)
+    imports = per_grid(res, timing_cells(res, notes, "import"))
     parts = [
         "# grid-bench results",
         "",
         "Generated by `tools/generate_comparison.py` from the JSON in this directory. Do not edit by hand.",
         "",
-        "## AC power flow: warm solve",
-        "",
-        "Median of repeated solves on one persistent model, flat start every time, in ms, per case family. "
         "✓: the solution satisfies the case's power-flow equations to 1e-3 MVA at every bus and holds every "
         "generator voltage setpoint (oracle tier 1, independent of every tool). "
-        "✗: the tool converged, but to a solution of a different problem; the note says where.",
+        "✗: the tool converged, but to a solution of a different problem. FAILED: the tool raised. "
+        "`·`: the tool does not read this input. Superscripts point to the [notes](#notes); "
+        "a shared note is a shared cause.",
         "",
-        per_family(res, lambda r, fam: timing_section(r, "solve", fam, notes)),
-        "## Robustness",
+        "## Scoreboard",
+        "",
+        "AC power flow on the default cases: ✓ / ✗ / FAILED per grid and input. CGMES fixtures have no verdict "
+        "(their reference is someone else's solution): cases solved. Hard transmission cases: cases that are not "
+        "expected to converge from a flat start, so FAILED is the normal outcome and a ✓ stands out.",
+        "",
+        scoreboard_section(res),
+        "",
+        "## AC power flow: warm solve",
+        "",
+        "Median of repeated solves on one persistent model, flat start every time, in ms; the fastest ✓ in each "
+        "row in bold. Transmission cases are also read as CGMES converted from the `.m` (a row under the case), "
+        "graded against the `.m` like the original: a row that differs from the `.m` row shows what the input "
+        "route changed. CGMES fixtures: time · median |ΔV|/V against the published `SvVoltage` (tier 2).",
+        "",
+        solve,
+        "## Hard transmission cases",
         "",
         "Cases known not to converge from a flat start in any tool tested here. Kept out of the tables above; "
         "a tool that solves one of these (and passes the oracle) is doing something the others do not.",
         "",
-        robustness_section(res, notes),
+        robust,
         "",
         "## Import: file to model",
         "",
         "Median of 3 cold loads after one warm-up load, in ms.",
         "",
-        per_family(res, lambda r, fam: timing_section(r, "import", fam, notes)),
+        imports,
         "## Memory",
         "",
         "Peak RSS added by loading and solving the case, in MB, measured in a fresh process; "
         "in parentheses, the peak after merely importing the tool. Charts: `graphs/memory_<family>.svg`. "
         "Only the benchmark process is measured: cgmes2pgm's Fuseki server is not included.",
         "",
-        per_family(res, memory_section),
+        per_grid(res, memory_cells(res)),
         "## Accuracy",
         "",
         "### Tier 1: residual against the MATPOWER case (MVA, worst bus)",
         "",
-        "Also applied to converted cases: tool voltages are mapped back to MATPOWER buses by TopologicalNode name "
-        "(`BUS-<n>`) and graded against the original `.m`.",
-        "",
         "Largest |ΔP| or |ΔQ| of `V·conj(Ybus·V) − S` over the buses where it is specified, "
-        "with Ybus built from the `.m` file by `oracle/ybus.py`. Every tool was asked to converge to 1e-8 p.u.",
+        "with Ybus built from the `.m` file by `oracle/ybus.py`. Every tool was asked to converge to 1e-8 p.u. "
+        "Converted cases are graded the same way: tool voltages are mapped back to MATPOWER buses by "
+        "TopologicalNode name (`BUS-<n>`).",
         "",
-        "\n\n".join(f"**{FAMILY_TITLES[fam]}**\n\n" + accuracy_residual(res, fam)
-                    for fam in res.families() if fam != "cgmes"),
-        "",
+        per_grid(res, residual_cells(res), graded_only=True).replace("### ", "#### "),
         "### Tier 2: deviation from the published CGMES solution",
         "",
         "|ΔV|/V against `SvVoltage`, median / max, and matched / published TopologicalNodes. The published "
         "solution comes from the fixture author's own tool and settings; it is a reference, not ground truth.",
         "",
-        accuracy_cgmes(res),
+        accuracy_sv(res),
         "",
         "### Converting MATPOWER to CGMES",
         "",
         "Each converter's output checked without any tool (`oracle/check_conversion.py`): Ybus, specified injections "
         "and voltage setpoints rebuilt from the CGMES files by a parser that shares no code with either converter, "
-        "compared with the original `.m`. A missing slack leaves every tool to choose its own slack bus.",
+        "compared with the original `.m`. A missing slack leaves every tool to choose its own slack bus. "
+        "Only exact conversions are solved by the tools (see `cases/registry.py`).",
         "",
         conversion_section(res),
         "",
@@ -284,6 +366,9 @@ def generate(directory: Path, res: Results) -> str:
         cross_tool(res, directory),
         "",
         "## Notes",
+        "",
+        "Wrong solutions are grouped by tool and input, failures by tool and message (numbers that differ per case "
+        "shown as …). Each note lists every case it covers.",
         "",
         notes.render(),
         "",

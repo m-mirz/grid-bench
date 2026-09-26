@@ -11,7 +11,9 @@ Known loss of the import, which the oracle reports rather than hides:
 `status` column and imports every line `active`, so out-of-service branches
 are in service. On the distribution feeders with open tie switches (case33bw,
 case33mg, case118zh, case136ma) PyPSA solves the meshed grid with every tie
-closed.
+closed. Generators out of service still regulate voltage at their bus:
+case3120sp misses at exactly its 101 PV buses whose generators are all
+offline, which MATPOWER solves as PQ.
 
 Settings:
 - `transformers.model = "pi"`: PyPSA imports transformers with its default
