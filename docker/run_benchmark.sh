@@ -29,13 +29,14 @@ $compose run --rm oracle-tests || { echo "oracle tests failed; refusing to bench
 failed=()
 for t in "${tools[@]}"; do
     echo "=== $t"
-    $compose run --rm "$t" pytest "benchmarks/${t}_benchmark.py" "--benchmark-json=/output/$t.json" "${extra[@]}" \
-        || failed+=("$t")
-    # A tool with a state estimator: the same container, its own JSON.
-    if [ -f "benchmarks/${t}_se_benchmark.py" ]; then
-        $compose run --rm "$t" pytest "benchmarks/${t}_se_benchmark.py" "--benchmark-json=/output/$t-se.json" "${extra[@]}" \
-            || failed+=("$t-se")
-    fi
+    # Every problem the tool has a benchmark for (power flow, state estimation,
+    # OPF), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
+    for suffix in "" _se _opf; do
+        if [ -f "benchmarks/${t}${suffix}_benchmark.py" ]; then
+            $compose run --rm "$t" pytest "benchmarks/${t}${suffix}_benchmark.py" \
+                "--benchmark-json=/output/$t${suffix/_/-}.json" "${extra[@]}" || failed+=("$t${suffix/_/-}")
+        fi
+    done
 done
 
 $compose run --rm reports

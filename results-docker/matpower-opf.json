@@ -1,0 +1,1609 @@
+{
+    "machine_info": {
+        "node": "50fc9a3ee9ef",
+        "processor": "",
+        "machine": "x86_64",
+        "python_compiler": "Clang 22.1.3 ",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.14",
+        "python_version": "3.13.14",
+        "python_build": [
+            "main",
+            "Jul 18 2026 17:02:37"
+        ],
+        "release": "7.0.0-34-generic",
+        "system": "Linux",
+        "cpu": {
+            "python_version": "3.13.14.final.0 (64 bit)",
+            "cpuinfo_version": [
+                10,
+                1,
+                1
+            ],
+            "cpuinfo_version_string": "10.1.1",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 16,
+            "arch_string_raw": "x86_64",
+            "vendor_id_raw": "AuthenticAMD",
+            "brand_raw": "AMD Ryzen 7 250 w/ Radeon 780M Graphics",
+            "hz_advertised_friendly": "1.1003 GHz",
+            "hz_actual_friendly": "1.1003 GHz",
+            "hz_advertised": [
+                1100334000,
+                0
+            ],
+            "hz_actual": [
+                1100334000,
+                0
+            ],
+            "stepping": 2,
+            "model": 117,
+            "family": 25,
+            "flags": [
+                "3dnowprefetch",
+                "abm",
+                "adx",
+                "aes",
+                "amd_lbr_pmc_freeze",
+                "amd_lbr_v2",
+                "aperfmperf",
+                "apic",
+                "arat",
+                "avx",
+                "avx2",
+                "avx512_bf16",
+                "avx512_bitalg",
+                "avx512_vbmi2",
+                "avx512_vnni",
+                "avx512_vpopcntdq",
+                "avx512bitalg",
+                "avx512bw",
+                "avx512cd",
+                "avx512dq",
+                "avx512f",
+                "avx512ifma",
+                "avx512vbmi",
+                "avx512vbmi2",
+                "avx512vl",
+                "avx512vnni",
+                "avx512vpopcntdq",
+                "bmi1",
+                "bmi2",
+                "bpext",
+                "cat_l3",
+                "cdp_l3",
+                "clflush",
+                "clflushopt",
+                "clwb",
+                "clzero",
+                "cmov",
+                "cmp_legacy",
+                "constant_tsc",
+                "cpb",
+                "cppc",
+                "cpuid",
+                "cpuid_fault",
+                "cqm",
+                "cqm_llc",
+                "cqm_mbm_local",
+                "cqm_mbm_total",
+                "cqm_occup_llc",
+                "cr8_legacy",
+                "cx16",
+                "cx8",
+                "dbx",
+                "de",
+                "decodeassists",
+                "erms",
+                "extapic",
+                "extd_apicid",
+                "f16c",
+                "flush_l1d",
+                "flushbyasid",
+                "fma",
+                "fpu",
+                "fsgsbase",
+                "fsrm",
+                "fxsr",
+                "fxsr_opt",
+                "gfni",
+                "ht",
+                "hw_pstate",
+                "ibpb",
+                "ibrs",
+                "ibrs_enhanced",
+                "ibs",
+                "invpcid",
+                "irperf",
+                "lahf_lm",
+                "lbrv",
+                "lm",
+                "mba",
+                "mca",
+                "mce",
+                "misalignsse",
+                "mmx",
+                "mmxext",
+                "monitor",
+                "movbe",
+                "msr",
+                "mtrr",
+                "mwaitx",
+                "nonstop_tsc",
+                "nopl",
+                "npt",
+                "nrip_save",
+                "nx",
+                "ospke",
+                "osvw",
+                "osxsave",
+                "overflow_recov",
+                "pae",
+                "pat",
+                "pausefilter",
+                "pci_l2i",
+                "pclmulqdq",
+                "pdpe1gb",
+                "perfctr_core",
+                "perfctr_llc",
+                "perfctr_nb",
+                "perfmon_v2",
+                "pfthreshold",
+                "pge",
+                "pku",
+                "pni",
+                "popcnt",
+                "pqe",
+                "pqm",
+                "pse",
+                "pse36",
+                "rapl",
+                "rdpid",
+                "rdpru",
+                "rdrand",
+                "rdrnd",
+                "rdseed",
+                "rdt_a",
+                "rdtscp",
+                "rep_good",
+                "sep",
+                "sha",
+                "sha_ni",
+                "skinit",
+                "smap",
+                "smca",
+                "smep",
+                "ssbd",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "sse4a",
+                "ssse3",
+                "stibp",
+                "succor",
+                "svm",
+                "svm_lock",
+                "syscall",
+                "tce",
+                "topoext",
+                "tsc",
+                "tsc_scale",
+                "umip",
+                "user_shstk",
+                "v_spec_ctrl",
+                "vaes",
+                "vgif",
+                "vmcb_clean",
+                "vme",
+                "vmmcall",
+                "vnmi",
+                "vpclmulqdq",
+                "wbnoinvd",
+                "wdt",
+                "x2apic",
+                "x2avic",
+                "xgetbv1",
+                "xsave",
+                "xsavec",
+                "xsaveerptr",
+                "xsaveopt",
+                "xsaves",
+                "xtopology"
+            ],
+            "l3_cache_size": 1048576,
+            "l2_cache_size": 8388608,
+            "l1_data_cache_size": 262144,
+            "l1_instruction_cache_size": 262144,
+            "l2_cache_line_size": 1024,
+            "l2_cache_associativity": 6
+        }
+    },
+    "commit_info": {
+        "id": "8a6eafc609da91c3ff5547cde27e805efeed0570",
+        "time": "2026-09-26T19:44:12+02:00",
+        "author_time": "2026-09-26T19:44:12+02:00",
+        "dirty": true,
+        "project": "grid-bench",
+        "branch": "ac-opf"
+    },
+    "benchmarks": [
+        {
+            "group": "import:pglib_opf_case14_ieee",
+            "name": "test_import[pglib_opf_case14_ieee]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case14_ieee]",
+            "params": {
+                "case": "pglib_opf_case14_ieee"
+            },
+            "param": "pglib_opf_case14_ieee",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case14_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.64453125,
+                "rss_import_mb": 175.09375,
+                "rss_solve_mb": 175.1640625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.019358158109999996,
+                "max": 0.019688844679999998,
+                "mean": 0.019481341043333333,
+                "stddev": 0.00018075089945159944,
+                "rounds": 3,
+                "median": 0.01939702034,
+                "iqr": 0.0002480149275000017,
+                "q1": 0.019367873667499997,
+                "q3": 0.019615888595,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.019358158109999996,
+                "hd15iqr": 0.019688844679999998,
+                "ops": 51.33116851533216,
+                "total": 0.058444023129999995,
+                "data": [
+                    0.019688844679999998,
+                    0.019358158109999996,
+                    0.01939702034
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case118_ieee",
+            "name": "test_import[pglib_opf_case118_ieee]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case118_ieee]",
+            "params": {
+                "case": "pglib_opf_case118_ieee"
+            },
+            "param": "pglib_opf_case118_ieee",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case118_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.28125,
+                "rss_import_mb": 180.23828125,
+                "rss_solve_mb": 180.296875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.02404904365999999,
+                "max": 0.028671979900000005,
+                "mean": 0.025748650233333337,
+                "stddev": 0.0025428347422992957,
+                "rounds": 3,
+                "median": 0.024524927140000014,
+                "iqr": 0.0034672021800000105,
+                "q1": 0.024168014529999997,
+                "q3": 0.027635216710000007,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.02404904365999999,
+                "hd15iqr": 0.028671979900000005,
+                "ops": 38.83698721828275,
+                "total": 0.07724595070000001,
+                "data": [
+                    0.028671979900000005,
+                    0.024524927140000014,
+                    0.02404904365999999
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case300_ieee",
+            "name": "test_import[pglib_opf_case300_ieee]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case300_ieee]",
+            "params": {
+                "case": "pglib_opf_case300_ieee"
+            },
+            "param": "pglib_opf_case300_ieee",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case300_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.0546875,
+                "rss_import_mb": 187.1640625,
+                "rss_solve_mb": 188.91015625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.03035902976999999,
+                "max": 0.034578084949999977,
+                "mean": 0.03179033597333333,
+                "stddev": 0.0024145515941820994,
+                "rounds": 3,
+                "median": 0.030433893200000006,
+                "iqr": 0.00316429138499999,
+                "q1": 0.030377745627499994,
+                "q3": 0.033542037012499984,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.03035902976999999,
+                "hd15iqr": 0.034578084949999977,
+                "ops": 31.456100396008072,
+                "total": 0.09537100791999997,
+                "data": [
+                    0.034578084949999977,
+                    0.030433893200000006,
+                    0.03035902976999999
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case1354_pegase",
+            "name": "test_import[pglib_opf_case1354_pegase]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case1354_pegase]",
+            "params": {
+                "case": "pglib_opf_case1354_pegase"
+            },
+            "param": "pglib_opf_case1354_pegase",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case1354_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.375,
+                "rss_import_mb": 236.48046875,
+                "rss_solve_mb": 238.0234375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.06801295279999997,
+                "max": 0.08448791503999997,
+                "mean": 0.07396531104999997,
+                "stddev": 0.009139007320018279,
+                "rounds": 3,
+                "median": 0.06939506530999995,
+                "iqr": 0.012356221680000001,
+                "q1": 0.06835848092749996,
+                "q3": 0.08071470260749997,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.06801295279999997,
+                "hd15iqr": 0.08448791503999997,
+                "ops": 13.519851208683594,
+                "total": 0.2218959331499999,
+                "data": [
+                    0.08448791503999997,
+                    0.06939506530999995,
+                    0.06801295279999997
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case2869_pegase",
+            "name": "test_import[pglib_opf_case2869_pegase]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case2869_pegase]",
+            "params": {
+                "case": "pglib_opf_case2869_pegase"
+            },
+            "param": "pglib_opf_case2869_pegase",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case2869_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 173.80859375,
+                "rss_import_mb": 311.125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.12609004970000004,
+                "max": 0.15876102449999996,
+                "mean": 0.13729373613333332,
+                "stddev": 0.01859715817215094,
+                "rounds": 3,
+                "median": 0.12703013419999998,
+                "iqr": 0.02450323109999994,
+                "q1": 0.12632507082500002,
+                "q3": 0.15082830192499996,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.12609004970000004,
+                "hd15iqr": 0.15876102449999996,
+                "ops": 7.283653487503948,
+                "total": 0.4118812084,
+                "data": [
+                    0.15876102449999996,
+                    0.12609004970000004,
+                    0.12703013419999998
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case14_ieee__api",
+            "name": "test_import[pglib_opf_case14_ieee__api]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case14_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case14_ieee__api"
+            },
+            "param": "pglib_opf_case14_ieee__api",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case14_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.6328125,
+                "rss_import_mb": 175.0703125,
+                "rss_solve_mb": 175.15234375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0198349952700001,
+                "max": 0.023879051210000002,
+                "mean": 0.0218719641366667,
+                "stddev": 0.0020221935621106434,
+                "rounds": 3,
+                "median": 0.021901845929999997,
+                "iqr": 0.0030330419549999266,
+                "q1": 0.020351707935000074,
+                "q3": 0.02338474989,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.0198349952700001,
+                "hd15iqr": 0.023879051210000002,
+                "ops": 45.720630929692106,
+                "total": 0.0656158924100001,
+                "data": [
+                    0.023879051210000002,
+                    0.021901845929999997,
+                    0.0198349952700001
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case14_ieee__sad",
+            "name": "test_import[pglib_opf_case14_ieee__sad]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case14_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case14_ieee__sad"
+            },
+            "param": "pglib_opf_case14_ieee__sad",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case14_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.52734375,
+                "rss_import_mb": 174.94921875,
+                "rss_solve_mb": 175.09765625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.019133090970000044,
+                "max": 0.023506879809999992,
+                "mean": 0.02124468485666668,
+                "stddev": 0.002190780161309637,
+                "rounds": 3,
+                "median": 0.021094083789999996,
+                "iqr": 0.003280341629999961,
+                "q1": 0.019623339175000032,
+                "q3": 0.022903680804999993,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.019133090970000044,
+                "hd15iqr": 0.023506879809999992,
+                "ops": 47.0705970338833,
+                "total": 0.06373405457000003,
+                "data": [
+                    0.023506879809999992,
+                    0.021094083789999996,
+                    0.019133090970000044
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case118_ieee__api",
+            "name": "test_import[pglib_opf_case118_ieee__api]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case118_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case118_ieee__api"
+            },
+            "param": "pglib_opf_case118_ieee__api",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case118_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.84375,
+                "rss_import_mb": 180.72265625,
+                "rss_solve_mb": 180.73046875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.02382898331000005,
+                "max": 0.02691102028000003,
+                "mean": 0.025017976763333394,
+                "stddev": 0.0016572576262824607,
+                "rounds": 3,
+                "median": 0.0243139267000001,
+                "iqr": 0.0023115277274999846,
+                "q1": 0.023950219157500063,
+                "q3": 0.026261746885000048,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.02382898331000005,
+                "hd15iqr": 0.02691102028000003,
+                "ops": 39.97125784630236,
+                "total": 0.07505393029000018,
+                "data": [
+                    0.02691102028000003,
+                    0.0243139267000001,
+                    0.02382898331000005
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case118_ieee__sad",
+            "name": "test_import[pglib_opf_case118_ieee__sad]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case118_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case118_ieee__sad"
+            },
+            "param": "pglib_opf_case118_ieee__sad",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case118_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.3046875,
+                "rss_import_mb": 180.1328125,
+                "rss_solve_mb": 180.13671875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.023869991300000004,
+                "max": 0.0269618034400001,
+                "mean": 0.025086243946666736,
+                "stddev": 0.001647980496185897,
+                "rounds": 3,
+                "median": 0.0244269371000001,
+                "iqr": 0.0023188591050000706,
+                "q1": 0.02400922775000003,
+                "q3": 0.0263280868550001,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.023869991300000004,
+                "hd15iqr": 0.0269618034400001,
+                "ops": 39.8624840819533,
+                "total": 0.0752587318400002,
+                "data": [
+                    0.0269618034400001,
+                    0.0244269371000001,
+                    0.023869991300000004
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case300_ieee__api",
+            "name": "test_import[pglib_opf_case300_ieee__api]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case300_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case300_ieee__api"
+            },
+            "param": "pglib_opf_case300_ieee__api",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case300_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.09765625,
+                "rss_import_mb": 187.15625,
+                "rss_solve_mb": 188.890625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0299448967,
+                "max": 0.030271053309999907,
+                "mean": 0.030060609179999975,
+                "stddev": 0.00018255163021853153,
+                "rounds": 3,
+                "median": 0.029965877530000018,
+                "iqr": 0.00024461745749992936,
+                "q1": 0.029950141907500005,
+                "q3": 0.030194759364999935,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.0299448967,
+                "hd15iqr": 0.030271053309999907,
+                "ops": 33.26612558022688,
+                "total": 0.09018182753999993,
+                "data": [
+                    0.030271053309999907,
+                    0.0299448967,
+                    0.029965877530000018
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case300_ieee__sad",
+            "name": "test_import[pglib_opf_case300_ieee__sad]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_import[pglib_opf_case300_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case300_ieee__sad"
+            },
+            "param": "pglib_opf_case300_ieee__sad",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case300_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 174.203125,
+                "rss_import_mb": 187.1796875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.029831886289999998,
+                "max": 0.031229972840000064,
+                "mean": 0.030334313709999988,
+                "stddev": 0.0007775827181946419,
+                "rounds": 3,
+                "median": 0.029941081999999897,
+                "iqr": 0.0010485649125000496,
+                "q1": 0.029859185217499973,
+                "q3": 0.030907750130000022,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.029831886289999998,
+                "hd15iqr": 0.031229972840000064,
+                "ops": 32.96596750334064,
+                "total": 0.09100294112999996,
+                "data": [
+                    0.031229972840000064,
+                    0.029941081999999897,
+                    0.029831886289999998
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case14_ieee",
+            "name": "test_solve[pglib_opf_case14_ieee]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_solve[pglib_opf_case14_ieee]",
+            "params": {
+                "case": "pglib_opf_case14_ieee"
+            },
+            "param": "pglib_opf_case14_ieee",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case14_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 12,
+                "n_reported": 14,
+                "opf_n_buses": 14,
+                "opf_n_reported_buses": 14,
+                "opf_n_gens": 5,
+                "opf_n_reported_gens": 5,
+                "opf_max_dp_mw": 1.502053299873296e-05,
+                "opf_max_dq_mvar": 8.845141028324122e-05,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 2178.0813990681268,
+                "opf_reference": 2178.1,
+                "opf_gap": -8.539980658900946e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.10716319080000014,
+                "max": 0.10903596879999977,
+                "mean": 0.1083808698105263,
+                "stddev": 0.0005338187737813618,
+                "rounds": 19,
+                "median": 0.10847401620000019,
+                "iqr": 0.0005127787749998891,
+                "q1": 0.10824537275000001,
+                "q3": 0.1087581515249999,
+                "iqr_outliers": 2,
+                "stddev_outliers": 4,
+                "outliers": "4;2",
+                "ld15iqr": 0.10757303239999993,
+                "hd15iqr": 0.10903596879999977,
+                "ops": 9.22672056192408,
+                "total": 2.0592365264,
+                "data": [
+                    0.10823082920000004,
+                    0.10861182209999987,
+                    0.10721683500000001,
+                    0.10757303239999993,
+                    0.10846686359999991,
+                    0.10819292070000008,
+                    0.10863399509999994,
+                    0.10852599140000008,
+                    0.10887193679999996,
+                    0.10886502269999987,
+                    0.10828900339999992,
+                    0.10886597630000017,
+                    0.10833406450000016,
+                    0.10903596879999977,
+                    0.10874009130000006,
+                    0.10838079449999993,
+                    0.10847401620000019,
+                    0.10716319080000014,
+                    0.10876417159999985
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case118_ieee",
+            "name": "test_solve[pglib_opf_case118_ieee]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_solve[pglib_opf_case118_ieee]",
+            "params": {
+                "case": "pglib_opf_case118_ieee"
+            },
+            "param": "pglib_opf_case118_ieee",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case118_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 19,
+                "n_reported": 118,
+                "opf_n_buses": 118,
+                "opf_n_reported_buses": 118,
+                "opf_n_gens": 54,
+                "opf_n_reported_gens": 54,
+                "opf_max_dp_mw": 7.12541159941793e-06,
+                "opf_max_dq_mvar": 3.679237140463698e-05,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 97213.60781267248,
+                "opf_reference": 97214.0,
+                "opf_gap": -4.034267981205175e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.20236706729999998,
+                "max": 0.20465111730000007,
+                "mean": 0.20343770979000012,
+                "stddev": 0.0006322119630490543,
+                "rounds": 10,
+                "median": 0.2035545110500001,
+                "iqr": 0.0006799698000001797,
+                "q1": 0.20302104950000022,
+                "q3": 0.2037010193000004,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 0.20236706729999998,
+                "hd15iqr": 0.20465111730000007,
+                "ops": 4.915509523933673,
+                "total": 2.034377097900001,
+                "data": [
+                    0.20465111730000007,
+                    0.2034959793000004,
+                    0.2031970023999996,
+                    0.20279693600000037,
+                    0.20236706729999998,
+                    0.20367693900000017,
+                    0.20302104950000022,
+                    0.20385694500000007,
+                    0.2037010193000004,
+                    0.2036130427999998
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case300_ieee",
+            "name": "test_solve[pglib_opf_case300_ieee]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_solve[pglib_opf_case300_ieee]",
+            "params": {
+                "case": "pglib_opf_case300_ieee"
+            },
+            "param": "pglib_opf_case300_ieee",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case300_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 30,
+                "n_reported": 300,
+                "opf_n_buses": 300,
+                "opf_n_reported_buses": 300,
+                "opf_n_gens": 69,
+                "opf_n_reported_gens": 69,
+                "opf_max_dp_mw": 5.752212928200606e-09,
+                "opf_max_dq_mvar": 4.2475008399378567e-08,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 565219.9922424279,
+                "opf_reference": 565220.0,
+                "opf_gap": -1.3724871922345923e-08,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.4153249264000003,
+                "max": 0.4199419021999997,
+                "mean": 0.41688156129999976,
+                "stddev": 0.0018582817918584686,
+                "rounds": 5,
+                "median": 0.41645407679999913,
+                "iqr": 0.002345860074999484,
+                "q1": 0.41549301145000017,
+                "q3": 0.41783887152499966,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.4153249264000003,
+                "hd15iqr": 0.4199419021999997,
+                "ops": 2.3987628449711442,
+                "total": 2.084407806499999,
+                "data": [
+                    0.41713786129999963,
+                    0.4153249264000003,
+                    0.41645407679999913,
+                    0.41554903980000013,
+                    0.4199419021999997
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case1354_pegase",
+            "name": "test_solve[pglib_opf_case1354_pegase]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_solve[pglib_opf_case1354_pegase]",
+            "params": {
+                "case": "pglib_opf_case1354_pegase"
+            },
+            "param": "pglib_opf_case1354_pegase",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case1354_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 38,
+                "n_reported": 1354,
+                "opf_n_buses": 1354,
+                "opf_n_reported_buses": 1354,
+                "opf_n_gens": 260,
+                "opf_n_reported_gens": 260,
+                "opf_max_dp_mw": 5.65531081520021e-07,
+                "opf_max_dq_mvar": 8.164671319865757e-07,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 1258843.9963197766,
+                "opf_reference": 1258800.0,
+                "opf_gap": 3.495100077584506e-05,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.5537250040000004,
+                "max": 1.610740185000001,
+                "mean": 1.5706272124000002,
+                "stddev": 0.022936802177992408,
+                "rounds": 5,
+                "median": 1.5617289539999994,
+                "iqr": 0.019871234500000945,
+                "q1": 1.5582257509999997,
+                "q3": 1.5780969855000007,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.5537250040000004,
+                "hd15iqr": 1.610740185000001,
+                "ops": 0.6366883192300915,
+                "total": 7.853136062000001,
+                "data": [
+                    1.5597259999999995,
+                    1.5672159190000006,
+                    1.5537250040000004,
+                    1.610740185000001,
+                    1.5617289539999994
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case14_ieee__api",
+            "name": "test_solve[pglib_opf_case14_ieee__api]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_solve[pglib_opf_case14_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case14_ieee__api"
+            },
+            "param": "pglib_opf_case14_ieee__api",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case14_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 14,
+                "n_reported": 14,
+                "opf_n_buses": 14,
+                "opf_n_reported_buses": 14,
+                "opf_n_gens": 5,
+                "opf_n_reported_gens": 5,
+                "opf_max_dp_mw": 9.211476026393939e-11,
+                "opf_max_dq_mvar": 1.0966516583721386e-10,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 5999.363513222017,
+                "opf_reference": 5999.4,
+                "opf_gap": -6.081737837557995e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11651086810000066,
+                "max": 0.12396907810000002,
+                "mean": 0.11802792548823525,
+                "stddev": 0.0017301848548624895,
+                "rounds": 17,
+                "median": 0.11779809000000085,
+                "iqr": 0.001493215550001814,
+                "q1": 0.11703002449999911,
+                "q3": 0.11852324005000092,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.11651086810000066,
+                "hd15iqr": 0.12396907810000002,
+                "ops": 8.472571180620113,
+                "total": 2.0064747332999993,
+                "data": [
+                    0.11712503429999899,
+                    0.1171810626999985,
+                    0.11651086810000066,
+                    0.11674499509999947,
+                    0.11664581300000165,
+                    0.11794495579999875,
+                    0.11789083480000073,
+                    0.11779809000000085,
+                    0.1184649467000014,
+                    0.11821699140000064,
+                    0.11869812009999947,
+                    0.11671304700000107,
+                    0.11721801759999906,
+                    0.117439985299999,
+                    0.11896395679999827,
+                    0.12396907810000002,
+                    0.11894893650000071
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case14_ieee__sad",
+            "name": "test_solve[pglib_opf_case14_ieee__sad]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_solve[pglib_opf_case14_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case14_ieee__sad"
+            },
+            "param": "pglib_opf_case14_ieee__sad",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case14_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 12,
+                "n_reported": 14,
+                "opf_n_buses": 14,
+                "opf_n_reported_buses": 14,
+                "opf_n_gens": 5,
+                "opf_n_reported_gens": 5,
+                "opf_max_dp_mw": 3.310400842337913e-10,
+                "opf_max_dq_mvar": 3.102924139852803e-09,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 2776.788943989078,
+                "opf_reference": 2776.8,
+                "opf_gap": -3.981565443100868e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.10834693909999871,
+                "max": 0.11221885679999843,
+                "mean": 0.11002002264210506,
+                "stddev": 0.0009070294579243451,
+                "rounds": 19,
+                "median": 0.10997104639999833,
+                "iqr": 0.000977098949999089,
+                "q1": 0.10953229667500075,
+                "q3": 0.11050939562499984,
+                "iqr_outliers": 1,
+                "stddev_outliers": 4,
+                "outliers": "4;1",
+                "ld15iqr": 0.10834693909999871,
+                "hd15iqr": 0.11221885679999843,
+                "ops": 9.089254628250698,
+                "total": 2.090380430199996,
+                "data": [
+                    0.1100888251999983,
+                    0.10834693909999871,
+                    0.11028480530000095,
+                    0.10839700700000066,
+                    0.11221885679999843,
+                    0.10992288590000143,
+                    0.10980796810000015,
+                    0.10920286180000005,
+                    0.10932207109999936,
+                    0.10960507389999918,
+                    0.10996794700000123,
+                    0.10997104639999833,
+                    0.10950803760000127,
+                    0.11127686500000067,
+                    0.11051917079999996,
+                    0.1105539799000006,
+                    0.11021184919999882,
+                    0.1104800700999995,
+                    0.11069416999999859
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case118_ieee__api",
+            "name": "test_solve[pglib_opf_case118_ieee__api]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_solve[pglib_opf_case118_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case118_ieee__api"
+            },
+            "param": "pglib_opf_case118_ieee__api",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case118_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 22,
+                "n_reported": 118,
+                "opf_n_buses": 118,
+                "opf_n_reported_buses": 118,
+                "opf_n_gens": 54,
+                "opf_n_reported_gens": 54,
+                "opf_max_dp_mw": 2.5488091523584444e-05,
+                "opf_max_dq_mvar": 4.943479592345312e-05,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 5.751192588832055e-08,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 249614.52444356235,
+                "opf_reference": 249610.0,
+                "opf_gap": 1.8126050888771596e-05,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.22773885730000032,
+                "max": 0.23015022279999897,
+                "mean": 0.22897781265555553,
+                "stddev": 0.0007820380690559647,
+                "rounds": 9,
+                "median": 0.22901797289999948,
+                "iqr": 0.0009826421249998774,
+                "q1": 0.22841608525000012,
+                "q3": 0.229398727375,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 0.22773885730000032,
+                "hd15iqr": 0.23015022279999897,
+                "ops": 4.367235359629669,
+                "total": 2.0608003138999997,
+                "data": [
+                    0.22901797289999948,
+                    0.22773885730000032,
+                    0.228700160999999,
+                    0.22917199129999943,
+                    0.23015022279999897,
+                    0.22841811179999993,
+                    0.2300789356000017,
+                    0.2284100056000007,
+                    0.2291140556000002
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case118_ieee__sad",
+            "name": "test_solve[pglib_opf_case118_ieee__sad]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_solve[pglib_opf_case118_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case118_ieee__sad"
+            },
+            "param": "pglib_opf_case118_ieee__sad",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case118_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 20,
+                "n_reported": 118,
+                "opf_n_buses": 118,
+                "opf_n_reported_buses": 118,
+                "opf_n_gens": 54,
+                "opf_n_reported_gens": 54,
+                "opf_max_dp_mw": 2.5137280886156077e-05,
+                "opf_max_dq_mvar": 0.00018092368615540977,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 105155.05781589293,
+                "opf_reference": 105160.0,
+                "opf_gap": -4.69968058869583e-05,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.2102551460000015,
+                "max": 0.21257495879999766,
+                "mean": 0.21161406040999964,
+                "stddev": 0.0007457605777037354,
+                "rounds": 10,
+                "median": 0.2118269205499992,
+                "iqr": 0.0012779236000000083,
+                "q1": 0.21086192130000114,
+                "q3": 0.21213984490000115,
+                "iqr_outliers": 0,
+                "stddev_outliers": 5,
+                "outliers": "5;0",
+                "ld15iqr": 0.2102551460000015,
+                "hd15iqr": 0.21257495879999766,
+                "ops": 4.7255839147101675,
+                "total": 2.1161406040999964,
+                "data": [
+                    0.2117838859999992,
+                    0.21086192130000114,
+                    0.21213984490000115,
+                    0.2102551460000015,
+                    0.21190905569999785,
+                    0.2108340262999988,
+                    0.21186995509999917,
+                    0.21152591709999768,
+                    0.2123858929000022,
+                    0.21257495879999766
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case300_ieee__api",
+            "name": "test_solve[pglib_opf_case300_ieee__api]",
+            "fullname": "benchmarks/matpower_opf_benchmark.py::test_solve[pglib_opf_case300_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case300_ieee__api"
+            },
+            "param": "pglib_opf_case300_ieee__api",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "pglib_opf_case300_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 30,
+                "n_reported": 300,
+                "opf_n_buses": 300,
+                "opf_n_reported_buses": 300,
+                "opf_n_gens": 69,
+                "opf_n_reported_gens": 69,
+                "opf_max_dp_mw": 3.114126124614813e-05,
+                "opf_max_dq_mvar": 0.00010129845662731896,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 686040.7148019859,
+                "opf_reference": 686040.0,
+                "opf_gap": 1.0419246485436408e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.42419099810000205,
+                "max": 0.4334259032999981,
+                "mean": 0.4271977901599996,
+                "stddev": 0.003620211639426088,
+                "rounds": 5,
+                "median": 0.4261300563999981,
+                "iqr": 0.0034384727499947587,
+                "q1": 0.42507362367500257,
+                "q3": 0.4285120964249973,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.42419099810000205,
+                "hd15iqr": 0.4334259032999981,
+                "ops": 2.340836078823037,
+                "total": 2.135988950799998,
+                "data": [
+                    0.42536783220000274,
+                    0.42419099810000205,
+                    0.4261300563999981,
+                    0.4334259032999981,
+                    0.42687416079999707
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-09-26T19:57:37.947949+00:00",
+    "version": "5.3.0",
+    "grid_bench": {
+        "schema_version": 1,
+        "git_sha": "8a6eafc609da91c3ff5547cde27e805efeed0570-dirty",
+        "container_image": "grid-bench/matpower",
+        "tools": {
+            "matpower": {
+                "display_name": "MATPOWER (Octave)",
+                "color": "#52514e",
+                "tags": [
+                    "opf",
+                    "ac",
+                    "interior-point",
+                    "matlab"
+                ],
+                "language": "matlab",
+                "version": "8.1",
+                "dependencies": {
+                    "octave": "11.3.0"
+                },
+                "settings": {
+                    "opf.ac.solver": "MIPS",
+                    "init": "flat (opf.start=2)",
+                    "opf.flow_lim": "S",
+                    "opf.ignore_angle_lim": 0,
+                    "mips.tol": 1e-06,
+                    "mips.max_it": 200,
+                    "runtime": "GNU Octave"
+                },
+                "families": [
+                    "opf-pglib"
+                ],
+                "problem": "opf"
+            }
+        }
+    },
+    "failures": [
+        {
+            "tool": "matpower",
+            "case": "pglib_opf_case2869_pegase",
+            "operation": "solve",
+            "error": "DidNotConverge: runopf (MIPS) did not converge in 46 iterations"
+        },
+        {
+            "tool": "matpower",
+            "case": "pglib_opf_case300_ieee__sad",
+            "operation": "solve",
+            "error": "DidNotConverge: runopf (MIPS) did not converge in 22 iterations"
+        }
+    ]
+}

@@ -42,6 +42,16 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   case's own power flow (`cases/truth.py`) and graded by `oracle.wls`
   against the weighted least-squares problem. `problem` is "se" for these
   and "pf" for every other case.
+- `opf-pglib`: AC optimal power flow on PGLib-OPF v23.07 cases, from the
+  `data/benchmark-grids` submodule's `pglib/` (see its PROVENANCE.md),
+  keyed by PGLib's own names (`pglib_opf_case118_ieee`, `..._ieee__api`).
+  `problem` is "opf". Graded by `oracle.opf`: feasibility against the `.m`
+  and the objective against PGLib's published reference
+  (`cases.pglib.reference_objective`). Typical conditions from 14 to 2,869
+  buses (the timing series; case9241 is registered but in no group, see its
+  note), and the congested (`__api`) and small
+  angle-difference (`__sad`) variants of case14, case118 and case300, which
+  bind the limits tools model differently.
 
 Groups say what a case is *for* (a case can be in several):
 
@@ -71,6 +81,7 @@ CACHE = DATA / ".case-cache"
 MATPOWER_DIR = DATA / "benchmark-grids" / "matpower"
 PLAIN_DIR = DATA / "benchmark-grids" / "matpower-plain"
 GENERATED_DIR = DATA / "benchmark-grids" / "generated"
+PGLIB_DIR = DATA / "benchmark-grids" / "pglib"
 CGMES_DIR = DATA / "CGMES-Test-Configurations" / "v3.0"
 
 DEFAULT_GROUPS = ("smoke", "scaling", "feature", "robustness")
@@ -78,7 +89,7 @@ CONVERTERS = ("cimoxide", "pypowsybl")
 SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstring
 SCENARIOS = ("exact", "noisy")   # see cases/measurements.py
 FAMILIES = (("matpower", "distribution", "cgmes") + tuple(f"converted-{c}" for c in CONVERTERS)
-            + ("se-matpower", "se-distribution"))
+            + ("se-matpower", "se-distribution", "opf-pglib"))
 GRIDS = ("transmission", "distribution", "fixtures")
 
 
@@ -177,6 +188,27 @@ for _base in SE_FROM:
             "groups": [g for g in CASES[_base]["groups"] if g != "smoke" or _scen == "exact"],
             "source": f"{_base}, {_scen} measurements", "note": CASES[_base]["note"],
         }
+
+def _pglib(name: str, groups: list[str], note: str = "") -> dict:
+    variant = name.rpartition("__")[2] if "__" in name else ""
+    return {"family": "opf-pglib", "grid": "transmission", "format": "matpower", "problem": "opf",
+            "file": PGLIB_DIR / variant / f"{name}.m", "groups": groups, "source": "PGLib-OPF v23.07", "note": note}
+
+
+CASES |= {
+    "pglib_opf_case14_ieee": _pglib("pglib_opf_case14_ieee", ["smoke"]),
+    "pglib_opf_case118_ieee": _pglib("pglib_opf_case118_ieee", ["scaling"]),
+    "pglib_opf_case300_ieee": _pglib("pglib_opf_case300_ieee", ["scaling"]),
+    "pglib_opf_case1354_pegase": _pglib("pglib_opf_case1354_pegase", ["scaling"]),
+    "pglib_opf_case2869_pegase": _pglib("pglib_opf_case2869_pegase", ["scaling"]),
+    "pglib_opf_case9241_pegase": _pglib("pglib_opf_case9241_pegase", [],
+                                        "in no group: pandapower and VeraGrid fail it after their full iteration "
+                                        "budget, which cost most of an hour per sweep; runnable by name"),
+    **{f"pglib_opf_{c}__{v}": _pglib(f"pglib_opf_{c}__{v}", ["feature"], note)
+       for c in ("case14_ieee", "case118_ieee", "case300_ieee")
+       for v, note in (("api", "congested: branch limits bind"), ("sad", "small angle-difference limits bind"))},
+}
+
 for _c in CASES.values():
     _c.setdefault("problem", "pf")
 

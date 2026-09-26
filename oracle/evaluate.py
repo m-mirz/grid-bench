@@ -16,12 +16,15 @@ Returns flat fields that go straight into a result record's `extra_info`:
   separates the converter's share.
 - se-*: state estimation, graded against the weighted least-squares problem
   of the case's measurement set (`oracle.wls`).
+- opf-*: AC optimal power flow, graded for feasibility against the `.m` and
+  for cost against PGLib's reference (`oracle.opf`).
 """
 from functools import lru_cache
 
 from cases.matpower import ANGLE, parse_m
+from cases.pglib import reference_objective
 from cases.registry import CASES, cgmes_files, cgmes_sv_file, measurements_path
-from oracle import cgmes_model, cgmes_sv, wls
+from oracle import cgmes_model, cgmes_sv, opf, wls
 from oracle.residual import residual
 
 RESIDUAL_OK_MVA = 1e-3   # all tools are asked to converge to 1e-8 p.u. (1e-6 MVA on 100 MVA)
@@ -43,7 +46,10 @@ def _cgmes_objects(case: str) -> dict:
     return cgmes_model.read(cgmes_files(case))
 
 
-def evaluate(case: str, vm: dict[str, float], va_deg: dict[str, float]) -> dict:
+def evaluate(case: str, vm: dict[str, float], va_deg: dict[str, float],
+             pg_mw: dict[str, float] | None = None, qg_mvar: dict[str, float] | None = None) -> dict:
+    if CASES[case]["problem"] == "opf":
+        return opf.check(_mpc(case), reference_objective(case), vm, va_deg, pg_mw or {}, qg_mvar or {})
     if CASES[case]["problem"] == "se":
         return wls.check(CASES[case]["file"], measurements_path(case), vm, va_deg)
     if CASES[case]["family"] == "cgmes":

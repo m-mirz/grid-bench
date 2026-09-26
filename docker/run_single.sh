@@ -17,11 +17,14 @@ else
     echo "no grid-bench/pypowsybl image: pypowsybl conversions not prepared"
 fi
 $compose run --rm conversion-check
-$compose run --rm "$tool" pytest "benchmarks/${tool}_benchmark.py" "--benchmark-json=/output/$tool.json" "$@"
-# A tool with a state estimator: the same container, its own JSON.
-if [ -f "benchmarks/${tool}_se_benchmark.py" ]; then
-    $compose run --rm "$tool" pytest "benchmarks/${tool}_se_benchmark.py" "--benchmark-json=/output/$tool-se.json" "$@"
-fi
+# Every problem the tool has a benchmark for (power flow, state estimation,
+# OPF), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
+for suffix in "" _se _opf; do
+    if [ -f "benchmarks/${tool}${suffix}_benchmark.py" ]; then
+        $compose run --rm "$tool" pytest "benchmarks/${tool}${suffix}_benchmark.py" \
+            "--benchmark-json=/output/$tool${suffix/_/-}.json" "$@"
+    fi
+done
 
 # Stop the Fuseki sidecar that `run` starts for cgmes2pgm.
 $compose stop fuseki >/dev/null 2>&1

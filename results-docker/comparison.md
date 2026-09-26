@@ -411,6 +411,88 @@ Machine: AMD Ryzen 7 250 w/ Radeon 780M Graphics, 16 logical CPUs; Linux 7.0.0-3
 | VeraGrid | 6.5.29 | python | solver=LM, init=flat, fixed_slack=False, observability_analysis=False, pseudo_measurements=False, bad_data=False, tol=1e-08, max_iter=30 | d5c3341594c0 | 2026-09-26T16:12 |
 | Sparlectra.jl | 0.17.3 | julia | method=wls, init=flat, bad_data=False, robust=False, parameter_estimation=False, tol=1e-08, jac=finite differences, jac_eps=1e-6, max_iter=30 | d5c3341594c0 | 2026-09-26T16:16 |
 
+## AC optimal power flow
+
+PGLib-OPF v23.07 cases: typical operating conditions from 14 to 2,869 buses, and the congested (`__api`) and small angle-difference (`__sad`) variants of case14, case118 and case300. Every tool solves MATPOWER's AC-OPF: polynomial cost, the power-flow equations, voltage, generator, branch MVA and angle-difference limits, flat start, tolerance 1e-6. ✓: the solution is feasible for the case (power balance within 1e-3 MVA, every limit within 1e-5 p.u. or 1e-3 degrees) and its cost, recomputed from the case, is at most 0.01 % above PGLib's published reference (`oracle/opf.py`, independent of every tool). The reference is a local optimum given to five digits.
+
+### Scoreboard
+
+| tool | transmission `.m` |
+|---|---:|
+| pandapower | 1 / 7 / 3 |
+| VeraGrid | 4 / 5 / 2 |
+| MATPOWER (Octave) | 9 / 0 / 2 |
+| PowerModels.jl (Ipopt) | 11 / 0 / 0 |
+
+### Warm solve
+
+Median of repeated solves on one persistent model, flat start every time, in ms; the fastest ✓ in each row in bold.
+
+#### Transmission grids (meshed)
+
+| case | buses | pandapower | VeraGrid | MATPOWER (Octave) | PowerModels.jl (Ipopt) |
+|---|---:|---:|---:|---:|---:|
+| pglib_opf_case14_ieee | 14 | 100.3 ✓ | 119.5 ✓ | 108.5 ✓ | **5.477 ✓** |
+| pglib_opf_case14_ieee__api | 14 | 106.9 ✗³⁵ | 147.0 ✓ | 117.8 ✓ | **7.880 ✓** |
+| pglib_opf_case14_ieee__sad | 14 | 100.2 ✗³⁵ | 119.5 ✗³⁶ | 110.0 ✓ | **5.766 ✓** |
+| pglib_opf_case118_ieee | 118 | 234.8 ✗³⁵ | 224.9 ✓ | 203.6 ✓ | **67.5 ✓** |
+| pglib_opf_case118_ieee__api | 118 | 233.7 ✗³⁵ | 270.2 ✓ | 229.0 ✓ | **115.3 ✓** |
+| pglib_opf_case118_ieee__sad | 118 | 233.3 ✗³⁵ | 226.4 ✗³⁶ | 211.8 ✓ | **73.8 ✓** |
+| pglib_opf_case300_ieee | 300 | FAILED³⁷ | 1,086 ✗³⁶ | 416.5 ✓ | **238.6 ✓** |
+| pglib_opf_case300_ieee__api | 300 | FAILED³⁷ | 561.7 ✗³⁶ | 426.1 ✓ | **261.4 ✓** |
+| pglib_opf_case300_ieee__sad | 300 | FAILED³⁷ | 1,095 ✗³⁶ | FAILED³⁸ | **277.3 ✓** |
+| pglib_opf_case1354_pegase | 1,354 | 11,001 ✗³⁵ | FAILED³⁹ | **1,562 ✓** | 1,914 ✓ |
+| pglib_opf_case2869_pegase | 2,869 | 52,475 ✗³⁵ | FAILED³⁹ | FAILED³⁸ | **6,157 ✓** |
+
+### Import: file to model
+
+#### Transmission grids (meshed)
+
+| case | buses | pandapower | VeraGrid | MATPOWER (Octave) | PowerModels.jl (Ipopt) |
+|---|---:|---:|---:|---:|---:|
+| pglib_opf_case14_ieee | 14 | 76.8 | 5.255 | 19.4 | 3.781 |
+| pglib_opf_case14_ieee__api | 14 | 77.8 | 4.967 | 21.9 | 3.659 |
+| pglib_opf_case14_ieee__sad | 14 | 77.0 | 4.841 | 21.1 | 3.641 |
+| pglib_opf_case118_ieee | 118 | 79.6 | 20.2 | 24.5 | 38.1 |
+| pglib_opf_case118_ieee__api | 118 | 79.9 | 19.3 | 24.3 | 27.7 |
+| pglib_opf_case118_ieee__sad | 118 | 79.2 | 19.0 | 24.4 | 37.0 |
+| pglib_opf_case300_ieee | 300 | 78.0 | 38.8 | 30.4 | 64.8 |
+| pglib_opf_case300_ieee__api | 300 | 79.6 | 39.0 | 30.0 | 62.0 |
+| pglib_opf_case300_ieee__sad | 300 | 80.4 | 38.4 | 29.9 | 62.8 |
+| pglib_opf_case1354_pegase | 1,354 | 87.9 | 586.7 | 69.4 | 460.2 |
+| pglib_opf_case2869_pegase | 2,869 | 106.1 | 1,355 | 127.0 | 1,117 |
+
+### Accuracy
+
+Cost against the reference (relative; negative is cheaper, which a solution violating a limit can be) · largest violation of balance or a limit, in p.u. of 100 MVA.
+
+#### Transmission grids (meshed)
+
+| case | buses | pandapower | VeraGrid | MATPOWER (Octave) | PowerModels.jl (Ipopt) |
+|---|---:|---:|---:|---:|---:|
+| pglib_opf_case14_ieee | 14 | -8.9e-06 · 5e-07 | -8.9e-06 · 6e-07 | -8.5e-06 · 9e-07 | -9.0e-06 · 9e-09 |
+| pglib_opf_case14_ieee__api | 14 | -5.2e-02 · 4e-02 ✗ | -6.1e-06 · 2e-08 | -6.1e-06 · 1e-12 | -6.2e-06 · 1e-08 |
+| pglib_opf_case14_ieee__sad | 14 | -2.2e-01 · 5e-07 ✗ | -2.2e-01 · 6e-07 ✗ | -4.0e-06 · 3e-11 | -4.5e-06 · 1e-08 |
+| pglib_opf_case118_ieee | 118 | -1.8e-03 · 9e-02 ✗ | -4.0e-06 · 5e-07 | -4.0e-06 · 4e-07 | -4.0e-06 · 6e-08 |
+| pglib_opf_case118_ieee__api | 118 | -5.2e-02 · 4e-01 ✗ | +1.8e-05 · 1e-06 | +1.8e-05 · 5e-07 | +1.8e-05 · 5e-08 |
+| pglib_opf_case118_ieee__sad | 118 | -7.7e-02 · 9e-02 ✗ | -7.6e-02 · 5e-07 ✗ | -4.7e-05 · 2e-06 | -4.7e-05 · 6e-08 |
+| pglib_opf_case300_ieee | 300 | failed | +1.9e-05 · 2e-03 ✗ | -1.4e-08 · 4e-10 | -4.8e-08 · 2e-07 |
+| pglib_opf_case300_ieee__api | 300 | failed | +4.5e-06 · 2e-04 ✗ | +1.0e-06 · 1e-06 | +1.0e-06 · 2e-07 |
+| pglib_opf_case300_ieee__sad | 300 | failed | -8.3e-04 · 2e-03 ✗ | failed | +7.6e-06 · 2e-07 |
+| pglib_opf_case1354_pegase | 1,354 | -1.3e-02 · 2e+00 ✗ | failed | +3.5e-05 · 8e-09 | +3.5e-05 · 4e-07 |
+| pglib_opf_case2869_pegase | 2,869 | -5.0e-03 · 2e+00 ✗ | failed | failed | -3.9e-06 · 4e-07 |
+
+### Environment
+
+Machine: AMD Ryzen 7 250 w/ Radeon 780M Graphics, 16 logical CPUs; Linux 7.0.0-34-generic; Python 3.13.14.
+
+| tool | version | core | settings | commit | run |
+|---|---:|---:|---:|---:|---:|
+| pandapower | 3.3.3 | python | solver=PIPS, init=flat, ext_grid_controllable=True, branch_limit=current (loading %), angle_limits=False, tolerance=1e-06, max_it=200, numba=True | 8a6eafc609da | 2026-09-26T19:50 |
+| VeraGrid | 6.5.29 | python | solver=NONLINEAR_OPF, ips_method=NR, acopf_mode=ACOPFstd, init=interior (flat), q_capability_curve=False, angle_limits=False, ips_tolerance=1e-06, ips_iterations=200 | 8a6eafc609da | 2026-09-26T19:56 |
+| MATPOWER (Octave) | 8.1 | matlab | opf.ac.solver=MIPS, init=flat (opf.start=2), opf.flow_lim=S, opf.ignore_angle_lim=0, mips.tol=1e-06, mips.max_it=200, runtime=GNU Octave | 8a6eafc609da | 2026-09-26T19:57 |
+| PowerModels.jl (Ipopt) | 0.21.6 | julia | formulation=ACPPowerModel, solver=Ipopt, linear_solver=mumps, init=flat, tol=1e-06, max_iter=200 | 8a6eafc609da | 2026-09-26T20:31 |
+
 ## Notes
 
 Wrong solutions are grouped by tool and input, failures by tool and message (numbers that differ per case shown as …). Each note lists every case it covers.
@@ -526,6 +608,23 @@ Wrong solutions are grouped by tool and input, failures by tool and message (num
     - mvlv29840~noisy: a Gauss-Newton step from the estimate still moves it by 1.5e-05 p.u./rad (|ΔV| from the true state up to 0.039 p.u.)
 33. FAILED · **pandapower**: `DidNotConverge: WLS not converged in … iterations`: case2848rte~exact, case3120sp~exact, case9241pegase~exact
 34. FAILED · **pandapower**: `_ArrayMemoryError: Unable to allocate … GiB for an array with shape (…, …) and data type float64`: mvlv29840~exact
+35. ✗ · **pandapower, optimal power flow**
+    - pglib_opf_case14_ieee__api: branch flow over its limit by 4.1 MVA; cost -5.18% against the reference
+    - pglib_opf_case14_ieee__sad: branch angle difference outside its limits by 0.99 degrees; cost -21.56% against the reference
+    - pglib_opf_case118_ieee: branch flow over its limit by 9.1 MVA; cost -0.18% against the reference
+    - pglib_opf_case118_ieee__api: branch flow over its limit by 43 MVA; cost -5.23% against the reference
+    - pglib_opf_case118_ieee__sad: branch flow over its limit by 9.1 MVA; branch angle difference outside its limits by 5.7 degrees; cost -7.72% against the reference
+    - pglib_opf_case1354_pegase: branch flow over its limit by 1.6e+02 MVA; cost -1.30% against the reference
+    - pglib_opf_case2869_pegase: branch flow over its limit by 1.7e+02 MVA; cost -0.50% against the reference
+36. ✗ · **VeraGrid, optimal power flow**
+    - pglib_opf_case14_ieee__sad: branch angle difference outside its limits by 0.99 degrees; cost -21.56% against the reference
+    - pglib_opf_case118_ieee__sad: branch angle difference outside its limits by 5.4 degrees; cost -7.56% against the reference
+    - pglib_opf_case300_ieee: power balance off by 0.075 MW / 0.17 MVAr; branch flow over its limit by 0.00013 MVA; cost +0.00% against the reference
+    - pglib_opf_case300_ieee__api: power balance off by 0.014 MW / 0.017 MVAr; branch flow over its limit by 0.0012 MVA; cost +0.00% against the reference
+    - pglib_opf_case300_ieee__sad: power balance off by 0.075 MW / 0.17 MVAr; branch flow over its limit by 0.00013 MVA; branch angle difference outside its limits by 0.96 degrees; cost -0.08% against the reference
+37. FAILED · **pandapower**: `DidNotConverge: Optimal Power Flow did not converge!`: pglib_opf_case300_ieee, pglib_opf_case300_ieee__api, pglib_opf_case300_ieee__sad
+38. FAILED · **MATPOWER (Octave)**: `DidNotConverge: runopf (MIPS) did not converge in … iterations`: pglib_opf_case300_ieee__sad, pglib_opf_case2869_pegase
+39. FAILED · **VeraGrid**: `DidNotConverge: NONLINEAR_OPF did not converge in … iterations`: pglib_opf_case1354_pegase, pglib_opf_case2869_pegase
 
 ## Environment
 

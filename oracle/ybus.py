@@ -50,10 +50,19 @@ def make_yf(mpc: dict) -> tuple[np.ndarray, np.ndarray, sp.csr_matrix]:
     """Returns `(branch_rows, from_pos, Yf)`: row `k` of Yf gives the current
     into in-service branch `branch_rows[k]` (its row in `mpc["branch"]`) at
     its from bus, `from_pos[k]`, as `Yf @ V`. MATPOWER's `makeYbus.m` Yf."""
-    rows, f, t, yff, yft, _, _ = _branches(mpc, False)
-    k = np.arange(len(rows))
-    yf = sp.csr_matrix((np.r_[yff, yft], (np.r_[k, k], np.r_[f, t])), shape=(len(rows), len(mpc["bus"])))
+    rows, f, _, yf, _ = make_yft(mpc)
     return rows, f, yf
+
+
+def make_yft(mpc: dict) -> tuple[np.ndarray, np.ndarray, np.ndarray, sp.csr_matrix, sp.csr_matrix]:
+    """`(branch_rows, from_pos, to_pos, Yf, Yt)`: `make_yf` for both ends;
+    `Yt @ V` is the current into each branch at its to bus."""
+    rows, f, t, yff, yft, ytf, ytt = _branches(mpc, False)
+    k = np.arange(len(rows))
+    shape = (len(rows), len(mpc["bus"]))
+    yf = sp.csr_matrix((np.r_[yff, yft], (np.r_[k, k], np.r_[f, t])), shape=shape)
+    yt = sp.csr_matrix((np.r_[ytf, ytt], (np.r_[k, k], np.r_[f, t])), shape=shape)
+    return rows, f, t, yf, yt
 
 
 def make_ybus(mpc: dict, zero_phase_shifts: bool = False) -> tuple[np.ndarray, sp.csr_matrix]:

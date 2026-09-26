@@ -9,7 +9,9 @@ pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl, VeraGrid,
 Sienna (PowerFlows.jl) and Sparlectra.jl (both Julia, through juliacall),
 MATPOWER (GNU Octave), and power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
-VeraGrid and Sparlectra.jl. The
+VeraGrid and Sparlectra.jl, and AC optimal power flow for MATPOWER,
+pandapower, VeraGrid and PowerModels.jl (Ipopt; its own image, OPF only) on
+PGLib-OPF cases. The
 infrastructure follows cim-bench (adapters, one container per tool, JSON as
 the only contract between measuring and reporting). The methodology follows
 gridoxide's `scripts/bench` (warm solves on persistent models, justified
@@ -31,7 +33,10 @@ settings, a tool-independent oracle).
    WLS over the case's measurement set as given, each measurement with its
    own sigma, flat start, the slack angle as the only reference, no
    pseudo-measurements or zero-injection constraints, no bad-data handling,
-   tolerance `SE_TOLERANCE` on the state update. Every setting in an adapter
+   tolerance `SE_TOLERANCE` on the state update. AC-OPF
+   (`adapters/optimizer_adapter.py`): MATPOWER's formulation (polynomial
+   cost; voltage, generator, branch MVA and angle-difference limits), flat
+   start where settable, `OPF_TOLERANCE`. Every setting in an adapter
    gets one sentence of justification in its docstring, including what it
    deliberately does not do.
 4. **Report, don't fix.** When a tool's importer changes the problem (the
@@ -45,23 +50,25 @@ settings, a tool-independent oracle).
 6. **Failures are data.** A tool raises; conftest.py records the real
    exception. Never catch-and-skip in an adapter.
 7. **Generators never import adapters.** Reporting reads JSON only (the
-   `adapters.ADAPTERS` name list is the one exception; it loads no tool).
+   `adapters.REGISTRIES` name lists are the one exception; they load no tool).
 
 ## Layout
 
 ```
 cases/       registry.py (every case: groups, family, grid, problem), matpower.py (.m reader), prep.py (tool inputs),
              truth.py (the power flow behind a state-estimation case), measurements.py (its measurement sets),
+             pglib.py (PGLib's reference OPF objectives, read from its BASELINE.md),
              gridoxide_matpower.py (vendored MATPOWER->PGM converter, gridoxide 0.0.2),
              matpower_to_cgmes.py (cimoxide converter), convert_pypowsybl.py (pypowsybl converter)
-oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), wls.py (state estimation), evaluate.py (entry point),
+oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), wls.py (state estimation), opf.py (AC-OPF),
+             evaluate.py (entry point),
              cgmes_model.py (tool-free CGMES reader: TN->bus join, converter fidelity),
              check_conversion.py (writes conversion.json)
 adapters/    solver_adapter.py (the ABCs), <tool>_adapter.py, estimator_adapter.py + <tool>_se_adapter.py
-             (state estimation), cgmes_ids.py, memory.py,
+             (state estimation), optimizer_adapter.py + <tool>_opf_adapter.py (AC-OPF), cgmes_ids.py, memory.py,
              octave_session.py + matpower_octave/ (MATPOWER's Octave side, timed inside Octave)
 benchmarks/  benchmark_template.py (generates tests), conftest.py (selection, failures, metadata),
-             <tool>_benchmark.py, <tool>_se_benchmark.py (3 lines each)
+             <tool>_benchmark.py, <tool>_se_benchmark.py, <tool>_opf_benchmark.py (3 lines each)
 tools/       benchmark_data.py (loader, grids, scoreboard) + generate_{comparison,site,all}.py,
              palette.py, check_smoke.py (CI's smoke outcomes)
 tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned exactly)
@@ -70,10 +77,10 @@ tool-configs/sienna/Dockerfile, julia/   Julia on top of the base image; Project
              setup.jl (registry snapshot), GridBenchSienna (the adapter's Julia half, precompiled)
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
 docker/      base.dockerfile, tool.dockerfile, docker-compose.yml, build.sh, run_*.sh
-tests/       the oracle's own tests (test_wls.py: the state-estimation oracle), and the converter's
+tests/       the oracle's own tests (test_wls.py: state estimation, test_opf.py: AC-OPF), and the converter's
              (exactness + planted errors)
-data/        submodules: benchmark-grids (MATPOWER), CGMES-Test-Configurations
-results-docker/  published results: <tool>.json, <tool>-se.json, comparison.md
+data/        submodules: benchmark-grids (MATPOWER, PGLib-OPF), CGMES-Test-Configurations
+results-docker/  published results: <tool>.json, <tool>-se.json, <tool>-opf.json, comparison.md
 docs/index.html  generated site
 ```
 
@@ -102,7 +109,8 @@ internal compose network; the run scripts stop the sidecar afterwards.
    `display_name`, `color` (the next unused slot in `tools/palette.py`, kept
    for life; all nine slots are taken, and a tenth tool needs a different
    encoding, not another hue, see the palette's docstring; a reference
-   implementation uses `REFERENCE`, drawn dashed), `package`, `modules`
+   implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
+   reference solver, `REFERENCE_DOTTED`), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,
    `families`, `settings`. Implement `load`, `solve`, `solution`. Docstring:
    input path, bus-id mapping, and every setting with its justification.
@@ -126,6 +134,11 @@ internal compose network; the run scripts stop the sidecar afterwards.
    (`create_benchmarks("<tool>", "se")`). The run scripts pick it up and
    write `<tool>-se.json`. On `case14~exact` a correct estimator shows J
    around 1e-20 and a step around 1e-15: signs, units and branch ends first.
+   An AC-OPF the same way: `adapters/<tool>_opf_adapter.py` on
+   `OptimizerAdapter`, in `OPTIMIZERS`, `create_benchmarks("<tool>", "opf")`,
+   `<tool>-opf.json`; the solution carries the dispatch of every online
+   generator, keyed by gen row. On `pglib_opf_case14_ieee` a correct tool is
+   feasible to about 1e-4 MVA and 9e-6 below PGLib's rounded reference.
 9. Add the tool's smoke outcomes to `benchmarks/smoke_expectations.json` and
    the tool to the CI matrix (`.github/workflows/smoke.yml`). CI checks each
    smoke case against its known outcome (`tools/check_smoke.py`), including
@@ -141,10 +154,12 @@ fixtures, graded against their SV), `converted-<converter>` (MATPOWER
 cases converted to CGMES, graded by the tier-1 residual against the original
 `.m`), and `se-matpower`, `se-distribution` (state estimation: a case plus
 a measurement scenario, `exact` or `noisy`, generated from the case's own
-power flow and graded by `oracle.wls`). A tool declares the families it
+power flow and graded by `oracle.wls`), and `opf-pglib` (AC-OPF on
+PGLib-OPF v23.07, keyed by PGLib's names, graded by `oracle.opf` against
+the `.m` and PGLib's reference objective). A tool declares the families it
 reads in `SolverAdapter.families`. Converted cases are keyed
 `<case>@<converter>`, state-estimation cases `<case>~<scenario>`; a case's
-`problem` ("pf" or "se") says which adapter solves it. Branch on a case's input
+`problem` ("pf", "se" or "opf") says which adapter solves it. Branch on a case's input
 format with `is_cgmes(case)` (the `format` field), never on its family.
 
 Only exact conversions are solved: `SOLVED_CONVERTERS` in the registry.
@@ -175,7 +190,8 @@ writes. Conventions both pages share:
 - In `comparison.md`, notes are grouped by cause: a wrong solution per
   (tool, input), a failure per (tool, message with its numbers dropped).
 - The site's chart shows one input at a time (one line per tool needs one
-  input); for state estimation, the input is the measurement scenario.
+  input); for state estimation, the input is the measurement scenario, for
+  OPF the operating condition (typical, congested, small angle difference).
 
 ## Adding a case
 
