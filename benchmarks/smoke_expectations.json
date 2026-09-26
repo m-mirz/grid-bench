@@ -1,5 +1,5 @@
 {
-  "_about": "Known outcome of every smoke case per tool, checked in CI by tools/check_smoke.py. ok: solved and accepted by the tier-1 oracle; rejected: solved, but to a different problem (a documented importer finding); failed: the tool raised (recorded failure); solved: no tier-1 verdict (CGMES fixture, graded against its published SV). Derived from the full sweep at f0f01b2; sienna, matpower and sparlectra from their first runs. When a tool's behaviour changes on purpose (e.g. a fixed importer), update the entry.",
+  "_about": "Known outcome of every smoke case per tool, checked in CI by tools/check_smoke.py. ok: solved and accepted by the tier-1 oracle; rejected: solved, but to a different problem (a documented importer finding); failed: the tool raised (recorded failure); solved: no tier-1 verdict (CGMES fixture, graded against its published SV). Derived from the full sweep at f0f01b2; sienna, matpower and sparlectra from their first runs. When a tool's behaviour changes on purpose (e.g. a fixed importer), update the entry. State-estimation smoke cases (<case>~<scenario>) from the first estimator runs, read from <tool>-se.json.",
   "cgmes2pgm": {
     "cgmes_powerflow": "solved",
     "case14@cimoxide": "rejected"
@@ -12,11 +12,15 @@
     "case14": "ok",
     "cgmes_powerflow": "solved",
     "case14@cimoxide": "ok",
-    "case33bw": "ok"
+    "case33bw": "ok",
+    "case14~exact": "ok",
+    "case33bw~exact": "ok"
   },
   "pgm": {
     "case14": "rejected",
-    "case33bw": "rejected"
+    "case33bw": "rejected",
+    "case14~exact": "ok",
+    "case33bw~exact": "ok"
   },
   "pypowsybl": {
     "case14": "ok",
@@ -32,7 +36,9 @@
     "case14": "ok",
     "cgmes_powerflow": "solved",
     "case14@cimoxide": "rejected",
-    "case33bw": "rejected"
+    "case33bw": "rejected",
+    "case14~exact": "ok",
+    "case33bw~exact": "rejected"
   },
   "sienna": {
     "case14": "ok",
@@ -42,7 +48,9 @@
     "case14": "ok",
     "cgmes_powerflow": "solved",
     "case14@cimoxide": "ok",
-    "case33bw": "ok"
+    "case33bw": "ok",
+    "case14~exact": "ok",
+    "case33bw~exact": "ok"
   },
   "matpower": {
     "case14": "ok",

@@ -81,6 +81,16 @@ def residual_note(e: dict) -> str:
     return "; ".join(parts) + f" (worst: bus {e['residual_worst_bus']})"
 
 
+def se_note(e: dict) -> str:
+    """Why an estimate is not the WLS optimum of its measurement set (`oracle.wls`)."""
+    if e["se_n_reported"] < e["se_n_buses"]:
+        return f"only {e['se_n_reported']} of {e['se_n_buses']} buses reported"
+    parts = [f"a Gauss-Newton step from the estimate still moves it by {e['se_max_step']:.2g} p.u./rad"]
+    if e["se_J"] > e["se_J_true"]:
+        parts.append(f"J = {e['se_J']:.4g} exceeds J at the true state ({e['se_J_true']:.4g})")
+    return "; ".join(parts) + f" (|ΔV| from the true state up to {e['se_max_dvm_true_pu']:.2g} p.u.)"
+
+
 def failed(res: Results, notes: Notes, tool: str, case: str, operation: str) -> str:
     err = res.failure(tool, case, operation)
     if err is None:
@@ -101,6 +111,9 @@ def cell(res: Results, notes: Notes, tool: str, case: str, operation: str) -> st
         return f"{text} · {rec.extra['sv_dv_median']:.3%}" if rec.extra.get("sv_n") else text
     if rec.extra["oracle_ok"]:
         return f"{text} ✓"
+    if CASES[case]["problem"] == "se":
+        head = f"✗ · **{res.tools[tool]['display_name']}, state estimation**"
+        return f"{text} ✗{notes.ref(head, case, se_note(rec.extra))}"
     head = f"✗ · **{res.tools[tool]['display_name']}, {input_label(case)}**"
     return f"{text} ✗{notes.ref(head, case, residual_note(rec.extra))}"
 
@@ -220,6 +233,69 @@ def sv_cells(res: Results):
     return render
 
 
+def se_cells(res: Results):
+    def render(tools, case):
+        row = []
+        for t in tools:
+            rec = res.get(t, case, "solve")
+            if not reads(res, t, case):
+                row.append("·")
+            elif rec is None:
+                row.append("failed")
+            elif rec.extra["se_n_reported"] < rec.extra["se_n_buses"]:
+                row.append(f"{rec.extra['se_n_reported']}/{rec.extra['se_n_buses']} buses ✗")
+            else:
+                e = rec.extra
+                ratio = e["se_J"] / e["se_J_true"] if e["se_J_true"] > 1e-9 else math.nan
+                j = f"J/J* {ratio:.3f}" if math.isfinite(ratio) else f"J {e['se_J']:.0e}"
+                row.append(f"{e['se_max_step']:.0e} · {j} · {e['se_max_dvm_true_pu']:.0e}"
+                           + ("" if e["oracle_ok"] else " ✗"))
+        return row
+    return render
+
+
+def se_section(se: Results, notes: Notes) -> str:
+    """State estimation: the same tables as power flow, graded by `oracle.wls`."""
+    solve = per_grid(se, timing_cells(se, notes, "solve")).replace("### ", "#### ")
+    imports = per_grid(se, timing_cells(se, notes, "import")).replace("### ", "#### ")
+    return "\n".join([
+        "## State estimation (WLS)",
+        "",
+        "Each case is a MATPOWER case with a measurement set generated from its own power flow "
+        "(`cases/measurements.py`): `~exact`, |V| and P/Q injections at every bus without noise, whose optimum "
+        "is the true state; `~noisy`, |V| at generator buses, P/Q injections at every bus and P/Q flows at the "
+        "from end of every branch, with Gaussian noise. Every tool gets the same measurements with the same "
+        "sigmas, flat start, no bad-data handling. ✓: the estimate is the weighted least-squares optimum of "
+        "that measurement set (a Gauss-Newton step from it moves it by at most 1e-6 p.u./rad, and its J is "
+        "no larger than J at the true state; `oracle/wls.py`, independent of every tool).",
+        "",
+        "### Scoreboard",
+        "",
+        scoreboard_section(se),
+        "",
+        "### Warm estimate",
+        "",
+        "Median of repeated estimates on one persistent model, flat start every time, in ms; the fastest ✓ in "
+        "each row in bold.",
+        "",
+        solve,
+        "### Import: file to model, with measurements",
+        "",
+        imports,
+        "### Accuracy",
+        "",
+        "Largest entry of one Gauss-Newton step from the estimate (p.u./rad; 0 at the optimum) · J over J at "
+        "the true state (below 1 with noise: the optimum fits the measurements better than the truth; "
+        "`~exact` cases show J itself) · largest |ΔV| from the true state (p.u., information only).",
+        "",
+        per_grid(se, se_cells(se)).replace("### ", "#### "),
+        "### Environment",
+        "",
+        environment(se),
+        "",
+    ])
+
+
 def accuracy_sv(res: Results) -> str:
     cases = [c for g in res.grids() for c in res.grid_cases(g) if not graded(c)]
     return grid_table(res, cases, sv_cells(res)) if cases else "Not run."
@@ -286,6 +362,7 @@ def generate(directory: Path, res: Results) -> str:
     solve = per_grid(res, timing_cells(res, notes, "solve"))
     robust = robustness_section(res, notes)
     imports = per_grid(res, timing_cells(res, notes, "import"))
+    se = se_section(res.se, notes) if res.se and (res.se.records or res.se.failures) else ""
     parts = [
         "# grid-bench results",
         "",
@@ -328,7 +405,7 @@ def generate(directory: Path, res: Results) -> str:
         "## Memory",
         "",
         "Peak RSS added by loading and solving the case, in MB, measured in a fresh process; "
-        "in parentheses, the peak after merely importing the tool. Charts: `graphs/memory_<family>.svg`. "
+        "in parentheses, the peak after merely importing the tool. Charts: the site (`docs/index.html`). "
         "Only the benchmark process is measured: cgmes2pgm's Fuseki server is not included.",
         "",
         per_grid(res, memory_cells(res)),
@@ -365,6 +442,7 @@ def generate(directory: Path, res: Results) -> str:
         "",
         cross_tool(res, directory),
         "",
+        *([se] if se else []),
         "## Notes",
         "",
         "Wrong solutions are grouped by tool and input, failures by tool and message (numbers that differ per case "

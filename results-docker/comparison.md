@@ -29,43 +29,43 @@ Median of repeated solves on one persistent model, flat start every time, in ms;
 
 | case | buses | input | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
 |---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| case14 | 14 | `.m` | 5.761 ✓ | **0.011 ✓** | 70.6 ✓ | 0.116 ✗¹ | 0.617 ✓ | 3.038 ✓ | · | 0.056 ✓ | 0.138 ✓ | 39.4 ✓ |
-|  |  | CGMES (cimoxide) | 5.554 ✓ | · | · | · | 0.698 ✓ | 3.105 ✗² | 0.092 ✗³ | · | **0.143 ✓** | · |
-| case118 | 118 | `.m` | 6.621 ✓ | **0.069 ✓** | 93.2 ✓ | FAILED⁴ | 2.487 ✗⁵ | 5.959 ✓ | · | 0.347 ✗⁶ | 1.171 ✓ | 42.1 ✓ |
-|  |  | CGMES (cimoxide) | 6.281 ✓ | · | · | · | 2.569 ✓ | 6.281 ✓ | FAILED⁷ | · | **1.185 ✓** | · |
-| case300 | 300 | `.m` | 9.067 ✗⁸ | **0.234 ✓** | 136.9 ✓ | FAILED⁴ | 5.129 ✗⁵ | 10.9 ✓ | · | 1.108 ✗⁶ | 4.108 ✓ | 49.5 ✓ |
-|  |  | CGMES (cimoxide) | 8.677 ✗⁹ | · | · | · | 5.688 ✓ | 12.1 ✗² | FAILED⁷ | · | **4.134 ✓** | · |
-| case1354pegase | 1,354 | `.m` | 18.9 ✓ | **1.052 ✓** | 411.5 ✓ | FAILED¹⁰ | 30.6 ✓ | 44.3 ✓ | · | FAILED¹¹ | 19.0 ✓ | 71.6 ✓ |
-|  |  | CGMES (cimoxide) | 22.0 ✓ | · | · | · | 31.4 ✓ | 58.2 ✗² | 3.214 ✗³ | · | **18.9 ✓** | · |
-| case2848rte | 2,848 | `.m` | 52.8 ✗⁸ | 5.473 ✗¹² | 900.0 ✗¹³ | FAILED⁴ | FAILED¹⁴ | 89.3 ✗¹⁵ | · | 18.1 ✗⁶ | **65.6 ✓** | 143.6 ✓ |
-|  |  | CGMES (cimoxide) | 64.3 ✓ | · | · | · | FAILED¹⁴ | FAILED¹⁶ | 5.272 ✗³ | · | **63.0 ✓** | · |
-| case2869pegase | 2,869 | `.m` | 36.1 ✓ | **3.373 ✓** | 910.6 ✓ | FAILED¹⁰ | 75.3 ✓ | 97.6 ✓ | · | FAILED¹¹ | 53.3 ✓ | 110.8 ✓ |
-|  |  | CGMES (cimoxide) | **39.2 ✓** | · | · | · | 76.3 ✓ | 125.9 ✗² | FAILED⁷ | · | 51.9 ✓ | · |
-| case3120sp | 3,120 | `.m` | 42.7 ✗⁸ | **3.285 ✓** | 1,566 ✗¹³ | FAILED¹⁰ | 56.4 ✗⁵ | 94.8 ✗¹⁵ | · | 14.3 ✗⁶ | 66.3 ✓ | 116.7 ✓ |
-|  |  | CGMES (cimoxide) | 42.7 ✗⁹ | · | · | · | **60.7 ✓** | FAILED¹⁶ | FAILED⁷ | · | 68.2 ✓ | · |
-| case9241pegase | 9,241 | `.m` | 139.5 ✗⁸ | **16.5 ✓** | 4,924 ✓ | FAILED¹⁰ | 378.1 ✓ | 363.0 ✓ | · | FAILED¹¹ | FAILED¹⁷ | 347.2 ✓ |
-|  |  | CGMES (cimoxide) | 142.2 ✗⁹ | · | · | · | **360.8 ✓** | 459.0 ✗² | FAILED⁷ | · | FAILED¹⁷ | · |
+| case14 | 14 | `.m` | 5.845 ✓ | **0.011 ✓** | 70.6 ✓ | 0.116 ✗¹ | 0.617 ✓ | 3.038 ✓ | · | 0.056 ✓ | 0.138 ✓ | 39.4 ✓ |
+|  |  | CGMES (cimoxide) | 5.676 ✓ | · | · | · | 0.698 ✓ | 3.105 ✗² | 0.092 ✗³ | · | **0.143 ✓** | · |
+| case118 | 118 | `.m` | 6.742 ✓ | **0.069 ✓** | 93.2 ✓ | FAILED⁴ | 2.487 ✗⁵ | 5.959 ✓ | · | 0.347 ✗⁶ | 1.171 ✓ | 42.1 ✓ |
+|  |  | CGMES (cimoxide) | 6.419 ✓ | · | · | · | 2.569 ✓ | 6.281 ✓ | FAILED⁷ | · | **1.185 ✓** | · |
+| case300 | 300 | `.m` | 9.203 ✗⁸ | **0.234 ✓** | 136.9 ✓ | FAILED⁴ | 5.129 ✗⁵ | 10.9 ✓ | · | 1.108 ✗⁶ | 4.108 ✓ | 49.5 ✓ |
+|  |  | CGMES (cimoxide) | 8.877 ✗⁹ | · | · | · | 5.688 ✓ | 12.1 ✗² | FAILED⁷ | · | **4.134 ✓** | · |
+| case1354pegase | 1,354 | `.m` | 19.4 ✓ | **1.052 ✓** | 411.5 ✓ | FAILED¹⁰ | 30.6 ✓ | 44.3 ✓ | · | FAILED¹¹ | 19.0 ✓ | 71.6 ✓ |
+|  |  | CGMES (cimoxide) | 22.7 ✓ | · | · | · | 31.4 ✓ | 58.2 ✗² | 3.214 ✗³ | · | **18.9 ✓** | · |
+| case2848rte | 2,848 | `.m` | 55.2 ✗⁸ | 5.473 ✗¹² | 900.0 ✗¹³ | FAILED⁴ | FAILED¹⁴ | 89.3 ✗¹⁵ | · | 18.1 ✗⁶ | **65.6 ✓** | 143.6 ✓ |
+|  |  | CGMES (cimoxide) | 67.5 ✓ | · | · | · | FAILED¹⁴ | FAILED¹⁶ | 5.272 ✗³ | · | **63.0 ✓** | · |
+| case2869pegase | 2,869 | `.m` | 37.1 ✓ | **3.373 ✓** | 910.6 ✓ | FAILED¹⁰ | 75.3 ✓ | 97.6 ✓ | · | FAILED¹¹ | 53.3 ✓ | 110.8 ✓ |
+|  |  | CGMES (cimoxide) | **40.5 ✓** | · | · | · | 76.3 ✓ | 125.9 ✗² | FAILED⁷ | · | 51.9 ✓ | · |
+| case3120sp | 3,120 | `.m` | 44.3 ✗⁸ | **3.285 ✓** | 1,566 ✗¹³ | FAILED¹⁰ | 56.4 ✗⁵ | 94.8 ✗¹⁵ | · | 14.3 ✗⁶ | 66.3 ✓ | 116.7 ✓ |
+|  |  | CGMES (cimoxide) | 43.8 ✗⁹ | · | · | · | **60.7 ✓** | FAILED¹⁶ | FAILED⁷ | · | 68.2 ✓ | · |
+| case9241pegase | 9,241 | `.m` | 143.7 ✗⁸ | **16.5 ✓** | 4,924 ✓ | FAILED¹⁰ | 378.1 ✓ | 363.0 ✓ | · | FAILED¹¹ | FAILED¹⁷ | 347.2 ✓ |
+|  |  | CGMES (cimoxide) | 148.9 ✗⁹ | · | · | · | **360.8 ✓** | 459.0 ✗² | FAILED⁷ | · | FAILED¹⁷ | · |
 
 ### Distribution grids (radial)
 
 | case | buses | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| case4_dist | 4 | 4.795 ✓ | **0.004 ✓** | 65.6 ✓ | 0.094 ✗¹ | 0.872 ✓ | 2.613 ✗¹⁵ | 0.023 ✓ | 0.057 ✓ | 34.6 ✓ |
-| case18 | 18 | 5.252 ✓ | **0.011 ✓** | 67.9 ✓ | 0.086 ✗¹ | 0.685 ✓ | 3.014 ✗¹⁵ | 0.059 ✓ | 0.147 ✓ | 39.1 ✓ |
-| case33bw | 33 | 4.274 ✓ | **0.019 ✓** | 66.1 ✗¹³ | 0.094 ✗¹ | 0.714 ✓ | 2.979 ✗¹⁵ | 0.081 ✓ | 0.195 ✓ | 35.4 ✓ |
-| mvlv1004 | 1,004 | 10.9 ✓ | **0.706 ✓** | 307.2 ✓ | 1.256 ✗¹ | 12.2 ✓ | 22.6 ✓ | 3.207 ✓ | 7.022 ✓ | 57.7 ✓ |
-| mvlv10616 | 10,616 | 53.7 ✓ | **7.550 ✓** | 5,193 ✓ | 11.6 ✗¹ | 178.9 ✓ | 231.6 ✓ | 32.5 ✓ | 115.8 ✓ | 192.0 ✓ |
-| mvlv29840 | 29,840 | 158.9 ✓ | **20.1 ✓** | 29,150 ✓ | 27.3 ✗¹ | 588.6 ✓ | 684.9 ✓ | 100.1 ✗⁶ | 372.2 ✓ | 494.8 ✓ |
+| case4_dist | 4 | 4.845 ✓ | **0.004 ✓** | 65.6 ✓ | 0.094 ✗¹ | 0.872 ✓ | 2.613 ✗¹⁵ | 0.023 ✓ | 0.057 ✓ | 34.6 ✓ |
+| case18 | 18 | 5.333 ✓ | **0.011 ✓** | 67.9 ✓ | 0.086 ✗¹ | 0.685 ✓ | 3.014 ✗¹⁵ | 0.059 ✓ | 0.147 ✓ | 39.1 ✓ |
+| case33bw | 33 | 4.357 ✓ | **0.019 ✓** | 66.1 ✗¹³ | 0.094 ✗¹ | 0.714 ✓ | 2.979 ✗¹⁵ | 0.081 ✓ | 0.195 ✓ | 35.4 ✓ |
+| mvlv1004 | 1,004 | 11.2 ✓ | **0.706 ✓** | 307.2 ✓ | 1.256 ✗¹ | 12.2 ✓ | 22.6 ✓ | 3.207 ✓ | 7.022 ✓ | 57.7 ✓ |
+| mvlv10616 | 10,616 | 56.4 ✓ | **7.550 ✓** | 5,193 ✓ | 11.6 ✗¹ | 178.9 ✓ | 231.6 ✓ | 32.5 ✓ | 115.8 ✓ | 192.0 ✓ |
+| mvlv29840 | 29,840 | 164.2 ✓ | **20.1 ✓** | 29,150 ✓ | 27.3 ✗¹ | 588.6 ✓ | 684.9 ✓ | 100.1 ✗⁶ | 372.2 ✓ | 494.8 ✓ |
 
 ### CGMES conformity fixtures
 
 | case | nodes | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sparlectra.jl |
 |---|---:|---:|---:|---:|---:|---:|
-| cgmes_powerflow | 2 | 7.690 · 0.000% | 0.552 · 0.000% | 2.562 · 0.028% | 0.064 · 4.342% | 0.042 · 0.001% |
+| cgmes_powerflow | 2 | 7.964 · 0.000% | 0.552 · 0.000% | 2.562 · 0.028% | 0.064 · 4.342% | 0.042 · 0.001% |
 | cgmes_microgrid_be | 7 | FAILED¹⁸ | 0.670 · 0.476% | 3.085 · 2.517% | 0.087 · 3.063% | 0.092 · 2.639% |
 | cgmes_minigrid | 11 | FAILED¹⁹ | FAILED²⁰ | FAILED¹⁶ | 0.080 · 0.000% | 0.661 · 0.000% |
-| cgmes_svedala | 108 | 11.4 · 0.213% | 1.850 · 0.211% | 55.0 · 0.640% | 0.198 · 3.754% | 3.998 · 0.099% |
-| cgmes_smallgrid | 127 | 7.981 · 0.000% | 2.462 · 0.000% | 30.9 · 0.063% | FAILED⁷ | 5.013 · 0.000% |
+| cgmes_svedala | 108 | 11.7 · 0.213% | 1.850 · 0.211% | 55.0 · 0.640% | 0.198 · 3.754% | 3.998 · 0.099% |
+| cgmes_smallgrid | 127 | 8.156 · 0.000% | 2.462 · 0.000% | 30.9 · 0.063% | FAILED⁷ | 5.013 · 0.000% |
 | cgmes_realgrid | 6,051 | FAILED²¹ | 132.4 · 0.011% | FAILED¹⁶ | FAILED²² | FAILED¹⁷ |
 
 ## Hard transmission cases
@@ -85,68 +85,68 @@ Median of 3 cold loads after one warm-up load, in ms.
 
 | case | buses | input | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
 |---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| case14 | 14 | `.m` | 75.6 | 0.322 | 50.7 | 0.417 | 0.523 | 5.040 | · | 6.734 | 0.251 | 23.9 |
-|  |  | CGMES (cimoxide) | 283.9 | · | · | · | 21.6 | 15.8 | 313.4 | · | 1.706 | · |
-| case118 | 118 | `.m` | 77.8 | 0.900 | 51.3 | 1.086 | 2.129 | 19.3 | · | 26.6 | 1.298 | 26.4 |
-|  |  | CGMES (cimoxide) | 303.6 | · | · | · | 61.7 | 127.8 | 1,119 | · | 14.6 | · |
-| case300 | 300 | `.m` | 77.1 | 1.671 | 52.5 | 2.143 | 4.697 | 36.9 | · | 51.2 | 2.660 | 32.6 |
-|  |  | CGMES (cimoxide) | 332.0 | · | · | · | 117.2 | 280.6 | 2,374 | · | 34.9 | · |
-| case1354pegase | 1,354 | `.m` | 77.4 | 7.827 | 65.3 | 8.517 | 22.9 | 570.0 | · | FAILED¹¹ | 13.7 | 71.1 |
-|  |  | CGMES (cimoxide) | 550.0 | · | · | · | 562.5 | 1,967 | 10,775 | · | 351.6 | · |
-| case2848rte | 2,848 | `.m` | 82.6 | 14.0 | 72.7 | 13.4 | 22.6 | 1,132 | · | 536.1 | 26.7 | 114.7 |
-|  |  | CGMES (cimoxide) | 1,154 | · | · | · | 1,585 | 5,478 | 34,556 | · | 2,775 | · |
-| case2869pegase | 2,869 | `.m` | 82.8 | 17.0 | 77.3 | 18.3 | 34.6 | 1,345 | · | FAILED¹¹ | 34.8 | 128.9 |
-|  |  | CGMES (cimoxide) | 913.3 | · | · | · | 1,240 | 4,428 | 23,898 | · | 796.7 | · |
-| case3120sp | 3,120 | `.m` | 81.1 | 14.5 | 73.2 | 13.2 | 23.6 | 1,172 | · | 528.3 | 26.1 | 113.9 |
-|  |  | CGMES (cimoxide) | 747.5 | · | · | · | 1,011 | 3,867 | 18,602 | · | 770.4 | · |
-| case9241pegase | 9,241 | `.m` | 98.0 | 74.7 | 138.5 | 63.3 | 126.8 | 4,188 | · | FAILED¹¹ | 274.4 | 381.6 |
-|  |  | CGMES (cimoxide) | 2,721 | · | · | · | 4,388 | 18,223 | 83,508 | · | 3,357 | · |
+| case14 | 14 | `.m` | 77.8 | 0.322 | 50.7 | 0.417 | 0.523 | 5.040 | · | 6.734 | 0.251 | 23.9 |
+|  |  | CGMES (cimoxide) | 295.8 | · | · | · | 21.6 | 15.8 | 313.4 | · | 1.706 | · |
+| case118 | 118 | `.m` | 82.2 | 0.900 | 51.3 | 1.086 | 2.129 | 19.3 | · | 26.6 | 1.298 | 26.4 |
+|  |  | CGMES (cimoxide) | 319.1 | · | · | · | 61.7 | 127.8 | 1,119 | · | 14.6 | · |
+| case300 | 300 | `.m` | 81.1 | 1.671 | 52.5 | 2.143 | 4.697 | 36.9 | · | 51.2 | 2.660 | 32.6 |
+|  |  | CGMES (cimoxide) | 349.0 | · | · | · | 117.2 | 280.6 | 2,374 | · | 34.9 | · |
+| case1354pegase | 1,354 | `.m` | 81.5 | 7.827 | 65.3 | 8.517 | 22.9 | 570.0 | · | FAILED¹¹ | 13.7 | 71.1 |
+|  |  | CGMES (cimoxide) | 579.8 | · | · | · | 562.5 | 1,967 | 10,775 | · | 351.6 | · |
+| case2848rte | 2,848 | `.m` | 86.6 | 14.0 | 72.7 | 13.4 | 22.6 | 1,132 | · | 536.1 | 26.7 | 114.7 |
+|  |  | CGMES (cimoxide) | 1,197 | · | · | · | 1,585 | 5,478 | 34,556 | · | 2,775 | · |
+| case2869pegase | 2,869 | `.m` | 87.4 | 17.0 | 77.3 | 18.3 | 34.6 | 1,345 | · | FAILED¹¹ | 34.8 | 128.9 |
+|  |  | CGMES (cimoxide) | 954.6 | · | · | · | 1,240 | 4,428 | 23,898 | · | 796.7 | · |
+| case3120sp | 3,120 | `.m` | 88.0 | 14.5 | 73.2 | 13.2 | 23.6 | 1,172 | · | 528.3 | 26.1 | 113.9 |
+|  |  | CGMES (cimoxide) | 789.7 | · | · | · | 1,011 | 3,867 | 18,602 | · | 770.4 | · |
+| case9241pegase | 9,241 | `.m` | 103.2 | 74.7 | 138.5 | 63.3 | 126.8 | 4,188 | · | FAILED¹¹ | 274.4 | 381.6 |
+|  |  | CGMES (cimoxide) | 2,808 | · | · | · | 4,388 | 18,223 | 83,508 | · | 3,357 | · |
 
 ### Distribution grids (radial)
 
 | case | buses | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| case4_dist | 4 | 73.4 | 0.234 | 49.9 | 0.395 | 0.280 | 3.467 | 4.397 | 0.131 | 22.0 |
-| case18 | 18 | 74.0 | 0.410 | 50.3 | 0.397 | 0.372 | 4.913 | 7.091 | 0.226 | 20.6 |
-| case33bw | 33 | 72.6 | 0.346 | 49.9 | 0.435 | 0.445 | 6.107 | 9.250 | 0.364 | 21.2 |
-| mvlv1004 | 1,004 | 76.4 | 4.318 | 57.5 | 5.298 | 6.652 | 368.1 | 142.2 | 7.908 | 47.9 |
-| mvlv10616 | 10,616 | 92.4 | 57.4 | 121.4 | 57.3 | 140.2 | 3,622 | 2,087 | 250.4 | 320.0 |
-| mvlv29840 | 29,840 | 124.4 | 212.8 | 254.6 | 161.6 | 320.7 | 9,613 | 6,035 | 504.3 | 862.1 |
+| case4_dist | 4 | 76.2 | 0.234 | 49.9 | 0.395 | 0.280 | 3.467 | 4.397 | 0.131 | 22.0 |
+| case18 | 18 | 77.8 | 0.410 | 50.3 | 0.397 | 0.372 | 4.913 | 7.091 | 0.226 | 20.6 |
+| case33bw | 33 | 75.5 | 0.346 | 49.9 | 0.435 | 0.445 | 6.107 | 9.250 | 0.364 | 21.2 |
+| mvlv1004 | 1,004 | 80.8 | 4.318 | 57.5 | 5.298 | 6.652 | 368.1 | 142.2 | 7.908 | 47.9 |
+| mvlv10616 | 10,616 | 95.1 | 57.4 | 121.4 | 57.3 | 140.2 | 3,622 | 2,087 | 250.4 | 320.0 |
+| mvlv29840 | 29,840 | 132.1 | 212.8 | 254.6 | 161.6 | 320.7 | 9,613 | 6,035 | 504.3 | 862.1 |
 
 ### CGMES conformity fixtures
 
 | case | nodes | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sparlectra.jl |
 |---|---:|---:|---:|---:|---:|---:|
-| cgmes_powerflow | 2 | 304.7 | 28.3 | 7.333 | 341.2 | 0.833 |
-| cgmes_microgrid_be | 7 | 376.5 | 38.6 | 26.0 | 458.2 | 2.598 |
-| cgmes_minigrid | 11 | 365.1 | 59.7 | 60.7 | 827.5 | 6.486 |
-| cgmes_svedala | 108 | 489.9 | 360.8 | 1,065 | 6,796 | 246.5 |
-| cgmes_smallgrid | 127 | 465.8 | 359.7 | 721.6 | 6,539 | 297.9 |
-| cgmes_realgrid | 6,051 | 3,165 | 5,012 | 15,523 | FAILED²² | 3,960 |
+| cgmes_powerflow | 2 | 321.1 | 28.3 | 7.333 | 341.2 | 0.833 |
+| cgmes_microgrid_be | 7 | 394.4 | 38.6 | 26.0 | 458.2 | 2.598 |
+| cgmes_minigrid | 11 | 384.7 | 59.7 | 60.7 | 827.5 | 6.486 |
+| cgmes_svedala | 108 | 514.3 | 360.8 | 1,065 | 6,796 | 246.5 |
+| cgmes_smallgrid | 127 | 490.6 | 359.7 | 721.6 | 6,539 | 297.9 |
+| cgmes_realgrid | 6,051 | 3,209 | 5,012 | 15,523 | FAILED²² | 3,960 |
 
 ## Memory
 
-Peak RSS added by loading and solving the case, in MB, measured in a fresh process; in parentheses, the peak after merely importing the tool. Charts: `graphs/memory_<family>.svg`. Only the benchmark process is measured: cgmes2pgm's Fuseki server is not included.
+Peak RSS added by loading and solving the case, in MB, measured in a fresh process; in parentheses, the peak after merely importing the tool. Charts: the site (`docs/index.html`). Only the benchmark process is measured: cgmes2pgm's Fuseki server is not included.
 
 ### Transmission grids (meshed)
 
 | case | buses | input | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
 |---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| case14 | 14 | `.m` | 77 (+235) | 17 (+49) | 5 (+248) | 2 (+44) | 25 (+159) | 127 (+424) | · | 99 (+766) | 32 (+566) | 0 (+155) |
-|  |  | CGMES (cimoxide) | 76 (+235) | · | · | · | 76 (+159) | 39 (+425) | 7 (+95) | · | 33 (+567) | · |
-| case118 | 118 | `.m` | 77 (+236) | 17 (+49) | 5 (+247) | 1 (+44) | 30 (+159) | 45 (+424) | · | 104 (+766) | 32 (+566) | 6 (+155) |
-|  |  | CGMES (cimoxide) | 75 (+236) | · | · | · | 84 (+159) | 45 (+425) | 34 (+95) | · | 43 (+567) | · |
-| case300 | 300 | `.m` | 81 (+236) | 17 (+49) | 6 (+247) | 1 (+44) | 37 (+159) | 53 (+425) | · | 111 (+766) | 33 (+567) | 13 (+155) |
-|  |  | CGMES (cimoxide) | 76 (+235) | · | · | · | 129 (+159) | 61 (+425) | 66 (+95) | · | 64 (+567) | · |
-| case1354pegase | 1,354 | `.m` | 80 (+236) | 18 (+49) | 39 (+247) | 2 (+43) | 78 (+159) | 115 (+425) | · | — | 37 (+566) | 66 (+155) |
-|  |  | CGMES (cimoxide) | 89 (+236) | · | · | · | 237 (+159) | 152 (+425) | 162 (+95) | · | 184 (+566) | · |
-| case2848rte | 2,848 | `.m` | 82 (+239) | 20 (+49) | 172 (+247) | 5 (+43) | 59 (+159) | 171 (+425) | · | 124 (+766) | 50 (+566) | 131 (+156) |
-|  |  | CGMES (cimoxide) | 186 (+236) | · | · | · | 427 (+159) | 289 (+424) | 436 (+95) | · | 490 (+567) | · |
-| case2869pegase | 2,869 | `.m` | 85 (+235) | 22 (+49) | 176 (+247) | 6 (+43) | 126 (+159) | 213 (+425) | · | — | 49 (+566) | 146 (+155) |
-|  |  | CGMES (cimoxide) | 139 (+236) | · | · | · | 457 (+159) | 289 (+425) | 310 (+95) | · | 428 (+567) | · |
-| case3120sp | 3,120 | `.m` | 84 (+236) | 21 (+49) | 207 (+247) | 5 (+44) | 123 (+159) | 185 (+424) | · | 151 (+766) | 53 (+567) | 132 (+155) |
-|  |  | CGMES (cimoxide) | 119 (+236) | · | · | · | 444 (+159) | 183 (+425) | 243 (+95) | · | 272 (+567) | · |
-| case9241pegase | 9,241 | `.m` | 105 (+238) | 41 (+49) | 1810 (+247) | 18 (+44) | 441 (+159) | 619 (+425) | · | — | 47 (+567) | 491 (+155) |
+| case14 | 14 | `.m` | 78 (+235) | 17 (+49) | 5 (+248) | 2 (+44) | 25 (+159) | 127 (+424) | · | 99 (+766) | 32 (+566) | 0 (+155) |
+|  |  | CGMES (cimoxide) | 74 (+236) | · | · | · | 76 (+159) | 39 (+425) | 7 (+95) | · | 33 (+567) | · |
+| case118 | 118 | `.m` | 76 (+238) | 17 (+49) | 5 (+247) | 1 (+44) | 30 (+159) | 45 (+424) | · | 104 (+766) | 32 (+566) | 6 (+155) |
+|  |  | CGMES (cimoxide) | 76 (+235) | · | · | · | 84 (+159) | 45 (+425) | 34 (+95) | · | 43 (+567) | · |
+| case300 | 300 | `.m` | 77 (+235) | 17 (+49) | 6 (+247) | 1 (+44) | 37 (+159) | 53 (+425) | · | 111 (+766) | 33 (+567) | 13 (+155) |
+|  |  | CGMES (cimoxide) | 78 (+235) | · | · | · | 129 (+159) | 61 (+425) | 66 (+95) | · | 64 (+567) | · |
+| case1354pegase | 1,354 | `.m` | 80 (+235) | 18 (+49) | 39 (+247) | 2 (+43) | 78 (+159) | 115 (+425) | · | — | 37 (+566) | 66 (+155) |
+|  |  | CGMES (cimoxide) | 87 (+238) | · | · | · | 237 (+159) | 152 (+425) | 162 (+95) | · | 184 (+566) | · |
+| case2848rte | 2,848 | `.m` | 82 (+236) | 20 (+49) | 172 (+247) | 5 (+43) | 59 (+159) | 171 (+425) | · | 124 (+766) | 50 (+566) | 131 (+156) |
+|  |  | CGMES (cimoxide) | 185 (+235) | · | · | · | 427 (+159) | 289 (+424) | 436 (+95) | · | 490 (+567) | · |
+| case2869pegase | 2,869 | `.m` | 83 (+238) | 22 (+49) | 176 (+247) | 6 (+43) | 126 (+159) | 213 (+425) | · | — | 49 (+566) | 146 (+155) |
+|  |  | CGMES (cimoxide) | 139 (+235) | · | · | · | 457 (+159) | 289 (+425) | 310 (+95) | · | 428 (+567) | · |
+| case3120sp | 3,120 | `.m` | 83 (+234) | 21 (+49) | 207 (+247) | 5 (+44) | 123 (+159) | 185 (+424) | · | 151 (+766) | 53 (+567) | 132 (+155) |
+|  |  | CGMES (cimoxide) | 118 (+238) | · | · | · | 444 (+159) | 183 (+425) | 243 (+95) | · | 272 (+567) | · |
+| case9241pegase | 9,241 | `.m` | 105 (+236) | 41 (+49) | 1810 (+247) | 18 (+44) | 441 (+159) | 619 (+425) | · | — | 47 (+567) | 491 (+155) |
 |  |  | CGMES (cimoxide) | 388 (+236) | · | · | · | 1203 (+159) | 881 (+425) | 964 (+96) | · | 1271 (+567) | · |
 
 ### Distribution grids (radial)
@@ -154,22 +154,22 @@ Peak RSS added by loading and solving the case, in MB, measured in a fresh proce
 | case | buses | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | case4_dist | 4 | 76 (+238) | 17 (+49) | 5 (+247) | 2 (+43) | 25 (+159) | 37 (+425) | 95 (+766) | 32 (+566) | 0 (+156) |
-| case18 | 18 | 78 (+236) | 16 (+49) | 5 (+248) | 2 (+43) | 25 (+159) | 39 (+425) | 94 (+767) | 32 (+566) | 0 (+156) |
-| case33bw | 33 | 78 (+236) | 17 (+49) | 4 (+247) | 2 (+44) | 26 (+159) | 40 (+425) | 97 (+767) | 32 (+567) | 0 (+156) |
-| mvlv1004 | 1,004 | 79 (+236) | 17 (+49) | 23 (+248) | 2 (+44) | 64 (+159) | 90 (+424) | 122 (+767) | 35 (+566) | 33 (+155) |
-| mvlv10616 | 10,616 | 99 (+236) | 35 (+49) | 2380 (+247) | 19 (+44) | 312 (+159) | 583 (+425) | 298 (+766) | 91 (+566) | 359 (+156) |
-| mvlv29840 | 29,840 | 160 (+236) | 81 (+49) | 18718 (+247) | 58 (+44) | 913 (+159) | 1557 (+425) | 664 (+767) | 239 (+567) | 1012 (+156) |
+| case18 | 18 | 76 (+238) | 16 (+49) | 5 (+248) | 2 (+43) | 25 (+159) | 39 (+425) | 94 (+767) | 32 (+566) | 0 (+156) |
+| case33bw | 33 | 77 (+235) | 17 (+49) | 4 (+247) | 2 (+44) | 26 (+159) | 40 (+425) | 97 (+767) | 32 (+567) | 0 (+156) |
+| mvlv1004 | 1,004 | 78 (+238) | 17 (+49) | 23 (+248) | 2 (+44) | 64 (+159) | 90 (+424) | 122 (+767) | 35 (+566) | 33 (+155) |
+| mvlv10616 | 10,616 | 98 (+237) | 35 (+49) | 2380 (+247) | 19 (+44) | 312 (+159) | 583 (+425) | 298 (+766) | 91 (+566) | 359 (+156) |
+| mvlv29840 | 29,840 | 159 (+235) | 81 (+49) | 18718 (+247) | 58 (+44) | 913 (+159) | 1557 (+425) | 664 (+767) | 239 (+567) | 1012 (+156) |
 
 ### CGMES conformity fixtures
 
 | case | nodes | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sparlectra.jl |
 |---|---:|---:|---:|---:|---:|---:|
-| cgmes_powerflow | 2 | 75 (+239) | 75 (+159) | 38 (+425) | 7 (+96) | 33 (+567) |
-| cgmes_microgrid_be | 7 | 7 (+238) | 78 (+159) | 39 (+425) | 11 (+96) | 33 (+566) |
-| cgmes_minigrid | 11 | 8 (+236) | 74 (+159) | 4 (+425) | 24 (+96) | 47 (+567) |
-| cgmes_svedala | 108 | 77 (+236) | 173 (+159) | 91 (+425) | 119 (+96) | 141 (+567) |
-| cgmes_smallgrid | 127 | 77 (+238) | 174 (+159) | 88 (+425) | 118 (+95) | 136 (+567) |
-| cgmes_realgrid | 6,051 | 518 (+236) | 1168 (+159) | 616 (+425) | — | 1706 (+567) |
+| cgmes_powerflow | 2 | 75 (+235) | 75 (+159) | 38 (+425) | 7 (+96) | 33 (+567) |
+| cgmes_microgrid_be | 7 | 7 (+235) | 78 (+159) | 39 (+425) | 11 (+96) | 33 (+566) |
+| cgmes_minigrid | 11 | 8 (+235) | 74 (+159) | 4 (+425) | 24 (+96) | 47 (+567) |
+| cgmes_svedala | 108 | 76 (+238) | 173 (+159) | 91 (+425) | 119 (+96) | 141 (+567) |
+| cgmes_smallgrid | 127 | 78 (+236) | 174 (+159) | 88 (+425) | 118 (+95) | 136 (+567) |
+| cgmes_realgrid | 6,051 | 518 (+238) | 1168 (+159) | 616 (+425) | — | 1706 (+567) |
 
 ## Accuracy
 
@@ -266,6 +266,151 @@ Largest |ΔV| (p.u.) from the per-bus median over the tools that solved the case
 | mvlv10616 | 10616 | 1.3e-13 | 7.2e-11 | 7.2e-11 | 5.2e-02 | 9.2e-07 | 8.6e-14 | 2.1e-05 | 1.0e-10 | 8.1e-14 |
 | mvlv29840 | 29840 | 1.3e-13 | 1.1e-13 | 1.2e-13 | 2.8e-02 | 6.8e-07 | 9.6e-14 | 3.0e-05 | 1.0e-07 | 8.4e-14 |
 
+## State estimation (WLS)
+
+Each case is a MATPOWER case with a measurement set generated from its own power flow (`cases/measurements.py`): `~exact`, |V| and P/Q injections at every bus without noise, whose optimum is the true state; `~noisy`, |V| at generator buses, P/Q injections at every bus and P/Q flows at the from end of every branch, with Gaussian noise. Every tool gets the same measurements with the same sigmas, flat start, no bad-data handling. ✓: the estimate is the weighted least-squares optimum of that measurement set (a Gauss-Newton step from it moves it by at most 1e-6 p.u./rad, and its J is no larger than J at the true state; `oracle/wls.py`, independent of every tool).
+
+### Scoreboard
+
+| tool | transmission `.m` | distribution `.m` |
+|---|---:|---:|
+| pandapower | 5 / 2 / 8 | 7 / 0 / 5 |
+| power-grid-model | 4 / 7 / 4 | 8 / 4 / 0 |
+| VeraGrid | 2 / 4 / 9 | 0 / 12 / 0 |
+| Sparlectra.jl | 10 / 5 / 0 | 8 / 4 / 0 |
+
+### Warm estimate
+
+Median of repeated estimates on one persistent model, flat start every time, in ms; the fastest ✓ in each row in bold.
+
+#### Transmission grids (meshed)
+
+| case | buses | pandapower | power-grid-model | VeraGrid | Sparlectra.jl |
+|---|---:|---:|---:|---:|---:|
+| case14~exact | 14 | 21.2 ✓ | **0.144 ✓** | 26.8 ✓ | 0.255 ✓ |
+| case118~exact | 118 | 31.1 ✓ | **0.546 ✓** | 154.3 ✗²⁷ | 8.245 ✓ |
+| case118~noisy | 118 | FAILED²⁸ | 0.573 ✗²⁹ | 44.4 ✓ | **23.6 ✓** |
+| case300~exact | 300 | 103.1 ✗³⁰ | **1.428 ✓** | 281.5 ✗²⁷ | 53.1 ✓ |
+| case300~noisy | 300 | FAILED²⁸ | 1.315 ✗²⁹ | 274.9 ✗²⁷ | **130.2 ✓** |
+| case1354pegase~exact | 1,354 | 99.3 ✓ | 5.606 ✗²⁹ | FAILED³¹ | **59.1 ✓** |
+| case1354pegase~noisy | 1,354 | **129.4 ✓** | 9.978 ✗²⁹ | FAILED³¹ | 77.3 ✗³² |
+| case2848rte~exact | 2,848 | FAILED³³ | FAILED⁴ | FAILED³¹ | **403.8 ✓** |
+| case2848rte~noisy | 2,848 | FAILED²⁸ | FAILED¹⁰ | FAILED³¹ | 509.2 ✗³² |
+| case2869pegase~exact | 2,869 | **252.7 ✓** | 16.2 ✗²⁹ | FAILED³¹ | 364.0 ✓ |
+| case2869pegase~noisy | 2,869 | FAILED²⁸ | 27.3 ✗²⁹ | 5,375 ✗²⁷ | 365.9 ✗³² |
+| case3120sp~exact | 3,120 | FAILED³³ | **13.3 ✓** | FAILED³¹ | 277.8 ✓ |
+| case3120sp~noisy | 3,120 | 665.5 ✗³⁰ | FAILED⁴ | FAILED³¹ | 319.2 ✗³² |
+| case9241pegase~exact | 9,241 | FAILED³³ | 75.5 ✗²⁹ | FAILED³¹ | **1,950 ✓** |
+| case9241pegase~noisy | 9,241 | FAILED²⁸ | FAILED⁴ | FAILED³¹ | 2,010 ✗³² |
+
+#### Distribution grids (radial)
+
+| case | buses | pandapower | power-grid-model | VeraGrid | Sparlectra.jl |
+|---|---:|---:|---:|---:|---:|
+| case4_dist~exact | 4 | 18.5 ✓ | 0.102 ✓ | 119.4 ✗²⁷ | **0.060 ✓** |
+| case4_dist~noisy | 4 | 30.2 ✓ | 0.102 ✓ | 112.2 ✗²⁷ | **0.067 ✓** |
+| case18~exact | 18 | 20.3 ✓ | **0.119 ✓** | 81.3 ✗²⁷ | 0.305 ✓ |
+| case18~noisy | 18 | FAILED²⁸ | 0.131 ✗²⁹ | 128.0 ✗²⁷ | **0.599 ✓** |
+| case33bw~exact | 33 | 18.1 ✓ | **0.125 ✓** | 96.3 ✗²⁷ | 0.626 ✓ |
+| case33bw~noisy | 33 | 24.6 ✓ | **0.135 ✓** | 71.1 ✗²⁷ | 1.189 ✗³² |
+| mvlv1004~exact | 1,004 | 46.7 ✓ | **1.937 ✓** | 574.1 ✗²⁷ | 19.5 ✓ |
+| mvlv1004~noisy | 1,004 | FAILED²⁸ | 3.525 ✗²⁹ | 360.3 ✗²⁷ | 41.7 ✗³² |
+| mvlv10616~exact | 10,616 | 981.0 ✓ | **19.7 ✓** | 25,331 ✗²⁷ | 483.4 ✓ |
+| mvlv10616~noisy | 10,616 | FAILED²⁸ | 32.9 ✗²⁹ | 5,386 ✗²⁷ | 841.1 ✗³² |
+| mvlv29840~exact | 29,840 | FAILED³⁴ | **59.3 ✓** | 152,613 ✗²⁷ | 1,119 ✓ |
+| mvlv29840~noisy | 29,840 | FAILED²⁸ | 98.3 ✗²⁹ | 21,387 ✗²⁷ | 2,829 ✗³² |
+
+### Import: file to model, with measurements
+
+#### Transmission grids (meshed)
+
+| case | buses | pandapower | power-grid-model | VeraGrid | Sparlectra.jl |
+|---|---:|---:|---:|---:|---:|
+| case14~exact | 14 | 80.4 | 0.688 | 6.141 | 0.398 |
+| case118~exact | 118 | 83.7 | 2.120 | 24.1 | 1.932 |
+| case118~noisy | 118 | FAILED²⁸ | 3.034 | 23.1 | 2.177 |
+| case300~exact | 300 | 83.9 | 4.556 | 45.3 | 3.620 |
+| case300~noisy | 300 | FAILED²⁸ | 6.396 | 49.2 | 6.264 |
+| case1354pegase~exact | 1,354 | 89.9 | 20.4 | 599.7 | 18.1 |
+| case1354pegase~noisy | 1,354 | 115.4 | 29.9 | 803.7 | 24.4 |
+| case2848rte~exact | 2,848 | 100.8 | 39.5 | 1,238 | 35.5 |
+| case2848rte~noisy | 2,848 | FAILED²⁸ | 56.7 | 1,047 | 74.4 |
+| case2869pegase~exact | 2,869 | 99.7 | 46.5 | 1,508 | 39.9 |
+| case2869pegase~noisy | 2,869 | FAILED²⁸ | 69.0 | 1,490 | 65.6 |
+| case3120sp~exact | 3,120 | 97.5 | 41.0 | 1,328 | 36.0 |
+| case3120sp~noisy | 3,120 | 152.2 | 58.7 | 1,362 | 58.0 |
+| case9241pegase~exact | 9,241 | 141.7 | 152.0 | 4,471 | 220.4 |
+| case9241pegase~noisy | 9,241 | FAILED²⁸ | 267.2 | 5,527 | 258.0 |
+
+#### Distribution grids (radial)
+
+| case | buses | pandapower | power-grid-model | VeraGrid | Sparlectra.jl |
+|---|---:|---:|---:|---:|---:|
+| case4_dist~exact | 4 | 77.5 | 0.516 | 3.838 | 0.246 |
+| case4_dist~noisy | 4 | 78.5 | 0.519 | 3.729 | 0.278 |
+| case18~exact | 18 | 78.1 | 0.659 | 5.196 | 0.404 |
+| case18~noisy | 18 | FAILED²⁸ | 0.772 | 6.144 | 0.439 |
+| case33bw~exact | 33 | 77.3 | 1.393 | 7.343 | 0.525 |
+| case33bw~noisy | 33 | 78.5 | 1.518 | 7.592 | 0.617 |
+| mvlv1004~exact | 1,004 | 86.6 | 14.2 | 489.6 | 11.7 |
+| mvlv1004~noisy | 1,004 | FAILED²⁸ | 17.9 | 505.0 | 13.4 |
+| mvlv10616~exact | 10,616 | 136.1 | 159.3 | 4,485 | 155.7 |
+| mvlv10616~noisy | 10,616 | FAILED²⁸ | 205.1 | 4,448 | 178.8 |
+| mvlv29840~exact | 29,840 | 256.3 | 459.2 | 13,375 | 659.4 |
+| mvlv29840~noisy | 29,840 | FAILED²⁸ | 601.7 | 14,635 | 768.0 |
+
+### Accuracy
+
+Largest entry of one Gauss-Newton step from the estimate (p.u./rad; 0 at the optimum) · J over J at the true state (below 1 with noise: the optimum fits the measurements better than the truth; `~exact` cases show J itself) · largest |ΔV| from the true state (p.u., information only).
+
+#### Transmission grids (meshed)
+
+| case | buses | pandapower | power-grid-model | VeraGrid | Sparlectra.jl |
+|---|---:|---:|---:|---:|---:|
+| case14~exact | 14 | 5e-16 · J 5e-23 · 1e-15 | 2e-15 · J 1e-22 · 1e-15 | 2e-15 · J 2e-22 · 4e-16 | 5e-12 · J 6e-17 · 3e-12 |
+| case118~exact | 118 | 9e-15 · J 1e-20 · 2e-15 | 3e-14 · J 2e-19 · 1e-14 | 3e-01 · J 1e+03 · 1e-02 ✗ | 7e-11 · J 5e-15 · 9e-12 |
+| case118~noisy | 118 | failed | 1e-04 · J/J* 0.705 · 2e-03 ✗ | 1e-12 · J/J* 0.680 · 2e-03 | 2e-07 · J/J* 0.680 · 2e-03 |
+| case300~exact | 300 | 3e-01 · J 3e+08 · 1e-01 ✗ | 2e-13 · J 2e-18 · 2e-14 | 6e-01 · J 2e+04 · 6e-02 ✗ | 3e-11 · J 3e-14 · 3e-12 |
+| case300~noisy | 300 | failed | 3e-03 · J/J* 0.699 · 6e-03 ✗ | 4e-01 · J/J* 75.397 · 4e-02 ✗ | 3e-07 · J/J* 0.592 · 6e-03 |
+| case1354pegase~exact | 1,354 | 2e-13 · J 2e-16 · 5e-14 | 2e-03 · J 2e+05 · 7e-05 ✗ | failed | 2e-12 · J 5e-16 · 2e-13 |
+| case1354pegase~noisy | 1,354 | 2e-11 · J/J* 0.603 · 9e-04 | 2e-03 · J/J* 22.613 · 9e-04 ✗ | failed | 4e-06 · J/J* 0.603 · 9e-04 ✗ |
+| case2848rte~exact | 2,848 | failed | failed | failed | 2e-11 · J 2e-15 · 2e-13 |
+| case2848rte~noisy | 2,848 | failed | failed | failed | 3e-06 · J/J* 0.586 · 2e-03 ✗ |
+| case2869pegase~exact | 2,869 | 2e-13 · J 4e-16 · 9e-14 | 4e-03 · J 2e+06 · 2e-04 ✗ | failed | 5e-09 · J 1e-10 · 3e-10 |
+| case2869pegase~noisy | 2,869 | failed | 4e-03 · J/J* 106.921 · 3e-03 ✗ | 1e+00 · J/J* 356.234 · 2e-01 ✗ | 2e-05 · J/J* 0.628 · 3e-03 ✗ |
+| case3120sp~exact | 3,120 | failed | 7e-13 · J 2e-15 · 5e-13 | failed | 4e-09 · J 2e-10 · 6e-10 |
+| case3120sp~noisy | 3,120 | 3e-01 · J/J* 1006392.925 · 3e-01 ✗ | failed | failed | 3e-06 · J/J* 0.556 · 9e-04 ✗ |
+| case9241pegase~exact | 9,241 | failed | 4e-03 · J 2e+06 · 4e-04 ✗ | failed | 2e-08 · J 6e-10 · 2e-09 |
+| case9241pegase~noisy | 9,241 | failed | failed | failed | 8e-06 · J/J* 0.639 · 2e-03 ✗ |
+
+#### Distribution grids (radial)
+
+| case | buses | pandapower | power-grid-model | VeraGrid | Sparlectra.jl |
+|---|---:|---:|---:|---:|---:|
+| case4_dist~exact | 4 | 3e-16 · J 1e-21 · 2e-16 | 3e-16 · J 2e-22 · 2e-16 | 2e-02 · J 2e+04 · 2e-02 ✗ | 3e-13 · J 4e-17 · 3e-13 |
+| case4_dist~noisy | 4 | 4e-16 · J/J* 0.442 · 4e-04 | 8e-13 · J/J* 0.442 · 4e-04 | 2e-01 · J/J* 2026.215 · 2e-01 ✗ | 1e-08 · J/J* 0.442 · 4e-04 |
+| case18~exact | 18 | 2e-15 · J 7e-21 · 3e-15 | 6e-15 · J 3e-20 · 6e-15 | 1e-01 · J 5e+04 · 1e-02 ✗ | 2e-14 · J 6e-20 · 2e-14 |
+| case18~noisy | 18 | failed | 1e-03 · J/J* 0.604 · 5e-03 ✗ | 4e-01 · J/J* 857.882 · 4e-01 ✗ | 1e-06 · J/J* 0.482 · 6e-03 |
+| case33bw~exact | 33 | 3e-15 · J 4e-21 · 5e-15 | 1e-14 · J 8e-21 · 5e-15 | 4e-02 · J 8e+03 · 4e-02 ✗ | 6e-15 · J 8e-21 · 9e-15 |
+| case33bw~noisy | 33 | 6e-12 · J/J* 0.528 · 1e-03 | 6e-12 · J/J* 0.528 · 1e-03 | 8e-02 · J/J* 363.247 · 8e-02 ✗ | 5e-06 · J/J* 0.528 · 1e-03 ✗ |
+| mvlv1004~exact | 1,004 | 6e-14 · J 2e-21 · 9e-16 | 1e-13 · J 8e-21 · 5e-15 | 3e-01 · J 6e+03 · 9e-03 ✗ | 5e-13 · J 2e-21 · 9e-15 |
+| mvlv1004~noisy | 1,004 | failed | 2e-02 · J/J* 0.711 · 5e-02 ✗ | 3e-01 · J/J* 1.826 · 3e-01 ✗ | 2e-06 · J/J* 0.500 · 6e-02 ✗ |
+| mvlv10616~exact | 10,616 | 1e-13 · J 3e-21 · 2e-15 | 2e-13 · J 4e-21 · 2e-15 | 3e-01 · J 3e+03 · 8e-03 ✗ | 1e-12 · J 1e-20 · 2e-14 |
+| mvlv10616~noisy | 10,616 | failed | 2e-02 · J/J* 0.746 · 4e-02 ✗ | 2e-01 · J/J* 1.011 · 3e-01 ✗ | 1e-05 · J/J* 0.502 · 4e-02 ✗ |
+| mvlv29840~exact | 29,840 | failed | 2e-13 · J 1e-20 · 3e-15 | 2e-01 · J 8e+02 · 6e-03 ✗ | 4e-10 · J 7e-15 · 4e-11 |
+| mvlv29840~noisy | 29,840 | failed | 2e-02 · J/J* 0.750 · 4e-02 ✗ | 2e-01 · J/J* 0.727 · 2e-01 ✗ | 1e-05 · J/J* 0.501 · 4e-02 ✗ |
+
+### Environment
+
+Machine: AMD Ryzen 7 250 w/ Radeon 780M Graphics, 16 logical CPUs; Linux 7.0.0-34-generic; Python 3.13.14.
+
+| tool | version | core | settings | commit | run |
+|---|---:|---:|---:|---:|---:|
+| pandapower | 3.3.3 | python | algorithm=wls, init=flat, zero_injection=None, tolerance=1e-08, maximum_iterations=30 | d5c3341594c0 | 2026-09-26T16:21 |
+| power-grid-model | 1.13.172 | c++ | calculation_method=newton_raphson, error_tolerance=1e-08, max_iterations=30 | d5c3341594c0 | 2026-09-26T15:31 |
+| VeraGrid | 6.5.29 | python | solver=LM, init=flat, fixed_slack=False, observability_analysis=False, pseudo_measurements=False, bad_data=False, tol=1e-08, max_iter=30 | d5c3341594c0 | 2026-09-26T16:12 |
+| Sparlectra.jl | 0.17.3 | julia | method=wls, init=flat, bad_data=False, robust=False, parameter_estimation=False, tol=1e-08, jac=finite differences, jac_eps=1e-6, max_iter=30 | d5c3341594c0 | 2026-09-26T16:16 |
+
 ## Notes
 
 Wrong solutions are grouped by tool and input, failures by tool and message (numbers that differ per case shown as …). Each note lists every case it covers.
@@ -288,7 +433,7 @@ Wrong solutions are grouped by tool and input, failures by tool and message (num
     - case14@cimoxide: fails at 4 other PQ buses; 4 PV buses; 1 the slack bus; max |ΔP| 5.99 MW, max |ΔQ| 1.81 MVAr; |V| off its setpoint by 0.0788 p.u. (worst: bus 5)
     - case1354pegase@cimoxide: fails at 259 PV buses; 199 other PQ buses; 1 the slack bus; max |ΔP| 2.11e+03 MW, max |ΔQ| 515 MVAr; |V| off its setpoint by 0.787 p.u. (worst: bus 432)
     - case2848rte@cimoxide: fails at 766 other PQ buses; 370 PV buses; 9 PV buses whose generators are all offline (MATPOWER solves them as PQ; an offline generator is still regulating); 7 PQ buses with an online generator (MATPOWER: a fixed P/Q injection; the generator is regulating voltage against the case); 1 the slack bus; max |ΔP| 1.44e+03 MW, max |ΔQ| 264 MVAr; |V| off its setpoint by 0.173 p.u. (worst: bus 2655)
-4. FAILED · **power-grid-model**: `DidNotConverge: IterationDiverge: Iteration failed to converge after … iterations! Max deviation: …, error tolerance: ….`: case118, case300, case2848rte, case1888rte
+4. FAILED · **power-grid-model**: `DidNotConverge: IterationDiverge: Iteration failed to converge after … iterations! Max deviation: …, error tolerance: ….`: case118, case300, case2848rte, case1888rte, case2848rte~exact, case3120sp~noisy, case9241pegase~noisy
 5. ✗ · **pypowsybl (OpenLoadFlow), `.m`**
     - case118: fails at 2 other PQ buses; max |ΔP| 9.24e-12 MW, max |ΔQ| 8.26 MVAr (worst: bus 68)
     - case300: fails at 41 other PQ buses; max |ΔP| 0.124 MW, max |ΔQ| 80.1 MVAr (worst: bus 126)
@@ -309,7 +454,7 @@ Wrong solutions are grouped by tool and input, failures by tool and message (num
     - case300@cimoxide: fails at 2 other PQ buses; max |ΔP| 16.4 MW, max |ΔQ| 6.84 MVAr (worst: bus 1201)
     - case3120sp@cimoxide: fails at 14 other PQ buses; max |ΔP| 3.16 MW, max |ΔQ| 5.57 MVAr (worst: bus 2954)
     - case9241pegase@cimoxide: fails at 96 other PQ buses; 50 PV buses; max |ΔP| 1.74e+03 MW, max |ΔQ| 693 MVAr (worst: bus 7928)
-10. FAILED · **power-grid-model**: `DidNotConverge: SparseMatrixError: Sparse matrix error, possibly singular matrix!`: case1354pegase, case2869pegase, case3120sp, case9241pegase, case6495rte
+10. FAILED · **power-grid-model**: `DidNotConverge: SparseMatrixError: Sparse matrix error, possibly singular matrix!`: case1354pegase, case2869pegase, case3120sp, case9241pegase, case6495rte, case2848rte~noisy
 11. FAILED · **Sienna (PowerFlows.jl)**: `JuliaError: KeyError: key "base_voltage_from" not found`: case1354pegase, case2869pegase, case9241pegase
 12. ✗ · **lightsim2grid (KLU), `.m`**
     - case2848rte: fails at 48 PQ buses with an online generator (MATPOWER: a fixed P/Q injection; the generator is regulating voltage against the case); max |ΔP| 5.68e-10 MW, max |ΔQ| 236 MVAr (worst: bus 1122)
@@ -335,6 +480,52 @@ Wrong solutions are grouped by tool and input, failures by tool and message (num
 24. FAILED · **PyPSA**: `DidNotConverge: pf did not converge after … iterations`: case1888rte, case6495rte
 25. FAILED · **Sienna (PowerFlows.jl)**: `DidNotConverge: NR did not converge in … iterations`: case1888rte, case6495rte
 26. FAILED · **MATPOWER (Octave)**: `DidNotConverge: runpf did not converge in … iterations`: case1888rte, case6495rte
+27. ✗ · **VeraGrid, state estimation**
+    - case118~exact: a Gauss-Newton step from the estimate still moves it by 0.27 p.u./rad; J = 1279 exceeds J at the true state (1.098e-21) (|ΔV| from the true state up to 0.011 p.u.)
+    - case300~exact: a Gauss-Newton step from the estimate still moves it by 0.61 p.u./rad; J = 1.891e+04 exceeds J at the true state (2.51e-21) (|ΔV| from the true state up to 0.058 p.u.)
+    - case300~noisy: a Gauss-Newton step from the estimate still moves it by 0.39 p.u./rad; J = 1.122e+05 exceeds J at the true state (1488) (|ΔV| from the true state up to 0.041 p.u.)
+    - case2869pegase~noisy: a Gauss-Newton step from the estimate still moves it by 1.1 p.u./rad; J = 5.524e+06 exceeds J at the true state (1.551e+04) (|ΔV| from the true state up to 0.22 p.u.)
+    - case4_dist~exact: a Gauss-Newton step from the estimate still moves it by 0.02 p.u./rad; J = 1.606e+04 exceeds J at the true state (7.553e-23) (|ΔV| from the true state up to 0.02 p.u.)
+    - case4_dist~noisy: a Gauss-Newton step from the estimate still moves it by 0.16 p.u./rad; J = 3.157e+04 exceeds J at the true state (15.58) (|ΔV| from the true state up to 0.17 p.u.)
+    - case18~exact: a Gauss-Newton step from the estimate still moves it by 0.12 p.u./rad; J = 4.689e+04 exceeds J at the true state (1.227e-21) (|ΔV| from the true state up to 0.013 p.u.)
+    - case18~noisy: a Gauss-Newton step from the estimate still moves it by 0.45 p.u./rad; J = 6.282e+04 exceeds J at the true state (73.23) (|ΔV| from the true state up to 0.43 p.u.)
+    - case33bw~exact: a Gauss-Newton step from the estimate still moves it by 0.044 p.u./rad; J = 8404 exceeds J at the true state (2.103e-22) (|ΔV| from the true state up to 0.044 p.u.)
+    - case33bw~noisy: a Gauss-Newton step from the estimate still moves it by 0.08 p.u./rad; J = 4.178e+04 exceeds J at the true state (115) (|ΔV| from the true state up to 0.083 p.u.)
+    - mvlv1004~exact: a Gauss-Newton step from the estimate still moves it by 0.3 p.u./rad; J = 6320 exceeds J at the true state (1.447e-22) (|ΔV| from the true state up to 0.0085 p.u.)
+    - mvlv1004~noisy: a Gauss-Newton step from the estimate still moves it by 0.26 p.u./rad; J = 7116 exceeds J at the true state (3897) (|ΔV| from the true state up to 0.3 p.u.)
+    - mvlv10616~exact: a Gauss-Newton step from the estimate still moves it by 0.28 p.u./rad; J = 3066 exceeds J at the true state (3.111e-22) (|ΔV| from the true state up to 0.0082 p.u.)
+    - mvlv10616~noisy: a Gauss-Newton step from the estimate still moves it by 0.22 p.u./rad; J = 4.287e+04 exceeds J at the true state (4.241e+04) (|ΔV| from the true state up to 0.26 p.u.)
+    - mvlv29840~exact: a Gauss-Newton step from the estimate still moves it by 0.23 p.u./rad; J = 781.5 exceeds J at the true state (9.019e-22) (|ΔV| from the true state up to 0.006 p.u.)
+    - mvlv29840~noisy: a Gauss-Newton step from the estimate still moves it by 0.18 p.u./rad (|ΔV| from the true state up to 0.19 p.u.)
+28. FAILED · **pandapower**: `CaseUnsupported: branch row … became a pandapower impedance, which the estimator takes no measurement on`: case118~noisy, case300~noisy, case2848rte~noisy, case2869pegase~noisy, case9241pegase~noisy, case18~noisy, mvlv1004~noisy, mvlv10616~noisy, mvlv29840~noisy
+29. ✗ · **power-grid-model, state estimation**
+    - case118~noisy: a Gauss-Newton step from the estimate still moves it by 9.7e-05 p.u./rad (|ΔV| from the true state up to 0.0019 p.u.)
+    - case300~noisy: a Gauss-Newton step from the estimate still moves it by 0.0025 p.u./rad (|ΔV| from the true state up to 0.0056 p.u.)
+    - case1354pegase~exact: a Gauss-Newton step from the estimate still moves it by 0.0015 p.u./rad; J = 1.533e+05 exceeds J at the true state (4.147e-17) (|ΔV| from the true state up to 7e-05 p.u.)
+    - case1354pegase~noisy: a Gauss-Newton step from the estimate still moves it by 0.0015 p.u./rad; J = 1.587e+05 exceeds J at the true state (7019) (|ΔV| from the true state up to 0.00091 p.u.)
+    - case2869pegase~exact: a Gauss-Newton step from the estimate still moves it by 0.0037 p.u./rad; J = 1.64e+06 exceeds J at the true state (4.015e-17) (|ΔV| from the true state up to 0.0002 p.u.)
+    - case2869pegase~noisy: a Gauss-Newton step from the estimate still moves it by 0.0035 p.u./rad; J = 1.658e+06 exceeds J at the true state (1.551e+04) (|ΔV| from the true state up to 0.0033 p.u.)
+    - case9241pegase~exact: a Gauss-Newton step from the estimate still moves it by 0.0043 p.u./rad; J = 2.414e+06 exceeds J at the true state (9.674e-17) (|ΔV| from the true state up to 0.00045 p.u.)
+    - case18~noisy: a Gauss-Newton step from the estimate still moves it by 0.00099 p.u./rad (|ΔV| from the true state up to 0.0051 p.u.)
+    - mvlv1004~noisy: a Gauss-Newton step from the estimate still moves it by 0.019 p.u./rad (|ΔV| from the true state up to 0.053 p.u.)
+    - mvlv10616~noisy: a Gauss-Newton step from the estimate still moves it by 0.021 p.u./rad (|ΔV| from the true state up to 0.037 p.u.)
+    - mvlv29840~noisy: a Gauss-Newton step from the estimate still moves it by 0.019 p.u./rad (|ΔV| from the true state up to 0.041 p.u.)
+30. ✗ · **pandapower, state estimation**
+    - case300~exact: a Gauss-Newton step from the estimate still moves it by 0.27 p.u./rad; J = 3.123e+08 exceeds J at the true state (2.51e-21) (|ΔV| from the true state up to 0.1 p.u.)
+    - case3120sp~noisy: a Gauss-Newton step from the estimate still moves it by 0.3 p.u./rad; J = 1.394e+10 exceeds J at the true state (1.385e+04) (|ΔV| from the true state up to 0.27 p.u.)
+31. FAILED · **VeraGrid**: `DidNotConverge: Levenberg-Marquardt: not converged in … iterations`: case1354pegase~exact, case1354pegase~noisy, case2848rte~exact, case2848rte~noisy, case2869pegase~exact, case3120sp~exact, case3120sp~noisy, case9241pegase~exact, case9241pegase~noisy
+32. ✗ · **Sparlectra.jl, state estimation**
+    - case1354pegase~noisy: a Gauss-Newton step from the estimate still moves it by 4e-06 p.u./rad (|ΔV| from the true state up to 0.00092 p.u.)
+    - case2848rte~noisy: a Gauss-Newton step from the estimate still moves it by 3e-06 p.u./rad (|ΔV| from the true state up to 0.0016 p.u.)
+    - case2869pegase~noisy: a Gauss-Newton step from the estimate still moves it by 1.5e-05 p.u./rad (|ΔV| from the true state up to 0.0031 p.u.)
+    - case3120sp~noisy: a Gauss-Newton step from the estimate still moves it by 3.1e-06 p.u./rad (|ΔV| from the true state up to 0.00092 p.u.)
+    - case9241pegase~noisy: a Gauss-Newton step from the estimate still moves it by 8.3e-06 p.u./rad (|ΔV| from the true state up to 0.0016 p.u.)
+    - case33bw~noisy: a Gauss-Newton step from the estimate still moves it by 5e-06 p.u./rad (|ΔV| from the true state up to 0.00099 p.u.)
+    - mvlv1004~noisy: a Gauss-Newton step from the estimate still moves it by 1.6e-06 p.u./rad (|ΔV| from the true state up to 0.057 p.u.)
+    - mvlv10616~noisy: a Gauss-Newton step from the estimate still moves it by 9.7e-06 p.u./rad (|ΔV| from the true state up to 0.041 p.u.)
+    - mvlv29840~noisy: a Gauss-Newton step from the estimate still moves it by 1.5e-05 p.u./rad (|ΔV| from the true state up to 0.039 p.u.)
+33. FAILED · **pandapower**: `DidNotConverge: WLS not converged in … iterations`: case2848rte~exact, case3120sp~exact, case9241pegase~exact
+34. FAILED · **pandapower**: `_ArrayMemoryError: Unable to allocate … GiB for an array with shape (…, …) and data type float64`: mvlv29840~exact
 
 ## Environment
 
@@ -342,7 +533,7 @@ Machine: AMD Ryzen 7 250 w/ Radeon 780M Graphics, 16 logical CPUs; Linux 7.0.0-3
 
 | tool | version | core | settings | commit | run |
 |---|---:|---:|---:|---:|---:|
-| pandapower | 3.3.3 | python | algorithm=nr, init=flat, enforce_q_lims=False, distributed_slack=False, tolerance_pu=1e-08, max_iteration=30, numba=True, lightsim2grid_backend=False | 007a50a5edb6 | 2026-09-26T11:38 |
+| pandapower | 3.3.3 | python | algorithm=nr, init=flat, enforce_q_lims=False, distributed_slack=False, tolerance_pu=1e-08, max_iteration=30, numba=True, lightsim2grid_backend=False | d5c3341594c0 | 2026-09-26T15:26 |
 | lightsim2grid (KLU) | 1.0.0 | c++ | algorithm=NR_KLU, init=flat, tolerance_pu=1e-08, max_iteration=30 | 007a50a5edb6 | 2026-09-26T11:32 |
 | PyPSA | 1.2.4 | python | algorithm=nr, transformer_model=pi, init=flat, tolerance_pu=1e-08 | 007a50a5edb6 | 2026-09-26T11:49 |
 | power-grid-model | 1.13.172 | c++ | calculation_method=newton_raphson, voltage_regulators=experimental, reactive_limits=False, tolerance_pu=1e-08, max_iteration=30 | 007a50a5edb6 | 2026-09-26T11:38 |

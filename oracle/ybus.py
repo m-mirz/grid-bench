@@ -24,19 +24,13 @@ import scipy.sparse as sp
 from cases.matpower import ANGLE, BR_B, BR_R, BR_STATUS, BR_X, BS, BUS_I, F_BUS, GS, RATIO, T_BUS
 
 
-def make_ybus(mpc: dict, zero_phase_shifts: bool = False) -> tuple[np.ndarray, sp.csr_matrix]:
-    """Returns `(bus_ids, Ybus)`; row `i` of Ybus belongs to `bus_ids[i]`.
-
-    `zero_phase_shifts` is a diagnostic, not a correctness option: it rebuilds
-    Ybus with every branch angle forced to 0, which isolates the one known
-    lossy conversion (a tool that cannot represent continuous phase shift).
-    """
+def _branches(mpc: dict, zero_phase_shifts: bool) -> tuple:
+    """In-service branches: their rows in `mpc["branch"]`, from/to bus
+    positions, and the four pi-model admittances."""
     bus, branch = mpc["bus"], mpc["branch"]
-    base_mva = float(mpc["baseMVA"])
-    ids = bus[:, BUS_I].astype(int)
-    pos = {b: i for i, b in enumerate(ids)}
-
-    br = branch[branch[:, BR_STATUS] != 0]
+    pos = {int(b): i for i, b in enumerate(bus[:, BUS_I])}
+    rows = np.flatnonzero(branch[:, BR_STATUS] != 0)
+    br = branch[rows]
     f = np.array([pos[int(b)] for b in br[:, F_BUS]], dtype=int)
     t = np.array([pos[int(b)] for b in br[:, T_BUS]], dtype=int)
     ys = 1.0 / (br[:, BR_R] + 1j * br[:, BR_X])
@@ -49,6 +43,30 @@ def make_ybus(mpc: dict, zero_phase_shifts: bool = False) -> tuple[np.ndarray, s
     yff = ytt / (tap * np.conj(tap))
     yft = -ys / np.conj(tap)
     ytf = -ys / tap
+    return rows, f, t, yff, yft, ytf, ytt
+
+
+def make_yf(mpc: dict) -> tuple[np.ndarray, np.ndarray, sp.csr_matrix]:
+    """Returns `(branch_rows, from_pos, Yf)`: row `k` of Yf gives the current
+    into in-service branch `branch_rows[k]` (its row in `mpc["branch"]`) at
+    its from bus, `from_pos[k]`, as `Yf @ V`. MATPOWER's `makeYbus.m` Yf."""
+    rows, f, t, yff, yft, _, _ = _branches(mpc, False)
+    k = np.arange(len(rows))
+    yf = sp.csr_matrix((np.r_[yff, yft], (np.r_[k, k], np.r_[f, t])), shape=(len(rows), len(mpc["bus"])))
+    return rows, f, yf
+
+
+def make_ybus(mpc: dict, zero_phase_shifts: bool = False) -> tuple[np.ndarray, sp.csr_matrix]:
+    """Returns `(bus_ids, Ybus)`; row `i` of Ybus belongs to `bus_ids[i]`.
+
+    `zero_phase_shifts` is a diagnostic, not a correctness option: it rebuilds
+    Ybus with every branch angle forced to 0, which isolates the one known
+    lossy conversion (a tool that cannot represent continuous phase shift).
+    """
+    bus = mpc["bus"]
+    base_mva = float(mpc["baseMVA"])
+    ids = bus[:, BUS_I].astype(int)
+    _, f, t, yff, yft, ytf, ytt = _branches(mpc, zero_phase_shifts)
 
     n = len(ids)
     ysh = (bus[:, GS] + 1j * bus[:, BS]) / base_mva

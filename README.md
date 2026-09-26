@@ -19,17 +19,7 @@ v1 covers AC power flow in ten tool setups:
 through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
 **Results:** [`results-docker/comparison.md`](results-docker/comparison.md) ·
-[site](docs/index.html) (sortable, filterable, with hover detail)
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="results-docker/graphs/solve_matpower-dark.svg">
-  <img alt="Warm AC power-flow solve time versus buses, log-log, one line per tool" src="results-docker/graphs/solve_matpower.svg">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="results-docker/graphs/memory_matpower-dark.svg">
-  <img alt="Peak memory added by loading and solving versus buses, log-log, one line per tool" src="results-docker/graphs/memory_matpower.svg">
-</picture>
+[site](docs/index.html) (charts of time and memory against case size, sortable and filterable tables, hover detail)
 
 ## What it found
 
@@ -124,6 +114,26 @@ docstring justifies each setting and what it deliberately does not do:
   Everything a build fetches is pinned (images by digest, packages by
   lockfile, downloads by SHA-256; see [AGENTS.md](AGENTS.md#pinning)), and
   tool releases are at least a week old (one documented exception).
+
+## State estimation
+
+Weighted least-squares state estimation for pandapower, power-grid-model,
+VeraGrid and Sparlectra.jl, on the same MATPOWER cases. Each case gets a
+measurement set generated from its own power flow, which is solved tool-free
+by `cases/truth.py` and checked by the tier-1 residual. There are two
+scenarios. `~exact` measures |V| and P/Q injections at every bus without
+noise, so its optimum is the true state. `~noisy` measures |V| at generator
+buses, P/Q injections at every bus and P/Q flows at every branch's from end,
+with seeded Gaussian noise and per-measurement sigmas.
+
+The oracle (`oracle/wls.py`) does not solve the problem itself. It rebuilds
+h(x) and the Jacobian from the `.m` and accepts an estimate when one
+Gauss-Newton step from it moves it by at most 1e-6 and its J is no larger
+than J at the true state. The error against the true state is recorded for
+information only: with noise, the right answer is the WLS optimum, not the
+truth. MATPOWER's own estimator (`extras/se`) cannot state this problem: it
+takes one sigma per measurement class and injections only at generators.
+`adapters/estimator_adapter.py` explains why.
 
 ## Cases
 

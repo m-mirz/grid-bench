@@ -192,7 +192,9 @@ class _IdCounter:
         return self._next
 
 
-def convert(mat_path: Path, output_path: Path) -> None:
+def convert(mat_path: Path, output_path: Path) -> dict[int, int]:
+    """Writes the PGM JSON and returns `{branch row: PGM line or transformer
+    id}` (grid-bench addition: the join for branch sensors)."""
     mpc = load_mpc(mat_path)
     next_id = _IdCounter()
     base_mva = float(mpc["baseMVA"])
@@ -303,6 +305,7 @@ def convert(mat_path: Path, output_path: Path) -> None:
 
     lines = []
     transformers = []
+    branch_ids = {}
     for row in range(len(branch)):
         if branch[row, BR_STATUS] == 0:
             continue
@@ -324,7 +327,8 @@ def convert(mat_path: Path, output_path: Path) -> None:
             # "possibly singular matrix" error during PowerGridModel
             # construction. MATPOWER has no equivalent loss-angle concept,
             # so 0.0 (lossless shunt) is the only sensible value.
-            lines.append({"id": next_id(), "from_node": f_id, "to_node": t_id,
+            branch_ids[row] = next_id()
+            lines.append({"id": branch_ids[row], "from_node": f_id, "to_node": t_id,
                            "from_status": 1, "to_status": 1,
                            "r1": r_ohm, "x1": x_ohm, "c1": c1, "tan1": 0.0,
                            "r0": r_ohm, "x0": x_ohm, "c0": c1, "tan0": 0.0})
@@ -376,8 +380,9 @@ def convert(mat_path: Path, output_path: Path) -> None:
         else:
             tap_pos, tap_nom = 0, 1
             tap_size = U_RATED_UNIFORM * (1.0 - effective_ratio)
+        branch_ids[row] = next_id()
         transformers.append({
-            "id": next_id(), "from_node": f_id, "to_node": t_id,
+            "id": branch_ids[row], "from_node": f_id, "to_node": t_id,
             "from_status": 1, "to_status": 1,
             "u1": U_RATED_UNIFORM, "u2": U_RATED_UNIFORM,
             "sn": sn, "uk": uk, "pk": pk, "i0": 0.0, "p0": 0.0,
@@ -414,6 +419,7 @@ def convert(mat_path: Path, output_path: Path) -> None:
         },
     }
     output_path.write_text(json.dumps(output))
+    return branch_ids
 
 
 def main(argv: list[str] | None = None) -> None:

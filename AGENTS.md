@@ -7,7 +7,9 @@ Contributor guide for grid-bench (people and coding agents alike).
 A benchmark of power system analysis software. v1 covers AC power flow for
 pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl, VeraGrid,
 Sienna (PowerFlows.jl) and Sparlectra.jl (both Julia, through juliacall),
-MATPOWER (GNU Octave), and power-grid-model on CGMES through cgmes2pgm. The
+MATPOWER (GNU Octave), and power-grid-model on CGMES through cgmes2pgm, and
+weighted least-squares state estimation for pandapower, power-grid-model,
+VeraGrid and Sparlectra.jl. The
 infrastructure follows cim-bench (adapters, one container per tool, JSON as
 the only contract between measuring and reporting). The methodology follows
 gridoxide's `scripts/bench` (warm solves on persistent models, justified
@@ -25,8 +27,13 @@ settings, a tool-independent oracle).
 3. **Same problem for every tool** (see `adapters/solver_adapter.py`): flat
    start on every solve, single slack, no reactive limits, no outer-loop
    controls, generator voltage regulation as the case defines it, tolerance
-   `TOLERANCE_PU`. Every setting in an adapter gets one sentence of
-   justification in its docstring, including what it deliberately does not do.
+   `TOLERANCE_PU`. State estimation (`adapters/estimator_adapter.py`): plain
+   WLS over the case's measurement set as given, each measurement with its
+   own sigma, flat start, the slack angle as the only reference, no
+   pseudo-measurements or zero-injection constraints, no bad-data handling,
+   tolerance `SE_TOLERANCE` on the state update. Every setting in an adapter
+   gets one sentence of justification in its docstring, including what it
+   deliberately does not do.
 4. **Report, don't fix.** When a tool's importer changes the problem (the
    oracle shows a residual), document it in the adapter docstring and leave it.
    Only change input data if the change provably leaves the power-flow
@@ -43,27 +50,30 @@ settings, a tool-independent oracle).
 ## Layout
 
 ```
-cases/       registry.py (every case: groups, family, grid), matpower.py (.m reader), prep.py (tool inputs),
+cases/       registry.py (every case: groups, family, grid, problem), matpower.py (.m reader), prep.py (tool inputs),
+             truth.py (the power flow behind a state-estimation case), measurements.py (its measurement sets),
              gridoxide_matpower.py (vendored MATPOWER->PGM converter, gridoxide 0.0.2),
              matpower_to_cgmes.py (cimoxide converter), convert_pypowsybl.py (pypowsybl converter)
-oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), evaluate.py (entry point),
+oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), wls.py (state estimation), evaluate.py (entry point),
              cgmes_model.py (tool-free CGMES reader: TN->bus join, converter fidelity),
              check_conversion.py (writes conversion.json)
-adapters/    solver_adapter.py (the ABC), <tool>_adapter.py, cgmes_ids.py, memory.py,
+adapters/    solver_adapter.py (the ABCs), <tool>_adapter.py, estimator_adapter.py + <tool>_se_adapter.py
+             (state estimation), cgmes_ids.py, memory.py,
              octave_session.py + matpower_octave/ (MATPOWER's Octave side, timed inside Octave)
 benchmarks/  benchmark_template.py (generates tests), conftest.py (selection, failures, metadata),
-             <tool>_benchmark.py (3 lines each)
-tools/       benchmark_data.py (loader, grids, scoreboard) + generate_{comparison,graphs,site,all}.py,
+             <tool>_benchmark.py, <tool>_se_benchmark.py (3 lines each)
+tools/       benchmark_data.py (loader, grids, scoreboard) + generate_{comparison,site,all}.py,
              palette.py, check_smoke.py (CI's smoke outcomes)
 tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned exactly)
 tool-configs/matpower/Dockerfile      the official Octave image + uv Python + the MATPOWER release
 tool-configs/sienna/Dockerfile, julia/   Julia on top of the base image; Project.toml, Manifest.toml,
              setup.jl (registry snapshot), GridBenchSienna (the adapter's Julia half, precompiled)
-tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra)
+tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
 docker/      base.dockerfile, tool.dockerfile, docker-compose.yml, build.sh, run_*.sh
-tests/       the oracle's own tests, and the converter's (exactness + planted errors)
+tests/       the oracle's own tests (test_wls.py: the state-estimation oracle), and the converter's
+             (exactness + planted errors)
 data/        submodules: benchmark-grids (MATPOWER), CGMES-Test-Configurations
-results-docker/  published results: <tool>.json, comparison.md, graphs/
+results-docker/  published results: <tool>.json, <tool>-se.json, comparison.md
 docs/index.html  generated site
 ```
 
@@ -110,7 +120,13 @@ internal compose network; the run scripts stop the sidecar afterwards.
    Then check the oracle: on case14 a correct tool shows residuals around
    1e-9 MVA. If it does not, find out why before anything else.
 7. `docker/run_single.sh <tool>` for all default cases, then regenerate reports.
-8. Add the tool's smoke outcomes to `benchmarks/smoke_expectations.json` and
+8. If the tool has a state estimator: `adapters/<tool>_se_adapter.py`
+   subclassing `EstimatorAdapter` (identity taken from the power-flow
+   adapter), registered in `ESTIMATORS`, and `benchmarks/<tool>_se_benchmark.py`
+   (`create_benchmarks("<tool>", "se")`). The run scripts pick it up and
+   write `<tool>-se.json`. On `case14~exact` a correct estimator shows J
+   around 1e-20 and a step around 1e-15: signs, units and branch ends first.
+9. Add the tool's smoke outcomes to `benchmarks/smoke_expectations.json` and
    the tool to the CI matrix (`.github/workflows/smoke.yml`). CI checks each
    smoke case against its known outcome (`tools/check_smoke.py`), including
    expected oracle rejections, so a documented finding is not a CI failure
@@ -121,10 +137,14 @@ internal compose network; the run scripts stop the sidecar afterwards.
 
 `matpower` (meshed transmission), `distribution` (radial feeders and
 generated MV/LV grids, same `.m` format and grading), `cgmes` (conformity
-fixtures, graded against their SV), and `converted-<converter>` (MATPOWER
+fixtures, graded against their SV), `converted-<converter>` (MATPOWER
 cases converted to CGMES, graded by the tier-1 residual against the original
-`.m`). A tool declares the families it reads in `SolverAdapter.families`.
-Converted cases are keyed `<case>@<converter>`. Branch on a case's input
+`.m`), and `se-matpower`, `se-distribution` (state estimation: a case plus
+a measurement scenario, `exact` or `noisy`, generated from the case's own
+power flow and graded by `oracle.wls`). A tool declares the families it
+reads in `SolverAdapter.families`. Converted cases are keyed
+`<case>@<converter>`, state-estimation cases `<case>~<scenario>`; a case's
+`problem` ("pf" or "se") says which adapter solves it. Branch on a case's input
 format with `is_cgmes(case)` (the `format` field), never on its family.
 
 Only exact conversions are solved: `SOLVED_CONVERTERS` in the registry.
@@ -140,8 +160,8 @@ and the checker disagree, check the reading of CGMES against a third party
 
 ## Reports
 
-`tools/generate_all.py` writes `comparison.md`, the charts and
-`docs/index.html` from the JSON in a results directory; run it (or the
+`tools/generate_all.py` writes `comparison.md` and `docs/index.html`
+(whose charts are drawn in the browser from the data embedded in it) from the JSON in a results directory; run it (or the
 `reports` compose service) after any change to `tools/`, and commit what it
 writes. Conventions both pages share:
 
@@ -154,7 +174,8 @@ writes. Conventions both pages share:
   pages. The `robustness` group is shown as "hard transmission cases".
 - In `comparison.md`, notes are grouped by cause: a wrong solution per
   (tool, input), a failure per (tool, message with its numbers dropped).
-- Charts stay per family (one line per tool needs one input at a time).
+- The site's chart shows one input at a time (one line per tool needs one
+  input); for state estimation, the input is the measurement scenario.
 
 ## Adding a case
 

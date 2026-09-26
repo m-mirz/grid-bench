@@ -41,7 +41,12 @@ class Solution:
     extra: dict = field(default_factory=dict)
 
 
-class SolverAdapter(ABC):
+class ToolAdapter(ABC):
+    """What every benchmarked tool declares, whatever problem it solves:
+    identity, versions, and the three calls the benchmark template times.
+    `SolverAdapter` (power flow) and `EstimatorAdapter` (state estimation)
+    say what problem those calls solve."""
+    problem: str                # "pf" | "se", the registry's `problem`
     name: str                   # short id, used in file names and results
     display_name: str
     color: str                  # light-mode hex, a slot of tools/palette.py (fixed per tool)
@@ -61,9 +66,6 @@ class SolverAdapter(ABC):
         on demand). None: this process."""
         return None
 
-    def tags(self) -> list[str]:
-        return ["powerflow", "ac", "newton-raphson", self.language]
-
     def version(self) -> str:
         return version(self.package)
 
@@ -82,6 +84,10 @@ class SolverAdapter(ABC):
         return out
 
     @abstractmethod
+    def tags(self) -> list[str]:
+        """Labels for the result metadata."""
+
+    @abstractmethod
     def load(self, case: str) -> Any:
         """Read the case from disk into the tool's model. Timed as `import`."""
 
@@ -93,3 +99,11 @@ class SolverAdapter(ABC):
     @abstractmethod
     def solution(self, model: Any, case: str) -> Solution:
         """Voltages after the last `solve`. Untimed."""
+
+
+class SolverAdapter(ToolAdapter):
+    """A power-flow solver; see the module docstring for the problem."""
+    problem = "pf"
+
+    def tags(self) -> list[str]:
+        return ["powerflow", "ac", "newton-raphson", self.language]
