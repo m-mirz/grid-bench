@@ -107,6 +107,42 @@ def graded(case: str) -> bool:
     return c["format"] == "matpower" or "source_case" in c
 
 
+def reads(res: Results, tool: str, case: str) -> bool:
+    return CASES[case]["family"] in res.tools[tool]["families"]
+
+
+def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
+    """Per tool, one cell per grid and input: "✓ / ✗ / FAILED" counts of the
+    solves, or "solved of all" where there is no verdict (fixtures); then the
+    robustness cases. `·` where the tool reads none of them. Returns the
+    column labels and (tool, cells) rows, for comparison.md and the site."""
+    columns = []   # (label, cases)
+    for grid in res.grids():
+        cases = res.grid_cases(grid)
+        for label in dict.fromkeys(input_label(c) for c in cases):
+            sub = [c for c in cases if input_label(c) == label]
+            columns.append((f"{grid} {label}" if all(graded(c) for c in sub) else GRID_TITLES[grid], sub))
+    robust = [c for g in res.grids() for c in res.grid_cases(g, robustness=True)]
+    if robust:
+        columns.append(("robustness", robust))
+    rows = []
+    for t in res.tool_order():
+        cells = []
+        for _, cases in columns:
+            mine = [c for c in cases if reads(res, t, c)]
+            recs = [res.get(t, c, "solve") for c in mine]
+            if not mine:
+                cells.append("·")
+            elif all(graded(c) for c in mine):
+                ok = sum(1 for r in recs if r and r.extra["oracle_ok"])
+                bad = sum(1 for r in recs if r and not r.extra["oracle_ok"])
+                cells.append(f"{ok} / {bad} / {len(mine) - ok - bad}")
+            else:
+                cells.append(f"{sum(1 for r in recs if r)} of {len(mine)}")
+        rows.append((t, cells))
+    return [label for label, _ in columns], rows
+
+
 def load(directory: Path) -> Results:
     """Every record of a case in the default groups. A case run by name
     (outside them) stays in its JSON but out of the published reports."""

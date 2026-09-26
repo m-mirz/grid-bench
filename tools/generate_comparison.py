@@ -20,7 +20,8 @@ from pathlib import Path
 import numpy as np
 
 from cases.registry import CASES
-from tools.benchmark_data import GRID_TITLES, Results, case_size, graded, input_label, load_solution
+from tools.benchmark_data import (GRID_TITLES, Results, case_size, graded, input_label, load_solution, reads,
+                                  scoreboard)
 
 
 class Notes:
@@ -78,10 +79,6 @@ def residual_note(e: dict) -> str:
                                                     e["residual_zero_shift_max_dq_mvar"]) < 1e-3:
         parts.append("residual vanishes if phase shifts are zeroed: the tool dropped them")
     return "; ".join(parts) + f" (worst: bus {e['residual_worst_bus']})"
-
-
-def reads(res: Results, tool: str, case: str) -> bool:
-    return CASES[case]["family"] in res.tools[tool]["families"]
 
 
 def failed(res: Results, notes: Notes, tool: str, case: str, operation: str) -> str:
@@ -165,34 +162,9 @@ def robustness_section(res: Results, notes: Notes) -> str:
     return grid_table(res, cases, timing_cells(res, notes, "solve")) if cases else "Not run."
 
 
-def scoreboard(res: Results) -> str:
-    """Per tool: ✓ / ✗ / FAILED on each grid and input (solved of all for
-    fixtures, which have no verdict), then the robustness cases."""
-    columns = []   # (label, cases)
-    for grid in res.grids():
-        cases = res.grid_cases(grid)
-        for label in dict.fromkeys(input_label(c) for c in cases):
-            sub = [c for c in cases if input_label(c) == label]
-            columns.append((f"{grid} {label}" if all(graded(c) for c in sub) else GRID_TITLES[grid], sub))
-    robust = [c for g in res.grids() for c in res.grid_cases(g, robustness=True)]
-    if robust:
-        columns.append(("robustness", robust))
-    rows = []
-    for t in res.tool_order():
-        row = [res.tools[t]["display_name"]]
-        for _, cases in columns:
-            mine = [c for c in cases if reads(res, t, c)]
-            recs = [res.get(t, c, "solve") for c in mine]
-            if not mine:
-                row.append("·")
-            elif all(graded(c) for c in mine):
-                ok = sum(1 for r in recs if r and r.extra["oracle_ok"])
-                bad = sum(1 for r in recs if r and not r.extra["oracle_ok"])
-                row.append(f"{ok} / {bad} / {len(mine) - ok - bad}")
-            else:
-                row.append(f"{sum(1 for r in recs if r)} of {len(mine)}")
-        rows.append(row)
-    return table(["tool"] + [label for label, _ in columns], rows)
+def scoreboard_section(res: Results) -> str:
+    labels, rows = scoreboard(res)
+    return table(["tool"] + labels, [[res.tools[t]["display_name"]] + cells for t, cells in rows])
 
 
 def memory_cells(res: Results):
@@ -329,7 +301,7 @@ def generate(directory: Path, res: Results) -> str:
         "AC power flow on the default cases: ✓ / ✗ / FAILED per grid and input. CGMES fixtures have no verdict "
         "(their reference is someone else's solution): cases solved.",
         "",
-        scoreboard(res),
+        scoreboard_section(res),
         "",
         "## AC power flow: warm solve",
         "",
