@@ -93,7 +93,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <body>
 <main>
 <h1>grid-bench</h1>
-<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in. MATPOWER cases are also converted to CGMES by two converters, and tools are graded on those against the original case.</p>
+<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in. MATPOWER cases are also converted to CGMES, and tools are graded on those against the original case.</p>
 <p class="meta" id="meta"></p>
 
 <div class="controls">

@@ -74,7 +74,7 @@ column is the more interesting one:
 The CGMES fixtures come with a weak reference (someone else's solver and
 settings) and no size ladder between 127 and 6,051 nodes. So the headline
 MATPOWER cases are also converted to CGMES 3.0 twice, and the CGMES-capable
-tools (pandapower, pypowsybl, VeraGrid) solve them, graded by the **tier-1
+tools solve the exact conversion (cimoxide's), graded by the **tier-1
 residual against the original `.m`**. TopologicalNodes are named `BUS-<n>`,
 which joins each tool's voltages back to MATPOWER buses.
 
@@ -96,6 +96,14 @@ that shares no code with either converter, and compares them with the `.m`:
 | injections | exact | exact |
 | voltage setpoints | exact | missing at 100 generators on case3120sp: the importer disables regulation when Qmin = Qmax |
 | slack | written (`referencePriority = 1`) | **not written**: every tool must choose its own |
+
+pypowsybl's export is therefore not the problem in the `.m`, and a tool
+solving it is graded against the `.m`: a ✗ there repeats what the table
+already says about the converter (in the first sweep, 38 of 40 results on
+it were ✗ or failed, most for the missing slack). So its conversions are
+converted and graded as above, but no tool runs on them by default; they
+stay available by name (`--cases case14@pypowsybl`). The findings below
+that mention pypowsybl's export come from that first sweep.
 
 Findings from solving the converted cases, each traced to its cause:
 

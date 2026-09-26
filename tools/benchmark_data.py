@@ -11,7 +11,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from cases.matpower import ISOLATED, parse_m
-from cases.registry import CASES, cgmes_sv_file
+from cases.registry import CASES, DEFAULT_GROUPS, cgmes_sv_file
 from oracle.cgmes_sv import published_voltages
 
 
@@ -71,6 +71,8 @@ FAMILY_TITLES = {
 
 
 def load(directory: Path) -> Results:
+    """Every record of a case in the default groups. A case run by name
+    (outside them) stays in its JSON but out of the published reports."""
     res = Results()
     conversion = Path(directory) / "conversion.json"
     if conversion.exists():
@@ -83,15 +85,21 @@ def load(directory: Path) -> Results:
             continue
         gb = data["grid_bench"]
         res.tools.update(gb["tools"])
-        res.failures.extend(data.get("failures", []))
+        res.failures.extend(f for f in data.get("failures", []) if _published(f["case"]))
         for tool in gb["tools"]:
             res.runs.append({"tool": tool, "datetime": data.get("datetime"), "git_sha": gb.get("git_sha"),
                              "image": gb.get("container_image"), "machine": data.get("machine_info", {})})
         for b in data["benchmarks"]:
             e = b["extra_info"]
+            if not _published(e["case"]):
+                continue
             res.records.append(Record(e["tool"], e["case"], e["family"], e["operation"],
                                       b["stats"]["median"] * 1e3, b["stats"]["min"] * 1e3, b["stats"]["rounds"], e))
     return res
+
+
+def _published(case: str) -> bool:
+    return bool(set(CASES[case]["groups"]) & set(DEFAULT_GROUPS))
 
 
 @lru_cache(maxsize=None)

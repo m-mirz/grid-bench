@@ -54,27 +54,14 @@ Median of repeated solves on one persistent model, flat start every time, in ms,
 | case3120sp@cimoxide | 3,120 | 43.6 ✗⁶³ | 61.8 ✓ | FAILED⁶⁴ | FAILED⁶⁵ | 80.8 ✓ |
 | case9241pegase@cimoxide | 9,241 | 145.9 ✗⁶⁶ | 360.7 ✓ | 470.1 ✗⁶⁷ | FAILED⁶⁸ | FAILED⁶⁹ |
 
-### MATPOWER cases as CGMES, converted with pypowsybl
-
-| case | buses | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sparlectra.jl |
-|---|---:|---:|---:|---:|---:|---:|
-| case14@pypowsybl | 14 | FAILED⁷⁰ | 0.685 ✗⁷¹ | 7.715 ✗⁷² | FAILED⁷³ | 0.136 ✓ |
-| case118@pypowsybl | 118 | FAILED⁷⁴ | 2.176 ✗⁷⁵ | 44.9 ✗⁷⁶ | FAILED⁷⁷ | 1.460 ✗⁷⁸ |
-| case300@pypowsybl | 300 | FAILED⁷⁹ | FAILED⁸⁰ | 119.2 ✗⁸¹ | FAILED⁸² | 4.161 ✗⁸³ |
-| case1354pegase@pypowsybl | 1,354 | FAILED⁸⁴ | 30.7 ✗⁸⁵ | 558.8 ✗⁸⁶ | FAILED⁸⁷ | 26.3 ✗⁸⁸ |
-| case2848rte@pypowsybl | 2,848 | FAILED⁸⁹ | FAILED⁹⁰ | 1,128 ✗⁹¹ | FAILED⁹² | FAILED⁹³ |
-| case2869pegase@pypowsybl | 2,869 | FAILED⁹⁴ | 78.5 ✗⁹⁵ | 1,289 ✗⁹⁶ | FAILED⁹⁷ | FAILED⁹⁸ |
-| case3120sp@pypowsybl | 3,120 | FAILED⁹⁹ | 53.3 ✗¹⁰⁰ | FAILED¹⁰¹ | FAILED¹⁰² | FAILED¹⁰³ |
-| case9241pegase@pypowsybl | 9,241 | FAILED¹⁰⁴ | FAILED¹⁰⁵ | FAILED¹⁰⁶ | FAILED¹⁰⁷ | FAILED¹⁰⁸ |
-
 ## Robustness
 
 Cases known not to converge from a flat start in any tool tested here. Kept out of the tables above; a tool that solves one of these (and passes the oracle) is doing something the others do not.
 
 | case | buses | pandapower | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| case1888rte | 1,888 | FAILED¹⁰⁹ | FAILED¹¹⁰ | FAILED¹¹¹ | FAILED¹¹² | FAILED¹¹³ | FAILED¹¹⁴ | — | FAILED¹¹⁵ | 46.5 ✓ | FAILED¹¹⁶ |
-| case6495rte | 6,495 | FAILED¹¹⁷ | FAILED¹¹⁸ | FAILED¹¹⁹ | FAILED¹²⁰ | FAILED¹²¹ | FAILED¹²² | — | FAILED¹²³ | FAILED¹²⁴ | FAILED¹²⁵ |
+| case1888rte | 1,888 | FAILED⁷⁰ | FAILED⁷¹ | FAILED⁷² | FAILED⁷³ | FAILED⁷⁴ | FAILED⁷⁵ | — | FAILED⁷⁶ | 46.5 ✓ | FAILED⁷⁷ |
+| case6495rte | 6,495 | FAILED⁷⁸ | FAILED⁷⁹ | FAILED⁸⁰ | FAILED⁸¹ | FAILED⁸² | FAILED⁸³ | — | FAILED⁸⁴ | FAILED⁸⁵ | FAILED⁸⁶ |
 
 ## Import: file to model
 
@@ -128,19 +115,6 @@ Median of 3 cold loads after one warm-up load, in ms.
 | case3120sp@cimoxide | 3,120 | 786.9 | 1,056 | 3,934 | 19,392 | 772.3 |
 | case9241pegase@cimoxide | 9,241 | 2,875 | 4,625 | 18,595 | 86,317 | 3,596 |
 
-### MATPOWER cases as CGMES, converted with pypowsybl
-
-| case | buses | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sparlectra.jl |
-|---|---:|---:|---:|---:|---:|---:|
-| case14@pypowsybl | 14 | 301.6 | 21.4 | 20.7 | FAILED⁷³ | 2.150 |
-| case118@pypowsybl | 118 | 345.9 | 80.2 | 160.7 | FAILED⁷⁷ | 18.6 |
-| case300@pypowsybl | 300 | 400.9 | 153.3 | 345.6 | FAILED⁸² | 39.4 |
-| case1354pegase@pypowsybl | 1,354 | 713.0 | 846.6 | 2,626 | FAILED⁸⁷ | 409.0 |
-| case2848rte@pypowsybl | 2,848 | 1,117 | 1,683 | 5,249 | FAILED⁹² | 1,053 |
-| case2869pegase@pypowsybl | 2,869 | 1,319 | 1,738 | 5,924 | FAILED⁹⁷ | 1,118 |
-| case3120sp@pypowsybl | 3,120 | 1,195 | 1,941 | 6,068 | FAILED¹⁰² | 1,354 |
-| case9241pegase@pypowsybl | 9,241 | 3,717 | 6,156 | 22,084 | FAILED¹⁰⁷ | 4,109 |
-
 ## Memory
 
 Peak RSS added by loading and solving the case, in MB, measured in a fresh process; in parentheses, the peak after merely importing the tool. Charts: `graphs/memory_<family>.svg`. Only the benchmark process is measured: cgmes2pgm's Fuseki server is not included.
@@ -193,19 +167,6 @@ Peak RSS added by loading and solving the case, in MB, measured in a fresh proce
 | case3120sp@cimoxide | 115 (+231) | 439 (+156) | 184 (+425) | 244 (+95) | 271 (+566) |
 | case9241pegase@cimoxide | 385 (+231) | 1244 (+156) | 879 (+425) | 965 (+95) | 1266 (+566) |
 
-### MATPOWER cases as CGMES, converted with pypowsybl
-
-| case | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sparlectra.jl |
-|---|---:|---:|---:|---:|---:|
-| case14@pypowsybl | 6 (+231) | 65 (+156) | 41 (+425) | — | 32 (+566) |
-| case118@pypowsybl | 7 (+230) | 83 (+156) | 57 (+424) | — | 48 (+566) |
-| case300@pypowsybl | 7 (+230) | 121 (+156) | 88 (+425) | — | 74 (+566) |
-| case1354pegase@pypowsybl | 66 (+231) | 389 (+156) | 262 (+425) | — | 233 (+566) |
-| case2848rte@pypowsybl | 163 (+231) | 461 (+156) | 491 (+425) | — | 482 (+566) |
-| case2869pegase@pypowsybl | 160 (+231) | 576 (+156) | 649 (+425) | — | 508 (+566) |
-| case3120sp@pypowsybl | 190 (+231) | 583 (+157) | 292 (+424) | — | 529 (+566) |
-| case9241pegase@pypowsybl | 570 (+230) | 1269 (+156) | 1023 (+425) | — | 1792 (+566) |
-
 ## Accuracy
 
 ### Tier 1: residual against the MATPOWER case (MVA, worst bus)
@@ -250,19 +211,6 @@ Largest |ΔP| or |ΔQ| of `V·conj(Ybus·V) − S` over the buses where it is sp
 | case2869pegase@cimoxide | 4.5e-09 | 2.8e-06 | 1.1e+03 ✗ | failed | 6.5e-10 |
 | case3120sp@cimoxide | 5.6e+00 ✗ | 1.9e-08 | failed | failed | 1.1e-09 |
 | case9241pegase@cimoxide | 1.7e+03 ✗ | 4.7e-10 | 1.1e+03 ✗ | failed | failed |
-
-**MATPOWER cases as CGMES, converted with pypowsybl**
-
-| case | pandapower | pypowsybl (OpenLoadFlow) | VeraGrid | PGM via cgmes2pgm | Sparlectra.jl |
-|---|---:|---:|---:|---:|---:|
-| case14@pypowsybl | failed | 6.1e-03 ✗ | 9.4e+01 ✗ | failed | 7.3e-10 |
-| case118@pypowsybl | failed | 8.3e+00 ✗ | 6.1e+02 ✗ | failed | 2.3e+00 ✗ |
-| case300@pypowsybl | failed | failed | 1.9e+03 ✗ | failed | 9.1e+02 ✗ |
-| case1354pegase@pypowsybl | failed | 2.7e+01 ✗ | 3.4e+03 ✗ | failed | 1.1e+03 ✗ |
-| case2848rte@pypowsybl | failed | failed | 1.4e+03 ✗ | failed | failed |
-| case2869pegase@pypowsybl | failed | 6.9e+01 ✗ | 3.4e+03 ✗ | failed | failed |
-| case3120sp@pypowsybl | failed | 4.8e+02 ✗ | failed | failed | failed |
-| case9241pegase@pypowsybl | failed | failed | failed | failed | failed |
 
 ### Tier 2: deviation from the published CGMES solution
 
@@ -392,62 +340,23 @@ Largest |ΔV| (p.u.) from the per-bus median over the tools that solved the case
 67. veragrid on case9241pegase@cimoxide: fails at 92 other PQ buses; 20 PV buses; max |ΔP| 71.6 MW, max |ΔQ| 1.06e+03 MVAr (worst: bus 1985)
 68. cgmes2pgm on case9241pegase@cimoxide: `DidNotConverge: IterationDiverge: Iteration failed to converge after 30 iterations! Max deviation: 1392.6784823691203, error tolerance: 1e-08.`
 69. sparlectra on case9241pegase@cimoxide: `DidNotConverge: NR did not converge in 30 iterations`
-70. pandapower on case14@pypowsybl: `UserWarning: No reference bus is available. Either add an ext_grid or a gen with slack=True`
-71. pypowsybl on case14@pypowsybl: fails at 1 other PQ buses; max |ΔP| 0.00605 MW, max |ΔQ| 8.5e-13 MVAr (worst: bus 4)
-72. veragrid on case14@pypowsybl: fails at 8 other PQ buses; 4 PV buses; 1 the slack bus; max |ΔP| 94.2 MW, max |ΔQ| 16.6 MVAr; |V| off its setpoint by 1.09 p.u. (worst: bus 3)
-73. cgmes2pgm on case14@pypowsybl: `ValueError: Grid has no SynchronousMachines or ExternalNetworkInjections`
-74. pandapower on case118@pypowsybl: `UserWarning: No reference bus is available. Either add an ext_grid or a gen with slack=True`
-75. pypowsybl on case118@pypowsybl: fails at 2 other PQ buses; 1 PV buses; max |ΔP| 2.41 MW, max |ΔQ| 8.26 MVAr (worst: bus 68)
-76. veragrid on case118@pypowsybl: fails at 54 other PQ buses; 53 PV buses; 1 the slack bus; max |ΔP| 607 MW, max |ΔQ| 32 MVAr; |V| off its setpoint by 1.05 p.u. (worst: bus 89)
-77. cgmes2pgm on case118@pypowsybl: `ValueError: Grid has no SynchronousMachines or ExternalNetworkInjections`
-78. sparlectra on case118@pypowsybl: fails at 1 PV buses; max |ΔP| 2.27 MW, max |ΔQ| 8.39e-10 MVAr (worst: bus 1)
-79. pandapower on case300@pypowsybl: `UserWarning: No reference bus is available. Either add an ext_grid or a gen with slack=True`
-80. pypowsybl on case300@pypowsybl: `DidNotConverge: MAX_ITERATION_REACHED: Reached Newton-Raphson max iterations limit`
-81. veragrid on case300@pypowsybl: fails at 166 other PQ buses; 68 PV buses; 1 the slack bus; max |ΔP| 1.93e+03 MW, max |ΔQ| 650 MVAr; |V| off its setpoint by 1.07 p.u. (worst: bus 119)
-82. cgmes2pgm on case300@pypowsybl: `ValueError: Grid has no SynchronousMachines or ExternalNetworkInjections`
-83. sparlectra on case300@pypowsybl: fails at 23 other PQ buses; 1 PV buses; max |ΔP| 907 MW, max |ΔQ| 76.7 MVAr (worst: bus 8)
-84. pandapower on case1354pegase@pypowsybl: `UserWarning: No reference bus is available. Either add an ext_grid or a gen with slack=True`
-85. pypowsybl on case1354pegase@pypowsybl: fails at 1 PV buses; max |ΔP| 27 MW, max |ΔQ| 3.11e-08 MVAr; only 1345 of 1354 buses checkable (worst: bus 1001)
-86. veragrid on case1354pegase@pypowsybl: fails at 673 other PQ buses; 259 PV buses; 1 the slack bus; max |ΔP| 3.42e+03 MW, max |ΔQ| 354 MVAr; |V| off its setpoint by 1.11 p.u. (worst: bus 5490)
-87. cgmes2pgm on case1354pegase@pypowsybl: `ValueError: Grid has no SynchronousMachines or ExternalNetworkInjections`
-88. sparlectra on case1354pegase@pypowsybl: fails at 52 other PQ buses; 1 PV buses; max |ΔP| 1.11e+03 MW, max |ΔQ| 129 MVAr (worst: bus 124)
-89. pandapower on case2848rte@pypowsybl: `UserWarning: No reference bus is available. Either add an ext_grid or a gen with slack=True`
-90. pypowsybl on case2848rte@pypowsybl: `DidNotConverge: FAILED: Unrealistic state`
-91. veragrid on case2848rte@pypowsybl: fails at 1382 other PQ buses; 370 PV buses; 48 PQ buses with an online generator (MATPOWER: a fixed P/Q injection; the generator is regulating voltage against the case); 6 PV buses whose generators are all offline (MATPOWER solves them as PQ; an offline generator is still regulating); 1 the slack bus; max |ΔP| 1.44e+03 MW, max |ΔQ| 544 MVAr; |V| off its setpoint by 1.11 p.u. (worst: bus 2324)
-92. cgmes2pgm on case2848rte@pypowsybl: `ValueError: Grid has no SynchronousMachines or ExternalNetworkInjections`
-93. sparlectra on case2848rte@pypowsybl: `DidNotConverge: NR did not converge in 30 iterations`
-94. pandapower on case2869pegase@pypowsybl: `UserWarning: No reference bus is available. Either add an ext_grid or a gen with slack=True`
-95. pypowsybl on case2869pegase@pypowsybl: fails at 1 PV buses; max |ΔP| 68.5 MW, max |ΔQ| 8.52e-08 MVAr; only 2829 of 2869 buses checkable (worst: bus 1001)
-96. veragrid on case2869pegase@pypowsybl: fails at 1491 other PQ buses; 509 PV buses; 1 the slack bus; max |ΔP| 3.42e+03 MW, max |ΔQ| 319 MVAr; |V| off its setpoint by 1.14 p.u. (worst: bus 5490)
-97. cgmes2pgm on case2869pegase@pypowsybl: `ValueError: Grid has no SynchronousMachines or ExternalNetworkInjections`
-98. sparlectra on case2869pegase@pypowsybl: `DidNotConverge: NR did not converge in 30 iterations`
-99. pandapower on case3120sp@pypowsybl: `UserWarning: No reference bus is available. Either add an ext_grid or a gen with slack=True`
-100. pypowsybl on case3120sp@pypowsybl: fails at 99 PV buses; 59 other PQ buses; 5 PV buses whose generators are all offline (MATPOWER solves them as PQ; an offline generator is still regulating); max |ΔP| 484 MW, max |ΔQ| 1.05 MVAr; |V| off its setpoint by 0.0358 p.u.; only 2906 of 3120 buses checkable (worst: bus 1703)
-101. veragrid on case3120sp@pypowsybl: `DidNotConverge: NR did not converge`
-102. cgmes2pgm on case3120sp@pypowsybl: `ValueError: Grid has no SynchronousMachines or ExternalNetworkInjections`
-103. sparlectra on case3120sp@pypowsybl: `DidNotConverge: NR did not converge in 30 iterations`
-104. pandapower on case9241pegase@pypowsybl: `UserWarning: No reference bus is available. Either add an ext_grid or a gen with slack=True`
-105. pypowsybl on case9241pegase@pypowsybl: `DidNotConverge: MAX_ITERATION_REACHED: Reached Newton-Raphson max iterations limit`
-106. veragrid on case9241pegase@pypowsybl: `DidNotConverge: NR did not converge`
-107. cgmes2pgm on case9241pegase@pypowsybl: `ValueError: Grid has no SynchronousMachines or ExternalNetworkInjections`
-108. sparlectra on case9241pegase@pypowsybl: `DidNotConverge: NR did not converge in 30 iterations`
-109. pandapower on case1888rte: `DidNotConverge: Power Flow nr did not converge after 30 iterations!`
-110. lightsim2grid on case1888rte: `DidNotConverge: ac_pf returned an empty voltage vector`
-111. pypsa on case1888rte: `DidNotConverge: pf did not converge after 77 iterations`
-112. pgm on case1888rte: `DidNotConverge: IterationDiverge: Iteration failed to converge after 30 iterations! Max deviation: 80.84461682055043, error tolerance: 1e-08.`
-113. pypowsybl on case1888rte: `DidNotConverge: MAX_ITERATION_REACHED: Reached Newton-Raphson max iterations limit`
-114. veragrid on case1888rte: `DidNotConverge: NR did not converge`
-115. sienna on case1888rte: `DidNotConverge: NR did not converge in 30 iterations`
-116. matpower on case1888rte: `DidNotConverge: runpf did not converge in 30 iterations`
-117. pandapower on case6495rte: `DidNotConverge: Power Flow nr did not converge after 30 iterations!`
-118. lightsim2grid on case6495rte: `DidNotConverge: ac_pf returned an empty voltage vector`
-119. pypsa on case6495rte: `DidNotConverge: pf did not converge after 88 iterations`
-120. pgm on case6495rte: `DidNotConverge: SparseMatrixError: Sparse matrix error, possibly singular matrix!`
-121. pypowsybl on case6495rte: `DidNotConverge: MAX_ITERATION_REACHED: Reached Newton-Raphson max iterations limit`
-122. veragrid on case6495rte: `DidNotConverge: NR did not converge`
-123. sienna on case6495rte: `DidNotConverge: NR did not converge in 30 iterations`
-124. sparlectra on case6495rte: `DidNotConverge: NR did not converge in 30 iterations`
-125. matpower on case6495rte: `DidNotConverge: runpf did not converge in 30 iterations`
+70. pandapower on case1888rte: `DidNotConverge: Power Flow nr did not converge after 30 iterations!`
+71. lightsim2grid on case1888rte: `DidNotConverge: ac_pf returned an empty voltage vector`
+72. pypsa on case1888rte: `DidNotConverge: pf did not converge after 77 iterations`
+73. pgm on case1888rte: `DidNotConverge: IterationDiverge: Iteration failed to converge after 30 iterations! Max deviation: 80.84461682055043, error tolerance: 1e-08.`
+74. pypowsybl on case1888rte: `DidNotConverge: MAX_ITERATION_REACHED: Reached Newton-Raphson max iterations limit`
+75. veragrid on case1888rte: `DidNotConverge: NR did not converge`
+76. sienna on case1888rte: `DidNotConverge: NR did not converge in 30 iterations`
+77. matpower on case1888rte: `DidNotConverge: runpf did not converge in 30 iterations`
+78. pandapower on case6495rte: `DidNotConverge: Power Flow nr did not converge after 30 iterations!`
+79. lightsim2grid on case6495rte: `DidNotConverge: ac_pf returned an empty voltage vector`
+80. pypsa on case6495rte: `DidNotConverge: pf did not converge after 88 iterations`
+81. pgm on case6495rte: `DidNotConverge: SparseMatrixError: Sparse matrix error, possibly singular matrix!`
+82. pypowsybl on case6495rte: `DidNotConverge: MAX_ITERATION_REACHED: Reached Newton-Raphson max iterations limit`
+83. veragrid on case6495rte: `DidNotConverge: NR did not converge`
+84. sienna on case6495rte: `DidNotConverge: NR did not converge in 30 iterations`
+85. sparlectra on case6495rte: `DidNotConverge: NR did not converge in 30 iterations`
+86. matpower on case6495rte: `DidNotConverge: runpf did not converge in 30 iterations`
 
 ## Environment
 

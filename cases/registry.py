@@ -30,6 +30,12 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   Read by the CGMES-capable tools and graded by the tier-1 residual against
   the original `.m` (TopologicalNodes are named `BUS-<n>`). The converters
   themselves are graded tool-free by `oracle.cgmes_model.fidelity`.
+  Only cimoxide's output is solved by default: it is exact, so a residual
+  there is the reading tool's. pypowsybl's export is not the same problem
+  (no slack, Ybus off by up to 3e-4, setpoints missing), so tools on it
+  would grade the converter again; it is converted and graded
+  (`oracle/check_conversion.py`) but its cases are in no group, available
+  by name.
 
 Groups say what a case is *for* (a case can be in several):
 
@@ -57,6 +63,7 @@ CGMES_DIR = DATA / "CGMES-Test-Configurations" / "v3.0"
 
 DEFAULT_GROUPS = ("smoke", "scaling", "feature", "robustness")
 CONVERTERS = ("cimoxide", "pypowsybl")
+SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstring
 FAMILIES = ("matpower", "distribution", "cgmes") + tuple(f"converted-{c}" for c in CONVERTERS)
 
 
@@ -134,7 +141,8 @@ CONVERTED_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c
 for _base in CONVERTED_FROM:
     for _conv in CONVERTERS:
         CASES[f"{_base}@{_conv}"] = {
-            "family": f"converted-{_conv}", "format": "cgmes", "dir": CACHE / f"{_base}@{_conv}", "groups": CASES[_base]["groups"],
+            "family": f"converted-{_conv}", "format": "cgmes", "dir": CACHE / f"{_base}@{_conv}",
+            "groups": CASES[_base]["groups"] if _conv in SOLVED_CONVERTERS else [],
             "source": f"{_base} via {_conv}", "source_case": _base, "converter": _conv, "boundary": None,
             "note": CASES[_base]["note"],
         }
