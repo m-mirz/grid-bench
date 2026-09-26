@@ -2,7 +2,7 @@
 The Julia half of adapters/sparlectra_adapter.py (settings and their
 justification are documented there). It lives in the image, not in
 adapters/, because it is compiled into it: the workload at the bottom runs
-load, solve and solution on a 3-bus MATPOWER case and on Sparlectra's own
+load, solve and solution (and the state-estimation half, se.jl) on a 3-bus MATPOWER case and on Sparlectra's own
 CGMES demo (case14, without its SV) at build time, so every fresh process
 starts with native code instead of spending its first case in the JIT.
 Changing this file needs `docker/build.sh sparlectra`.
@@ -130,6 +130,8 @@ function solution(m::Model)
     return m.ids, vm, va
 end
 
+include("se.jl")
+
 """Versions of the packages that make up the tool, for the results' metadata."""
 versions() = Dict(
     "Sparlectra" => pkgversion(Sparlectra),
@@ -170,6 +172,13 @@ quiet() = Logging.disable_logging(Logging.Warn)
                 m = load_matpower(path)
                 solve!(m, 1e-8, 30)
                 solution(m)
+                # vm at 1, P/Q injections at 2 and 3, P/Q from-end flow on row 0
+                se = load_se(path, [0, 1, 2, 1, 2, 3, 4], [1, 2, 2, 3, 3, 0, 0], [-1, -1, -1, -1, -1, 0, 0],
+                             [0, 0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 0, 2, 2],
+                             [1.02, 50.0, 10.0, -90.0, -30.0, 20.0, 5.0], [0.004, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                             1e-8, 30)
+                estimate!(se)
+                se_solution(se)
                 m = load_cgmes(profiles)
                 solve!(m, 1e-8, 30)
                 solution(m)

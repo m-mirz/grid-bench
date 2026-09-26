@@ -3,6 +3,10 @@
     from benchmarks.benchmark_template import create_benchmarks
     create_benchmarks("pandapower")
 
+(a state-estimation benchmark file passes `"se"` as well: the same tests,
+on the tool's `EstimatorAdapter`, over the `se-*` cases, graded by
+`oracle.wls`)
+
 which injects two tests into that module, each parametrized over every case
 the tool can read (selected by `--groups` / `--cases`, see conftest.py):
 
@@ -36,7 +40,7 @@ import os
 import time
 from pathlib import Path
 
-from adapters import get_adapter, memory
+from adapters import get_adapter, get_estimator, memory
 from cases.registry import CASES
 from oracle.evaluate import evaluate
 
@@ -56,7 +60,7 @@ def _record(benchmark, adapter, case: str, operation: str) -> None:
         benchmark._timer = adapter.clock  # noqa: SLF001
     benchmark.extra_info.update({
         "tool": adapter.name, "case": case, "family": CASES[case]["family"],
-        "groups": CASES[case]["groups"], "operation": operation,
+        "groups": CASES[case]["groups"], "operation": operation, "problem": CASES[case]["problem"],
     })
 
 
@@ -66,8 +70,8 @@ def _dump_solution(tool: str, case: str, sol) -> None:
     path.write_text(json.dumps({"vm": sol.vm, "va_deg": sol.va_deg}))
 
 
-def create_benchmarks(tool: str) -> None:
-    adapter = get_adapter(tool)
+def create_benchmarks(tool: str, problem: str = "pf") -> None:
+    adapter = {"pf": get_adapter, "se": get_estimator}[problem](tool)
     namespace = inspect.currentframe().f_back.f_globals
     namespace["ADAPTER"] = adapter
 

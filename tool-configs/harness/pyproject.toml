@@ -10,7 +10,6 @@ dependencies = [
     "scipy>=1.15",
     "pytest>=8.3",
     "pytest-benchmark>=5.1",
-    "matplotlib>=3.10",
     "pytest-timeout>=2.3",
     "cimoxide==0.3.3",       # writes the MATPOWER -> CGMES conversion (cases/matpower_to_cgmes.py)
 ]

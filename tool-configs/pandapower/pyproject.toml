@@ -6,7 +6,9 @@ name = "grid-bench-pandapower"
 version = "0.1.0"
 requires-python = "==3.13.*"
 dependencies = [
-    "numpy>=2.2",
+    # <2.4: pandapower 3.3.3's state estimator calls np.in1d and
+    # np.linalg.linalg, both removed in numpy 2.4 (it declares no upper bound).
+    "numpy>=2.2,<2.4",
     "scipy>=1.15",
     "pytest>=8.3",
     "pytest-benchmark>=5.1",

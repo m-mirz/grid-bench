@@ -14,12 +14,14 @@ Returns flat fields that go straight into a result record's `extra_info`:
   by tier 1 against the original `.m`: the converter's losses and the
   tool's importer losses both show up here, and `oracle.cgmes_model.fidelity`
   separates the converter's share.
+- se-*: state estimation, graded against the weighted least-squares problem
+  of the case's measurement set (`oracle.wls`).
 """
 from functools import lru_cache
 
 from cases.matpower import ANGLE, parse_m
-from cases.registry import CASES, cgmes_files, cgmes_sv_file
-from oracle import cgmes_model, cgmes_sv
+from cases.registry import CASES, cgmes_files, cgmes_sv_file, measurements_path
+from oracle import cgmes_model, cgmes_sv, wls
 from oracle.residual import residual
 
 RESIDUAL_OK_MVA = 1e-3   # all tools are asked to converge to 1e-8 p.u. (1e-6 MVA on 100 MVA)
@@ -42,6 +44,8 @@ def _cgmes_objects(case: str) -> dict:
 
 
 def evaluate(case: str, vm: dict[str, float], va_deg: dict[str, float]) -> dict:
+    if CASES[case]["problem"] == "se":
+        return wls.check(CASES[case]["file"], measurements_path(case), vm, va_deg)
     if CASES[case]["family"] == "cgmes":
         return cgmes_sv.deviation(_sv(case), vm, va_deg)
     if "source_case" in CASES[case]:

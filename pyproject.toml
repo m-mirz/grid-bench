@@ -22,8 +22,7 @@ pypsa = ["pypsa==1.2.4"]
 pgm = ["power-grid-model==1.13.169"]
 pypowsybl = ["pypowsybl==1.16.1"]
 veragrid = ["VeraGridEngine==6.5.29"]
-reports = ["matplotlib>=3.10"]
-all = ["grid-bench[pandapower,lightsim2grid,pypsa,pgm,pypowsybl,veragrid,reports]"]
+all = ["grid-bench[pandapower,lightsim2grid,pypsa,pgm,pypowsybl,veragrid]"]
 
 [tool.uv]
 package = false

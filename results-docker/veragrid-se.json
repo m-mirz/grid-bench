@@ -1,0 +1,3290 @@
+{
+    "machine_info": {
+        "node": "c6b43fb8b7bb",
+        "processor": "",
+        "machine": "x86_64",
+        "python_compiler": "Clang 22.1.3 ",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.14",
+        "python_version": "3.13.14",
+        "python_build": [
+            "main",
+            "Jul 18 2026 17:02:37"
+        ],
+        "release": "7.0.0-34-generic",
+        "system": "Linux",
+        "cpu": {
+            "python_version": "3.13.14.final.0 (64 bit)",
+            "cpuinfo_version": [
+                10,
+                1,
+                1
+            ],
+            "cpuinfo_version_string": "10.1.1",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 16,
+            "arch_string_raw": "x86_64",
+            "vendor_id_raw": "AuthenticAMD",
+            "brand_raw": "AMD Ryzen 7 250 w/ Radeon 780M Graphics",
+            "hz_advertised_friendly": "1.1003 GHz",
+            "hz_actual_friendly": "1.1003 GHz",
+            "hz_advertised": [
+                1100334000,
+                0
+            ],
+            "hz_actual": [
+                1100334000,
+                0
+            ],
+            "stepping": 2,
+            "model": 117,
+            "family": 25,
+            "flags": [
+                "3dnowprefetch",
+                "abm",
+                "adx",
+                "aes",
+                "amd_lbr_pmc_freeze",
+                "amd_lbr_v2",
+                "aperfmperf",
+                "apic",
+                "arat",
+                "avx",
+                "avx2",
+                "avx512_bf16",
+                "avx512_bitalg",
+                "avx512_vbmi2",
+                "avx512_vnni",
+                "avx512_vpopcntdq",
+                "avx512bitalg",
+                "avx512bw",
+                "avx512cd",
+                "avx512dq",
+                "avx512f",
+                "avx512ifma",
+                "avx512vbmi",
+                "avx512vbmi2",
+                "avx512vl",
+                "avx512vnni",
+                "avx512vpopcntdq",
+                "bmi1",
+                "bmi2",
+                "bpext",
+                "cat_l3",
+                "cdp_l3",
+                "clflush",
+                "clflushopt",
+                "clwb",
+                "clzero",
+                "cmov",
+                "cmp_legacy",
+                "constant_tsc",
+                "cpb",
+                "cppc",
+                "cpuid",
+                "cpuid_fault",
+                "cqm",
+                "cqm_llc",
+                "cqm_mbm_local",
+                "cqm_mbm_total",
+                "cqm_occup_llc",
+                "cr8_legacy",
+                "cx16",
+                "cx8",
+                "dbx",
+                "de",
+                "decodeassists",
+                "erms",
+                "extapic",
+                "extd_apicid",
+                "f16c",
+                "flush_l1d",
+                "flushbyasid",
+                "fma",
+                "fpu",
+                "fsgsbase",
+                "fsrm",
+                "fxsr",
+                "fxsr_opt",
+                "gfni",
+                "ht",
+                "hw_pstate",
+                "ibpb",
+                "ibrs",
+                "ibrs_enhanced",
+                "ibs",
+                "invpcid",
+                "irperf",
+                "lahf_lm",
+                "lbrv",
+                "lm",
+                "mba",
+                "mca",
+                "mce",
+                "misalignsse",
+                "mmx",
+                "mmxext",
+                "monitor",
+                "movbe",
+                "msr",
+                "mtrr",
+                "mwaitx",
+                "nonstop_tsc",
+                "nopl",
+                "npt",
+                "nrip_save",
+                "nx",
+                "ospke",
+                "osvw",
+                "osxsave",
+                "overflow_recov",
+                "pae",
+                "pat",
+                "pausefilter",
+                "pci_l2i",
+                "pclmulqdq",
+                "pdpe1gb",
+                "perfctr_core",
+                "perfctr_llc",
+                "perfctr_nb",
+                "perfmon_v2",
+                "pfthreshold",
+                "pge",
+                "pku",
+                "pni",
+                "popcnt",
+                "pqe",
+                "pqm",
+                "pse",
+                "pse36",
+                "rapl",
+                "rdpid",
+                "rdpru",
+                "rdrand",
+                "rdrnd",
+                "rdseed",
+                "rdt_a",
+                "rdtscp",
+                "rep_good",
+                "sep",
+                "sha",
+                "sha_ni",
+                "skinit",
+                "smap",
+                "smca",
+                "smep",
+                "ssbd",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "sse4a",
+                "ssse3",
+                "stibp",
+                "succor",
+                "svm",
+                "svm_lock",
+                "syscall",
+                "tce",
+                "topoext",
+                "tsc",
+                "tsc_scale",
+                "umip",
+                "user_shstk",
+                "v_spec_ctrl",
+                "vaes",
+                "vgif",
+                "vmcb_clean",
+                "vme",
+                "vmmcall",
+                "vnmi",
+                "vpclmulqdq",
+                "wbnoinvd",
+                "wdt",
+                "x2apic",
+                "x2avic",
+                "xgetbv1",
+                "xsave",
+                "xsavec",
+                "xsaveerptr",
+                "xsaveopt",
+                "xsaves",
+                "xtopology"
+            ],
+            "l3_cache_size": 1048576,
+            "l2_cache_size": 8388608,
+            "l1_data_cache_size": 262144,
+            "l1_instruction_cache_size": 262144,
+            "l2_cache_line_size": 1024,
+            "l2_cache_associativity": 6
+        }
+    },
+    "commit_info": {
+        "id": "unknown",
+        "time": null,
+        "author_time": null,
+        "dirty": false,
+        "error": "FileNotFoundError(2, 'No such file or directory')",
+        "project": "bench",
+        "branch": "(unknown)"
+    },
+    "benchmarks": [
+        {
+            "group": "import:case14~exact",
+            "name": "test_import[case14~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case14~exact]",
+            "params": {
+                "case": "case14~exact"
+            },
+            "param": "case14~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case14~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.1875,
+                "rss_import_mb": 425.55859375,
+                "rss_solve_mb": 486.7734375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.005798997997771949,
+                "max": 0.16183382799863466,
+                "mean": 0.05792474166567748,
+                "stddev": 0.08998807130127943,
+                "rounds": 3,
+                "median": 0.0061413990006258246,
+                "iqr": 0.11702612250064703,
+                "q1": 0.005884598248485418,
+                "q3": 0.12291072074913245,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.005798997997771949,
+                "hd15iqr": 0.16183382799863466,
+                "ops": 17.26378005743505,
+                "total": 0.17377422499703243,
+                "data": [
+                    0.0061413990006258246,
+                    0.16183382799863466,
+                    0.005798997997771949
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case118~exact",
+            "name": "test_import[case118~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case118~exact]",
+            "params": {
+                "case": "case118~exact"
+            },
+            "param": "case118~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case118~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.921875,
+                "rss_import_mb": 430.50390625,
+                "rss_solve_mb": 433.53515625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.019880433999787783,
+                "max": 0.18853823899917188,
+                "mean": 0.07751207599964498,
+                "stddev": 0.09617481453785443,
+                "rounds": 3,
+                "median": 0.024117554999975255,
+                "iqr": 0.12649335374953807,
+                "q1": 0.02093971424983465,
+                "q3": 0.14743306799937272,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.019880433999787783,
+                "hd15iqr": 0.18853823899917188,
+                "ops": 12.901215547427478,
+                "total": 0.23253622799893492,
+                "data": [
+                    0.019880433999787783,
+                    0.024117554999975255,
+                    0.18853823899917188
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case118~noisy",
+            "name": "test_import[case118~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case118~noisy]",
+            "params": {
+                "case": "case118~noisy"
+            },
+            "param": "case118~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case118~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.10546875,
+                "rss_import_mb": 429.98828125,
+                "rss_solve_mb": 433.26171875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.022530360001837835,
+                "max": 0.19581696900058887,
+                "mean": 0.080486357666814,
+                "stddev": 0.09987966226817366,
+                "rounds": 3,
+                "median": 0.0231117439980153,
+                "iqr": 0.12996495674906328,
+                "q1": 0.0226757060008822,
+                "q3": 0.15264066274994548,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.022530360001837835,
+                "hd15iqr": 0.19581696900058887,
+                "ops": 12.42446582239015,
+                "total": 0.241459073000442,
+                "data": [
+                    0.022530360001837835,
+                    0.0231117439980153,
+                    0.19581696900058887
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case300~exact",
+            "name": "test_import[case300~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case300~exact]",
+            "params": {
+                "case": "case300~exact"
+            },
+            "param": "case300~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case300~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling",
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.56640625,
+                "rss_import_mb": 435.875,
+                "rss_solve_mb": 445.12109375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.04425456700118957,
+                "max": 0.21575386000040453,
+                "mean": 0.10175520633371586,
+                "stddev": 0.09872700285425999,
+                "rounds": 3,
+                "median": 0.04525719199955347,
+                "iqr": 0.12862446974941122,
+                "q1": 0.044505223250780546,
+                "q3": 0.17312969300019176,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.04425456700118957,
+                "hd15iqr": 0.21575386000040453,
+                "ops": 9.827506975126218,
+                "total": 0.30526561900114757,
+                "data": [
+                    0.21575386000040453,
+                    0.04525719199955347,
+                    0.04425456700118957
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case300~noisy",
+            "name": "test_import[case300~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case300~noisy]",
+            "params": {
+                "case": "case300~noisy"
+            },
+            "param": "case300~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case300~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling",
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.93359375,
+                "rss_import_mb": 436.82421875,
+                "rss_solve_mb": 444.73828125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.047975287001463585,
+                "max": 0.2298461780010257,
+                "mean": 0.10901558933376994,
+                "stddev": 0.10464422584765525,
+                "rounds": 3,
+                "median": 0.04922530299882055,
+                "iqr": 0.13640316824967158,
+                "q1": 0.04828779100080283,
+                "q3": 0.1846909592504744,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.047975287001463585,
+                "hd15iqr": 0.2298461780010257,
+                "ops": 9.172999991206105,
+                "total": 0.32704676800130983,
+                "data": [
+                    0.047975287001463585,
+                    0.2298461780010257,
+                    0.04922530299882055
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case1354pegase~exact",
+            "name": "test_import[case1354pegase~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case1354pegase~exact]",
+            "params": {
+                "case": "case1354pegase~exact"
+            },
+            "param": "case1354pegase~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case1354pegase~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.8125,
+                "rss_import_mb": 494.359375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.5145678629996837,
+                "max": 0.8567022469978838,
+                "mean": 0.6569770653319816,
+                "stddev": 0.1781230622173461,
+                "rounds": 3,
+                "median": 0.5996610859983775,
+                "iqr": 0.25660078799865005,
+                "q1": 0.5358411687493572,
+                "q3": 0.7924419567480072,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.5145678629996837,
+                "hd15iqr": 0.8567022469978838,
+                "ops": 1.5221231497551333,
+                "total": 1.970931195995945,
+                "data": [
+                    0.5996610859983775,
+                    0.8567022469978838,
+                    0.5145678629996837
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case1354pegase~noisy",
+            "name": "test_import[case1354pegase~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case1354pegase~noisy]",
+            "params": {
+                "case": "case1354pegase~noisy"
+            },
+            "param": "case1354pegase~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case1354pegase~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.51953125,
+                "rss_import_mb": 498.61328125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.5479311060007603,
+                "max": 0.8177342540002428,
+                "mean": 0.723124177333375,
+                "stddev": 0.15188366910100143,
+                "rounds": 3,
+                "median": 0.8037071719991218,
+                "iqr": 0.20235236099961185,
+                "q1": 0.6118751225003507,
+                "q3": 0.8142274834999625,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.5479311060007603,
+                "hd15iqr": 0.8177342540002428,
+                "ops": 1.3828883493947675,
+                "total": 2.169372532000125,
+                "data": [
+                    0.8037071719991218,
+                    0.5479311060007603,
+                    0.8177342540002428
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2869pegase~exact",
+            "name": "test_import[case2869pegase~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case2869pegase~exact]",
+            "params": {
+                "case": "case2869pegase~exact"
+            },
+            "param": "case2869pegase~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case2869pegase~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.19921875,
+                "rss_import_mb": 582.62109375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.4898750040010782,
+                "max": 1.589329151000129,
+                "mean": 1.5290301380009623,
+                "stddev": 0.052991315827967816,
+                "rounds": 3,
+                "median": 1.5078862590016797,
+                "iqr": 0.07459061024928815,
+                "q1": 1.4943778177512286,
+                "q3": 1.5689684280005167,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.4898750040010782,
+                "hd15iqr": 1.589329151000129,
+                "ops": 0.654009345628327,
+                "total": 4.587090414002887,
+                "data": [
+                    1.589329151000129,
+                    1.5078862590016797,
+                    1.4898750040010782
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2869pegase~noisy",
+            "name": "test_import[case2869pegase~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case2869pegase~noisy]",
+            "params": {
+                "case": "case2869pegase~noisy"
+            },
+            "param": "case2869pegase~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case2869pegase~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.20703125,
+                "rss_import_mb": 591.9609375,
+                "rss_solve_mb": 718.28515625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.456595447001746,
+                "max": 1.5526015000032203,
+                "mean": 1.4997990730007587,
+                "stddev": 0.04871748442559749,
+                "rounds": 3,
+                "median": 1.4902002719973098,
+                "iqr": 0.07200453975110577,
+                "q1": 1.4649966532506369,
+                "q3": 1.5370011930017426,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.456595447001746,
+                "hd15iqr": 1.5526015000032203,
+                "ops": 0.666755979518794,
+                "total": 4.499397219002276,
+                "data": [
+                    1.456595447001746,
+                    1.5526015000032203,
+                    1.4902002719973098
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case9241pegase~exact",
+            "name": "test_import[case9241pegase~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case9241pegase~exact]",
+            "params": {
+                "case": "case9241pegase~exact"
+            },
+            "param": "case9241pegase~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case9241pegase~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.59765625,
+                "rss_import_mb": 965.890625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 4.332704462001857,
+                "max": 5.56952650599851,
+                "mean": 4.791137128333503,
+                "stddev": 0.6776513963495242,
+                "rounds": 3,
+                "median": 4.4711804170001415,
+                "iqr": 0.9276165329974901,
+                "q1": 4.367323450751428,
+                "q3": 5.294939983748918,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 4.332704462001857,
+                "hd15iqr": 5.56952650599851,
+                "ops": 0.2087187181694858,
+                "total": 14.373411385000509,
+                "data": [
+                    4.4711804170001415,
+                    5.56952650599851,
+                    4.332704462001857
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case9241pegase~noisy",
+            "name": "test_import[case9241pegase~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case9241pegase~noisy]",
+            "params": {
+                "case": "case9241pegase~noisy"
+            },
+            "param": "case9241pegase~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case9241pegase~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.1953125,
+                "rss_import_mb": 986.50390625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 3.636179593999259,
+                "max": 5.78187271799834,
+                "mean": 4.981559910332483,
+                "stddev": 1.1721022512340262,
+                "rounds": 3,
+                "median": 5.526627418999851,
+                "iqr": 1.6092698429993106,
+                "q1": 4.108791550249407,
+                "q3": 5.718061393248718,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 3.636179593999259,
+                "hd15iqr": 5.78187271799834,
+                "ops": 0.2007403339515909,
+                "total": 14.94467973099745,
+                "data": [
+                    3.636179593999259,
+                    5.526627418999851,
+                    5.78187271799834
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case3120sp~exact",
+            "name": "test_import[case3120sp~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case3120sp~exact]",
+            "params": {
+                "case": "case3120sp~exact"
+            },
+            "param": "case3120sp~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case3120sp~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.29296875,
+                "rss_import_mb": 557.80078125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.3032374079994042,
+                "max": 1.3431251180008985,
+                "mean": 1.3247881330001594,
+                "stddev": 0.020137116126238253,
+                "rounds": 3,
+                "median": 1.3280018730001757,
+                "iqr": 0.029915782501120702,
+                "q1": 1.309428524249597,
+                "q3": 1.3393443067507178,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.3032374079994042,
+                "hd15iqr": 1.3431251180008985,
+                "ops": 0.754837679392075,
+                "total": 3.9743643990004784,
+                "data": [
+                    1.3032374079994042,
+                    1.3431251180008985,
+                    1.3280018730001757
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case3120sp~noisy",
+            "name": "test_import[case3120sp~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case3120sp~noisy]",
+            "params": {
+                "case": "case3120sp~noisy"
+            },
+            "param": "case3120sp~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case3120sp~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.1484375,
+                "rss_import_mb": 564.1171875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.3293614190006338,
+                "max": 1.3962552769989998,
+                "mean": 1.3625305180006155,
+                "stddev": 0.033450390550810574,
+                "rounds": 3,
+                "median": 1.3619748580022133,
+                "iqr": 0.0501703934987745,
+                "q1": 1.3375147787510286,
+                "q3": 1.3876851722498031,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.3293614190006338,
+                "hd15iqr": 1.3962552769989998,
+                "ops": 0.7339285152066944,
+                "total": 4.087591554001847,
+                "data": [
+                    1.3293614190006338,
+                    1.3962552769989998,
+                    1.3619748580022133
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2848rte~exact",
+            "name": "test_import[case2848rte~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case2848rte~exact]",
+            "params": {
+                "case": "case2848rte~exact"
+            },
+            "param": "case2848rte~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case2848rte~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 424.8359375,
+                "rss_import_mb": 544.48828125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.7617292219983938,
+                "max": 1.2707221050004591,
+                "mean": 1.0902536179989208,
+                "stddev": 0.2849716703092189,
+                "rounds": 3,
+                "median": 1.2383095269979094,
+                "iqr": 0.381744662251549,
+                "q1": 0.8808742982482727,
+                "q3": 1.2626189604998217,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.7617292219983938,
+                "hd15iqr": 1.2707221050004591,
+                "ops": 0.9172177771218274,
+                "total": 3.2707608539967623,
+                "data": [
+                    1.2383095269979094,
+                    1.2707221050004591,
+                    0.7617292219983938
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2848rte~noisy",
+            "name": "test_import[case2848rte~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case2848rte~noisy]",
+            "params": {
+                "case": "case2848rte~noisy"
+            },
+            "param": "case2848rte~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case2848rte~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 424.75,
+                "rss_import_mb": 551.60546875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.8257296800002223,
+                "max": 1.7811262810027984,
+                "mean": 1.2179927650007205,
+                "stddev": 0.500093185761232,
+                "rounds": 3,
+                "median": 1.0471223339991411,
+                "iqr": 0.716547450751932,
+                "q1": 0.881077843499952,
+                "q3": 1.597625294251884,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.8257296800002223,
+                "hd15iqr": 1.7811262810027984,
+                "ops": 0.8210229393270726,
+                "total": 3.6539782950021618,
+                "data": [
+                    1.0471223339991411,
+                    1.7811262810027984,
+                    0.8257296800002223
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case4_dist~exact",
+            "name": "test_import[case4_dist~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case4_dist~exact]",
+            "params": {
+                "case": "case4_dist~exact"
+            },
+            "param": "case4_dist~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case4_dist~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 424.43359375,
+                "rss_import_mb": 424.45703125,
+                "rss_solve_mb": 426.47265625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00380658699941705,
+                "max": 0.004046393998578424,
+                "mean": 0.003897159665939398,
+                "stddev": 0.00013022189721926253,
+                "rounds": 3,
+                "median": 0.003838497999822721,
+                "iqr": 0.00017985524937103037,
+                "q1": 0.0038145647495184676,
+                "q3": 0.003994419998889498,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.00380658699941705,
+                "hd15iqr": 0.004046393998578424,
+                "ops": 256.59713373815623,
+                "total": 0.011691478997818194,
+                "data": [
+                    0.00380658699941705,
+                    0.003838497999822721,
+                    0.004046393998578424
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case4_dist~noisy",
+            "name": "test_import[case4_dist~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case4_dist~noisy]",
+            "params": {
+                "case": "case4_dist~noisy"
+            },
+            "param": "case4_dist~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case4_dist~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.375,
+                "rss_import_mb": 425.41796875,
+                "rss_solve_mb": 427.35546875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0036134700021648314,
+                "max": 0.004125393999856897,
+                "mean": 0.0038225913340284023,
+                "stddev": 0.00026851199061371923,
+                "rounds": 3,
+                "median": 0.003728910000063479,
+                "iqr": 0.000383942998269049,
+                "q1": 0.0036423300016394933,
+                "q3": 0.004026272999908542,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.0036134700021648314,
+                "hd15iqr": 0.004125393999856897,
+                "ops": 261.60264402267643,
+                "total": 0.011467774002085207,
+                "data": [
+                    0.0036134700021648314,
+                    0.004125393999856897,
+                    0.003728910000063479
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case18~exact",
+            "name": "test_import[case18~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case18~exact]",
+            "params": {
+                "case": "case18~exact"
+            },
+            "param": "case18~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case18~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.125,
+                "rss_import_mb": 425.578125,
+                "rss_solve_mb": 427.72265625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0051520859997253865,
+                "max": 0.006286202999035595,
+                "mean": 0.005544616000406677,
+                "stddev": 0.0006426009126147079,
+                "rounds": 3,
+                "median": 0.005195559002459049,
+                "iqr": 0.0008505877494826564,
+                "q1": 0.005162954250408802,
+                "q3": 0.0060135419998914585,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.0051520859997253865,
+                "hd15iqr": 0.006286202999035595,
+                "ops": 180.35514090185032,
+                "total": 0.01663384800122003,
+                "data": [
+                    0.005195559002459049,
+                    0.006286202999035595,
+                    0.0051520859997253865
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case18~noisy",
+            "name": "test_import[case18~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case18~noisy]",
+            "params": {
+                "case": "case18~noisy"
+            },
+            "param": "case18~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case18~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.81640625,
+                "rss_import_mb": 426.296875,
+                "rss_solve_mb": 428.65234375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.005278265998640563,
+                "max": 0.006533091000164859,
+                "mean": 0.005985025999204178,
+                "stddev": 0.0006422885047132974,
+                "rounds": 3,
+                "median": 0.006143720998807112,
+                "iqr": 0.0009411187511432217,
+                "q1": 0.0054946297486822004,
+                "q3": 0.006435748499825422,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.005278265998640563,
+                "hd15iqr": 0.006533091000164859,
+                "ops": 167.08365178914323,
+                "total": 0.017955077997612534,
+                "data": [
+                    0.005278265998640563,
+                    0.006143720998807112,
+                    0.006533091000164859
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case33bw~exact",
+            "name": "test_import[case33bw~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case33bw~exact]",
+            "params": {
+                "case": "case33bw~exact"
+            },
+            "param": "case33bw~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case33bw~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "smoke",
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.57421875,
+                "rss_import_mb": 426.45703125,
+                "rss_solve_mb": 428.5625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0068252970013418235,
+                "max": 0.007991155001946026,
+                "mean": 0.0073864780012324145,
+                "stddev": 0.0005841447987947035,
+                "rounds": 3,
+                "median": 0.007342982000409393,
+                "iqr": 0.0008743935004531522,
+                "q1": 0.006954718251108716,
+                "q3": 0.007829111751561868,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.0068252970013418235,
+                "hd15iqr": 0.007991155001946026,
+                "ops": 135.38251922406764,
+                "total": 0.022159434003697243,
+                "data": [
+                    0.0068252970013418235,
+                    0.007991155001946026,
+                    0.007342982000409393
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case33bw~noisy",
+            "name": "test_import[case33bw~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[case33bw~noisy]",
+            "params": {
+                "case": "case33bw~noisy"
+            },
+            "param": "case33bw~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case33bw~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.5546875,
+                "rss_import_mb": 426.4453125,
+                "rss_solve_mb": 428.5703125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.007276955999259371,
+                "max": 0.008082287000434007,
+                "mean": 0.007650553000227471,
+                "stddev": 0.0004058009837020766,
+                "rounds": 3,
+                "median": 0.007592416000989033,
+                "iqr": 0.0006039982508809771,
+                "q1": 0.007355820999691787,
+                "q3": 0.007959819250572764,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.007276955999259371,
+                "hd15iqr": 0.008082287000434007,
+                "ops": 130.7095055704166,
+                "total": 0.02295165900068241,
+                "data": [
+                    0.007276955999259371,
+                    0.008082287000434007,
+                    0.007592416000989033
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv1004~exact",
+            "name": "test_import[mvlv1004~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[mvlv1004~exact]",
+            "params": {
+                "case": "mvlv1004~exact"
+            },
+            "param": "mvlv1004~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv1004~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 426.296875,
+                "rss_import_mb": 470.28515625,
+                "rss_solve_mb": 501.265625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.3959302490002301,
+                "max": 0.6695872109994525,
+                "mean": 0.5183677239995935,
+                "stddev": 0.1390803234600728,
+                "rounds": 3,
+                "median": 0.48958571199909784,
+                "iqr": 0.2052427214994168,
+                "q1": 0.41934411474994704,
+                "q3": 0.6245868362493638,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.3959302490002301,
+                "hd15iqr": 0.6695872109994525,
+                "ops": 1.9291324550152436,
+                "total": 1.5551031719987805,
+                "data": [
+                    0.48958571199909784,
+                    0.3959302490002301,
+                    0.6695872109994525
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv1004~noisy",
+            "name": "test_import[mvlv1004~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[mvlv1004~noisy]",
+            "params": {
+                "case": "mvlv1004~noisy"
+            },
+            "param": "mvlv1004~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv1004~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 426.578125,
+                "rss_import_mb": 472.29296875,
+                "rss_solve_mb": 496.265625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.41591812299884623,
+                "max": 0.7058483670007263,
+                "mean": 0.542259844999838,
+                "stddev": 0.14851053726729846,
+                "rounds": 3,
+                "median": 0.5050130449999415,
+                "iqr": 0.21744768300141004,
+                "q1": 0.43819185349912004,
+                "q3": 0.6556395365005301,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.41591812299884623,
+                "hd15iqr": 0.7058483670007263,
+                "ops": 1.8441343374785546,
+                "total": 1.626779534999514,
+                "data": [
+                    0.5050130449999415,
+                    0.41591812299884623,
+                    0.7058483670007263
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv10616~exact",
+            "name": "test_import[mvlv10616~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[mvlv10616~exact]",
+            "params": {
+                "case": "mvlv10616~exact"
+            },
+            "param": "mvlv10616~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv10616~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 425.2890625,
+                "rss_import_mb": 939.25390625,
+                "rss_solve_mb": 2749.44921875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 3.9719825350002793,
+                "max": 5.194105819999095,
+                "mean": 4.550341040332569,
+                "stddev": 0.6136813639632445,
+                "rounds": 3,
+                "median": 4.484934765998332,
+                "iqr": 0.9165924637491116,
+                "q1": 4.100220592749793,
+                "q3": 5.016813056498904,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 3.9719825350002793,
+                "hd15iqr": 5.194105819999095,
+                "ops": 0.21976374762602705,
+                "total": 13.651023120997706,
+                "data": [
+                    4.484934765998332,
+                    3.9719825350002793,
+                    5.194105819999095
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv10616~noisy",
+            "name": "test_import[mvlv10616~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[mvlv10616~noisy]",
+            "params": {
+                "case": "mvlv10616~noisy"
+            },
+            "param": "mvlv10616~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv10616~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 424.8515625,
+                "rss_import_mb": 944.75,
+                "rss_solve_mb": 1899.58203125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 4.30057316699822,
+                "max": 5.549205274000997,
+                "mean": 4.765787245666918,
+                "stddev": 0.6824301061988208,
+                "rounds": 3,
+                "median": 4.44758329600154,
+                "iqr": 0.9364740802520828,
+                "q1": 4.33732569924905,
+                "q3": 5.273799779501132,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 4.30057316699822,
+                "hd15iqr": 5.549205274000997,
+                "ops": 0.20982892194971686,
+                "total": 14.297361737000756,
+                "data": [
+                    4.44758329600154,
+                    5.549205274000997,
+                    4.30057316699822
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv29840~exact",
+            "name": "test_import[mvlv29840~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[mvlv29840~exact]",
+            "params": {
+                "case": "mvlv29840~exact"
+            },
+            "param": "mvlv29840~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv29840~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 424.98046875,
+                "rss_import_mb": 1860.94140625,
+                "rss_solve_mb": 15212.23046875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 8.504282228997909,
+                "max": 13.880775585002993,
+                "mean": 11.920088245668012,
+                "stddev": 2.9689557045599115,
+                "rounds": 3,
+                "median": 13.375206923003134,
+                "iqr": 4.032370017003814,
+                "q1": 9.722013402499215,
+                "q3": 13.754383419503029,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 8.504282228997909,
+                "hd15iqr": 13.880775585002993,
+                "ops": 0.08389199638378676,
+                "total": 35.760264737004036,
+                "data": [
+                    8.504282228997909,
+                    13.375206923003134,
+                    13.880775585002993
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv29840~noisy",
+            "name": "test_import[mvlv29840~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_import[mvlv29840~noisy]",
+            "params": {
+                "case": "mvlv29840~noisy"
+            },
+            "param": "mvlv29840~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv29840~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "se",
+                "rss_baseline_mb": 423.875,
+                "rss_import_mb": 1895.06640625,
+                "rss_solve_mb": 8949.328125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 9.371975879999809,
+                "max": 14.74690423499851,
+                "mean": 12.91808301066582,
+                "stddev": 3.0715251697504535,
+                "rounds": 3,
+                "median": 14.635368916999141,
+                "iqr": 4.031196266249026,
+                "q1": 10.687824139249642,
+                "q3": 14.719020405498668,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 9.371975879999809,
+                "hd15iqr": 14.74690423499851,
+                "ops": 0.07741086654841509,
+                "total": 38.75424903199746,
+                "data": [
+                    9.371975879999809,
+                    14.74690423499851,
+                    14.635368916999141
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case14~exact",
+            "name": "test_solve[case14~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case14~exact]",
+            "params": {
+                "case": "case14~exact"
+            },
+            "param": "case14~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case14~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 14,
+                "se_n_buses": 14,
+                "se_n_reported": 14,
+                "se_n_measurements": 42,
+                "se_measurements_sha256": "022fd3c32944963db996af06dacf5975bc133d426a589dcf7a8dc226b5e4f4bc",
+                "se_J": 1.8351072933161067e-22,
+                "se_J_true": 1.3481668353488629e-24,
+                "se_max_step": 2.171271194351561e-15,
+                "se_max_dvm_true_pu": 4.440892098500626e-16,
+                "se_max_dva_true_deg": 5.684341886080802e-14,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.02617457699670922,
+                "max": 0.029440762002195697,
+                "mean": 0.027119407581070648,
+                "stddev": 0.000767338395847068,
+                "rounds": 74,
+                "median": 0.026836551498490735,
+                "iqr": 0.0013786119998258073,
+                "q1": 0.026572535000013886,
+                "q3": 0.027951146999839693,
+                "iqr_outliers": 0,
+                "stddev_outliers": 27,
+                "outliers": "27;0",
+                "ld15iqr": 0.02617457699670922,
+                "hd15iqr": 0.029440762002195697,
+                "ops": 36.87396183012494,
+                "total": 2.006836160999228,
+                "data": [
+                    0.02648047000184306,
+                    0.02617457699670922,
+                    0.028145266998762963,
+                    0.027026126997952815,
+                    0.026569368001219118,
+                    0.027958692000538576,
+                    0.02700674000152503,
+                    0.026780640000652056,
+                    0.0264449419992161,
+                    0.026281780999852344,
+                    0.027972898998996243,
+                    0.026911749999271706,
+                    0.02670663000026252,
+                    0.026383524997072527,
+                    0.02832694300013827,
+                    0.02686803699907614,
+                    0.026395638000394683,
+                    0.026220203999400837,
+                    0.027972959000180708,
+                    0.02683705799790914,
+                    0.026835284999833675,
+                    0.026517660000536125,
+                    0.02815644899965264,
+                    0.02707462000034866,
+                    0.026586660998873413,
+                    0.026427748998685274,
+                    0.02632445299968822,
+                    0.028239477000170154,
+                    0.027206601000216324,
+                    0.02658442699976149,
+                    0.028081886001018574,
+                    0.026836044999072328,
+                    0.026794046003487892,
+                    0.02852907799751847,
+                    0.02688128199952189,
+                    0.028293088002101285,
+                    0.0267874130004202,
+                    0.02663851000033901,
+                    0.028379473002132727,
+                    0.02744615600022371,
+                    0.026845824999327306,
+                    0.026494015000935178,
+                    0.026217790000373498,
+                    0.027951146999839693,
+                    0.026789917999849422,
+                    0.026713743001892,
+                    0.026588674998492934,
+                    0.02836825099802809,
+                    0.026990599999408005,
+                    0.02654980099759996,
+                    0.026312079000490485,
+                    0.026178183001320576,
+                    0.02831409799910034,
+                    0.02668595000068308,
+                    0.026572535000013886,
+                    0.02817122700071195,
+                    0.026990739999746438,
+                    0.026775601003464544,
+                    0.02658734199940227,
+                    0.02837036599885323,
+                    0.026769980002427474,
+                    0.02654209600223112,
+                    0.02630913299799431,
+                    0.027862849998200545,
+                    0.026989738002157537,
+                    0.026902412002527853,
+                    0.02687588199842139,
+                    0.029440762002195697,
+                    0.02734401199995773,
+                    0.027042287998483516,
+                    0.02861417900203378,
+                    0.02665373899799306,
+                    0.02826111800095532,
+                    0.026675479999539675
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case118~exact",
+            "name": "test_solve[case118~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case118~exact]",
+            "params": {
+                "case": "case118~exact"
+            },
+            "param": "case118~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case118~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 118,
+                "se_n_buses": 118,
+                "se_n_reported": 118,
+                "se_n_measurements": 354,
+                "se_measurements_sha256": "51150b432c9b017a441381cc41e6056d6b259735ca53689bfa2b45aa5464672d",
+                "se_J": 1278.6953117879762,
+                "se_J_true": 1.0983989692373688e-21,
+                "se_max_step": 0.2697836774034074,
+                "se_max_dvm_true_pu": 0.011299585636862952,
+                "se_max_dva_true_deg": 18.56958157711074,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.14965036700232304,
+                "max": 0.15991014999963227,
+                "mean": 0.15478421661604302,
+                "stddev": 0.0023690731464504605,
+                "rounds": 13,
+                "median": 0.15434570200159214,
+                "iqr": 0.0012783752481482225,
+                "q1": 0.1539938815012647,
+                "q3": 0.15527225674941292,
+                "iqr_outliers": 3,
+                "stddev_outliers": 3,
+                "outliers": "3;3",
+                "ld15iqr": 0.15357382200090797,
+                "hd15iqr": 0.1575992830003088,
+                "ops": 6.4606070429040905,
+                "total": 2.0121948160085594,
+                "data": [
+                    0.15488329399886425,
+                    0.15357978400061256,
+                    0.15434570200159214,
+                    0.1575992830003088,
+                    0.15413191400148207,
+                    0.1542582649999531,
+                    0.15643914500105893,
+                    0.15357382200090797,
+                    0.14965036700232304,
+                    0.15991014999963227,
+                    0.1547555020006257,
+                    0.1547671430016635,
+                    0.1543004449995351
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case118~noisy",
+            "name": "test_solve[case118~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case118~noisy]",
+            "params": {
+                "case": "case118~noisy"
+            },
+            "param": "case118~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case118~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 118,
+                "se_n_buses": 118,
+                "se_n_reported": 118,
+                "se_n_measurements": 662,
+                "se_measurements_sha256": "a1b5306bcf9626725edef8d07deaa1759fc27c11f15e8bed893d00e48c6aca7a",
+                "se_J": 489.9033450255144,
+                "se_J_true": 720.9608716174296,
+                "se_max_step": 1.1908136541330214e-12,
+                "se_max_dvm_true_pu": 0.0019292114105129432,
+                "se_max_dva_true_deg": 0.08676090353034738,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.04277957399972365,
+                "max": 0.047077662999072345,
+                "mean": 0.044665923021333896,
+                "stddev": 0.0009875709929647127,
+                "rounds": 46,
+                "median": 0.044409811998775695,
+                "iqr": 0.001419762000296032,
+                "q1": 0.04413847999967402,
+                "q3": 0.04555824199997005,
+                "iqr_outliers": 0,
+                "stddev_outliers": 16,
+                "outliers": "16;0",
+                "ld15iqr": 0.04277957399972365,
+                "hd15iqr": 0.047077662999072345,
+                "ops": 22.388432441491638,
+                "total": 2.0546324589813594,
+                "data": [
+                    0.04568167599791195,
+                    0.04413847999967402,
+                    0.04330523499811534,
+                    0.04277957399972365,
+                    0.0429272960027447,
+                    0.04557642600047984,
+                    0.0443456850007351,
+                    0.04351727800167282,
+                    0.046110792998661054,
+                    0.04472995600008289,
+                    0.04604465699958382,
+                    0.044150383000669535,
+                    0.043279605997668114,
+                    0.04536127699975623,
+                    0.04439763399932417,
+                    0.04564511699936702,
+                    0.0443282009982795,
+                    0.043507179001608165,
+                    0.04570048199821031,
+                    0.04420623000260093,
+                    0.04556769000191707,
+                    0.044215276997420006,
+                    0.0434932120006124,
+                    0.045531490999564994,
+                    0.044209875999513315,
+                    0.04541823599720374,
+                    0.04426642399994307,
+                    0.043356261998269474,
+                    0.0454140580004605,
+                    0.04431350300001213,
+                    0.047077662999072345,
+                    0.04560371800107532,
+                    0.04440543899909244,
+                    0.04581508000046597,
+                    0.04445935100011411,
+                    0.04555824199997005,
+                    0.04440007800076273,
+                    0.04336537899871473,
+                    0.04537445199821377,
+                    0.04412996399696567,
+                    0.045527292997576296,
+                    0.044487694001873024,
+                    0.04351896200023475,
+                    0.04541732299912837,
+                    0.04441418499845895,
+                    0.04555844199785497
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case300~exact",
+            "name": "test_solve[case300~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case300~exact]",
+            "params": {
+                "case": "case300~exact"
+            },
+            "param": "case300~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case300~exact",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling",
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 300,
+                "se_n_buses": 300,
+                "se_n_reported": 300,
+                "se_n_measurements": 900,
+                "se_measurements_sha256": "7541eb7b78e25194a35a0cbfa9050e13e2f676ae7a5fe7033dd7e103b2bcebae",
+                "se_J": 18907.809582542643,
+                "se_J_true": 2.5103284884505034e-21,
+                "se_max_step": 0.608508964338639,
+                "se_max_dvm_true_pu": 0.05809786743079148,
+                "se_max_dva_true_deg": 32.284611289921884,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.27466266000192263,
+                "max": 0.2876195460012241,
+                "mean": 0.28109340062474075,
+                "stddev": 0.003591410456348664,
+                "rounds": 8,
+                "median": 0.2815316910000547,
+                "iqr": 0.001678664501014282,
+                "q1": 0.28001107199816033,
+                "q3": 0.2816897364991746,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.27880672499668435,
+                "hd15iqr": 0.2876195460012241,
+                "ops": 3.5575363839117604,
+                "total": 2.248747204997926,
+                "data": [
+                    0.28157008400012273,
+                    0.2816746829994372,
+                    0.2876195460012241,
+                    0.27880672499668435,
+                    0.281704789998912,
+                    0.2814932979999867,
+                    0.2812154189996363,
+                    0.27466266000192263
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case300~noisy",
+            "name": "test_solve[case300~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case300~noisy]",
+            "params": {
+                "case": "case300~noisy"
+            },
+            "param": "case300~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case300~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling",
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 300,
+                "se_n_buses": 300,
+                "se_n_reported": 300,
+                "se_n_measurements": 1491,
+                "se_measurements_sha256": "44c1452b9844a361bd37d6f4e43e6a0a052bf2e6873fb23c8dbe3621e3cb55c3",
+                "se_J": 112206.44205815741,
+                "se_J_true": 1488.2146438492546,
+                "se_max_step": 0.38802182386020295,
+                "se_max_dvm_true_pu": 0.04058513735210856,
+                "se_max_dva_true_deg": 23.443161016197223,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.2697183619966381,
+                "max": 0.2792584960006934,
+                "mean": 0.27449709662505484,
+                "stddev": 0.0031768990731194362,
+                "rounds": 8,
+                "median": 0.27488847999848076,
+                "iqr": 0.0047522584991384065,
+                "q1": 0.2719296095019672,
+                "q3": 0.2766818680011056,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.2697183619966381,
+                "hd15iqr": 0.2792584960006934,
+                "ops": 3.6430257816749694,
+                "total": 2.1959767730004387,
+                "data": [
+                    0.27239028600160964,
+                    0.2714689330023248,
+                    0.2697183619966381,
+                    0.27579784999761614,
+                    0.2739791099993454,
+                    0.2765668940010073,
+                    0.2792584960006934,
+                    0.2767968420012039
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case2869pegase~noisy",
+            "name": "test_solve[case2869pegase~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case2869pegase~noisy]",
+            "params": {
+                "case": "case2869pegase~noisy"
+            },
+            "param": "case2869pegase~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case2869pegase~noisy",
+                "family": "se-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 2869,
+                "se_n_buses": 2869,
+                "se_n_reported": 2869,
+                "se_n_measurements": 15412,
+                "se_measurements_sha256": "852c4279981768288d1ece56a0870a231aa6ec40cb4047c8185b8c3785a8db71",
+                "se_J": 5523690.862205016,
+                "se_J_true": 15505.800948134292,
+                "se_max_step": 1.1176028215819,
+                "se_max_dvm_true_pu": 0.21971667353180124,
+                "se_max_dva_true_deg": 59.707157669742145,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.373994539000705,
+                "max": 5.3968561370020325,
+                "mean": 5.379896821200964,
+                "stddev": 0.009760079118084833,
+                "rounds": 5,
+                "median": 5.374953735001327,
+                "iqr": 0.009885422750812722,
+                "q1": 5.374043508750219,
+                "q3": 5.383928931501032,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 5.373994539000705,
+                "hd15iqr": 5.3968561370020325,
+                "ops": 0.18587717074038015,
+                "total": 26.89948410600482,
+                "data": [
+                    5.373994539000705,
+                    5.374953735001327,
+                    5.379619863000698,
+                    5.3968561370020325,
+                    5.374059832000057
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case4_dist~exact",
+            "name": "test_solve[case4_dist~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case4_dist~exact]",
+            "params": {
+                "case": "case4_dist~exact"
+            },
+            "param": "case4_dist~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case4_dist~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 4,
+                "se_n_buses": 4,
+                "se_n_reported": 4,
+                "se_n_measurements": 12,
+                "se_measurements_sha256": "f911ee0720c24389993e09161960e6ee34cbd52f97533f2fa250e3932ce2b584",
+                "se_J": 16055.454299845744,
+                "se_J_true": 7.552807521197941e-23,
+                "se_max_step": 0.02037494208477609,
+                "se_max_dvm_true_pu": 0.020294073622576292,
+                "se_max_dva_true_deg": 0.5321547703197211,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11641202200189582,
+                "max": 0.1229542239998409,
+                "mean": 0.11967597794158363,
+                "stddev": 0.0014034981117784246,
+                "rounds": 17,
+                "median": 0.1193884620006429,
+                "iqr": 0.0014504310001939302,
+                "q1": 0.11920485599966923,
+                "q3": 0.12065528699986316,
+                "iqr_outliers": 2,
+                "stddev_outliers": 3,
+                "outliers": "3;2",
+                "ld15iqr": 0.11815008700068574,
+                "hd15iqr": 0.1229542239998409,
+                "ops": 8.355895787942682,
+                "total": 2.034491625006922,
+                "data": [
+                    0.11641202200189582,
+                    0.12088905600103317,
+                    0.11938830200233497,
+                    0.1229542239998409,
+                    0.1191682229982689,
+                    0.11921706700013601,
+                    0.11869903100159718,
+                    0.1194002440024633,
+                    0.12057736399947316,
+                    0.12000194899883354,
+                    0.11926302400024724,
+                    0.1193884620006429,
+                    0.11979227099800482,
+                    0.11924497899963171,
+                    0.12099583899907884,
+                    0.11815008700068574,
+                    0.1209494810027536
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case4_dist~noisy",
+            "name": "test_solve[case4_dist~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case4_dist~noisy]",
+            "params": {
+                "case": "case4_dist~noisy"
+            },
+            "param": "case4_dist~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case4_dist~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 4,
+                "se_n_buses": 4,
+                "se_n_reported": 4,
+                "se_n_measurements": 16,
+                "se_measurements_sha256": "5ecaafaa718cd0bf4407bd3867d7818d250c357cf9a2d62efff1f6a0e7d008e2",
+                "se_J": 31574.690306073215,
+                "se_J_true": 15.583086905824972,
+                "se_max_step": 0.16403725323701981,
+                "se_max_dvm_true_pu": 0.16571692057914666,
+                "se_max_dva_true_deg": 0.5334406539606107,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11135905099945376,
+                "max": 0.11344224300046335,
+                "mean": 0.11236910405568779,
+                "stddev": 0.0005464283344067772,
+                "rounds": 18,
+                "median": 0.11223260750011832,
+                "iqr": 0.0007414000028802548,
+                "q1": 0.11203597900021123,
+                "q3": 0.11277737900309148,
+                "iqr_outliers": 0,
+                "stddev_outliers": 5,
+                "outliers": "5;0",
+                "ld15iqr": 0.11135905099945376,
+                "hd15iqr": 0.11344224300046335,
+                "ops": 8.899243332085488,
+                "total": 2.02264387300238,
+                "data": [
+                    0.11135905099945376,
+                    0.11310846799824503,
+                    0.11220085300010396,
+                    0.11219032300141407,
+                    0.11203597900021123,
+                    0.11240792600074201,
+                    0.11308677800116129,
+                    0.11344224300046335,
+                    0.11220238500027335,
+                    0.11277737900309148,
+                    0.1128946620010538,
+                    0.11222920599902864,
+                    0.11185056599788368,
+                    0.11240386799909174,
+                    0.11268316000132472,
+                    0.112236009001208,
+                    0.11158164499647683,
+                    0.11195337200115318
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case18~exact",
+            "name": "test_solve[case18~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case18~exact]",
+            "params": {
+                "case": "case18~exact"
+            },
+            "param": "case18~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case18~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 18,
+                "se_n_buses": 18,
+                "se_n_reported": 18,
+                "se_n_measurements": 54,
+                "se_measurements_sha256": "4a8939c424b9b3d3330ef1413d60c78f99c6877dc87d0ad9d6abccd84d2b4810",
+                "se_J": 46893.927886643316,
+                "se_J_true": 1.2274003355787532e-21,
+                "se_max_step": 0.11575154888913372,
+                "se_max_dvm_true_pu": 0.013462980955332382,
+                "se_max_dva_true_deg": 6.671950222571468,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.07945530500001041,
+                "max": 0.08240346199818305,
+                "mean": 0.08112901355983922,
+                "stddev": 0.0008878539486553318,
+                "rounds": 25,
+                "median": 0.08131439000135288,
+                "iqr": 0.001165507254881959,
+                "q1": 0.08057208524769521,
+                "q3": 0.08173759250257717,
+                "iqr_outliers": 0,
+                "stddev_outliers": 10,
+                "outliers": "10;0",
+                "ld15iqr": 0.07945530500001041,
+                "hd15iqr": 0.08240346199818305,
+                "ops": 12.326046578421899,
+                "total": 2.0282253389959806,
+                "data": [
+                    0.07969698399756453,
+                    0.08135582899922156,
+                    0.08138959300049464,
+                    0.08123817600062466,
+                    0.07977805799964699,
+                    0.08142276600119658,
+                    0.08151429999998072,
+                    0.08074681099969894,
+                    0.08229170900085592,
+                    0.08163047099878895,
+                    0.08096870200097328,
+                    0.08214180399954785,
+                    0.08041833599781967,
+                    0.08109952100130613,
+                    0.08168500500323717,
+                    0.07958104399949661,
+                    0.08117876200049068,
+                    0.08131439000135288,
+                    0.08240346199818305,
+                    0.08189535500059719,
+                    0.07945530500001041,
+                    0.08005208899703575,
+                    0.08062333499765373,
+                    0.08205962799911504,
+                    0.08228390400108765
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case18~noisy",
+            "name": "test_solve[case18~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case18~noisy]",
+            "params": {
+                "case": "case18~noisy"
+            },
+            "param": "case18~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case18~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 18,
+                "se_n_buses": 18,
+                "se_n_reported": 18,
+                "se_n_measurements": 71,
+                "se_measurements_sha256": "b1ee12d98b3db1827ebff66e384505047622b984519c59b967da5dd9c9374077",
+                "se_J": 62821.77021898534,
+                "se_J_true": 73.2288812975404,
+                "se_max_step": 0.44649621323215477,
+                "se_max_dvm_true_pu": 0.4270092622224191,
+                "se_max_dva_true_deg": 5.430330693847111,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.12673252899912768,
+                "max": 0.13005609099855064,
+                "mean": 0.12824528550027026,
+                "stddev": 0.0011683852181997938,
+                "rounds": 16,
+                "median": 0.1280295210017357,
+                "iqr": 0.0019405809998715995,
+                "q1": 0.12729336650045298,
+                "q3": 0.12923394750032458,
+                "iqr_outliers": 0,
+                "stddev_outliers": 7,
+                "outliers": "7;0",
+                "ld15iqr": 0.12673252899912768,
+                "hd15iqr": 0.13005609099855064,
+                "ops": 7.79755759519045,
+                "total": 2.051924568004324,
+                "data": [
+                    0.1282084360027511,
+                    0.12942415900033666,
+                    0.12673252899912768,
+                    0.12673476399868377,
+                    0.12761664099889458,
+                    0.1290341370004171,
+                    0.1275484409998171,
+                    0.1278506060007203,
+                    0.13005609099855064,
+                    0.12710242300090613,
+                    0.1290437360003125,
+                    0.12748430999999982,
+                    0.13003870800093864,
+                    0.12826607600072748,
+                    0.12976931600132957,
+                    0.12701419500081101
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case33bw~exact",
+            "name": "test_solve[case33bw~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case33bw~exact]",
+            "params": {
+                "case": "case33bw~exact"
+            },
+            "param": "case33bw~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case33bw~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "smoke",
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 33,
+                "se_n_buses": 33,
+                "se_n_reported": 33,
+                "se_n_measurements": 99,
+                "se_measurements_sha256": "ef9eb57a4b4e00c687bcecf939db1dbdb8e9ab9f0b7a7f7b8304c81f0328052a",
+                "se_J": 8403.75201247174,
+                "se_J_true": 2.1027868357986384e-22,
+                "se_max_step": 0.04440515267226288,
+                "se_max_dvm_true_pu": 0.04417456734443759,
+                "se_max_dva_true_deg": 0.44629680066179844,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0943953780006268,
+                "max": 0.09864902800109121,
+                "mean": 0.09630823799982734,
+                "stddev": 0.001042864639722632,
+                "rounds": 21,
+                "median": 0.09633919599946239,
+                "iqr": 0.0008296807491205982,
+                "q1": 0.0959687082495293,
+                "q3": 0.0967983889986499,
+                "iqr_outliers": 4,
+                "stddev_outliers": 6,
+                "outliers": "6;4",
+                "ld15iqr": 0.09548140400147531,
+                "hd15iqr": 0.09864902800109121,
+                "ops": 10.383327748159953,
+                "total": 2.022472997996374,
+                "data": [
+                    0.09736205100125517,
+                    0.0945051369999419,
+                    0.09614105899891001,
+                    0.09864902800109121,
+                    0.09679351999875507,
+                    0.09652658099730616,
+                    0.09600208399933763,
+                    0.09629148499880102,
+                    0.0943953780006268,
+                    0.09675818200048525,
+                    0.0971331660002761,
+                    0.09611190299983718,
+                    0.09681299599833437,
+                    0.09586858100010431,
+                    0.09778355199887301,
+                    0.09441063800113625,
+                    0.09633404600026552,
+                    0.09641501000078279,
+                    0.09633919599946239,
+                    0.09635800099931657,
+                    0.09548140400147531
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case33bw~noisy",
+            "name": "test_solve[case33bw~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[case33bw~noisy]",
+            "params": {
+                "case": "case33bw~noisy"
+            },
+            "param": "case33bw~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case33bw~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 33,
+                "se_n_buses": 33,
+                "se_n_reported": 33,
+                "se_n_measurements": 131,
+                "se_measurements_sha256": "d159d305355f0a9337a5457ad54fab309c5b6092d6f92b36d3d4b0b73551ba08",
+                "se_J": 41783.12368185104,
+                "se_J_true": 115.02665586311082,
+                "se_max_step": 0.07988839288857336,
+                "se_max_dvm_true_pu": 0.08330715837654523,
+                "se_max_dva_true_deg": 0.45288618857836127,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.06809779399918625,
+                "max": 0.07264986099835369,
+                "mean": 0.07059914651710705,
+                "stddev": 0.0013379146799449217,
+                "rounds": 29,
+                "median": 0.07113858699813136,
+                "iqr": 0.0019705222512129694,
+                "q1": 0.06964159249946533,
+                "q3": 0.0716121147506783,
+                "iqr_outliers": 0,
+                "stddev_outliers": 9,
+                "outliers": "9;0",
+                "ld15iqr": 0.06809779399918625,
+                "hd15iqr": 0.07264986099835369,
+                "ops": 14.164477183271439,
+                "total": 2.0473752489961043,
+                "data": [
+                    0.07113858699813136,
+                    0.07165331600117497,
+                    0.07257921699783765,
+                    0.07179391300087445,
+                    0.07172940099917469,
+                    0.07029816800059052,
+                    0.07065180100107682,
+                    0.0697956130024977,
+                    0.06839892599964514,
+                    0.06809779399918625,
+                    0.07159838100051275,
+                    0.07128304199795821,
+                    0.06946817000061856,
+                    0.07122493099814164,
+                    0.06910965800125268,
+                    0.0683144260001427,
+                    0.07124554999973043,
+                    0.07264986099835369,
+                    0.0705105730012292,
+                    0.07118974400145817,
+                    0.07139215899951523,
+                    0.07027481399927638,
+                    0.06888558200080297,
+                    0.06822239100074512,
+                    0.07166252300157794,
+                    0.07088062699767761,
+                    0.07135889599885559,
+                    0.07226778499898501,
+                    0.06969939999908092
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv1004~exact",
+            "name": "test_solve[mvlv1004~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[mvlv1004~exact]",
+            "params": {
+                "case": "mvlv1004~exact"
+            },
+            "param": "mvlv1004~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv1004~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 1004,
+                "se_n_buses": 1004,
+                "se_n_reported": 1004,
+                "se_n_measurements": 3012,
+                "se_measurements_sha256": "b5712a70a62ff305af13d0c652ecd8348cdd27d7b3e8b4191fe524e2fc3efec2",
+                "se_J": 6319.708561471552,
+                "se_J_true": 1.446848013689715e-22,
+                "se_max_step": 0.2999442380220985,
+                "se_max_dvm_true_pu": 0.00852850932527216,
+                "se_max_dva_true_deg": 18.060215422634798,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.5739431000001787,
+                "max": 0.5745803919999162,
+                "mean": 0.574227581199375,
+                "stddev": 0.0002816323172299683,
+                "rounds": 5,
+                "median": 0.5741146759974072,
+                "iqr": 0.0004915670033369679,
+                "q1": 0.5740070547481082,
+                "q3": 0.5744986217514452,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.5739431000001787,
+                "hd15iqr": 0.5745803919999162,
+                "ops": 1.7414698156980282,
+                "total": 2.871137905996875,
+                "data": [
+                    0.574028372997418,
+                    0.5745803919999162,
+                    0.5741146759974072,
+                    0.5744713650019548,
+                    0.5739431000001787
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv1004~noisy",
+            "name": "test_solve[mvlv1004~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[mvlv1004~noisy]",
+            "params": {
+                "case": "mvlv1004~noisy"
+            },
+            "param": "mvlv1004~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv1004~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 1004,
+                "se_n_buses": 1004,
+                "se_n_reported": 1004,
+                "se_n_measurements": 4021,
+                "se_measurements_sha256": "4c70ef3ab0f92b79e4f9eb87a63539d16fd3c31592c15de1386483e51c4185fa",
+                "se_J": 7116.013023721254,
+                "se_J_true": 3897.3900283298112,
+                "se_max_step": 0.2649035001052494,
+                "se_max_dvm_true_pu": 0.3010087781272013,
+                "se_max_dva_true_deg": 19.099743253607357,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.3566558559978148,
+                "max": 0.3647001850004017,
+                "mean": 0.3603794428333155,
+                "stddev": 0.002758341990708329,
+                "rounds": 6,
+                "median": 0.3603040090001741,
+                "iqr": 0.003086119999352377,
+                "q1": 0.35861323900098796,
+                "q3": 0.36169935900034034,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.3566558559978148,
+                "hd15iqr": 0.3647001850004017,
+                "ops": 2.7748530608126973,
+                "total": 2.162276656999893,
+                "data": [
+                    0.3647001850004017,
+                    0.36169935900034034,
+                    0.35974040200017043,
+                    0.35861323900098796,
+                    0.3608676160001778,
+                    0.3566558559978148
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv10616~exact",
+            "name": "test_solve[mvlv10616~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[mvlv10616~exact]",
+            "params": {
+                "case": "mvlv10616~exact"
+            },
+            "param": "mvlv10616~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv10616~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 10616,
+                "se_n_buses": 10616,
+                "se_n_reported": 10616,
+                "se_n_measurements": 31848,
+                "se_measurements_sha256": "20ce4761423704e94578b6d62ff4b4200c32dfb692fe7d6db728532788e96d90",
+                "se_J": 3065.827774476675,
+                "se_J_true": 3.1112752900435964e-22,
+                "se_max_step": 0.28069945210609837,
+                "se_max_dvm_true_pu": 0.008244366432282768,
+                "se_max_dva_true_deg": 16.387490972055275,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 25.295407311998133,
+                "max": 25.367809220999334,
+                "mean": 25.332207504800316,
+                "stddev": 0.02642546331468053,
+                "rounds": 5,
+                "median": 25.33133053200072,
+                "iqr": 0.03187114849970385,
+                "q1": 25.316900414501106,
+                "q3": 25.34877156300081,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 25.295407311998133,
+                "hd15iqr": 25.367809220999334,
+                "ops": 0.03947543852269903,
+                "total": 126.66103752400159,
+                "data": [
+                    25.295407311998133,
+                    25.324064782002097,
+                    25.33133053200072,
+                    25.367809220999334,
+                    25.3424256770013
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv10616~noisy",
+            "name": "test_solve[mvlv10616~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[mvlv10616~noisy]",
+            "params": {
+                "case": "mvlv10616~noisy"
+            },
+            "param": "mvlv10616~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv10616~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 10616,
+                "se_n_buses": 10616,
+                "se_n_reported": 10616,
+                "se_n_measurements": 42469,
+                "se_measurements_sha256": "32ac81d12f19419189830c43760f72208bab25c0d992dbbac0d636e9c033eebf",
+                "se_J": 42866.025075658195,
+                "se_J_true": 42411.43421999332,
+                "se_max_step": 0.21794419398087211,
+                "se_max_dvm_true_pu": 0.2572085674980241,
+                "se_max_dva_true_deg": 17.11692014063624,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.348547072997462,
+                "max": 5.427259697997215,
+                "mean": 5.386733009199088,
+                "stddev": 0.03551137847948921,
+                "rounds": 5,
+                "median": 5.386133498999698,
+                "iqr": 0.06641679875065165,
+                "q1": 5.353164237999408,
+                "q3": 5.41958103675006,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 5.348547072997462,
+                "hd15iqr": 5.427259697997215,
+                "ops": 0.18564127798654018,
+                "total": 26.93366504599544,
+                "data": [
+                    5.386133498999698,
+                    5.348547072997462,
+                    5.417021483001008,
+                    5.427259697997215,
+                    5.354703293000057
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv29840~exact",
+            "name": "test_solve[mvlv29840~exact]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[mvlv29840~exact]",
+            "params": {
+                "case": "mvlv29840~exact"
+            },
+            "param": "mvlv29840~exact",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv29840~exact",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 29840,
+                "se_n_buses": 29840,
+                "se_n_reported": 29840,
+                "se_n_measurements": 89520,
+                "se_measurements_sha256": "6d2cf759e88972204edd8868e3653324133b3cc168e93f299b055e966f377da3",
+                "se_J": 781.4666682768766,
+                "se_J_true": 9.018933714010068e-22,
+                "se_max_step": 0.22561579341746363,
+                "se_max_dvm_true_pu": 0.005980114245136003,
+                "se_max_dva_true_deg": 12.889152869004818,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 152.20892163900135,
+                "max": 153.089686678999,
+                "mean": 152.6325150147997,
+                "stddev": 0.33455176712770324,
+                "rounds": 5,
+                "median": 152.61311145099899,
+                "iqr": 0.4773555342489999,
+                "q1": 152.39271901200027,
+                "q3": 152.87007454624927,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 152.20892163900135,
+                "hd15iqr": 153.089686678999,
+                "ops": 0.0065516839573994895,
+                "total": 763.1625750739986,
+                "data": [
+                    152.20892163900135,
+                    153.089686678999,
+                    152.79687050199936,
+                    152.61311145099899,
+                    152.4539848029999
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv29840~noisy",
+            "name": "test_solve[mvlv29840~noisy]",
+            "fullname": "benchmarks/veragrid_se_benchmark.py::test_solve[mvlv29840~noisy]",
+            "params": {
+                "case": "mvlv29840~noisy"
+            },
+            "param": "mvlv29840~noisy",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv29840~noisy",
+                "family": "se-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "se",
+                "iterations": null,
+                "n_reported": 29840,
+                "se_n_buses": 29840,
+                "se_n_reported": 29840,
+                "se_n_measurements": 119365,
+                "se_measurements_sha256": "b2c68c9efe2a13d763fd9732e4676aeb31b82d793aac65c1776f3914df5c47ee",
+                "se_J": 86680.4175467768,
+                "se_J_true": 119234.07770590042,
+                "se_max_step": 0.1797462062930423,
+                "se_max_dvm_true_pu": 0.18519883624239875,
+                "se_max_dva_true_deg": 14.055730188569186,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 21.300027182998747,
+                "max": 21.500857577000716,
+                "mean": 21.40645852739981,
+                "stddev": 0.07726724202853637,
+                "rounds": 5,
+                "median": 21.386572372000956,
+                "iqr": 0.10569991774718801,
+                "q1": 21.364073950500824,
+                "q3": 21.469773868248012,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 21.300027182998747,
+                "hd15iqr": 21.500857577000716,
+                "ops": 0.04671487339767208,
+                "total": 107.03229263699905,
+                "data": [
+                    21.385422873001517,
+                    21.386572372000956,
+                    21.500857577000716,
+                    21.45941263199711,
+                    21.300027182998747
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-09-26T16:12:16.708805+00:00",
+    "version": "5.3.0",
+    "grid_bench": {
+        "schema_version": 1,
+        "git_sha": "d5c3341594c0919d5dcd5ac1f74913935d7f1002-dirty",
+        "container_image": "grid-bench/veragrid",
+        "tools": {
+            "veragrid": {
+                "display_name": "VeraGrid",
+                "color": "#008300",
+                "tags": [
+                    "state-estimation",
+                    "wls",
+                    "python"
+                ],
+                "language": "python",
+                "version": "6.5.29",
+                "dependencies": {
+                    "numpy": "2.5.3",
+                    "autograd": "1.9.1",
+                    "scipy": "1.18.1",
+                    "networkx": "3.6.1",
+                    "pandas": "3.0.5",
+                    "highspy": "1.15.1",
+                    "xlwt": "1.3.0",
+                    "xlrd": "2.0.2",
+                    "matplotlib": "3.11.1",
+                    "openpyxl": "3.1.5",
+                    "chardet": "7.6.0",
+                    "scikit-learn": "1.9.1",
+                    "geopy": "2.5.0",
+                    "h5py": "3.16.0",
+                    "numba": "0.67.0",
+                    "clang-tool-chain": "1.5.9",
+                    "pyproj": "3.8.0",
+                    "pulp": "3.3.2",
+                    "pyarrow": "25.0.1",
+                    "windpowerlib": "0.2.2",
+                    "pvlib": "0.15.2",
+                    "rdflib": "7.6.0",
+                    "pymoo": "0.6.2",
+                    "websockets": "17.1",
+                    "brotli": "1.2.0",
+                    "opencv-python": "5.0.0.93",
+                    "fmpy": "0.3.32"
+                },
+                "settings": {
+                    "solver": "LM",
+                    "init": "flat",
+                    "fixed_slack": false,
+                    "observability_analysis": false,
+                    "pseudo_measurements": false,
+                    "bad_data": false,
+                    "tol": 1e-08,
+                    "max_iter": 30
+                },
+                "families": [
+                    "se-matpower",
+                    "se-distribution"
+                ],
+                "problem": "se"
+            }
+        }
+    },
+    "failures": [
+        {
+            "tool": "veragrid",
+            "case": "case1354pegase~exact",
+            "operation": "solve",
+            "error": "DidNotConverge: Levenberg-Marquardt: not converged in 30 iterations"
+        },
+        {
+            "tool": "veragrid",
+            "case": "case1354pegase~noisy",
+            "operation": "solve",
+            "error": "DidNotConverge: Levenberg-Marquardt: not converged in 30 iterations"
+        },
+        {
+            "tool": "veragrid",
+            "case": "case2869pegase~exact",
+            "operation": "solve",
+            "error": "DidNotConverge: Levenberg-Marquardt: not converged in 30 iterations"
+        },
+        {
+            "tool": "veragrid",
+            "case": "case9241pegase~exact",
+            "operation": "solve",
+            "error": "DidNotConverge: Levenberg-Marquardt: not converged in 30 iterations"
+        },
+        {
+            "tool": "veragrid",
+            "case": "case9241pegase~noisy",
+            "operation": "solve",
+            "error": "DidNotConverge: Levenberg-Marquardt: not converged in 30 iterations"
+        },
+        {
+            "tool": "veragrid",
+            "case": "case3120sp~exact",
+            "operation": "solve",
+            "error": "DidNotConverge: Levenberg-Marquardt: not converged in 30 iterations"
+        },
+        {
+            "tool": "veragrid",
+            "case": "case3120sp~noisy",
+            "operation": "solve",
+            "error": "DidNotConverge: Levenberg-Marquardt: not converged in 30 iterations"
+        },
+        {
+            "tool": "veragrid",
+            "case": "case2848rte~exact",
+            "operation": "solve",
+            "error": "DidNotConverge: Levenberg-Marquardt: not converged in 30 iterations"
+        },
+        {
+            "tool": "veragrid",
+            "case": "case2848rte~noisy",
+            "operation": "solve",
+            "error": "DidNotConverge: Levenberg-Marquardt: not converged in 30 iterations"
+        }
+    ]
+}

@@ -12,7 +12,16 @@ from tools.palette import DARK, LIGHT, LIGHT_TO_DARK, REFERENCE
 
 KEEP = ("iterations", "oracle_ok", "residual_max_dp_mw", "residual_max_dq_mvar", "residual_max_dvm_pu",
         "residual_worst_bus", "residual_n_checked", "residual_n_buses", "sv_n", "sv_n_published",
-        "sv_dv_median", "sv_dv_max", "sv_da_max_deg", "rss_baseline_mb", "rss_import_mb", "rss_solve_mb")
+        "sv_dv_median", "sv_dv_max", "sv_da_max_deg", "rss_baseline_mb", "rss_import_mb", "rss_solve_mb",
+        "se_J", "se_J_true", "se_max_step", "se_max_dvm_true_pu", "se_n_reported", "se_n_buses")
+
+
+def _input(case: str) -> str:
+    """What the page's input selector offers: the input format for power flow,
+    the measurement scenario for state estimation (one line per scenario:
+    `~exact` and `~noisy` of a case are the same size, different problems)."""
+    c = CASES[case]
+    return f"{c['scenario']} measurements" if c["problem"] == "se" else input_label(case).strip("`")
 
 
 def payload(res: Results) -> dict:
@@ -23,8 +32,8 @@ def payload(res: Results) -> dict:
              for t in res.tool_order() for m in [res.tools[t]]]
     # `order`: the report's row order (by size, each conversion under its source case).
     ordered = [c for g in res.grids() for rob in (False, True) for c in res.grid_cases(g, rob)]
-    cases = {c: {"family": CASES[c]["family"], "grid": CASES[c]["grid"], "input": input_label(c).strip("`"),
-                 "base": CASES[c].get("source_case", c), "graded": graded(c), "order": i, "size": case_size(c),
+    cases = {c: {"family": CASES[c]["family"], "grid": CASES[c]["grid"], "input": _input(c),
+                 "base": CASES[c].get("source_case", CASES[c].get("base_case", c)), "graded": graded(c), "order": i, "size": case_size(c),
                  "groups": CASES[c]["groups"], "source": CASES[c]["source"], "note": CASES[c]["note"]}
              for i, c in enumerate(ordered)}
     rows = [{"tool": r.tool, "case": r.case, "op": r.operation, "median": r.median_ms, "min": r.min_ms,
@@ -42,7 +51,8 @@ def payload(res: Results) -> dict:
 
 
 def generate(directory: Path, res: Results) -> str:
-    data = json.dumps(payload(res), separators=(",", ":")).replace("</", "<\\/")
+    se = payload(res.se) if res.se and (res.se.records or res.se.failures) else None
+    data = json.dumps({"pf": payload(res), "se": se}, separators=(",", ":")).replace("</", "<\\/")
     return (TEMPLATE.replace("__DATA__", data)
             .replace("__LIGHT__", "".join(f"--{k}:{v};" for k, v in LIGHT.items()))
             .replace("__DARK__", "".join(f"--{k}:{v};" for k, v in DARK.items()))
@@ -99,11 +109,12 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <body>
 <main>
 <h1>grid-bench</h1>
-<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in. MATPOWER cases are also converted to CGMES, and tools are graded on those against the original case.</p>
+<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in. MATPOWER cases are also converted to CGMES, and tools are graded on those against the original case. State estimation (weighted least squares) is benchmarked the same way: switch below.</p>
 <p class="meta" id="meta"></p>
 
+<div class="controls"><div class="seg" role="group" aria-label="Problem" id="problem"></div></div>
 <h2>Scoreboard</h2>
-<p>AC power flow on the default cases: ✓ / ✗ / FAILED per grid and input. CGMES fixtures have no verdict (their reference is someone else's solution): cases solved. Hard transmission cases: cases that are not expected to converge from a flat start, so FAILED is the normal outcome and a ✓ stands out; they are in the Transmission tables, below the others.</p>
+<p id="sb-desc">AC power flow on the default cases: ✓ / ✗ / FAILED per grid and input. CGMES fixtures have no verdict (their reference is someone else's solution): cases solved. Hard transmission cases: cases that are not expected to converge from a flat start, so FAILED is the normal outcome and a ✓ stands out; they are in the Transmission tables, below the others.</p>
 <div class="scroll"><table id="scoreboard"></table></div>
 
 <div class="controls">
@@ -132,13 +143,21 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <li><b>Same problem for every tool.</b> Flat start on every solve, one slack, no reactive limits, no tap/phase-shifter/shunt control, generator voltage regulation as the case defines it, convergence tolerance 1e-8 p.u. Each adapter's docstring justifies its settings.</li>
 <li><b>Solve</b> is timed warm: one persistent model, one untimed warm-up solve, then repeated solves (median shown). <b>Import</b> is the median of 3 cold loads after one warm-up load.</li>
 <li><b>Tier 1 oracle</b> (MATPOWER): the residual <code>V·conj(Ybus·V) − S</code> with Ybus built from the <code>.m</code> file by the benchmark itself. <b>Tier 2</b> (CGMES): deviation from the case's published SV solution. <b>Tier 3</b>: tools against each other, the weakest evidence.</li>
+<li><b>State estimation</b>: weighted least squares on each case with a measurement set generated from its own power flow. <code>exact</code>: |V| and P/Q injections at every bus without noise, so the optimum is the true state. <code>noisy</code>: |V| at generator buses, P/Q injections at every bus, P/Q flows at every branch's from end, with Gaussian noise. Same measurements and sigmas for every tool, flat start, no bad-data handling. The oracle accepts an estimate when one Gauss-Newton step from it moves it by at most 1e-6 and its J is no larger than J at the true state.</li>
 <li><b>Memory</b> is the peak RSS of a fresh process loading and solving the case, minus the peak after importing the tool (values below 1 MB are drawn at 1 MB on the log axis). Only the benchmark process counts: cgmes2pgm's Fuseki server is not included.</li>
 </ul>
 <div class="tip" id="tip" hidden></div>
 </main>
 <script>
-const D = __DATA__;
-const state = {op: "solve", grid: (D.grids[0] || ["transmission"])[0], input: null, off: new Set()};
+const ALL = __DATA__;
+let D = ALL.pf;
+const state = {problem: "pf", op: "solve", grid: (D.grids[0] || ["transmission"])[0], input: null, off: new Set()};
+const se = () => state.problem === "se";
+// The oracle's verdict detail for a record, per problem.
+const verdict = r => r.se_J !== undefined
+  ? `step to the WLS optimum ${r.se_max_step.toExponential(1)} · J ${r.se_J.toPrecision(4)} (at the truth ${r.se_J_true.toPrecision(4)}) · max |ΔV| from the truth ${r.se_max_dvm_true_pu.toExponential(1)} p.u.`
+  : r.se_n_buses !== undefined ? `only ${r.se_n_reported} of ${r.se_n_buses} buses reported`
+  : `max |ΔP| ${r.residual_max_dp_mw.toExponential(2)} MW, |ΔQ| ${r.residual_max_dq_mvar.toExponential(2)} MVAr, |ΔV| setpoint ${r.residual_max_dvm_pu.toExponential(1)} p.u., worst bus ${r.residual_worst_bus}`;
 const gridTitle = g => (D.grids.find(x => x[0] === g) || [g, g, g])[2];
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -207,7 +226,7 @@ function chart() {
     if (i === undefined) { tip.hidden = true; return; }
     const {t, p} = hits[+i], r = p.r;
     let acc = "";
-    if (r.op === "solve" && r.oracle_ok !== undefined) acc = r.oracle_ok ? "oracle: verified" : `oracle: FAILED, worst |ΔS| ${Math.max(r.residual_max_dp_mw, r.residual_max_dq_mvar).toExponential(1)} MVA at bus ${r.residual_worst_bus}`;
+    if (r.op === "solve" && r.oracle_ok !== undefined) acc = (r.oracle_ok ? "oracle: verified · " : "oracle: FAILED · ") + verdict(r);
     else if (r.sv_n) acc = `vs published SV: median ${(r.sv_dv_median * 100).toFixed(3)}%, max ${(r.sv_dv_max * 100).toFixed(2)}%`;
     const what = state.op === "memory"
       ? `+${memAdded(r).toFixed(1)} MB peak over a ${Math.round(r.rss_baseline_mb)} MB baseline (import peak +${(r.rss_import_mb - r.rss_baseline_mb).toFixed(1)} MB)`
@@ -247,9 +266,11 @@ function tables() {
     const ok = tools.map(t => row(t.name, c, "solve")).filter(r => r && r.oracle_ok);
     return ok.length ? ok.reduce((a, b) => a.median <= b.median ? a : b).tool : null; };
   $("#t-title").textContent = state.op === "memory" ? `Peak memory: ${gridTitle(state.grid)} (MB added)`
-    : `${state.op === "solve" ? "Warm solve" : "Import"}: ${gridTitle(state.grid)} (median ms)`;
+    : `${state.op === "solve" ? (se() ? "Warm estimate" : "Warm solve") : "Import"}: ${gridTitle(state.grid)} (median ms)`;
   $("#t-desc").textContent = state.op === "memory"
     ? "Peak RSS of a fresh process loading the case and solving it once, minus the peak after importing the tool (hover for the baseline). The Python process only: cgmes2pgm's Fuseki server is not included."
+    : state.op === "solve" && se()
+    ? "✓: the estimate is the weighted least-squares optimum of its measurement set (oracle, independent of every tool). ✗: it is not; hover the cell for how far off. Bold: the fastest ✓ in the row."
     : state.op === "solve"
     ? (graded(cases) ? "✓: the solution satisfies the original MATPOWER case's equations at every bus (tier 1), whatever the input: a CGMES row is graded against the .m it was converted from. ✗: converged to a different problem; hover the cell for where. Bold: the fastest ✓ in the row. ·: the tool does not read this input." : "Accuracy for CGMES fixtures is judged against the published SV solution, below.")
     : "File to model: median of 3 cold loads after one warm-up load. Memory: hover a cell.";
@@ -268,7 +289,7 @@ function tables() {
       }
       let cls = "", title = `${r.rounds} rounds, min ${fmt(r.min)} ms`;
       if (r.op === "solve" && r.oracle_ok !== undefined) { cls = r.oracle_ok ? (t.name === b ? "ok best" : "ok") : "bad";
-        if (!r.oracle_ok) title += ` · max |ΔP| ${r.residual_max_dp_mw.toExponential(2)} MW, |ΔQ| ${r.residual_max_dq_mvar.toExponential(2)} MVAr, |ΔV| setpoint ${r.residual_max_dvm_pu.toExponential(1)} p.u., worst bus ${r.residual_worst_bus}`; }
+        if (!r.oracle_ok || se()) title += ` · ${verdict(r)}`; }
       if (r.op === "import" && r.rss_import_mb) title += ` · peak memory +${Math.round((r.rss_solve_mb || r.rss_import_mb) - r.rss_baseline_mb)} MB over the ${Math.round(r.rss_baseline_mb)} MB import baseline`;
       h += `<td class="${cls}" data-v="${r.median}" title="${esc(title)}">${fmt(r.median)}</td>`;
     }
@@ -277,7 +298,9 @@ function tables() {
   $("#timing").innerHTML = h + "</tbody>"; sortable($("#timing"));
 
   const mp = graded(cases);
-  $("#a-desc").textContent = mp
+  $("#a-desc").textContent = se()
+    ? "Largest entry of one Gauss-Newton step from the estimate (p.u./rad; 0 at the WLS optimum). Hover for J against J at the true state, and the distance from the true state (information only: with noise the right answer is the optimum, not the truth)."
+    : mp
     ? "Tier 1: largest |ΔP| or |ΔQ| in MVA of V·conj(Ybus·V) − S over the buses where it is specified; Ybus built from the .m file. Every tool was asked for 1e-8 p.u."
     : "Tier 2: |ΔV|/V against the published SvVoltage, median / max, with matched / published TopologicalNodes. The published solution is a reference, not ground truth.";
   let a = `<thead><tr><th>case</th><th>${unit}</th>${withInput ? '<th style="text-align:left">input</th>' : ""}${tools.map(t => `<th>${esc(t.display)}</th>`).join("")}</tr></thead><tbody>`;
@@ -287,7 +310,9 @@ function tables() {
       const r = row(t.name, c, "solve");
       if (!reads(t, c)) { a += `<td class="na" data-v="1e99">·</td>`; continue; }
       if (!r) { a += `<td class="fail" data-v="1e98">failed</td>`; continue; }
-      if (mp) { const w = Math.max(r.residual_max_dp_mw, r.residual_max_dq_mvar);
+      if (r.se_n_buses !== undefined) a += r.se_J === undefined ? `<td class="bad" data-v="1e96">${r.se_n_reported}/${r.se_n_buses} buses</td>`
+        : `<td class="${r.oracle_ok ? "ok" : "bad"}" data-v="${r.se_max_step}" title="${esc(verdict(r))}">${r.se_max_step.toExponential(1)}</td>`;
+      else if (mp) { const w = Math.max(r.residual_max_dp_mw, r.residual_max_dq_mvar);
         a += `<td class="${r.oracle_ok ? "ok" : "bad"}" data-v="${w}">${w.toExponential(1)}</td>`; }
       else a += r.sv_n ? `<td data-v="${r.sv_dv_max}">${(r.sv_dv_median * 100).toFixed(3)}% / ${(r.sv_dv_max * 100).toFixed(2)}% <span class="meta">(${r.sv_n}/${r.sv_n_published})</span></td>` : `<td data-v="1e97">n=0</td>`;
     }
@@ -307,7 +332,14 @@ function legendNote() {
     : "Filled point: the oracle verified the solution. Hollow: the tool converged, but to a solution of a different problem. No point: the tool failed; the table says why.");
 }
 
+const SB_DESC = {pf: $("#sb-desc").textContent,
+  se: "Weighted least-squares state estimation on the default cases, both measurement scenarios: ✓ / ✗ / FAILED per grid. ✓: the estimate is the optimum of its measurement set."};
 function render() {
+  $("#problem").hidden = !ALL.se;
+  if (ALL.se) seg($("#problem"), "problem", [["pf", "Power flow"], ["se", "State estimation"]]);
+  D = ALL[state.problem];
+  if (!D.grids.some(([g]) => g === state.grid)) state.grid = D.grids[0][0];
+  $("#sb-desc").textContent = SB_DESC[state.problem];
   seg($("#op"), "op", [["solve", "Solve"], ["import", "Import"], ["memory", "Memory"]]);
   seg($("#grid"), "grid", D.grids.map(([g, label]) => [g, label]));
   const inputs = inputsOf(state.grid);

@@ -36,6 +36,12 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   would grade the converter again; it is converted and graded
   (`oracle/check_conversion.py`) but its cases are in no group, available
   by name.
+- `se-matpower`, `se-distribution`: state estimation. A MATPOWER or
+  distribution case plus a measurement scenario (`exact`, `noisy`; see
+  `cases/measurements.py`), keyed `<case>~<scenario>`, generated from the
+  case's own power flow (`cases/truth.py`) and graded by `oracle.wls`
+  against the weighted least-squares problem. `problem` is "se" for these
+  and "pf" for every other case.
 
 Groups say what a case is *for* (a case can be in several):
 
@@ -70,7 +76,9 @@ CGMES_DIR = DATA / "CGMES-Test-Configurations" / "v3.0"
 DEFAULT_GROUPS = ("smoke", "scaling", "feature", "robustness")
 CONVERTERS = ("cimoxide", "pypowsybl")
 SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstring
-FAMILIES = ("matpower", "distribution", "cgmes") + tuple(f"converted-{c}" for c in CONVERTERS)
+SCENARIOS = ("exact", "noisy")   # see cases/measurements.py
+FAMILIES = (("matpower", "distribution", "cgmes") + tuple(f"converted-{c}" for c in CONVERTERS)
+            + ("se-matpower", "se-distribution"))
 GRIDS = ("transmission", "distribution", "fixtures")
 
 
@@ -156,6 +164,23 @@ for _base in CONVERTED_FROM:
         }
 
 
+# State estimation: every headline MATPOWER and distribution case, with each
+# measurement scenario. The family says the case is read with its
+# measurements; grid and groups are the base case's. Only `exact` is smoke.
+SE_FROM = [k for k, c in CASES.items() if c["family"] in ("matpower", "distribution") and c["groups"]
+           and c["groups"] != ["robustness"]]
+for _base in SE_FROM:
+    for _scen in SCENARIOS:
+        CASES[f"{_base}~{_scen}"] = {
+            "family": f"se-{CASES[_base]['family']}", "grid": CASES[_base]["grid"], "format": "matpower",
+            "problem": "se", "file": CASES[_base]["file"], "base_case": _base, "scenario": _scen,
+            "groups": [g for g in CASES[_base]["groups"] if g != "smoke" or _scen == "exact"],
+            "source": f"{_base}, {_scen} measurements", "note": CASES[_base]["note"],
+        }
+for _c in CASES.values():
+    _c.setdefault("problem", "pf")
+
+
 def select(family: str, groups=DEFAULT_GROUPS, names=None) -> list[str]:
     """Case keys of one family, filtered by explicit names or by group."""
     keys = [k for k, c in CASES.items() if c["family"] == family]
@@ -194,3 +219,14 @@ def mat_path(key: str) -> Path:
 
 def pgm_json_path(key: str) -> Path:
     return CACHE / f"{key}.pgm.json"
+
+
+def pgm_branch_ids_path(key: str) -> Path:
+    """`{branch row in the .m: PGM id}`, written by `cases.prep` next to the
+    PGM JSON, so PGM branch sensors are joined by id, not by position."""
+    return CACHE / f"{key}.pgm.branch-ids.json"
+
+
+def measurements_path(key: str) -> Path:
+    """The measurement set of a state-estimation case (`cases.measurements`)."""
+    return CACHE / f"{key}.meas.json"

@@ -18,6 +18,10 @@ else
 fi
 $compose run --rm conversion-check
 $compose run --rm "$tool" pytest "benchmarks/${tool}_benchmark.py" "--benchmark-json=/output/$tool.json" "$@"
+# A tool with a state estimator: the same container, its own JSON.
+if [ -f "benchmarks/${tool}_se_benchmark.py" ]; then
+    $compose run --rm "$tool" pytest "benchmarks/${tool}_se_benchmark.py" "--benchmark-json=/output/$tool-se.json" "$@"
+fi
 
 # Stop the Fuseki sidecar that `run` starts for cgmes2pgm.
 $compose stop fuseki >/dev/null 2>&1

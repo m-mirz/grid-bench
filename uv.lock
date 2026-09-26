@@ -668,7 +668,6 @@ dependencies = [
 [package.optional-dependencies]
 all = [
     { name = "lightsim2grid" },
-    { name = "matplotlib" },
     { name = "numba" },
     { name = "pandapower", extra = ["converter"] },
     { name = "power-grid-model" },
@@ -692,9 +691,6 @@ pypowsybl = [
 pypsa = [
     { name = "pypsa" },
 ]
-reports = [
-    { name = "matplotlib" },
-]
 veragrid = [
     { name = "veragridengine" },
 ]
@@ -702,9 +698,8 @@ veragrid = [
 [package.metadata]
 requires-dist = [
     { name = "cimoxide", specifier = "==0.3.3" },
-    { name = "grid-bench", extras = ["pandapower", "lightsim2grid", "pypsa", "pgm", "pypowsybl", "veragrid", "reports"], marker = "extra == 'all'" },
+    { name = "grid-bench", extras = ["pandapower", "lightsim2grid", "pypsa", "pgm", "pypowsybl", "veragrid"], marker = "extra == 'all'" },
     { name = "lightsim2grid", marker = "extra == 'lightsim2grid'", specifier = "==1.0.0" },
-    { name = "matplotlib", marker = "extra == 'reports'", specifier = ">=3.10" },
     { name = "numba", marker = "extra == 'pandapower'", specifier = ">=0.61" },
     { name = "numpy", specifier = ">=2.2" },
     { name = "pandapower", extras = ["converter"], marker = "extra == 'pandapower'", specifier = "==3.3.3" },
@@ -717,7 +712,7 @@ requires-dist = [
     { name = "scipy", specifier = ">=1.15" },
     { name = "veragridengine", marker = "extra == 'veragrid'", specifier = "==6.5.29" },
 ]
-provides-extras = ["pandapower", "lightsim2grid", "pypsa", "pgm", "pypowsybl", "veragrid", "reports", "all"]
+provides-extras = ["pandapower", "lightsim2grid", "pypsa", "pgm", "pypowsybl", "veragrid", "all"]
 
 [[package]]
 name = "h11"

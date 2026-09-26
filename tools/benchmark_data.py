@@ -34,6 +34,9 @@ class Results:
     failures: list = field(default_factory=list)    # {tool, case, operation, error}
     runs: list = field(default_factory=list)        # {tool, datetime, git_sha, image, machine}
     conversion: list = field(default_factory=list)  # oracle.check_conversion output, one entry per converted case
+    # State estimation, in the same structure (`tools` holds the estimators'
+    # metadata), so every table and chart function works on either.
+    se: "Results | None" = None
 
     def get(self, tool: str, case: str, operation: str) -> Record | None:
         return next((r for r in self.records if (r.tool, r.case, r.operation) == (tool, case, operation)), None)
@@ -77,14 +80,6 @@ class Results:
         from adapters import ADAPTERS  # a name list only; importing it loads no tool
         return [t for t in ADAPTERS if t in self.tools]
 
-
-FAMILY_TITLES = {
-    "matpower": "Transmission grids (MATPOWER .m)",
-    "distribution": "Distribution grids (MATPOWER .m)",
-    "cgmes": "CGMES conformity fixtures",
-    "converted-cimoxide": "Transmission grids as CGMES, converted with cimoxide",
-    "converted-pypowsybl": "Transmission grids as CGMES, converted with pypowsybl",
-}
 
 GRID_TITLES = {
     "transmission": "Transmission grids (meshed)",
@@ -147,8 +142,10 @@ def scoreboard(res: Results) -> tuple[list[tuple[str, str | None]], list[tuple[s
 
 def load(directory: Path) -> Results:
     """Every record of a case in the default groups. A case run by name
-    (outside them) stays in its JSON but out of the published reports."""
-    res = Results()
+    (outside them) stays in its JSON but out of the published reports.
+    Power flow at the top level, state estimation in `.se`: a tool has an
+    entry in each, with that problem's settings."""
+    res = Results(se=Results())
     conversion = Path(directory) / "conversion.json"
     if conversion.exists():
         res.conversion = json.loads(conversion.read_text())
@@ -159,18 +156,25 @@ def load(directory: Path) -> Results:
         if "grid_bench" not in data:
             continue
         gb = data["grid_bench"]
-        res.tools.update(gb["tools"])
-        res.failures.extend(f for f in data.get("failures", []) if _published(f["case"]))
-        for tool in gb["tools"]:
-            res.runs.append({"tool": tool, "datetime": data.get("datetime"), "git_sha": gb.get("git_sha"),
-                             "image": gb.get("container_image"), "machine": data.get("machine_info", {})})
+        for tool, meta in gb["tools"].items():
+            part = res.se if meta.get("problem") == "se" else res
+            part.tools[tool] = meta
+            part.runs.append({"tool": tool, "datetime": data.get("datetime"), "git_sha": gb.get("git_sha"),
+                              "image": gb.get("container_image"), "machine": data.get("machine_info", {})})
+        for f in data.get("failures", []):
+            if _published(f["case"]):
+                _part(res, f["case"]).failures.append(f)
         for b in data["benchmarks"]:
             e = b["extra_info"]
             if not _published(e["case"]):
                 continue
-            res.records.append(Record(e["tool"], e["case"], e["family"], e["operation"],
+            _part(res, e["case"]).records.append(Record(e["tool"], e["case"], e["family"], e["operation"],
                                       b["stats"]["median"] * 1e3, b["stats"]["min"] * 1e3, b["stats"]["rounds"], e))
     return res
+
+
+def _part(res: Results, case: str) -> Results:
+    return res.se if CASES[case]["problem"] == "se" else res
 
 
 def _published(case: str) -> bool:

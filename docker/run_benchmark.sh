@@ -31,6 +31,11 @@ for t in "${tools[@]}"; do
     echo "=== $t"
     $compose run --rm "$t" pytest "benchmarks/${t}_benchmark.py" "--benchmark-json=/output/$t.json" "${extra[@]}" \
         || failed+=("$t")
+    # A tool with a state estimator: the same container, its own JSON.
+    if [ -f "benchmarks/${t}_se_benchmark.py" ]; then
+        $compose run --rm "$t" pytest "benchmarks/${t}_se_benchmark.py" "--benchmark-json=/output/$t-se.json" "${extra[@]}" \
+            || failed+=("$t-se")
+    fi
 done
 
 $compose run --rm reports

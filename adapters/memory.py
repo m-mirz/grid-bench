@@ -32,9 +32,10 @@ def _status_mb(field: str, pid: int | str = "self") -> float:
 
 
 def _child(tool: str, case: str) -> dict:
-    from adapters import get_adapter
+    from adapters import get_adapter, get_estimator
+    from cases.registry import CASES
 
-    adapter = get_adapter(tool)
+    adapter = (get_estimator if CASES[case]["problem"] == "se" else get_adapter)(tool)
     for name in adapter.modules:
         import_module(name)
     pid = adapter.tool_pid() or "self"

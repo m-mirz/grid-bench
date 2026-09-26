@@ -74,7 +74,7 @@ def pytest_benchmark_update_json(config, benchmarks, output_json):
         "tools": {a.name: {
             "display_name": a.display_name, "color": a.color, "tags": a.tags(), "language": a.language,
             "version": a.version(), "dependencies": a.dependencies(), "settings": a.settings,
-            "families": list(a.families),
+            "families": list(a.families), "problem": a.problem,
         } for a in adapters.values()},
     }
     output_json["failures"] = config.grid_bench_failures

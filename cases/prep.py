@@ -19,6 +19,11 @@ Writes into `data/.case-cache/`:
   benchmark feeds PGM with. Its known loss: PGM's transformer `clock` cannot
   hold a continuous phase shift, so every MATPOWER phase shift is rounded to
   zero. The oracle reports that as a residual on the shifting branches.
+  Next to it, `<case>.pgm.branch-ids.json`: the PGM id of each branch row,
+  the join for PGM's branch sensors in state estimation.
+- `<case>~<scenario>.meas.json` (state-estimation cases): the measurement
+  set (`cases.measurements`), generated from the case's own power flow
+  (`cases.truth`), which is first checked by the oracle's tier-1 residual.
 
 Conversion happens here, not inside a tool's timed import, so a tool's
 import time never includes our own conversion code.
@@ -35,8 +40,10 @@ import zipfile
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
-from cases import gridoxide_matpower, matpower
-from cases.registry import CACHE, CASES, FAMILIES, cgmes_files, mat_path, pgm_json_path
+from cases import gridoxide_matpower, matpower, measurements, truth
+from cases.registry import (CACHE, CASES, FAMILIES, cgmes_files, mat_path, measurements_path, pgm_branch_ids_path,
+                            pgm_json_path)
+from oracle import residual, ybus
 
 
 def _cache_key(case: dict) -> str:
@@ -91,20 +98,48 @@ def prepare_converted(key: str) -> None:
     print(f"prepared {key}", file=sys.stderr)
 
 
+def prepare_se(key: str) -> None:
+    """The measurement set, after the base case's tool inputs (tools read the
+    network from those and attach the measurements)."""
+    case = CASES[key]
+    prepare(case["base_case"])
+    stamp = CACHE / f"{key}.key"
+    h = hashlib.sha256()
+    for p in (case["file"], Path(__file__), Path(matpower.__file__), Path(truth.__file__),
+              Path(measurements.__file__), Path(residual.__file__), Path(ybus.__file__)):
+        h.update(Path(p).read_bytes())
+    if stamp.exists() and stamp.read_text() == h.hexdigest() and measurements_path(key).exists():
+        return
+    mpc = matpower.parse_m(case["file"])
+    data = measurements.generate(mpc, key, case["scenario"])
+    vm = {b: t[0] for b, t in data["true_state"].items()}
+    va = {b: t[1] for b, t in data["true_state"].items()}
+    r = residual.residual(mpc, vm, va)
+    assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
+        f"{key}: the true state does not solve the case ({r})"
+    measurements.write(data, measurements_path(key))
+    stamp.write_text(h.hexdigest())
+    print(f"prepared {key}", file=sys.stderr)
+
+
 def prepare(key: str) -> None:
     case = CASES[key]
     if case["family"] == "cgmes":
         return prepare_cgmes(key)
     if "converter" in case:
         return prepare_converted(key)
+    if case["problem"] == "se":
+        return prepare_se(key)
     stamp = CACHE / f"{key}.key"
     digest = _cache_key(case)
-    if stamp.exists() and stamp.read_text() == digest and mat_path(key).exists() and pgm_json_path(key).exists():
+    if (stamp.exists() and stamp.read_text() == digest and mat_path(key).exists() and pgm_json_path(key).exists()
+            and pgm_branch_ids_path(key).exists()):
         return
     convert = gridoxide_matpower.convert
     mpc = matpower.normalize_for_tools(matpower.parse_m(case["file"]))
     matpower.write_mat(mpc, mat_path(key))
-    convert(mat_path(key), pgm_json_path(key))
+    branch_ids = convert(mat_path(key), pgm_json_path(key))
+    pgm_branch_ids_path(key).write_text(json.dumps(branch_ids))
     _strip_reactive_limits(pgm_json_path(key))
     stamp.write_text(digest)
     print(f"prepared {key}", file=sys.stderr)

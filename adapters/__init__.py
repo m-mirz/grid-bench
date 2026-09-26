@@ -14,7 +14,24 @@ ADAPTERS = {
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
 
+# State estimators, by the same tool names (a tool's colour and container are
+# its power-flow adapter's). Order: ADAPTERS order.
+ESTIMATORS = {
+    "pandapower": "adapters.pandapower_se_adapter:PandapowerEstimator",
+    "pgm": "adapters.pgm_se_adapter:PgmEstimator",
+    "veragrid": "adapters.veragrid_se_adapter:VeragridEstimator",
+    "sparlectra": "adapters.sparlectra_se_adapter:SparlectraEstimator",
+}
+
+
+def _instantiate(path: str):
+    module, cls = path.split(":")
+    return getattr(import_module(module), cls)()
+
 
 def get_adapter(name: str):
-    module, cls = ADAPTERS[name].split(":")
-    return getattr(import_module(module), cls)()
+    return _instantiate(ADAPTERS[name])
+
+
+def get_estimator(name: str):
+    return _instantiate(ESTIMATORS[name])
