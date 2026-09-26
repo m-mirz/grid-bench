@@ -126,7 +126,7 @@ def scoreboard(res: Results) -> tuple[list[tuple[str, str | None]], list[tuple[s
             columns.append((f"{grid} {label}" if all(graded(c) for c in sub) else GRID_TITLES[grid], None, sub))
     robust = [c for g in res.grids() for c in res.grid_cases(g, robustness=True)]
     if robust:
-        columns.append(("hard cases (no convergence expected)", "robustness", robust))
+        columns.append(("hard transmission cases", "hard-transmission-cases", robust))
     rows = []
     for t in res.tool_order():
         cells = []

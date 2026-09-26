@@ -300,7 +300,7 @@ def generate(directory: Path, res: Results) -> str:
         "## Scoreboard",
         "",
         "AC power flow on the default cases: ✓ / ✗ / FAILED per grid and input. CGMES fixtures have no verdict "
-        "(their reference is someone else's solution): cases solved. Hard cases: transmission cases that are not "
+        "(their reference is someone else's solution): cases solved. Hard transmission cases: cases that are not "
         "expected to converge from a flat start, so FAILED is the normal outcome and a ✓ stands out.",
         "",
         scoreboard_section(res),
@@ -313,7 +313,7 @@ def generate(directory: Path, res: Results) -> str:
         "route changed. CGMES fixtures: time · median |ΔV|/V against the published `SvVoltage` (tier 2).",
         "",
         solve,
-        "## Robustness",
+        "## Hard transmission cases",
         "",
         "Cases known not to converge from a flat start in any tool tested here. Kept out of the tables above; "
         "a tool that solves one of these (and passes the oracle) is doing something the others do not.",
