@@ -163,8 +163,9 @@ def robustness_section(res: Results, notes: Notes) -> str:
 
 
 def scoreboard_section(res: Results) -> str:
-    labels, rows = scoreboard(res)
-    return table(["tool"] + labels, [[res.tools[t]["display_name"]] + cells for t, cells in rows])
+    columns, rows = scoreboard(res)
+    header = [f"[{label}](#{section})" if section else label for label, section in columns]
+    return table(["tool"] + header, [[res.tools[t]["display_name"]] + cells for t, cells in rows])
 
 
 def memory_cells(res: Results):
@@ -299,7 +300,8 @@ def generate(directory: Path, res: Results) -> str:
         "## Scoreboard",
         "",
         "AC power flow on the default cases: ✓ / ✗ / FAILED per grid and input. CGMES fixtures have no verdict "
-        "(their reference is someone else's solution): cases solved.",
+        "(their reference is someone else's solution): cases solved. Hard cases: transmission cases that are not "
+        "expected to converge from a flat start, so FAILED is the normal outcome and a ✓ stands out.",
         "",
         scoreboard_section(res),
         "",

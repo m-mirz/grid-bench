@@ -33,9 +33,9 @@ def payload(res: Results) -> dict:
     cpu = run.get("machine", {}).get("cpu", {})
     grids = [[g, {"transmission": "Transmission", "distribution": "Distribution", "fixtures": "CGMES fixtures"}[g],
               GRID_TITLES[g]] for g in res.grids()]
-    labels, board = scoreboard(res)
+    columns, board = scoreboard(res)
     return {"tools": tools, "cases": cases, "rows": rows, "failures": res.failures, "grids": grids,
-            "scoreboard": {"columns": [label.replace("`", "") for label in labels], "rows": board},
+            "scoreboard": {"columns": [label.replace("`", "") for label, _ in columns], "rows": board},
             "run": {"cpu": cpu.get("brand_raw", "?"), "cores": cpu.get("count", "?"),
                     "os": f"{run.get('machine', {}).get('system', '?')} {run.get('machine', {}).get('release', '')}",
                     "git": str(run.get("git_sha", "?"))[:12], "date": str(run.get("datetime", "?"))[:10]}}
@@ -103,7 +103,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <p class="meta" id="meta"></p>
 
 <h2>Scoreboard</h2>
-<p>AC power flow on the default cases: ✓ / ✗ / FAILED per grid and input. CGMES fixtures have no verdict (their reference is someone else's solution): cases solved.</p>
+<p>AC power flow on the default cases: ✓ / ✗ / FAILED per grid and input. CGMES fixtures have no verdict (their reference is someone else's solution): cases solved. Hard cases: transmission cases that are not expected to converge from a flat start, so FAILED is the normal outcome and a ✓ stands out; they are in the Transmission tables, below the others.</p>
 <div class="scroll"><table id="scoreboard"></table></div>
 
 <div class="controls">
