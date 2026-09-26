@@ -3,7 +3,10 @@
 Input: `lightsim2grid.network.init_from_matpower` on the prepared `.mat`.
 lightsim2grid 1.0 reads MATPOWER matrices directly, without building a
 pandapower net first (gridoxide's bench went through pandapower's bundled
-cases). One lightsim2grid bus per MATPOWER bus, in file order. No CGMES
+cases). One lightsim2grid bus per MATPOWER bus, in file order. Known loss,
+reported by the oracle: online generators on PQ-typed buses regulate
+voltage, where MATPOWER treats them as fixed P/Q injections (case2848rte:
+exactly its 48 such buses). No CGMES
 importer of its own (only via pypowsybl's, which would benchmark that
 importer instead), so the cgmes family is not run.
 

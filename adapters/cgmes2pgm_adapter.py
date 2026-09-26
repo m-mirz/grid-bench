@@ -21,8 +21,13 @@ cgmes2pgm is written for state estimation, and converts for it:
 That is a different problem from the one every other tool here is given
 (generator voltage regulation as the case defines it). It is benchmarked as
 the tool is built, and the oracle reports where the solution departs from
-the case. cgmes2pgm pins power-grid-model 1.12.x, so this column runs
-its own image and cannot share the 1.13 PGM column's.
+the case. Also reported, not fixed: it refers a transformer's end-2 series
+impedance by k² before handing it to PGM's `generic_branch`, which takes the
+impedance on the to side unchanged (checked on a two-bus model), so a file
+that states the impedance on end 2 (valid CGMES; PowSyBl's export and most
+fixtures use end 1) is wrong at every off-nominal transformer.
+cgmes2pgm pins power-grid-model 1.12.x, so this column runs its own image
+and cannot share the 1.13 PGM column's.
 
 Settings:
 - `ConverterOptions()` defaults, as the suite's example configuration.
