@@ -26,10 +26,15 @@ LIGHT_TO_DARK = {
     "#e34948": "#e66767",   # 8 red     Sienna (PowerFlows.jl)
     "#0f8fa8": "#1b9cb6",   # 9 teal    Sparlectra.jl (past the validated eight, see above)
 }
-# A reference implementation (MATPOWER) is not a ninth hue: neutral ink,
-# drawn dashed, so it reads as a reference line in both modes and without
-# colour vision.
+# A reference implementation is not another hue: neutral ink, so it reads as
+# a reference line in both modes and without colour vision. MATPOWER (the
+# case format's) is dashed; PowerModels.jl (whose results with Ipopt are
+# PGLib-OPF's published references) is dotted, in the same ink, the pattern
+# telling the two apart. `DASH` maps a colour to its line pattern.
 REFERENCE = "#52514e"
+REFERENCE_DOTTED = "#52514f"   # the same ink, one unit off: a distinct key for its pattern
 LIGHT_TO_DARK[REFERENCE] = "#c3c2b7"
+LIGHT_TO_DARK[REFERENCE_DOTTED] = "#c3c2b8"
+DASH = {REFERENCE: "6 4", REFERENCE_DOTTED: "1.5 3.5"}
 LIGHT = {"surface": "#fcfcfb", "text": "#0b0b0b", "text2": "#52514e", "grid": "#e4e3df", "axis": "#8a8984"}
 DARK = {"surface": "#1a1a19", "text": "#ffffff", "text2": "#c3c2b7", "grid": "#33332f", "axis": "#6f6e69"}

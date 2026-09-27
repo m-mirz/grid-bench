@@ -3,9 +3,10 @@
     from benchmarks.benchmark_template import create_benchmarks
     create_benchmarks("pandapower")
 
-(a state-estimation benchmark file passes `"se"` as well: the same tests,
-on the tool's `EstimatorAdapter`, over the `se-*` cases, graded by
-`oracle.wls`)
+(a state-estimation benchmark file passes `"se"`, an optimal-power-flow one
+`"opf"`: the same tests, on the tool's `EstimatorAdapter` or
+`OptimizerAdapter`, over that problem's cases, graded by `oracle.wls` or
+`oracle.opf`)
 
 which injects two tests into that module, each parametrized over every case
 the tool can read (selected by `--groups` / `--cases`, see conftest.py):
@@ -19,8 +20,14 @@ the tool can read (selected by `--groups` / `--cases`, see conftest.py):
 - `test_solve[case]`: repeated solves on ONE persistent model, as every tool
   is used in practice and as every tool here supports. 1 untimed warm-up
   solve (JIT, first symbolic factorization), then enough timed rounds to
-  fill `TARGET_SECONDS`, clamped to [MIN_ROUNDS, MAX_ROUNDS]. The solution
-  of the last round is graded by the oracle and attached to the record.
+  fill `TARGET_SECONDS`, clamped to [MIN_ROUNDS, MAX_ROUNDS], or 1 round
+  and no calibration solve if the warm-up alone took longer than
+  `SLOW_SOLVE_SECONDS` (an OPF of a few thousand buses in a Python solver
+  takes a minute; eight of them per case made one tool's sweep take an
+  hour, and repeats do not change a minute-long median). Outside OPF it
+  applies to VeraGrid's state estimation on mvlv29840~exact (152 s) and can
+  to PyPSA's power flow on mvlv29840 (29 s). The solution of the last round is
+  graded by the oracle and attached to the record.
 
 A tool in a process of its own (`SolverAdapter.clock`) is timed by that
 process: the records hold the time measured inside the tool.
@@ -40,12 +47,13 @@ import os
 import time
 from pathlib import Path
 
-from adapters import get_adapter, get_estimator, memory
+from adapters import get, memory
 from cases.registry import CASES
 from oracle.evaluate import evaluate
 
 IMPORT_ROUNDS = 3
 SLOW_IMPORT_SECONDS = 30.0
+SLOW_SOLVE_SECONDS = 30.0
 TARGET_SECONDS = 2.0
 MIN_ROUNDS, MAX_ROUNDS = 5, 200
 RESULTS = Path(os.environ.get("GRID_BENCH_RESULTS", Path(__file__).resolve().parent.parent / "results"))
@@ -67,11 +75,12 @@ def _record(benchmark, adapter, case: str, operation: str) -> None:
 def _dump_solution(tool: str, case: str, sol) -> None:
     path = RESULTS / "solutions" / tool / f"{case}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"vm": sol.vm, "va_deg": sol.va_deg}))
+    path.write_text(json.dumps({"vm": sol.vm, "va_deg": sol.va_deg}
+                               | ({"pg_mw": sol.pg_mw, "qg_mvar": sol.qg_mvar} if sol.pg_mw is not None else {})))
 
 
 def create_benchmarks(tool: str, problem: str = "pf") -> None:
-    adapter = {"pf": get_adapter, "se": get_estimator}[problem](tool)
+    adapter = get(tool, problem)
     namespace = inspect.currentframe().f_back.f_globals
     namespace["ADAPTER"] = adapter
 
@@ -86,15 +95,19 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
     def test_solve(benchmark, case):
         _record(benchmark, adapter, case, "solve")
         model = adapter.load(case)
-        adapter.solve(model)                      # warm-up; raises on non-convergence
         t0 = time.perf_counter()
-        adapter.solve(model)                      # calibration
-        rounds = min(MAX_ROUNDS, max(MIN_ROUNDS, math.ceil(TARGET_SECONDS / (time.perf_counter() - t0))))
+        adapter.solve(model)                      # warm-up; raises on non-convergence
+        if time.perf_counter() - t0 > SLOW_SOLVE_SECONDS:
+            rounds = 1
+        else:
+            t0 = time.perf_counter()
+            adapter.solve(model)                  # calibration
+            rounds = min(MAX_ROUNDS, max(MIN_ROUNDS, math.ceil(TARGET_SECONDS / (time.perf_counter() - t0))))
         benchmark.pedantic(adapter.solve, args=(model,), rounds=rounds, iterations=1)
         sol = adapter.solution(model, case)
         _dump_solution(tool, case, sol)
         benchmark.extra_info.update({"iterations": sol.iterations, "n_reported": len(sol.vm)})
-        benchmark.extra_info.update(evaluate(case, sol.vm, sol.va_deg))
+        benchmark.extra_info.update(evaluate(case, sol.vm, sol.va_deg, sol.pg_mw, sol.qg_mvar))
 
     namespace["test_import"] = test_import
     namespace["test_solve"] = test_solve

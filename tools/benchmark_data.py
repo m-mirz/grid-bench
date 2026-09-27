@@ -34,9 +34,10 @@ class Results:
     failures: list = field(default_factory=list)    # {tool, case, operation, error}
     runs: list = field(default_factory=list)        # {tool, datetime, git_sha, image, machine}
     conversion: list = field(default_factory=list)  # oracle.check_conversion output, one entry per converted case
-    # State estimation, in the same structure (`tools` holds the estimators'
-    # metadata), so every table and chart function works on either.
+    # State estimation and optimal power flow, in the same structure (`tools`
+    # holds that problem's adapters' metadata), so every table works on any.
     se: "Results | None" = None
+    opf: "Results | None" = None
 
     def get(self, tool: str, case: str, operation: str) -> Record | None:
         return next((r for r in self.records if (r.tool, r.case, r.operation) == (tool, case, operation)), None)
@@ -77,8 +78,9 @@ class Results:
 
     def tool_order(self) -> list[str]:
         """Registry order, i.e. colour-slot order; never re-ranked."""
-        from adapters import ADAPTERS  # a name list only; importing it loads no tool
-        return [t for t in ADAPTERS if t in self.tools]
+        from adapters import REGISTRIES  # name lists only; importing them loads no tool
+        order = dict.fromkeys(t for registry in REGISTRIES.values() for t in registry)
+        return [t for t in order if t in self.tools]
 
 
 GRID_TITLES = {
@@ -143,9 +145,10 @@ def scoreboard(res: Results) -> tuple[list[tuple[str, str | None]], list[tuple[s
 def load(directory: Path) -> Results:
     """Every record of a case in the default groups. A case run by name
     (outside them) stays in its JSON but out of the published reports.
-    Power flow at the top level, state estimation in `.se`: a tool has an
-    entry in each, with that problem's settings."""
-    res = Results(se=Results())
+    Power flow at the top level, state estimation in `.se`, optimal power
+    flow in `.opf`: a tool has an entry in each, with that problem's
+    settings."""
+    res = Results(se=Results(), opf=Results())
     conversion = Path(directory) / "conversion.json"
     if conversion.exists():
         res.conversion = json.loads(conversion.read_text())
@@ -157,7 +160,7 @@ def load(directory: Path) -> Results:
             continue
         gb = data["grid_bench"]
         for tool, meta in gb["tools"].items():
-            part = res.se if meta.get("problem") == "se" else res
+            part = _problem(res, meta.get("problem", "pf"))
             part.tools[tool] = meta
             part.runs.append({"tool": tool, "datetime": data.get("datetime"), "git_sha": gb.get("git_sha"),
                               "image": gb.get("container_image"), "machine": data.get("machine_info", {})})
@@ -173,8 +176,12 @@ def load(directory: Path) -> Results:
     return res
 
 
+def _problem(res: Results, problem: str) -> Results:
+    return {"pf": res, "se": res.se, "opf": res.opf}[problem]
+
+
 def _part(res: Results, case: str) -> Results:
-    return res.se if CASES[case]["problem"] == "se" else res
+    return _problem(res, CASES[case]["problem"])
 
 
 def _published(case: str) -> bool:

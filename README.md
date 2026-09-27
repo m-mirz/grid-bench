@@ -135,6 +135,23 @@ truth. MATPOWER's own estimator (`extras/se`) cannot state this problem: it
 takes one sigma per measurement class and injections only at generators.
 `adapters/estimator_adapter.py` explains why.
 
+## Optimal power flow
+
+AC optimal power flow for MATPOWER (MIPS), pandapower (PIPS), VeraGrid
+(its own interior-point solver) and PowerModels.jl (Ipopt with MUMPS), on
+PGLib-OPF v23.07: typical conditions
+from 14 to 2,869 buses (case9241 is runnable by name), and the congested (`__api`) and small
+angle-difference (`__sad`) variants of case14, case118 and case300. Every
+tool solves MATPOWER's AC-OPF (polynomial cost; voltage, generator, branch
+MVA and angle-difference limits) from a flat start. The oracle
+(`oracle/opf.py`) solves nothing. It checks the solution's power balance
+and every limit against the `.m`, recomputes its cost, and accepts it at
+most 0.01 % above PGLib's published reference, which is a local optimum
+given to five digits. It is checked against an independent solve in the
+tests. PowerModels.jl with Ipopt is the solver behind PGLib's own
+references; like MATPOWER, it is drawn as a reference line (dotted) and
+graded like every other tool.
+
 ## Cases
 
 Chosen for what they exercise, not just their size (`cases/registry.py`):

@@ -9,7 +9,8 @@ without a tier-1 verdict (`solved`, CGMES fixtures). A missing case, or any
 change in either direction, fails the check: a regression, or a fix that
 should be recorded as the new expectation. A tool with a state estimator has
 its state-estimation smoke cases (`<case>~<scenario>`) in the same entry,
-read from `<tool>-se.json`. Standard library only, so CI can run it on the
+read from `<tool>-se.json`, and a tool with an OPF its OPF smoke case,
+from `<tool>-opf.json`. Standard library only, so CI can run it on the
 host.
 """
 import json
@@ -33,7 +34,7 @@ def outcomes(results: dict) -> dict[str, str]:
 
 def main(tool: str, results_dir: str = "results-docker") -> int:
     expected = json.loads((ROOT / "benchmarks" / "smoke_expectations.json").read_text())[tool]
-    paths = [Path(results_dir) / f"{tool}.json", Path(results_dir) / f"{tool}-se.json"]
+    paths = [Path(results_dir) / f"{tool}{suffix}.json" for suffix in ("", "-se", "-opf")]
     runs = [json.loads(p.read_text()) for p in paths if p.exists()]
     results = {"benchmarks": [b for r in runs for b in r["benchmarks"]],
                "failures": [f for r in runs for f in r["failures"]]}

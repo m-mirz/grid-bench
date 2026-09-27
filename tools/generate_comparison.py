@@ -91,6 +91,26 @@ def se_note(e: dict) -> str:
     return "; ".join(parts) + f" (|ΔV| from the true state up to {e['se_max_dvm_true_pu']:.2g} p.u.)"
 
 
+OPF_LIMITS = (("opf_max_vm_violation_pu", "|V| outside its limits by {:.2g} p.u."),
+              ("opf_max_pg_violation_mw", "generator P outside its limits by {:.2g} MW"),
+              ("opf_max_qg_violation_mvar", "generator Q outside its limits by {:.2g} MVAr"),
+              ("opf_max_flow_violation_mva", "branch flow over its limit by {:.2g} MVA"),
+              ("opf_max_angle_violation_deg", "branch angle difference outside its limits by {:.2g} degrees"))
+
+
+def opf_note(e: dict) -> str:
+    """Why an OPF result is not accepted (`oracle.opf`)."""
+    if e["opf_n_reported_buses"] < e["opf_n_buses"] or e["opf_n_reported_gens"] < e["opf_n_gens"]:
+        return (f"only {e['opf_n_reported_buses']} of {e['opf_n_buses']} buses and {e['opf_n_reported_gens']} "
+                f"of {e['opf_n_gens']} generators reported")
+    parts = []
+    if max(e["opf_max_dp_mw"], e["opf_max_dq_mvar"]) > 1e-3:
+        parts.append(f"power balance off by {e['opf_max_dp_mw']:.2g} MW / {e['opf_max_dq_mvar']:.2g} MVAr")
+    parts += [text.format(e[k]) for k, text in OPF_LIMITS if e[k] > (1e-3 if "deg" in k else 1e-5)]
+    parts.append(f"cost {e['opf_gap']:+.2%} against the reference")
+    return "; ".join(parts)
+
+
 def failed(res: Results, notes: Notes, tool: str, case: str, operation: str) -> str:
     err = res.failure(tool, case, operation)
     if err is None:
@@ -114,6 +134,9 @@ def cell(res: Results, notes: Notes, tool: str, case: str, operation: str) -> st
     if CASES[case]["problem"] == "se":
         head = f"✗ · **{res.tools[tool]['display_name']}, state estimation**"
         return f"{text} ✗{notes.ref(head, case, se_note(rec.extra))}"
+    if CASES[case]["problem"] == "opf":
+        head = f"✗ · **{res.tools[tool]['display_name']}, optimal power flow**"
+        return f"{text} ✗{notes.ref(head, case, opf_note(rec.extra))}"
     head = f"✗ · **{res.tools[tool]['display_name']}, {input_label(case)}**"
     return f"{text} ✗{notes.ref(head, case, residual_note(rec.extra))}"
 
@@ -340,6 +363,68 @@ def conversion_section(res: Results) -> str:
                   "setpoints missing / extra", "slack defined"], rows)
 
 
+def opf_cells(res: Results):
+    def render(tools, case):
+        row = []
+        for t in tools:
+            rec = res.get(t, case, "solve")
+            if not reads(res, t, case):
+                row.append("·")
+            elif rec is None:
+                row.append("failed")
+            elif math.isnan(rec.extra["opf_gap"]):
+                row.append("incomplete ✗")
+            else:
+                e = rec.extra
+                worst = max(max(e["opf_max_dp_mw"], e["opf_max_dq_mvar"]) / 100, e["opf_max_vm_violation_pu"],
+                            e["opf_max_pg_violation_mw"] / 100, e["opf_max_qg_violation_mvar"] / 100,
+                            e["opf_max_flow_violation_mva"] / 100)
+                row.append(f"{e['opf_gap']:+.1e} · {worst:.0e}" + ("" if e["oracle_ok"] else " ✗"))
+        return row
+    return render
+
+
+def opf_section(opf: Results, notes: Notes) -> str:
+    """AC optimal power flow: the same tables, graded by `oracle.opf`."""
+    solve = per_grid(opf, timing_cells(opf, notes, "solve")).replace("### ", "#### ")
+    imports = per_grid(opf, timing_cells(opf, notes, "import")).replace("### ", "#### ")
+    return "\n".join([
+        "## AC optimal power flow",
+        "",
+        "PGLib-OPF v23.07 cases: typical operating conditions from 14 to 2,869 buses, and the congested (`__api`) "
+        "and small angle-difference (`__sad`) variants of case14, case118 and case300. Every tool solves MATPOWER's "
+        "AC-OPF: polynomial cost, the power-flow equations, voltage, generator, branch MVA and angle-difference "
+        "limits, flat start, tolerance 1e-6. ✓: the solution is feasible for the case (power balance within 1e-3 "
+        "MVA, every limit within 1e-5 p.u. or 1e-3 degrees) and its cost, recomputed from the case, is at most "
+        "0.01 % above PGLib's published reference (`oracle/opf.py`, independent of every tool). The reference is a "
+        "local optimum given to five digits.",
+        "",
+        "### Scoreboard",
+        "",
+        scoreboard_section(opf),
+        "",
+        "### Warm solve",
+        "",
+        "Median of repeated solves on one persistent model, flat start every time, in ms; the fastest ✓ in each "
+        "row in bold.",
+        "",
+        solve,
+        "### Import: file to model",
+        "",
+        imports,
+        "### Accuracy",
+        "",
+        "Cost against the reference (relative; negative is cheaper, which a solution violating a limit can be) · "
+        "largest violation of balance or a limit, in p.u. of 100 MVA.",
+        "",
+        per_grid(opf, opf_cells(opf)).replace("### ", "#### "),
+        "### Environment",
+        "",
+        environment(opf),
+        "",
+    ])
+
+
 def environment(res: Results) -> str:
     rows = []
     for t in res.tool_order():
@@ -363,6 +448,7 @@ def generate(directory: Path, res: Results) -> str:
     robust = robustness_section(res, notes)
     imports = per_grid(res, timing_cells(res, notes, "import"))
     se = se_section(res.se, notes) if res.se and (res.se.records or res.se.failures) else ""
+    opf = opf_section(res.opf, notes) if res.opf and (res.opf.records or res.opf.failures) else ""
     parts = [
         "# grid-bench results",
         "",
@@ -443,6 +529,7 @@ def generate(directory: Path, res: Results) -> str:
         cross_tool(res, directory),
         "",
         *([se] if se else []),
+        *([opf] if opf else []),
         "## Notes",
         "",
         "Wrong solutions are grouped by tool and input, failures by tool and message (numbers that differ per case "

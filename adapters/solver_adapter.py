@@ -39,6 +39,10 @@ class Solution:
     va_deg: dict[str, float]
     iterations: int | None = None
     extra: dict = field(default_factory=dict)
+    # Optimal power flow only: the dispatch of every online generator, keyed
+    # by its row in the `.m`'s gen matrix (as str), MW and MVAr.
+    pg_mw: dict[str, float] | None = None
+    qg_mvar: dict[str, float] | None = None
 
 
 class ToolAdapter(ABC):

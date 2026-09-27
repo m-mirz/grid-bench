@@ -17,7 +17,8 @@ import numpy as np
 # MATPOWER column indices (0-based), as documented in MATPOWER's `caseformat`.
 BUS_I, BUS_TYPE, PD, QD, GS, BS, BUS_AREA, VM, VA, BASE_KV, ZONE, VMAX, VMIN = range(13)
 GEN_BUS, PG, QG, QMAX, QMIN, VG, MBASE, GEN_STATUS, PMAX, PMIN = range(10)
-F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, RATIO, ANGLE, BR_STATUS = range(11)
+F_BUS, T_BUS, BR_R, BR_X, BR_B, RATE_A, RATE_B, RATE_C, RATIO, ANGLE, BR_STATUS, ANGMIN, ANGMAX = range(13)
+MODEL, STARTUP, SHUTDOWN, NCOST, COST = range(5)   # gencost; model 2 = polynomial, coefficients from COST, highest order first
 
 PQ, PV, REF, ISOLATED = 1, 2, 3, 4
 
