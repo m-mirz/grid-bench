@@ -136,7 +136,12 @@ $("#toolchips").onclick = e => { const b = e.target.closest(".chip"); if (!b) re
 
 function chart() {
   const svg = $("#chart"), W = 960, H = 440, m = {l: 64, r: 200, t: 20, b: 48};
-  const cases = casesOf(state.grid).filter(c => D.cases[c].input === state.input && D.cases[c].groups.some(g => g === "smoke" || g === "scaling"));
+  // Plotted: smoke and scaling cases, and the variants of those (an OPF case's
+  // congested or small angle-difference version is the same grid, so it
+  // extends no line across grid families; the feature cases that would are
+  // in the tables only).
+  const plotted = c => (D.cases[D.cases[c].base] || D.cases[c]).groups.some(g => g === "smoke" || g === "scaling");
+  const cases = casesOf(state.grid).filter(c => D.cases[c].input === state.input && plotted(c));
   const tools = D.tools.filter(t => !state.off.has(t.name) && cases.some(c => reads(t, c)));
   const series = tools.map(t => ({t, pts: cases.map(c => ({c, r: rec(t.name, c)})).filter(p => p.r && val(p.r) !== undefined)
     .map(p => ({x: D.cases[p.c].size, y: state.op === "memory" ? Math.max(val(p.r), MEM_FLOOR) : val(p.r),
@@ -276,7 +281,7 @@ function tables() {
 }
 
 function legendNote() {
-  $("#legend-note").textContent = "Log-log, scaling cases only (feature cases of different grid families are in the tables), one input at a time. " + (state.op === "memory"
+  $("#legend-note").textContent = "Log-log, scaling cases and their variants only (feature cases of different grid families are in the tables), one input at a time. " + (state.op === "memory"
     ? "Hollow point: memory of loading only, because the solve failed. Values below 1 MB are drawn at 1 MB."
     : "Filled point: the oracle verified the solution. Hollow: the tool converged, but to a solution of a different problem. No point: the tool failed; the table says why.");
 }
