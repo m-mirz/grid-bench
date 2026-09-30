@@ -1,0 +1,38 @@
+# Dependencies of the p3s (parallel pandapower solver) benchmark image. The tool
+# is pinned exactly: a version change is a deliberate, recorded event, never a
+# side effect of a rebuild. See adapters/p3s_adapter.py for how the tool is
+# driven, and tool-configs/p3s/Dockerfile for its compiled C++/KLU extension,
+# which is not on PyPI and is built from the same release's source.
+[project]
+name = "grid-bench-p3s"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2,<2.4",   # the same bound as the pandapower image, whose pandapower p3s reads nets from
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+    "parallel-pandapower-solver==1.1.0",
+    "pandapower[converter]==3.3.3",   # the same importer (from_mpc, cim2pp) as the pandapower column
+    "numba>=0.61",
+]
+
+# Only for building the nr_klu extension in the Dockerfile's builder stage
+# (`uv sync --only-group build`), so its build requirements come from this
+# lockfile too instead of an unpinned isolated build environment.
+[dependency-groups]
+build = [
+    "numpy>=2.2,<2.4",   # headers: the extension uses numpy's C API through pybind11
+    "scikit-build-core>=0.10",
+    "pybind11>=2.12",
+    "cmake>=3.18",
+    "ninja>=1.11",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"
+# The one exception: p3s 1.1.0 (uploaded 2026-09-24) was taken at 6 days old,
+# on purpose, to add the tool without waiting; everything else keeps P7D.
+exclude-newer-package = { parallel-pandapower-solver = "2026-09-25T00:00:00Z" }

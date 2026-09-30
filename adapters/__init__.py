@@ -3,6 +3,7 @@ from importlib import import_module
 
 ADAPTERS = {
     "pandapower": "adapters.pandapower_adapter:PandapowerAdapter",
+    "p3s": "adapters.p3s_adapter:P3sAdapter",   # slot 1's variant (tools/palette.py P3S)
     "lightsim2grid": "adapters.lightsim2grid_adapter:Lightsim2gridAdapter",
     "pypsa": "adapters.pypsa_adapter:PypsaAdapter",
     "pgm": "adapters.pgm_adapter:PgmAdapter",

@@ -54,6 +54,12 @@
     "case14~exact": "ok",
     "case33bw~exact": "ok"
   },
+  "p3s": {
+    "case14": "ok",
+    "cgmes_powerflow": "failed",
+    "case14@cimoxide": "failed",
+    "case33bw": "ok"
+  },
   "matpower": {
     "case14": "ok",
     "case33bw": "ok",
