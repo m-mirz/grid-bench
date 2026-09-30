@@ -114,6 +114,11 @@ services:
     image: grid-bench/sparlectra:latest
     command: pytest benchmarks/sparlectra_benchmark.py --benchmark-json=/output/sparlectra.json
 
+  p3s:
+    <<: *bench
+    image: grid-bench/p3s:latest
+    command: pytest benchmarks/p3s_benchmark.py --benchmark-json=/output/p3s.json
+
   matpower:
     <<: *bench
     image: grid-bench/matpower:latest

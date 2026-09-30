@@ -6,8 +6,9 @@ tools *read* CGMES grid models, grid-bench compares what the tools are for:
 **solving** them. It does not stop at speed. Every solve is checked by an
 oracle that none of the tools under test takes part in.
 
-v1 covers AC power flow in ten tool setups:
-[pandapower](https://github.com/e2nIEE/pandapower),
+v1 covers AC power flow in eleven tool setups:
+[pandapower](https://github.com/e2nIEE/pandapower) and its
+[parallel solver p3s](https://github.com/e2nIEE/parallel-pandapower-solver) (C++/KLU),
 [lightsim2grid](https://github.com/Grid2op/lightsim2grid),
 [PyPSA](https://github.com/PyPSA/PyPSA),
 [power-grid-model](https://github.com/PowerGridModel/power-grid-model),
@@ -185,6 +186,7 @@ output is graded but not solved by default.
 | tool | MATPOWER input | CGMES input | solver |
 |---|---|---|---|
 | pandapower | `from_mpc` (.mat) | `from_cim` | `runpp`, NR, numba |
+| pandapower (p3s) | `from_mpc` (.mat) | `from_cim` (no slack for p3s: it reads only `ext_grid`) | `NewtonPowerflowCpp` (nr_klu, KLU), its own Ybus |
 | lightsim2grid | `init_from_matpower` (.mat) | — | `NR_KLU` |
 | PyPSA | `import_from_pypower_ppc`, transformers as pi-model | — | `pf()` |
 | power-grid-model | PGM JSON via `gridoxide.matpower` | — | NR with experimental voltage regulators |

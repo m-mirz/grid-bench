@@ -5,9 +5,10 @@ Contributor guide for grid-bench (people and coding agents alike).
 ## What this is
 
 A benchmark of power system analysis software. v1 covers AC power flow for
-pandapower, lightsim2grid, PyPSA, power-grid-model, pypowsybl, VeraGrid,
-Sienna (PowerFlows.jl) and Sparlectra.jl (both Julia, through juliacall),
-MATPOWER (GNU Octave), and power-grid-model on CGMES through cgmes2pgm, and
+pandapower, p3s (pandapower's parallel solver, C++/KLU), lightsim2grid, PyPSA,
+power-grid-model, pypowsybl, VeraGrid, Sienna (PowerFlows.jl) and
+Sparlectra.jl (both Julia, through juliacall), MATPOWER (GNU Octave), and
+power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
 VeraGrid and Sparlectra.jl, and AC optimal power flow for MATPOWER,
 pandapower, VeraGrid and PowerModels.jl (Ipopt; its own image, OPF only) on
@@ -76,6 +77,7 @@ tool-configs/matpower/Dockerfile      the official Octave image + uv Python + th
 tool-configs/sienna/Dockerfile, julia/   Julia on top of the base image; Project.toml, Manifest.toml,
              setup.jl (registry snapshot), GridBenchSienna (the adapter's Julia half, precompiled)
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
+tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources
 docker/      base.dockerfile, tool.dockerfile, docker-compose.yml, build.sh, run_*.sh
 tests/       the oracle's own tests (test_wls.py: state estimation, test_opf.py: AC-OPF), and the converter's
              (exactness + planted errors)
@@ -108,8 +110,8 @@ internal compose network; the run scripts stop the sidecar afterwards.
 1. `adapters/<tool>_adapter.py`: subclass `SolverAdapter`. Set `name`,
    `display_name`, `color` (the next unused slot in `tools/palette.py`, kept
    for life; all nine slots are taken, and a tenth tool needs a different
-   encoding, not another hue, see the palette's docstring; a reference
-   implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
+   encoding, not another hue, see the palette's docstring (p3s is
+   pandapower's blue, dashed: `P3S`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
    reference solver, `REFERENCE_DOTTED`), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,
    `families`, `settings`. Implement `load`, `solve`, `solution`. Docstring:
@@ -212,12 +214,14 @@ the native path), Julia by the official image's digest and Julia packages by
 `tool-configs/*/julia/Manifest.toml`, resolved against the General
 registry at a commit at least 7 days old (`REGISTRY_COMMIT` in `setup.jl`;
 move it forward deliberately, like `exclude-newer`; the one exception is
-sparlectra, pinned to its newest release on purpose, see its `setup.jl`),
+sparlectra, pinned to its newest release on purpose, see its `setup.jl`;
+p3s likewise, through `exclude-newer-package` in its `pyproject.toml`),
 the Fuseki jar by SHA-256 (`docker/fuseki/Dockerfile`), GNU Octave by the
 official image's digest and the MATPOWER release zip by SHA-256
-(`tool-configs/matpower/Dockerfile`), the CI checkout action by commit. Do
-not add `apt`/`apk` installs. To update anything, change the pin
-deliberately and say why in the commit.
+(`tool-configs/matpower/Dockerfile`), the gcc image by digest and the
+SuiteSparse and p3s source tarballs by SHA-256 (`tool-configs/p3s/Dockerfile`),
+the CI checkout action by commit. Do not add `apt`/`apk` installs. To
+update anything, change the pin deliberately and say why in the commit.
 
 ## Style
 
