@@ -52,5 +52,16 @@ def _child(tool: str, case: str) -> dict:
 
 
 def measure(tool: str, case: str, timeout: float = 1800) -> dict:
-    with multiprocessing.get_context("spawn").Pool(1) as pool:
-        return pool.apply_async(_child, (tool, case)).get(timeout)
+    # close and join, not the context manager's terminate: SIGTERM to a child
+    # running Julia (juliacall handles signals) can deadlock it on exit, and
+    # the parent then waits for it forever (seen with Sparlectra 0.30.1).
+    # A child that failed or timed out is still terminated.
+    pool = multiprocessing.get_context("spawn").Pool(1)
+    try:
+        out = pool.apply_async(_child, (tool, case)).get(timeout)
+    except BaseException:
+        pool.terminate()
+        raise
+    pool.close()
+    pool.join()
+    return out

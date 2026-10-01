@@ -1,9 +1,9 @@
 """Sparlectra: Sparlectra.jl's rectangular complex-state Newton-Raphson
-(Julia, UMFPACK sparse LU), driven from Python through juliacall, which runs
+(Julia, KLU sparse LU), driven from Python through juliacall, which runs
 Julia inside the benchmark process: a call costs microseconds, so the timing
 is Julia's.
 
-Version: 0.17.3, the newest release when it was added (2026-09-25), chosen
+Version: 0.30.1, the newest release when it was last updated (2026-10-01), chosen
 deliberately over the 7-day rule every other pin follows (the package
 releases almost daily); tool-configs/sparlectra/julia/setup.jl says so too.
 
@@ -64,11 +64,24 @@ Solve settings (`runpf_rectangular!`):
   mismatch vector (P and Q in p.u. at PQ buses, P and |V|-Vset at PV buses)
   is at most `tol`. The loop counts mismatch evaluations, so it gets
   `MAX_ITERATIONS + 1` for `MAX_ITERATIONS` Newton steps.
-- `linear_solver=:umfpack_reuse` and `rectangular_workspace_reuse=true`
-  (defaults): symbolic LU analysis and work arrays reused across iterations.
-  Each solve rebuilds Ybus and computes the final injections and mismatch
-  diagnostics: Sparlectra has no call that solves on a prebuilt Ybus, so
-  these are timed as part of `solve`.
+- `newton_update=:polar` (the default since 0.30.0, passed so a change of
+  default cannot change the iteration): the rectangular Newton step is
+  applied to magnitude and angle, as MATPOWER's newtonpf does, not added to
+  the complex voltage. Same equations and solution, different iterates.
+- `power_mode=true`: what a repeated solve of the same network can reuse is
+  kept on the `Net` between solves (Ybus, the symbolic LU analysis, work
+  arrays; the ranked mismatch diagnostics after convergence are skipped),
+  as the other tools' persistent models keep theirs. Voltages are not kept,
+  so the flat start above holds. The Ybus is reused only while a
+  fingerprint of every branch and shunt (with its status) is unchanged, and
+  the LU is re-analysed when the Jacobian pattern changes, so an N-1 outage
+  rebuilds both. The first solve builds them: warm-up, as for every tool.
+- KLU as the sparse LU of power mode, through Sparlectra's KLU extension
+  (`using KLU` in GridBenchSparlectra; asserted at load). Sparlectra makes
+  UMFPACK the default because it is faster on very large Jacobians with heavy
+  fill-in; on Jacobians of 5.7k to 60k unknowns the extension measures
+  KLU's numeric refactorization 6 to 20 times faster. KLU is also the LU of
+  p3s, lightsim2grid and PowerFlows.jl.
 - Julia runs single-threaded (`PYTHON_JULIACALL_THREADS=1`); `verbose=0`,
   info and warning logs off.
 
@@ -89,13 +102,17 @@ Known losses, reported by the oracle rather than hidden:
   impedance is probably not re-referred (not confirmed in the source).
 
 Robustness (not a loss: the model is exact):
-- From the common flat start, the rectangular Newton-Raphson diverges on
-  case9241pegase (mismatch 530, 1.1e4, 1.4e6 p.u. after two steps) although
-  MATPOWER's own solution satisfies Sparlectra's equations to 4e-10 MW, and
-  the polar Newton-Raphson of MATPOWER and four other tools converges from
-  that start. With PV buses started at 1 p.u. instead of their setpoints it
-  converges in 8 steps. The same holds for case9241pegase@cimoxide and
-  cgmes_realgrid, which converge (and are accepted) from a 1 p.u. start.
+- The polar update decides which hard cases converge from the common flat
+  start, against `newton_update=:rectangular` (V + dV, the default before
+  0.30): case9241pegase (and @cimoxide) now converges in 6 steps, as in
+  MATPOWER, lightsim2grid, PyPSA and VeraGrid, where the rectangular update
+  diverged (mismatch 530, 1.1e4, 1.4e6 p.u. after two steps); case1888rte
+  and cgmes_minigrid, which the rectangular update solved in 12 and 7 steps,
+  now diverge, as they do for every polar Newton-Raphson in the benchmark
+  (case1888rte) and for pandapower, p3s, pypowsybl and VeraGrid
+  (cgmes_minigrid). Measured on 0.30.1 with both updates; power mode makes
+  no difference to either. case6495rte and cgmes_realgrid diverge with the
+  polar update and diverged with the rectangular one in 0.17.3.
 """
 from importlib.metadata import version
 
@@ -118,6 +135,7 @@ class SparlectraAdapter(SolverAdapter):
     language = "julia"
     families = ("matpower", "distribution", "cgmes", "converted-cimoxide", "converted-pypowsybl")
     settings = {"solver": "runpf_rectangular!", "formulation": "rectangular", "init": "flat", "damping": 1.0,
+                "newton_update": "polar", "linear_solver": "klu", "power_mode": True,
                 "start_improvers": False, "reactive_limits": False, "distributed_slack": False,
                 "remote_voltage_control": False, "outer_loop_controls": "off", "tolerance_pu": TOLERANCE_PU,
                 "max_iteration": MAX_ITERATIONS}

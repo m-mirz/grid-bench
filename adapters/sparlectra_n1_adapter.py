@@ -10,6 +10,17 @@ start (`adapters/sparlectra_adapter.py`, its settings); every outage starts
 from the base solution, written into the nodes (`opt_flatstart=false`). One
 call into Julia per outage; Julia runs single-threaded.
 
+Outages are solved with `power_mode=false` (the base case keeps the power
+flow's `power_mode=true`): in 0.30.1, power mode replays the previous
+solve's Jacobian assembly whenever the bus types and the entry count are
+unchanged, and two outages of one branch each have the same count but a
+different sparsity pattern, so the second outage's Jacobian is assembled into
+the first one's slots. On case14 13 of 20 outages then diverge, with KLU and
+UMFPACK alike, while each converges from a fresh `Net` or without power
+mode. The Ybus itself is rebuilt correctly (its fingerprint covers branch
+status); the assembly is not. Without power mode every outage builds its
+own, as in 0.17.3.
+
 Join: Sparlectra's importer makes `branchVec[row + 1]` of every branch row,
 asserted by the MATPOWER numbers of its buses (`busOrigIdxDict`).
 """
@@ -27,7 +38,8 @@ class SparlectraN1(LoopContingencyAdapter):
     package = SparlectraAdapter.package
     language = SparlectraAdapter.language
     modules = SparlectraAdapter.modules
-    settings = SparlectraAdapter.settings | {"mode": "loop", "start": "base-case solution (opt_flatstart=false)"}
+    settings = SparlectraAdapter.settings | {"mode": "loop", "start": "base-case solution (opt_flatstart=false)",
+                                            "power_mode": "base case only"}
     single = SparlectraAdapter()
     version = SparlectraAdapter.version
     dependencies = SparlectraAdapter.dependencies
