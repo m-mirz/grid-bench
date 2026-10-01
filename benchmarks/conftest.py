@@ -1,17 +1,22 @@
 """pytest plumbing: case selection, failure recording, result metadata.
 
 - `--groups smoke,scaling` / `--cases case14,case300` select cases
-  (default: every case in `cases.registry.DEFAULT_GROUPS`).
+  (default: every case in `cases.registry.DEFAULT_GROUPS`); a batch
+  benchmark's solve test also runs once per thread count
+  (`BatchAdapter.thread_counts`, or `--threads 1,4`).
 - Every failed test (non-convergence, import error, timeout) is recorded
   with its tool, case, operation and real exception line, and written into
   the pytest-benchmark JSON under `failures`, so a report shows
   `FAILED (IterationDiverge: ...)` instead of a missing cell.
-- Tool metadata (version, dependencies, settings, tags, colour) and the git
-  commit are written once per JSON under `grid_bench`, so the report
+- Tool metadata (version, dependencies, settings, tags, colour), the git
+  commit and the cores the run could use (`cpus`, which scaling results
+  depend on) are written once per JSON under `grid_bench`, so the report
   generators never import an adapter.
 """
 import os
+import platform
 import re
+from pathlib import Path
 
 import pytest
 
@@ -23,6 +28,7 @@ SCHEMA_VERSION = 1
 def pytest_addoption(parser):
     parser.addoption("--groups", default=",".join(DEFAULT_GROUPS), help="comma-separated case groups")
     parser.addoption("--cases", default="", help="comma-separated case names (overrides --groups)")
+    parser.addoption("--threads", default="", help="batch benchmarks: comma-separated thread counts")
 
 
 def pytest_configure(config):
@@ -37,6 +43,9 @@ def pytest_generate_tests(metafunc):
     names = [c for c in metafunc.config.getoption("cases").split(",") if c]
     cases = [c for fam in adapter.families for c in select(fam, groups, names)]
     metafunc.parametrize("case", cases)
+    if "threads" in metafunc.fixturenames:
+        given = [int(t) for t in metafunc.config.getoption("threads").split(",") if t]
+        metafunc.parametrize("threads", [t for t in adapter.thread_counts() if not given or t in given])
 
 
 def extract_error(text: str) -> str:
@@ -62,7 +71,7 @@ def pytest_runtest_makereport(item, call):
             "case": item.callspec.params["case"],
             "operation": item.originalname.removeprefix("test_"),
             "error": extract_error(report.longreprtext),
-        })
+        } | ({"threads": item.callspec.params["threads"]} if "threads" in item.callspec.params else {}))
 
 
 def pytest_benchmark_update_json(config, benchmarks, output_json):
@@ -71,6 +80,7 @@ def pytest_benchmark_update_json(config, benchmarks, output_json):
         "schema_version": SCHEMA_VERSION,
         "git_sha": os.environ.get("GIT_SHA", "unknown"),
         "container_image": os.environ.get("GRID_BENCH_IMAGE", "native"),
+        "cpus": {"available": len(os.sched_getaffinity(0)), "logical": os.cpu_count(), "model": _cpu_model()},
         "tools": {a.name: {
             "display_name": a.display_name, "color": a.color, "tags": a.tags(), "language": a.language,
             "version": a.version(), "dependencies": a.dependencies(), "settings": a.settings,
@@ -78,6 +88,12 @@ def pytest_benchmark_update_json(config, benchmarks, output_json):
         } for a in adapters.values()},
     }
     output_json["failures"] = config.grid_bench_failures
+
+
+def _cpu_model() -> str:
+    models = [ln.split(":", 1)[1].strip() for ln in Path("/proc/cpuinfo").read_text().splitlines()
+              if ln.startswith("model name")]
+    return models[0] if models else platform.processor()
 
 
 def pytest_collection_modifyitems(config, items):

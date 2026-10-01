@@ -1,0 +1,1152 @@
+{
+    "machine_info": {
+        "node": "c26f21de5798",
+        "processor": "",
+        "machine": "x86_64",
+        "python_compiler": "Clang 22.1.3 ",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.14",
+        "python_version": "3.13.14",
+        "python_build": [
+            "main",
+            "Jul 18 2026 17:02:37"
+        ],
+        "release": "7.0.0-34-generic",
+        "system": "Linux",
+        "cpu": {
+            "python_version": "3.13.14.final.0 (64 bit)",
+            "cpuinfo_version": [
+                10,
+                1,
+                1
+            ],
+            "cpuinfo_version_string": "10.1.1",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 16,
+            "arch_string_raw": "x86_64",
+            "vendor_id_raw": "AuthenticAMD",
+            "brand_raw": "AMD Ryzen 7 250 w/ Radeon 780M Graphics",
+            "hz_advertised_friendly": "1.1003 GHz",
+            "hz_actual_friendly": "1.1003 GHz",
+            "hz_advertised": [
+                1100334000,
+                0
+            ],
+            "hz_actual": [
+                1100334000,
+                0
+            ],
+            "stepping": 2,
+            "model": 117,
+            "family": 25,
+            "flags": [
+                "3dnowprefetch",
+                "abm",
+                "adx",
+                "aes",
+                "amd_lbr_pmc_freeze",
+                "amd_lbr_v2",
+                "aperfmperf",
+                "apic",
+                "arat",
+                "avx",
+                "avx2",
+                "avx512_bf16",
+                "avx512_bitalg",
+                "avx512_vbmi2",
+                "avx512_vnni",
+                "avx512_vpopcntdq",
+                "avx512bitalg",
+                "avx512bw",
+                "avx512cd",
+                "avx512dq",
+                "avx512f",
+                "avx512ifma",
+                "avx512vbmi",
+                "avx512vbmi2",
+                "avx512vl",
+                "avx512vnni",
+                "avx512vpopcntdq",
+                "bmi1",
+                "bmi2",
+                "bpext",
+                "cat_l3",
+                "cdp_l3",
+                "clflush",
+                "clflushopt",
+                "clwb",
+                "clzero",
+                "cmov",
+                "cmp_legacy",
+                "constant_tsc",
+                "cpb",
+                "cppc",
+                "cpuid",
+                "cpuid_fault",
+                "cqm",
+                "cqm_llc",
+                "cqm_mbm_local",
+                "cqm_mbm_total",
+                "cqm_occup_llc",
+                "cr8_legacy",
+                "cx16",
+                "cx8",
+                "dbx",
+                "de",
+                "decodeassists",
+                "erms",
+                "extapic",
+                "extd_apicid",
+                "f16c",
+                "flush_l1d",
+                "flushbyasid",
+                "fma",
+                "fpu",
+                "fsgsbase",
+                "fsrm",
+                "fxsr",
+                "fxsr_opt",
+                "gfni",
+                "ht",
+                "hw_pstate",
+                "ibpb",
+                "ibrs",
+                "ibrs_enhanced",
+                "ibs",
+                "invpcid",
+                "irperf",
+                "lahf_lm",
+                "lbrv",
+                "lm",
+                "mba",
+                "mca",
+                "mce",
+                "misalignsse",
+                "mmx",
+                "mmxext",
+                "monitor",
+                "movbe",
+                "msr",
+                "mtrr",
+                "mwaitx",
+                "nonstop_tsc",
+                "nopl",
+                "npt",
+                "nrip_save",
+                "nx",
+                "ospke",
+                "osvw",
+                "osxsave",
+                "overflow_recov",
+                "pae",
+                "pat",
+                "pausefilter",
+                "pci_l2i",
+                "pclmulqdq",
+                "pdpe1gb",
+                "perfctr_core",
+                "perfctr_llc",
+                "perfctr_nb",
+                "perfmon_v2",
+                "pfthreshold",
+                "pge",
+                "pku",
+                "pni",
+                "popcnt",
+                "pqe",
+                "pqm",
+                "pse",
+                "pse36",
+                "rapl",
+                "rdpid",
+                "rdpru",
+                "rdrand",
+                "rdrnd",
+                "rdseed",
+                "rdt_a",
+                "rdtscp",
+                "rep_good",
+                "sep",
+                "sha",
+                "sha_ni",
+                "skinit",
+                "smap",
+                "smca",
+                "smep",
+                "ssbd",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "sse4a",
+                "ssse3",
+                "stibp",
+                "succor",
+                "svm",
+                "svm_lock",
+                "syscall",
+                "tce",
+                "topoext",
+                "tsc",
+                "tsc_scale",
+                "umip",
+                "user_shstk",
+                "v_spec_ctrl",
+                "vaes",
+                "vgif",
+                "vmcb_clean",
+                "vme",
+                "vmmcall",
+                "vnmi",
+                "vpclmulqdq",
+                "wbnoinvd",
+                "wdt",
+                "x2apic",
+                "x2avic",
+                "xgetbv1",
+                "xsave",
+                "xsavec",
+                "xsaveerptr",
+                "xsaveopt",
+                "xsaves",
+                "xtopology"
+            ],
+            "l3_cache_size": 1048576,
+            "l2_cache_size": 8388608,
+            "l1_data_cache_size": 262144,
+            "l1_instruction_cache_size": 262144,
+            "l2_cache_line_size": 1024,
+            "l2_cache_associativity": 6
+        }
+    },
+    "commit_info": {
+        "id": "880e4d23937981a7bd7ef8d9616932242a97451d",
+        "time": "2026-09-30T21:25:35+02:00",
+        "author_time": "2026-09-30T21:25:35+02:00",
+        "dirty": true,
+        "project": "grid-bench",
+        "branch": "main"
+    },
+    "benchmarks": [
+        {
+            "group": "import:case14#sweep",
+            "name": "test_import[case14#sweep]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_import[case14#sweep]",
+            "params": {
+                "case": "case14#sweep"
+            },
+            "param": "case14#sweep",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case14#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 155.84765625,
+                "rss_import_mb": 155.8984375,
+                "rss_solve_mb": 166.34375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.020447969440000005,
+                "max": 0.020871162410000005,
+                "mean": 0.02065467834333334,
+                "stddev": 0.00021176576169910038,
+                "rounds": 3,
+                "median": 0.020644903180000007,
+                "iqr": 0.00031739472749999983,
+                "q1": 0.020497202875000006,
+                "q3": 0.020814597602500005,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.020447969440000005,
+                "hd15iqr": 0.020871162410000005,
+                "ops": 48.41518146046402,
+                "total": 0.06196403503000002,
+                "data": [
+                    0.020871162410000005,
+                    0.020447969440000005,
+                    0.020644903180000007
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case1354pegase#sweep",
+            "name": "test_import[case1354pegase#sweep]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_import[case1354pegase#sweep]",
+            "params": {
+                "case": "case1354pegase#sweep"
+            },
+            "param": "case1354pegase#sweep",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case1354pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 155.7421875,
+                "rss_import_mb": 221.98828125,
+                "rss_solve_mb": 342.71484375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.06943297386000002,
+                "max": 0.07913613319000001,
+                "mean": 0.07355101903000001,
+                "stddev": 0.0050151813339007175,
+                "rounds": 3,
+                "median": 0.07208395004000001,
+                "iqr": 0.007277369497499991,
+                "q1": 0.07009571790500002,
+                "q3": 0.07737308740250001,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.06943297386000002,
+                "hd15iqr": 0.07913613319000001,
+                "ops": 13.596004694266977,
+                "total": 0.22065305709000005,
+                "data": [
+                    0.06943297386000002,
+                    0.07208395004000001,
+                    0.07913613319000001
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2869pegase#sweep",
+            "name": "test_import[case2869pegase#sweep]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_import[case2869pegase#sweep]",
+            "params": {
+                "case": "case2869pegase#sweep"
+            },
+            "param": "case2869pegase#sweep",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case2869pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 155.42578125,
+                "rss_import_mb": 301.91015625,
+                "rss_solve_mb": 558.30859375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.1245689392,
+                "max": 0.12735605240000003,
+                "mean": 0.12618835766666667,
+                "stddev": 0.001447425557963521,
+                "rounds": 3,
+                "median": 0.12664008139999994,
+                "iqr": 0.002090334900000018,
+                "q1": 0.12508672475,
+                "q3": 0.12717705965,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.1245689392,
+                "hd15iqr": 0.12735605240000003,
+                "ops": 7.924661343493778,
+                "total": 0.378565073,
+                "data": [
+                    0.1245689392,
+                    0.12664008139999994,
+                    0.12735605240000003
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case9241pegase#sweep",
+            "name": "test_import[case9241pegase#sweep]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_import[case9241pegase#sweep]",
+            "params": {
+                "case": "case9241pegase#sweep"
+            },
+            "param": "case9241pegase#sweep",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case9241pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 155.6328125,
+                "rss_import_mb": 645.01953125,
+                "rss_solve_mb": 1509.27734375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.37217903139999997,
+                "max": 0.3812780379999998,
+                "mean": 0.3759219646333332,
+                "stddev": 0.004759164432338746,
+                "rounds": 3,
+                "median": 0.3743088244999999,
+                "iqr": 0.006824254949999886,
+                "q1": 0.37271147967499996,
+                "q3": 0.37953573462499984,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.37217903139999997,
+                "hd15iqr": 0.3812780379999998,
+                "ops": 2.660126553061032,
+                "total": 1.1277658938999997,
+                "data": [
+                    0.37217903139999997,
+                    0.3812780379999998,
+                    0.3743088244999999
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case33bw#sweep",
+            "name": "test_import[case33bw#sweep]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_import[case33bw#sweep]",
+            "params": {
+                "case": "case33bw#sweep"
+            },
+            "param": "case33bw#sweep",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case33bw#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "smoke",
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 155.41015625,
+                "rss_import_mb": 155.5078125,
+                "rss_solve_mb": 167.171875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.024729013440000003,
+                "max": 0.02534699439999999,
+                "mean": 0.024937947589999936,
+                "stddev": 0.00035427238708353974,
+                "rounds": 3,
+                "median": 0.024737834929999813,
+                "iqr": 0.0004634857199999898,
+                "q1": 0.024731218812499955,
+                "q3": 0.025194704532499945,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.024729013440000003,
+                "hd15iqr": 0.02534699439999999,
+                "ops": 40.09953090129189,
+                "total": 0.0748138427699998,
+                "data": [
+                    0.02534699439999999,
+                    0.024737834929999813,
+                    0.024729013440000003
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv1004#sweep",
+            "name": "test_import[mvlv1004#sweep]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_import[mvlv1004#sweep]",
+            "params": {
+                "case": "mvlv1004#sweep"
+            },
+            "param": "mvlv1004#sweep",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "mvlv1004#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 155.64453125,
+                "rss_import_mb": 189.28125,
+                "rss_solve_mb": 276.68359375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.04824709892000012,
+                "max": 0.04958391190000011,
+                "mean": 0.04880134264666669,
+                "stddev": 0.0006970413513342553,
+                "rounds": 3,
+                "median": 0.04857301711999984,
+                "iqr": 0.001002609734999993,
+                "q1": 0.04832857847000005,
+                "q3": 0.04933118820500004,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.04824709892000012,
+                "hd15iqr": 0.04958391190000011,
+                "ops": 20.4912394980654,
+                "total": 0.14640402794000007,
+                "data": [
+                    0.04824709892000012,
+                    0.04958391190000011,
+                    0.04857301711999984
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv10616#sweep",
+            "name": "test_import[mvlv10616#sweep]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_import[mvlv10616#sweep]",
+            "params": {
+                "case": "mvlv10616#sweep"
+            },
+            "param": "mvlv10616#sweep",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "mvlv10616#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 155.51171875,
+                "rss_import_mb": 522.9140625,
+                "rss_solve_mb": 1373.3671875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.30991101259999976,
+                "max": 0.31091594700000025,
+                "mean": 0.31029335656666673,
+                "stddev": 0.0005438401057621777,
+                "rounds": 3,
+                "median": 0.31005311010000014,
+                "iqr": 0.0007537008000003675,
+                "q1": 0.30994653697499985,
+                "q3": 0.3107002377750002,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.30991101259999976,
+                "hd15iqr": 0.31091594700000025,
+                "ops": 3.2227567198498797,
+                "total": 0.9308800697000001,
+                "data": [
+                    0.31005311010000014,
+                    0.31091594700000025,
+                    0.30991101259999976
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case14#sweep",
+            "name": "test_solve[case14#sweep-1]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_solve[case14#sweep-1]",
+            "params": {
+                "case": "case14#sweep",
+                "threads": 1
+            },
+            "param": "case14#sweep-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case14#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "loop",
+                "residual_max_dp_mw": 8.493206138382448e-13,
+                "residual_max_dq_mvar": 2.1193116706008652e-12,
+                "residual_max_dvm_pu": 2.220446049250313e-16,
+                "residual_n_checked": 14,
+                "residual_n_buses": 14,
+                "residual_worst_bus": "5",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 98,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 4.009898186000001,
+                "max": 4.052664995000001,
+                "mean": 4.0325154782000014,
+                "stddev": 0.016982433220401136,
+                "rounds": 5,
+                "median": 4.030128956000002,
+                "iqr": 0.026373326249999884,
+                "q1": 4.020840704750001,
+                "q3": 4.047214031000001,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 4.009898186000001,
+                "hd15iqr": 4.052664995000001,
+                "ops": 0.2479841690394134,
+                "total": 20.162577391000006,
+                "data": [
+                    4.045397043000001,
+                    4.009898186000001,
+                    4.052664995000001,
+                    4.024488211000001,
+                    4.030128956000002
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case1354pegase#sweep",
+            "name": "test_solve[case1354pegase#sweep-1]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_solve[case1354pegase#sweep-1]",
+            "params": {
+                "case": "case1354pegase#sweep",
+                "threads": 1
+            },
+            "param": "case1354pegase#sweep-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case1354pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "loop",
+                "residual_max_dp_mw": 8.733607231542944e-10,
+                "residual_max_dq_mvar": 8.999594160258419e-10,
+                "residual_max_dvm_pu": 2.220446049250313e-16,
+                "residual_n_checked": 1354,
+                "residual_n_buses": 1354,
+                "residual_worst_bus": "2928",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 74,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 7.814257859999998,
+                "max": 7.978600025000006,
+                "mean": 7.933875179399999,
+                "stddev": 0.06787549834611115,
+                "rounds": 5,
+                "median": 7.9617249969999975,
+                "iqr": 0.057434856500000464,
+                "q1": 7.913437187999998,
+                "q3": 7.970872044499998,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 7.946496963999998,
+                "hd15iqr": 7.978600025000006,
+                "ops": 0.12604181152187288,
+                "total": 39.669375896999995,
+                "data": [
+                    7.814257859999998,
+                    7.9617249969999975,
+                    7.946496963999998,
+                    7.978600025000006,
+                    7.968296050999996
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case2869pegase#sweep",
+            "name": "test_solve[case2869pegase#sweep-1]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_solve[case2869pegase#sweep-1]",
+            "params": {
+                "case": "case2869pegase#sweep",
+                "threads": 1
+            },
+            "param": "case2869pegase#sweep-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case2869pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "loop",
+                "residual_max_dp_mw": 1.5993144308890095e-09,
+                "residual_max_dq_mvar": 4.755867921701906e-09,
+                "residual_max_dvm_pu": 2.220446049250313e-16,
+                "residual_n_checked": 2869,
+                "residual_n_buses": 2869,
+                "residual_worst_bus": "7640",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 48,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 12.176583050000005,
+                "max": 12.415906910000004,
+                "mean": 12.290229748000005,
+                "stddev": 0.08837227199194067,
+                "rounds": 5,
+                "median": 12.289094919999997,
+                "iqr": 0.11251991999999333,
+                "q1": 12.23138773250001,
+                "q3": 12.343907652500004,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 12.176583050000005,
+                "hd15iqr": 12.415906910000004,
+                "ops": 0.08136544397493713,
+                "total": 61.45114874000002,
+                "data": [
+                    12.415906910000004,
+                    12.319907900000004,
+                    12.289094919999997,
+                    12.249655960000013,
+                    12.176583050000005
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case9241pegase#sweep",
+            "name": "test_solve[case9241pegase#sweep-1]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_solve[case9241pegase#sweep-1]",
+            "params": {
+                "case": "case9241pegase#sweep",
+                "threads": 1
+            },
+            "param": "case9241pegase#sweep-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case9241pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "loop",
+                "residual_max_dp_mw": 1.71949121607895e-09,
+                "residual_max_dq_mvar": 1.8003820656531389e-09,
+                "residual_max_dvm_pu": 2.220446049250313e-16,
+                "residual_n_checked": 9241,
+                "residual_n_buses": 9241,
+                "residual_worst_bus": "838",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 44,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 40.72217893999999,
+                "max": 40.72217893999999,
+                "mean": 40.72217893999999,
+                "stddev": 0,
+                "rounds": 1,
+                "median": 40.72217893999999,
+                "iqr": 0.0,
+                "q1": 40.72217893999999,
+                "q3": 40.72217893999999,
+                "iqr_outliers": 0,
+                "stddev_outliers": 0,
+                "outliers": "0;0",
+                "ld15iqr": 40.72217893999999,
+                "hd15iqr": 40.72217893999999,
+                "ops": 0.024556642744323648,
+                "total": 40.72217893999999,
+                "data": [
+                    40.72217893999999
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case33bw#sweep",
+            "name": "test_solve[case33bw#sweep-1]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_solve[case33bw#sweep-1]",
+            "params": {
+                "case": "case33bw#sweep",
+                "threads": 1
+            },
+            "param": "case33bw#sweep-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case33bw#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "smoke",
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "loop",
+                "residual_max_dp_mw": 3.959822147264758e-08,
+                "residual_max_dq_mvar": 7.820029346294888e-08,
+                "residual_max_dvm_pu": 0.0,
+                "residual_n_checked": 33,
+                "residual_n_buses": 33,
+                "residual_worst_bus": "30",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 47,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 3.5599210259999836,
+                "max": 3.5771751400000085,
+                "mean": 3.5677914139999984,
+                "stddev": 0.007831015563488376,
+                "rounds": 5,
+                "median": 3.5648708339999757,
+                "iqr": 0.014137208499988674,
+                "q1": 3.561439692750014,
+                "q3": 3.5755769012500025,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 3.5599210259999836,
+                "hd15iqr": 3.5771751400000085,
+                "ops": 0.28028544383957094,
+                "total": 17.838957069999992,
+                "data": [
+                    3.5648708339999757,
+                    3.561945915000024,
+                    3.5599210259999836,
+                    3.5750441550000005,
+                    3.5771751400000085
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv1004#sweep",
+            "name": "test_solve[mvlv1004#sweep-1]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_solve[mvlv1004#sweep-1]",
+            "params": {
+                "case": "mvlv1004#sweep",
+                "threads": 1
+            },
+            "param": "mvlv1004#sweep-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "mvlv1004#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "loop",
+                "residual_max_dp_mw": 9.596075386956151e-07,
+                "residual_max_dq_mvar": 8.83510776732808e-07,
+                "residual_max_dvm_pu": 0.0,
+                "residual_n_checked": 1004,
+                "residual_n_buses": 1004,
+                "residual_worst_bus": "1",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 77,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.44119596500002,
+                "max": 5.467835187999981,
+                "mean": 5.452110862799998,
+                "stddev": 0.010565889939822574,
+                "rounds": 5,
+                "median": 5.450202941999976,
+                "iqr": 0.015679359000017712,
+                "q1": 5.443784296749996,
+                "q3": 5.459463655750014,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 5.44119596500002,
+                "hd15iqr": 5.467835187999981,
+                "ops": 0.1834151992071632,
+                "total": 27.26055431399999,
+                "data": [
+                    5.44119596500002,
+                    5.456673145000025,
+                    5.450202941999976,
+                    5.467835187999981,
+                    5.444647073999988
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv10616#sweep",
+            "name": "test_solve[mvlv10616#sweep-1]",
+            "fullname": "benchmarks/matpower_batch_benchmark.py::test_solve[mvlv10616#sweep-1]",
+            "params": {
+                "case": "mvlv10616#sweep",
+                "threads": 1
+            },
+            "param": "mvlv10616#sweep-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "mvlv10616#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "loop",
+                "residual_max_dp_mw": 8.778938303701585e-07,
+                "residual_max_dq_mvar": 8.012994449150841e-07,
+                "residual_max_dvm_pu": 0.0,
+                "residual_n_checked": 10616,
+                "residual_n_buses": 10616,
+                "residual_worst_bus": "1",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 26,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 19.7878561,
+                "max": 19.96750997999999,
+                "mean": 19.851322791999998,
+                "stddev": 0.07037269699750309,
+                "rounds": 5,
+                "median": 19.837798829999997,
+                "iqr": 0.08360504750001496,
+                "q1": 19.80141162999999,
+                "q3": 19.885016677500005,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 19.7878561,
+                "hd15iqr": 19.96750997999999,
+                "ops": 0.05037447682846586,
+                "total": 99.25661395999998,
+                "data": [
+                    19.7878561,
+                    19.85751891000001,
+                    19.805930139999987,
+                    19.96750997999999,
+                    19.837798829999997
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-10-01T08:08:19.588950+00:00",
+    "version": "5.3.0",
+    "grid_bench": {
+        "schema_version": 1,
+        "git_sha": "880e4d23937981a7bd7ef8d9616932242a97451d-dirty",
+        "container_image": "grid-bench/matpower",
+        "cpus": {
+            "available": 16,
+            "logical": 16,
+            "model": "AMD Ryzen 7 250 w/ Radeon 780M Graphics"
+        },
+        "tools": {
+            "matpower": {
+                "display_name": "MATPOWER (Octave)",
+                "color": "#52514e",
+                "tags": [
+                    "powerflow",
+                    "ac",
+                    "batch",
+                    "loop",
+                    "matlab"
+                ],
+                "language": "matlab",
+                "version": "8.1",
+                "dependencies": {
+                    "octave": "11.3.0"
+                },
+                "settings": {
+                    "pf.alg": "NR",
+                    "init": "flat",
+                    "pf.enforce_q_lims": 0,
+                    "pf.tol": 1e-08,
+                    "pf.nr.max_it": 30,
+                    "runtime": "GNU Octave",
+                    "mode": "loop",
+                    "update": "case struct, then runpf (in Octave)"
+                },
+                "families": [
+                    "sweep-matpower",
+                    "sweep-distribution"
+                ],
+                "problem": "batch"
+            }
+        }
+    },
+    "failures": []
+}

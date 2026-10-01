@@ -36,8 +36,11 @@ RUN mkdir /src/suitesparse && tar -xzf /src/suitesparse.tar.gz -C /src/suitespar
 # - P3S_CPP_NATIVE=OFF: a portable build, like every other tool's wheel. The
 #   release's pyproject.toml means to set this but spells it `p3s_CPP_NATIVE`,
 #   which CMake (case-sensitive) ignores, so its default is -march=native.
-# - OpenMP off: it only parallelises `solve_batch` (many operating points);
-#   the benchmark times single solves, which never use it.
+# - OpenMP on: it parallelises `solve_batch` (many operating points), which
+#   the batch benchmark times at 1..n threads (adapters/p3s_batch_adapter.py);
+#   single solves never use it. Its runtime, libgomp, comes from this same
+#   pinned gcc image (copied below), since the base image has none and takes
+#   no apt packages.
 # - libstdc++ and libgcc linked statically: the extension then needs only glibc.
 # Upstream's -O3 -funroll-loops -ffast-math stay as the release ships them.
 ADD --checksum=sha256:efbf57ea0fd8ffdb692a339f366751a70e3b940c75e10fc8e3e5655b1c7a2798 \
@@ -45,13 +48,15 @@ ADD --checksum=sha256:efbf57ea0fd8ffdb692a339f366751a70e3b940c75e10fc8e3e5655b1c
 RUN mkdir /src/p3s && tar -xzf /src/p3s.tar.gz -C /src/p3s --strip-components=1 \
     && CMAKE_PREFIX_PATH=/opt/suitesparse uv build --wheel --no-build-isolation --python /env/.venv/bin/python -o /wheels /src/p3s/p3s/cpp \
        --config-setting=cmake.define.P3S_CPP_NATIVE=OFF \
-       --config-setting=cmake.define.CMAKE_DISABLE_FIND_PACKAGE_OpenMP=ON \
        "--config-setting=cmake.define.CMAKE_SHARED_LINKER_FLAGS=-static-libstdc++ -static-libgcc"
 
 FROM grid-bench/base:latest
 WORKDIR /env
 COPY tool-configs/p3s/pyproject.toml tool-configs/p3s/uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --python 3.13.14
+# OpenMP's runtime for the extension, from the gcc that compiled it.
+COPY --from=build /usr/local/lib64/libgomp.so.1.0.0 /usr/local/lib/libgomp.so.1
+RUN ldconfig
 # The extension installs into the p3s package (`from p3s import nr_klu`); its
 # one dependency, numpy, is already in the lockfile's environment.
 RUN --mount=type=bind,from=build,source=/wheels,target=/wheels \

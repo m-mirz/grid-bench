@@ -52,6 +52,18 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   note), and the congested (`__api`) and small
   angle-difference (`__sad`) variants of case14, case118 and case300, which
   bind the limits tools model differently.
+- `sweep-matpower`, `sweep-distribution`: batch power flow. A MATPOWER or
+  distribution case plus `SWEEP_SIZE` operating points on its topology
+  (`cases/sweep.py`), keyed `<case>#sweep`, all solved in one timed call
+  and each graded by tier 1 against the case with that scenario's demand.
+  `problem` is "batch". The cases are the smoke and scaling cases a loop
+  over single solves still finishes in minutes; mvlv29840 is left out
+  (PyPSA's 29 s per solve would make one sweep over an hour).
+- `n1-matpower`: N-1 contingency analysis. A transmission case plus 200
+  single-branch outages that keep the grid connected (`cases/contingency.py`),
+  keyed `<case>#n1`, all solved in one timed call from the tool's solution of
+  the base case, each graded by tier 1 against the case with that branch out.
+  `problem` is "n1". Radial grids have no such outage.
 
 Groups say what a case is *for* (a case can be in several):
 
@@ -89,7 +101,8 @@ CONVERTERS = ("cimoxide", "pypowsybl")
 SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstring
 SCENARIOS = ("exact", "noisy")   # see cases/measurements.py
 FAMILIES = (("matpower", "distribution", "cgmes") + tuple(f"converted-{c}" for c in CONVERTERS)
-            + ("se-matpower", "se-distribution", "opf-pglib"))
+            + ("se-matpower", "se-distribution", "opf-pglib", "sweep-matpower", "sweep-distribution",
+               "n1-matpower"))
 GRIDS = ("transmission", "distribution", "fixtures")
 
 
@@ -209,6 +222,24 @@ CASES |= {
        for v, note in (("api", "congested: branch limits bind"), ("sad", "small angle-difference limits bind"))},
 }
 
+# Batch power flow: an operating-point sweep on each of these, groups as the base case's.
+SWEEP_FROM = ("case14", "case1354pegase", "case2869pegase", "case9241pegase", "case33bw", "mvlv1004", "mvlv10616")
+for _base in SWEEP_FROM:
+    CASES[f"{_base}#sweep"] = {
+        "family": f"sweep-{CASES[_base]['family']}", "grid": CASES[_base]["grid"], "format": "matpower",
+        "problem": "batch", "file": CASES[_base]["file"], "base_case": _base,
+        "groups": CASES[_base]["groups"], "source": f"{_base}, operating-point sweep", "note": CASES[_base]["note"],
+    }
+
+# N-1 contingencies: the sweep's transmission cases, groups as the base case's.
+N1_FROM = ("case14", "case1354pegase", "case2869pegase", "case9241pegase")
+for _base in N1_FROM:
+    CASES[f"{_base}#n1"] = {
+        "family": "n1-matpower", "grid": CASES[_base]["grid"], "format": "matpower", "problem": "n1",
+        "file": CASES[_base]["file"], "base_case": _base, "groups": CASES[_base]["groups"],
+        "source": f"{_base}, N-1 branch outages", "note": CASES[_base]["note"],
+    }
+
 for _c in CASES.values():
     _c.setdefault("problem", "pf")
 
@@ -257,6 +288,16 @@ def pgm_branch_ids_path(key: str) -> Path:
     """`{branch row in the .m: PGM id}`, written by `cases.prep` next to the
     PGM JSON, so PGM branch sensors are joined by id, not by position."""
     return CACHE / f"{key}.pgm.branch-ids.json"
+
+
+def sweep_path(key: str) -> Path:
+    """The scenarios of a batch case (`cases.sweep`)."""
+    return CACHE / f"{key}.sweep.npz"
+
+
+def contingency_path(key: str) -> Path:
+    """The outages of a contingency case (`cases.contingency`)."""
+    return CACHE / f"{key}.n1.npz"
 
 
 def measurements_path(key: str) -> Path:

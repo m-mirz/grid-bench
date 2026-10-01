@@ -18,13 +18,19 @@ Returns flat fields that go straight into a result record's `extra_info`:
   of the case's measurement set (`oracle.wls`).
 - opf-*: AC optimal power flow, graded for feasibility against the `.m` and
   for cost against PGLib's reference (`oracle.opf`).
+- sweep-*, n1-*: batch power flow and N-1 contingencies, tier 1 on every
+  scenario (`oracle.batch`), through `evaluate_batch`: the solution is one
+  voltage set per scenario.
 """
 from functools import lru_cache
 
+import numpy as np
+
+from cases import contingency, sweep
 from cases.matpower import ANGLE, parse_m
 from cases.pglib import reference_objective
-from cases.registry import CASES, cgmes_files, cgmes_sv_file, measurements_path
-from oracle import cgmes_model, cgmes_sv, opf, wls
+from cases.registry import CASES, cgmes_files, cgmes_sv_file, contingency_path, measurements_path, sweep_path
+from oracle import batch, cgmes_model, cgmes_sv, opf, wls
 from oracle.residual import residual
 
 RESIDUAL_OK_MVA = 1e-3   # all tools are asked to converge to 1e-8 p.u. (1e-6 MVA on 100 MVA)
@@ -67,3 +73,16 @@ def evaluate(case: str, vm: dict[str, float], va_deg: dict[str, float],
         out["residual_zero_shift_max_dp_mw"] = z.max_dp_mw
         out["residual_zero_shift_max_dq_mvar"] = z.max_dq_mvar
     return out
+
+
+def evaluate_batch(case: str, bus_ids: list[str], vm: np.ndarray, va_deg: np.ndarray) -> dict:
+    """A sweep's or a contingency case's solution: scenarios x `bus_ids`,
+    graded scenario by scenario."""
+    mpc = _mpc(case)
+    if CASES[case]["problem"] == "n1":
+        data = contingency.read(contingency_path(case))
+        scenario, n = (lambda k: contingency.outage(mpc, data, k)), len(data["branch_row"])
+    else:
+        data = sweep.read(sweep_path(case))
+        scenario, n = (lambda k: sweep.scenario(mpc, data, k)), len(data["scale"])
+    return batch.check(scenario, n, bus_ids, vm, va_deg, tol_mva=RESIDUAL_OK_MVA, tol_pu=SETPOINT_OK_PU)

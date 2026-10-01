@@ -1,0 +1,1197 @@
+{
+    "machine_info": {
+        "node": "c6cb97e60bb4",
+        "processor": "",
+        "machine": "x86_64",
+        "python_compiler": "Clang 22.1.3 ",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.14",
+        "python_version": "3.13.14",
+        "python_build": [
+            "main",
+            "Jul 18 2026 17:02:37"
+        ],
+        "release": "7.0.0-34-generic",
+        "system": "Linux",
+        "cpu": {
+            "python_version": "3.13.14.final.0 (64 bit)",
+            "cpuinfo_version": [
+                10,
+                1,
+                1
+            ],
+            "cpuinfo_version_string": "10.1.1",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 16,
+            "arch_string_raw": "x86_64",
+            "vendor_id_raw": "AuthenticAMD",
+            "brand_raw": "AMD Ryzen 7 250 w/ Radeon 780M Graphics",
+            "hz_advertised_friendly": "1.1003 GHz",
+            "hz_actual_friendly": "1.1003 GHz",
+            "hz_advertised": [
+                1100334000,
+                0
+            ],
+            "hz_actual": [
+                1100334000,
+                0
+            ],
+            "stepping": 2,
+            "model": 117,
+            "family": 25,
+            "flags": [
+                "3dnowprefetch",
+                "abm",
+                "adx",
+                "aes",
+                "amd_lbr_pmc_freeze",
+                "amd_lbr_v2",
+                "aperfmperf",
+                "apic",
+                "arat",
+                "avx",
+                "avx2",
+                "avx512_bf16",
+                "avx512_bitalg",
+                "avx512_vbmi2",
+                "avx512_vnni",
+                "avx512_vpopcntdq",
+                "avx512bitalg",
+                "avx512bw",
+                "avx512cd",
+                "avx512dq",
+                "avx512f",
+                "avx512ifma",
+                "avx512vbmi",
+                "avx512vbmi2",
+                "avx512vl",
+                "avx512vnni",
+                "avx512vpopcntdq",
+                "bmi1",
+                "bmi2",
+                "bpext",
+                "cat_l3",
+                "cdp_l3",
+                "clflush",
+                "clflushopt",
+                "clwb",
+                "clzero",
+                "cmov",
+                "cmp_legacy",
+                "constant_tsc",
+                "cpb",
+                "cppc",
+                "cpuid",
+                "cpuid_fault",
+                "cqm",
+                "cqm_llc",
+                "cqm_mbm_local",
+                "cqm_mbm_total",
+                "cqm_occup_llc",
+                "cr8_legacy",
+                "cx16",
+                "cx8",
+                "dbx",
+                "de",
+                "decodeassists",
+                "erms",
+                "extapic",
+                "extd_apicid",
+                "f16c",
+                "flush_l1d",
+                "flushbyasid",
+                "fma",
+                "fpu",
+                "fsgsbase",
+                "fsrm",
+                "fxsr",
+                "fxsr_opt",
+                "gfni",
+                "ht",
+                "hw_pstate",
+                "ibpb",
+                "ibrs",
+                "ibrs_enhanced",
+                "ibs",
+                "invpcid",
+                "irperf",
+                "lahf_lm",
+                "lbrv",
+                "lm",
+                "mba",
+                "mca",
+                "mce",
+                "misalignsse",
+                "mmx",
+                "mmxext",
+                "monitor",
+                "movbe",
+                "msr",
+                "mtrr",
+                "mwaitx",
+                "nonstop_tsc",
+                "nopl",
+                "npt",
+                "nrip_save",
+                "nx",
+                "ospke",
+                "osvw",
+                "osxsave",
+                "overflow_recov",
+                "pae",
+                "pat",
+                "pausefilter",
+                "pci_l2i",
+                "pclmulqdq",
+                "pdpe1gb",
+                "perfctr_core",
+                "perfctr_llc",
+                "perfctr_nb",
+                "perfmon_v2",
+                "pfthreshold",
+                "pge",
+                "pku",
+                "pni",
+                "popcnt",
+                "pqe",
+                "pqm",
+                "pse",
+                "pse36",
+                "rapl",
+                "rdpid",
+                "rdpru",
+                "rdrand",
+                "rdrnd",
+                "rdseed",
+                "rdt_a",
+                "rdtscp",
+                "rep_good",
+                "sep",
+                "sha",
+                "sha_ni",
+                "skinit",
+                "smap",
+                "smca",
+                "smep",
+                "ssbd",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "sse4a",
+                "ssse3",
+                "stibp",
+                "succor",
+                "svm",
+                "svm_lock",
+                "syscall",
+                "tce",
+                "topoext",
+                "tsc",
+                "tsc_scale",
+                "umip",
+                "user_shstk",
+                "v_spec_ctrl",
+                "vaes",
+                "vgif",
+                "vmcb_clean",
+                "vme",
+                "vmmcall",
+                "vnmi",
+                "vpclmulqdq",
+                "wbnoinvd",
+                "wdt",
+                "x2apic",
+                "x2avic",
+                "xgetbv1",
+                "xsave",
+                "xsavec",
+                "xsaveerptr",
+                "xsaveopt",
+                "xsaves",
+                "xtopology"
+            ],
+            "l3_cache_size": 1048576,
+            "l2_cache_size": 8388608,
+            "l1_data_cache_size": 262144,
+            "l1_instruction_cache_size": 262144,
+            "l2_cache_line_size": 1024,
+            "l2_cache_associativity": 6
+        }
+    },
+    "commit_info": {
+        "id": "unknown",
+        "time": null,
+        "author_time": null,
+        "dirty": false,
+        "error": "FileNotFoundError(2, 'No such file or directory')",
+        "project": "bench",
+        "branch": "(unknown)"
+    },
+    "benchmarks": [
+        {
+            "group": "import:case14#sweep",
+            "name": "test_import[case14#sweep]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_import[case14#sweep]",
+            "params": {
+                "case": "case14#sweep"
+            },
+            "param": "case14#sweep",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case14#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 425.24609375,
+                "rss_import_mb": 426.05859375,
+                "rss_solve_mb": 555.3671875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0071768939997127745,
+                "max": 0.15928428799998073,
+                "mean": 0.05811845733326967,
+                "stddev": 0.08761291342748677,
+                "rounds": 3,
+                "median": 0.007894190000115486,
+                "iqr": 0.11408054550020097,
+                "q1": 0.0073562179998134525,
+                "q3": 0.12143676350001442,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.0071768939997127745,
+                "hd15iqr": 0.15928428799998073,
+                "ops": 17.206237843955197,
+                "total": 0.174355371999809,
+                "data": [
+                    0.007894190000115486,
+                    0.15928428799998073,
+                    0.0071768939997127745
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case1354pegase#sweep",
+            "name": "test_import[case1354pegase#sweep]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_import[case1354pegase#sweep]",
+            "params": {
+                "case": "case1354pegase#sweep"
+            },
+            "param": "case1354pegase#sweep",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case1354pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 424.984375,
+                "rss_import_mb": 502.01953125,
+                "rss_solve_mb": 568.734375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.6059438040001623,
+                "max": 0.9410272400000395,
+                "mean": 0.7971189226667169,
+                "stddev": 0.17246982388689724,
+                "rounds": 3,
+                "median": 0.8443857239999488,
+                "iqr": 0.25131257699990783,
+                "q1": 0.665554284000109,
+                "q3": 0.9168668610000168,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.6059438040001623,
+                "hd15iqr": 0.9410272400000395,
+                "ops": 1.25451795405202,
+                "total": 2.3913567680001506,
+                "data": [
+                    0.8443857239999488,
+                    0.9410272400000395,
+                    0.6059438040001623
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2869pegase#sweep",
+            "name": "test_import[case2869pegase#sweep]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_import[case2869pegase#sweep]",
+            "params": {
+                "case": "case2869pegase#sweep"
+            },
+            "param": "case2869pegase#sweep",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case2869pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 424.9296875,
+                "rss_import_mb": 595.2734375,
+                "rss_solve_mb": 694.91796875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.1141747629999372,
+                "max": 2.2164920659997733,
+                "mean": 1.6083885336665844,
+                "stddev": 0.5599142947653278,
+                "rounds": 3,
+                "median": 1.4944987720000427,
+                "iqr": 0.8267379772498771,
+                "q1": 1.2092557652499636,
+                "q3": 2.0359937424998407,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 1.1141747629999372,
+                "hd15iqr": 2.2164920659997733,
+                "ops": 0.6217403190013651,
+                "total": 4.825165600999753,
+                "data": [
+                    1.4944987720000427,
+                    2.2164920659997733,
+                    1.1141747629999372
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case9241pegase#sweep",
+            "name": "test_import[case9241pegase#sweep]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_import[case9241pegase#sweep]",
+            "params": {
+                "case": "case9241pegase#sweep"
+            },
+            "param": "case9241pegase#sweep",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case9241pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 425.53125,
+                "rss_import_mb": 1009.30078125,
+                "rss_solve_mb": 1242.6796875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 4.823278390999803,
+                "max": 6.218947283000489,
+                "mean": 5.3573459859999275,
+                "stddev": 0.7532805974430701,
+                "rounds": 3,
+                "median": 5.02981228399949,
+                "iqr": 1.046751669000514,
+                "q1": 4.874911864249725,
+                "q3": 5.921663533250239,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 4.823278390999803,
+                "hd15iqr": 6.218947283000489,
+                "ops": 0.18665958902285718,
+                "total": 16.072037957999783,
+                "data": [
+                    5.02981228399949,
+                    6.218947283000489,
+                    4.823278390999803
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case33bw#sweep",
+            "name": "test_import[case33bw#sweep]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_import[case33bw#sweep]",
+            "params": {
+                "case": "case33bw#sweep"
+            },
+            "param": "case33bw#sweep",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case33bw#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "smoke",
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 425.0078125,
+                "rss_import_mb": 426.44921875,
+                "rss_solve_mb": 464.91796875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.009407868999915081,
+                "max": 0.009711075999803143,
+                "mean": 0.009582708333255141,
+                "stddev": 0.0001568544964484723,
+                "rounds": 3,
+                "median": 0.0096291800000472,
+                "iqr": 0.00022740524991604616,
+                "q1": 0.00946319674994811,
+                "q3": 0.009690601999864157,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.009407868999915081,
+                "hd15iqr": 0.009711075999803143,
+                "ops": 104.3546318246661,
+                "total": 0.028748124999765423,
+                "data": [
+                    0.0096291800000472,
+                    0.009407868999915081,
+                    0.009711075999803143
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv1004#sweep",
+            "name": "test_import[mvlv1004#sweep]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_import[mvlv1004#sweep]",
+            "params": {
+                "case": "mvlv1004#sweep"
+            },
+            "param": "mvlv1004#sweep",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv1004#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 425.34375,
+                "rss_import_mb": 475.63671875,
+                "rss_solve_mb": 532.953125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.1782387489993198,
+                "max": 0.7278110129991546,
+                "mean": 0.45571181499932817,
+                "stddev": 0.274825539538156,
+                "rounds": 3,
+                "median": 0.46108568299951,
+                "iqr": 0.4121791979998761,
+                "q1": 0.24895048249936735,
+                "q3": 0.6611296804992435,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.1782387489993198,
+                "hd15iqr": 0.7278110129991546,
+                "ops": 2.1943692638328334,
+                "total": 1.3671354449979845,
+                "data": [
+                    0.1782387489993198,
+                    0.46108568299951,
+                    0.7278110129991546
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:mvlv10616#sweep",
+            "name": "test_import[mvlv10616#sweep]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_import[mvlv10616#sweep]",
+            "params": {
+                "case": "mvlv10616#sweep"
+            },
+            "param": "mvlv10616#sweep",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv10616#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "batch",
+                "rss_baseline_mb": 425.9453125,
+                "rss_import_mb": 972.98828125,
+                "rss_solve_mb": 1164.86328125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 4.517856485000266,
+                "max": 5.881620844999816,
+                "mean": 5.050629786000172,
+                "stddev": 0.7291527143137011,
+                "rounds": 3,
+                "median": 4.752412028000435,
+                "iqr": 1.0228232699996624,
+                "q1": 4.576495370750308,
+                "q3": 5.599318640749971,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 4.517856485000266,
+                "hd15iqr": 5.881620844999816,
+                "ops": 0.1979951099904209,
+                "total": 15.151889358000517,
+                "data": [
+                    4.752412028000435,
+                    5.881620844999816,
+                    4.517856485000266
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case14#sweep",
+            "name": "test_solve[case14#sweep-1]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_solve[case14#sweep-1]",
+            "params": {
+                "case": "case14#sweep",
+                "threads": 1
+            },
+            "param": "case14#sweep-1",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case14#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "native",
+                "residual_max_dp_mw": 0.0001369899389092044,
+                "residual_max_dq_mvar": 0.00031923047509839486,
+                "residual_max_dvm_pu": 5.9471439550762284e-08,
+                "residual_n_checked": 14,
+                "residual_n_buses": 14,
+                "residual_worst_bus": "4",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 89,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.31433415499941475,
+                "max": 0.3192179869993197,
+                "mean": 0.3155772117140389,
+                "stddev": 0.001681493921785498,
+                "rounds": 7,
+                "median": 0.3150429939996684,
+                "iqr": 0.0010562614991158625,
+                "q1": 0.3146687397504593,
+                "q3": 0.31572500124957514,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.31433415499941475,
+                "hd15iqr": 0.3192179869993197,
+                "ops": 3.168796614205948,
+                "total": 2.2090404819982723,
+                "data": [
+                    0.3150429939996684,
+                    0.31470843799979775,
+                    0.31590930199945433,
+                    0.31433415499941475,
+                    0.3146555070006798,
+                    0.3192179869993197,
+                    0.3151720989999376
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case1354pegase#sweep",
+            "name": "test_solve[case1354pegase#sweep-1]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_solve[case1354pegase#sweep-1]",
+            "params": {
+                "case": "case1354pegase#sweep",
+                "threads": 1
+            },
+            "param": "case1354pegase#sweep-1",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case1354pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "native",
+                "residual_max_dp_mw": 0.12425737685336259,
+                "residual_max_dq_mvar": 0.1383769018222934,
+                "residual_max_dvm_pu": 6.075707492669835e-08,
+                "residual_n_checked": 1354,
+                "residual_n_buses": 1354,
+                "residual_worst_bus": "960",
+                "residual_failing": {
+                    "pq": 541,
+                    "pv": 55
+                },
+                "scenarios": 100,
+                "scenarios_failed": 100,
+                "worst_scenario": 31,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.326359151999895,
+                "max": 5.333589498999572,
+                "mean": 5.3302729288001505,
+                "stddev": 0.0028835283913473415,
+                "rounds": 5,
+                "median": 5.330327693000072,
+                "iqr": 0.004571728250311935,
+                "q1": 5.328115829750232,
+                "q3": 5.3326875580005435,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 5.326359151999895,
+                "hd15iqr": 5.333589498999572,
+                "ops": 0.18760765412158756,
+                "total": 26.65136464400075,
+                "data": [
+                    5.328701389000344,
+                    5.330327693000072,
+                    5.326359151999895,
+                    5.333589498999572,
+                    5.332386911000867
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case2869pegase#sweep",
+            "name": "test_solve[case2869pegase#sweep-1]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_solve[case2869pegase#sweep-1]",
+            "params": {
+                "case": "case2869pegase#sweep",
+                "threads": 1
+            },
+            "param": "case2869pegase#sweep-1",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case2869pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "native",
+                "residual_max_dp_mw": 0.11373658746300669,
+                "residual_max_dq_mvar": 0.20200567290196147,
+                "residual_max_dvm_pu": 6.122067208735871e-08,
+                "residual_n_checked": 2869,
+                "residual_n_buses": 2869,
+                "residual_worst_bus": "838",
+                "residual_failing": {
+                    "pq": 1174,
+                    "pv": 106
+                },
+                "scenarios": 100,
+                "scenarios_failed": 100,
+                "worst_scenario": 21,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 11.32337998499952,
+                "max": 11.337524797999322,
+                "mean": 11.331274773999757,
+                "stddev": 0.006280570692351648,
+                "rounds": 5,
+                "median": 11.332763217999855,
+                "iqr": 0.011342265499706627,
+                "q1": 11.325456666000036,
+                "q3": 11.336798931499743,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 11.32337998499952,
+                "hd15iqr": 11.337524797999322,
+                "ops": 0.08825132387527622,
+                "total": 56.65637386999879,
+                "data": [
+                    11.326148893000209,
+                    11.337524797999322,
+                    11.332763217999855,
+                    11.336556975999883,
+                    11.32337998499952
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case9241pegase#sweep",
+            "name": "test_solve[case9241pegase#sweep-1]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_solve[case9241pegase#sweep-1]",
+            "params": {
+                "case": "case9241pegase#sweep",
+                "threads": 1
+            },
+            "param": "case9241pegase#sweep-1",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case9241pegase#sweep",
+                "family": "sweep-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "native",
+                "residual_max_dp_mw": 0.12691144735177406,
+                "residual_max_dq_mvar": 0.19479993253228578,
+                "residual_max_dvm_pu": 6.105678496126643e-08,
+                "residual_n_checked": 9241,
+                "residual_n_buses": 9241,
+                "residual_worst_bus": "838",
+                "residual_failing": {
+                    "pq": 2913,
+                    "pv": 252
+                },
+                "scenarios": 100,
+                "scenarios_failed": 100,
+                "worst_scenario": 19,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 43.21279918500022,
+                "max": 43.21279918500022,
+                "mean": 43.21279918500022,
+                "stddev": 0,
+                "rounds": 1,
+                "median": 43.21279918500022,
+                "iqr": 0.0,
+                "q1": 43.21279918500022,
+                "q3": 43.21279918500022,
+                "iqr_outliers": 0,
+                "stddev_outliers": 0,
+                "outliers": "0;0",
+                "ld15iqr": 43.21279918500022,
+                "hd15iqr": 43.21279918500022,
+                "ops": 0.02314129190564249,
+                "total": 43.21279918500022,
+                "data": [
+                    43.21279918500022
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case33bw#sweep",
+            "name": "test_solve[case33bw#sweep-1]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_solve[case33bw#sweep-1]",
+            "params": {
+                "case": "case33bw#sweep",
+                "threads": 1
+            },
+            "param": "case33bw#sweep-1",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "case33bw#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "smoke",
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "native",
+                "residual_max_dp_mw": 0.4016938269520856,
+                "residual_max_dq_mvar": 0.5775273788223991,
+                "residual_max_dvm_pu": 0.0,
+                "residual_n_checked": 33,
+                "residual_n_buses": 33,
+                "residual_worst_bus": "30",
+                "residual_failing": {
+                    "pq": 32
+                },
+                "scenarios": 100,
+                "scenarios_failed": 100,
+                "worst_scenario": 49,
+                "oracle_ok": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.3119111409996549,
+                "max": 0.31260186599956796,
+                "mean": 0.3123011232855788,
+                "stddev": 0.00030116259719940836,
+                "rounds": 7,
+                "median": 0.3124215420002656,
+                "iqr": 0.0005494559995895543,
+                "q1": 0.3120134155001324,
+                "q3": 0.31256287149972195,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.3119111409996549,
+                "hd15iqr": 0.31260186599956796,
+                "ops": 3.2020377944192213,
+                "total": 2.1861078629990516,
+                "data": [
+                    0.3120007010002155,
+                    0.31260186599956796,
+                    0.3120515589998831,
+                    0.31256521599971165,
+                    0.31255583799975284,
+                    0.3124215420002656,
+                    0.3119111409996549
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv1004#sweep",
+            "name": "test_solve[mvlv1004#sweep-1]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_solve[mvlv1004#sweep-1]",
+            "params": {
+                "case": "mvlv1004#sweep",
+                "threads": 1
+            },
+            "param": "mvlv1004#sweep-1",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv1004#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "native",
+                "residual_max_dp_mw": 0.0003700161873228793,
+                "residual_max_dq_mvar": 0.0004820182666093658,
+                "residual_max_dvm_pu": 4.768371586472142e-08,
+                "residual_n_checked": 1004,
+                "residual_n_buses": 1004,
+                "residual_worst_bus": "3",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 83,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 2.68014827099978,
+                "max": 2.690081418999398,
+                "mean": 2.6827537879999,
+                "stddev": 0.004223580555123041,
+                "rounds": 5,
+                "median": 2.6806576199996925,
+                "iqr": 0.004329542499363015,
+                "q1": 2.6801945512504517,
+                "q3": 2.6845240937498147,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 2.68014827099978,
+                "hd15iqr": 2.690081418999398,
+                "ops": 0.37275131414334517,
+                "total": 13.4137689399995,
+                "data": [
+                    2.6826716519999536,
+                    2.6802099780006756,
+                    2.6806576199996925,
+                    2.68014827099978,
+                    2.690081418999398
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:mvlv10616#sweep",
+            "name": "test_solve[mvlv10616#sweep-1]",
+            "fullname": "benchmarks/veragrid_batch_benchmark.py::test_solve[mvlv10616#sweep-1]",
+            "params": {
+                "case": "mvlv10616#sweep",
+                "threads": 1
+            },
+            "param": "mvlv10616#sweep-1",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "mvlv10616#sweep",
+                "family": "sweep-distribution",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "batch",
+                "threads": 1,
+                "mode": "native",
+                "residual_max_dp_mw": 0.00039330501173473356,
+                "residual_max_dq_mvar": 0.00047873319484783135,
+                "residual_max_dvm_pu": 4.768371586472142e-08,
+                "residual_n_checked": 10616,
+                "residual_n_buses": 10616,
+                "residual_worst_bus": "3",
+                "residual_failing": {},
+                "scenarios": 100,
+                "scenarios_failed": 0,
+                "worst_scenario": 66,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 26.862351908000164,
+                "max": 26.90328621900062,
+                "mean": 26.884540822400048,
+                "stddev": 0.020176259161557207,
+                "rounds": 5,
+                "median": 26.88992572999996,
+                "iqr": 0.03935263450034654,
+                "q1": 26.86370604424974,
+                "q3": 26.903058678750085,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 26.862351908000164,
+                "hd15iqr": 26.90328621900062,
+                "ops": 0.03719609743778125,
+                "total": 134.42270411200025,
+                "data": [
+                    26.88992572999996,
+                    26.864157422999597,
+                    26.862351908000164,
+                    26.902982831999907,
+                    26.90328621900062
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-10-01T07:51:08.719016+00:00",
+    "version": "5.3.0",
+    "grid_bench": {
+        "schema_version": 1,
+        "git_sha": "880e4d23937981a7bd7ef8d9616932242a97451d-dirty",
+        "container_image": "grid-bench/veragrid",
+        "cpus": {
+            "available": 16,
+            "logical": 16,
+            "model": "AMD Ryzen 7 250 w/ Radeon 780M Graphics"
+        },
+        "tools": {
+            "veragrid": {
+                "display_name": "VeraGrid",
+                "color": "#008300",
+                "tags": [
+                    "powerflow",
+                    "ac",
+                    "batch",
+                    "native",
+                    "python"
+                ],
+                "language": "python",
+                "version": "6.5.29",
+                "dependencies": {
+                    "numpy": "2.5.3",
+                    "autograd": "1.9.1",
+                    "scipy": "1.18.1",
+                    "networkx": "3.6.1",
+                    "pandas": "3.0.5",
+                    "highspy": "1.15.1",
+                    "xlwt": "1.3.0",
+                    "xlrd": "2.0.2",
+                    "matplotlib": "3.11.1",
+                    "openpyxl": "3.1.5",
+                    "chardet": "7.6.0",
+                    "scikit-learn": "1.9.1",
+                    "geopy": "2.5.0",
+                    "h5py": "3.16.0",
+                    "numba": "0.67.0",
+                    "clang-tool-chain": "1.5.9",
+                    "pyproj": "3.8.0",
+                    "pulp": "3.3.2",
+                    "pyarrow": "25.0.1",
+                    "windpowerlib": "0.2.2",
+                    "pvlib": "0.15.2",
+                    "rdflib": "7.6.0",
+                    "pymoo": "0.6.2",
+                    "websockets": "17.1",
+                    "brotli": "1.2.0",
+                    "opencv-python": "5.0.0.93",
+                    "fmpy": "0.3.32"
+                },
+                "settings": {
+                    "solver_type": "NR",
+                    "retry_with_other_methods": false,
+                    "init": "flat",
+                    "distributed_slack": false,
+                    "outer_loop_controls": "off",
+                    "remote_voltage_control": true,
+                    "tolerance_pu": 1e-08,
+                    "max_iteration": 30,
+                    "mode": "native",
+                    "batch_api": "PowerFlowTimeSeriesDriver",
+                    "engine": "VeraGrid (single thread)"
+                },
+                "families": [
+                    "sweep-matpower",
+                    "sweep-distribution"
+                ],
+                "problem": "batch"
+            }
+        }
+    },
+    "failures": []
+}

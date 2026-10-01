@@ -38,11 +38,42 @@ OPTIMIZERS = {
     "powermodels": "adapters.powermodels_opf_adapter:PowermodelsOptimizer",
 }
 
-REGISTRIES = {"pf": ADAPTERS, "se": ESTIMATORS, "opf": OPTIMIZERS}   # by the registry's `problem`
+# Batch power flow (operating-point sweeps), by the same tool names: a native
+# batch API or a loop of single solves (adapters/batch_adapter.py).
+BATCHES = {
+    "pandapower": "adapters.pandapower_batch_adapter:PandapowerBatch",
+    "p3s": "adapters.p3s_batch_adapter:P3sBatch",
+    "lightsim2grid": "adapters.lightsim2grid_batch_adapter:Lightsim2gridBatch",
+    "pypsa": "adapters.pypsa_batch_adapter:PypsaBatch",
+    "pgm": "adapters.pgm_batch_adapter:PgmBatch",
+    "pypowsybl": "adapters.pypowsybl_batch_adapter:PypowsyblBatch",
+    "veragrid": "adapters.veragrid_batch_adapter:VeragridBatch",
+    "sienna": "adapters.sienna_batch_adapter:SiennaBatch",
+    "sparlectra": "adapters.sparlectra_batch_adapter:SparlectraBatch",
+    "matpower": "adapters.matpower_batch_adapter:MatpowerBatch",
+}
+
+# N-1 contingency analysis, by the same tool names: a native contingency API
+# or a loop of single solves (adapters/batch_adapter.py, ContingencyAdapter).
+CONTINGENCIES = {
+    "pandapower": "adapters.pandapower_n1_adapter:PandapowerN1",
+    "p3s": "adapters.p3s_n1_adapter:P3sN1",
+    "lightsim2grid": "adapters.lightsim2grid_n1_adapter:Lightsim2gridN1",
+    "pypsa": "adapters.pypsa_n1_adapter:PypsaN1",
+    "pgm": "adapters.pgm_n1_adapter:PgmN1",
+    "pypowsybl": "adapters.pypowsybl_n1_adapter:PypowsyblN1",
+    "veragrid": "adapters.veragrid_n1_adapter:VeragridN1",
+    "sienna": "adapters.sienna_n1_adapter:SiennaN1",
+    "sparlectra": "adapters.sparlectra_n1_adapter:SparlectraN1",
+    "matpower": "adapters.matpower_n1_adapter:MatpowerN1",
+}
+
+REGISTRIES = {"pf": ADAPTERS, "se": ESTIMATORS, "opf": OPTIMIZERS, "batch": BATCHES,
+              "n1": CONTINGENCIES}   # by the registry's `problem`
 
 
 def get(name: str, problem: str = "pf"):
-    """The tool's adapter for one problem ("pf", "se", "opf")."""
+    """The tool's adapter for one problem ("pf", "se", "opf", "batch", "n1")."""
     return _instantiate(REGISTRIES[problem][name])
 
 

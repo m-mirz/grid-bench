@@ -16,7 +16,8 @@ KEEP = ("iterations", "oracle_ok", "residual_max_dp_mw", "residual_max_dq_mvar",
         "se_J", "se_J_true", "se_max_step", "se_max_dvm_true_pu", "se_n_reported", "se_n_buses",
         "opf_gap", "opf_objective", "opf_max_dp_mw", "opf_max_dq_mvar", "opf_max_vm_violation_pu",
         "opf_max_pg_violation_mw", "opf_max_qg_violation_mvar", "opf_max_flow_violation_mva",
-        "opf_max_angle_violation_deg", "opf_n_buses", "opf_n_reported_buses")
+        "opf_max_angle_violation_deg", "opf_n_buses", "opf_n_reported_buses",
+        "threads", "scenarios", "scenarios_failed", "worst_scenario")
 OPF_CONDITION = {"": "typical", "api": "congested", "sad": "small angle difference"}
 
 
@@ -62,7 +63,8 @@ def payload(res: Results) -> dict:
 
 def generate(directory: Path, res: Results) -> str:
     part = lambda r: payload(r) if r and (r.records or r.failures) else None
-    data = json.dumps({"pf": payload(res), "se": part(res.se), "opf": part(res.opf)},
+    data = json.dumps({"pf": payload(res), "se": part(res.se), "opf": part(res.opf), "batch": part(res.batch),
+                       "n1": part(res.n1)},
                       separators=(",", ":")).replace("</", "<\\/")
     return (TEMPLATE.replace("__DATA__", data)
             .replace("__LIGHT__", "".join(f"--{k}:{v};" for k, v in LIGHT.items()))
@@ -120,7 +122,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <body>
 <main>
 <h1>grid-bench</h1>
-<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in. MATPOWER cases are also converted to CGMES, and tools are graded on those against the original case. State estimation (weighted least squares) and AC optimal power flow are benchmarked the same way: switch below.</p>
+<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in. MATPOWER cases are also converted to CGMES, and tools are graded on those against the original case. State estimation (weighted least squares), AC optimal power flow, batch power flow (a sweep of operating points, through each tool's batch API on as many threads as it can use) and N-1 contingency analysis are benchmarked the same way: switch below.</p>
 <p class="meta" id="meta"></p>
 
 <div class="controls"><div class="seg" role="group" aria-label="Problem" id="problem"></div></div>
@@ -132,6 +134,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
   <div class="seg" role="group" aria-label="Operation" id="op"></div>
   <div class="seg" role="group" aria-label="Grid" id="grid"></div>
   <div class="seg" role="group" aria-label="Input plotted" id="input"></div>
+  <div class="seg" role="group" aria-label="Threads" id="threads"></div>
   <div class="chips" id="toolchips" aria-label="Tools"></div>
 </div>
 <div class="card"><svg id="chart" viewBox="0 0 960 440" role="img" aria-label="Time versus case size, one line per tool"></svg>
@@ -156,6 +159,8 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <li><b>Tier 1 oracle</b> (MATPOWER): the residual <code>V·conj(Ybus·V) − S</code> with Ybus built from the <code>.m</code> file by the benchmark itself. <b>Tier 2</b> (CGMES): deviation from the case's published SV solution. <b>Tier 3</b>: tools against each other, the weakest evidence.</li>
 <li><b>State estimation</b>: weighted least squares on each case with a measurement set generated from its own power flow. <code>exact</code>: |V| and P/Q injections at every bus without noise, so the optimum is the true state. <code>noisy</code>: |V| at generator buses, P/Q injections at every bus, P/Q flows at every branch's from end, with Gaussian noise. Same measurements and sigmas for every tool, flat start, no bad-data handling. The oracle accepts an estimate when one Gauss-Newton step from it moves it by at most 1e-6 and its J is no larger than J at the true state.</li>
 <li><b>Optimal power flow</b>: MATPOWER's AC-OPF on PGLib-OPF v23.07 cases (polynomial cost; power-flow equations; voltage, generator, branch MVA and angle-difference limits), flat start, tolerance 1e-6. The oracle checks the solution's feasibility against the <code>.m</code> and recomputes its cost, accepted at most 0.01% above PGLib's published reference (a local optimum given to five digits).</li>
+<li><b>Batch power flow</b>: each case with 100 operating points (every bus's demand along a daily curve between 60% and 100% of the case, 5% noise per bus, generators redispatched in proportion), all solved in one timed call, each scenario the power-flow problem above. Tools with a batch API run it at 1, 2, 4, … threads, up to every core available; a tool without one runs a loop of its warm single solve, on one thread. Times are per scenario. The oracle grades every scenario of every thread count.</li>
+<li><b>N-1 contingencies</b>: each transmission case with 200 single-branch outages that keep the grid connected (all 19 of case14), solved in one timed call with the base case, each outage started from the tool's own base-case solution (power-grid-model takes no start voltages and starts flat). Contingency APIs that take a thread count run at 1, 2, 4, … threads. Times are per outage. The oracle grades every outage of every thread count against the case with that branch out.</li>
 <li><b>Memory</b> is the peak RSS of a fresh process loading and solving the case, minus the peak after importing the tool (values below 1 MB are drawn at 1 MB on the log axis). Only the benchmark process counts: cgmes2pgm's Fuseki server is not included.</li>
 </ul>
 <div class="tip" id="tip" hidden></div>
@@ -163,16 +168,18 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <script>
 const ALL = __DATA__;
 let D = ALL.pf;
-const state = {problem: "pf", op: "solve", grid: (D.grids[0] || ["transmission"])[0], input: null, off: new Set()};
+const state = {problem: "pf", op: "solve", grid: (D.grids[0] || ["transmission"])[0], input: null, threads: "1", off: new Set()};
 const se = () => state.problem === "se";
 // The oracle's verdict detail for a record, per problem.
 const opfVerdict = r => r.opf_gap === undefined || r.opf_gap === null
   ? `only ${r.opf_n_reported_buses} of ${r.opf_n_buses} buses reported`
   : `cost ${(r.opf_gap * 100).toFixed(4)}% against the reference · balance ${Math.max(r.opf_max_dp_mw, r.opf_max_dq_mvar).toExponential(1)} MVA · |V| ${r.opf_max_vm_violation_pu.toExponential(1)} p.u. · P/Q ${Math.max(r.opf_max_pg_violation_mw, r.opf_max_qg_violation_mvar).toExponential(1)} · flow ${r.opf_max_flow_violation_mva.toExponential(1)} MVA · angle ${r.opf_max_angle_violation_deg.toExponential(1)}° over its limit`;
-const verdict = r => r.opf_n_buses !== undefined ? opfVerdict(r) : r.se_J !== undefined
+const verdict = r => r.scenarios !== undefined ? `${r.scenarios_failed} of ${r.scenarios} scenarios fail (worst: scenario ${r.worst_scenario}) · ` + pfVerdict(r)
+  : r.opf_n_buses !== undefined ? opfVerdict(r) : r.se_J !== undefined
   ? `step to the WLS optimum ${r.se_max_step.toExponential(1)} · J ${r.se_J.toPrecision(4)} (at the truth ${r.se_J_true.toPrecision(4)}) · max |ΔV| from the truth ${r.se_max_dvm_true_pu.toExponential(1)} p.u.`
   : r.se_n_buses !== undefined ? `only ${r.se_n_reported} of ${r.se_n_buses} buses reported`
-  : `max |ΔP| ${r.residual_max_dp_mw.toExponential(2)} MW, |ΔQ| ${r.residual_max_dq_mvar.toExponential(2)} MVAr, |ΔV| setpoint ${r.residual_max_dvm_pu.toExponential(1)} p.u., worst bus ${r.residual_worst_bus}`;
+  : pfVerdict(r);
+function pfVerdict(r) { return `max |ΔP| ${r.residual_max_dp_mw.toExponential(2)} MW, |ΔQ| ${r.residual_max_dq_mvar.toExponential(2)} MVAr, |ΔV| setpoint ${r.residual_max_dvm_pu.toExponential(1)} p.u., worst bus ${r.residual_worst_bus}`; }
 const gridTitle = g => (D.grids.find(x => x[0] === g) || [g, g, g])[2];
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -181,7 +188,14 @@ const dark = () => document.documentElement.dataset.theme === "dark" ||
 const color = t => dark() ? t.colorDark : t.color;
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const fmt = ms => ms < 10 ? ms.toFixed(3) : ms < 1000 ? ms.toFixed(1) : Math.round(ms).toLocaleString();
-const row = (t, c, op) => D.rows.find(r => r.tool === t && r.case === c && r.op === op);
+// A batch case has a solve record per thread count: one thread, or the fastest.
+function row(t, c, op) {
+  const rs = D.rows.filter(r => r.tool === t && r.case === c && r.op === op);
+  if (rs.length < 2) return rs[0];
+  return state.threads === "1" ? rs.find(r => r.threads === 1) : rs.reduce((a, b) => a.median <= b.median ? a : b);
+}
+const batch = () => state.problem === "batch" || state.problem === "n1";   // per-scenario times, a thread axis
+const ms = r => r.scenarios ? r.median / r.scenarios : r.median;   // batch: per scenario
 const fail = (t, c, op) => D.failures.find(f => f.tool === t && f.case === c && f.operation === op);
 const casesOf = g => Object.keys(D.cases).filter(c => D.cases[c].grid === g).sort((a, b) => D.cases[a].order - D.cases[b].order);
 const inputsOf = g => [...new Set(casesOf(g).map(c => D.cases[c].input))];
@@ -192,7 +206,7 @@ const MEM_FLOOR = 1;   // MB; log axis
 const memAdded = r => r && r.rss_import_mb !== undefined ? (r.rss_solve_mb ?? r.rss_import_mb) - r.rss_baseline_mb : undefined;
 // The record a view reads, and the value it plots: memory lives on the import record.
 const rec = (t, c) => row(t, c, state.op === "memory" ? "import" : state.op);
-const val = r => state.op === "memory" ? memAdded(r) : r.median;
+const val = r => state.op === "memory" ? memAdded(r) : ms(r);
 
 $("#meta").textContent = `Run ${D.run.date} · commit ${D.run.git} · ${D.run.cpu}, ${D.run.cores} logical CPUs · ${D.run.os}`;
 
@@ -228,7 +242,7 @@ function chart() {
   for (let e = y0; e <= y1; e++) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(10**e)}" y2="${Y(10**e)}" stroke="${css("--grid")}"/><text x="${m.l - 8}" y="${Y(10**e) + 4}" text-anchor="end" font-size="12" fill="${css("--text2")}">${10**e >= 1 ? (10**e).toLocaleString() : 10**e}</text>`;
   for (let e = x0; e <= x1; e++) s += `<line x1="${X(10**e)}" x2="${X(10**e)}" y1="${m.t}" y2="${H - m.b}" stroke="${css("--grid")}"/><text x="${X(10**e)}" y="${H - m.b + 18}" text-anchor="middle" font-size="12" fill="${css("--text2")}">${(10**e).toLocaleString()}</text>`;
   s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="${css("--text2")}">${graded(cases) ? "buses" : "published nodes"}</text>`;
-  s += `<text transform="translate(16 ${(H - m.b + m.t) / 2}) rotate(-90)" text-anchor="middle" font-size="12" fill="${css("--text2")}">${state.op === "memory" ? "MB added over import baseline" : `median ${state.op} time (ms)`}</text>`;
+  s += `<text transform="translate(16 ${(H - m.b + m.t) / 2}) rotate(-90)" text-anchor="middle" font-size="12" fill="${css("--text2")}">${state.op === "memory" ? "MB added over import baseline" : `median ${state.op} time${batch() && state.op === "solve" ? (state.problem === "n1" ? " per outage" : " per scenario") : ""} (ms)`}</text>`;
   const labels = [];
   for (const {t, pts} of series) {
     const c = color(t);
@@ -250,6 +264,7 @@ function chart() {
     else if (r.sv_n) acc = `vs published SV: median ${(r.sv_dv_median * 100).toFixed(3)}%, max ${(r.sv_dv_max * 100).toFixed(2)}%`;
     const what = state.op === "memory"
       ? `+${memAdded(r).toFixed(1)} MB peak over a ${Math.round(r.rss_baseline_mb)} MB baseline (import peak +${(r.rss_import_mb - r.rss_baseline_mb).toFixed(1)} MB)`
+      : r.scenarios ? `${fmt(ms(r))} ms per scenario on ${r.threads} thread${r.threads > 1 ? "s" : ""} (batch of ${r.scenarios}: median ${fmt(r.median)} ms, ${r.rounds} rounds)`
       : `median ${fmt(r.median)} ms (min ${fmt(r.min)}, ${r.rounds} rounds)${r.iterations ? ` · ${r.iterations} iterations` : ""}`;
     tip.innerHTML = `<b>${esc(t.display)} · ${esc(p.c)}</b><span>${p.x.toLocaleString()} ${D.cases[p.c].graded ? "buses" : "nodes"} · ${what}<br>${state.op === "memory" ? "" : acc}</span>`;
     tip.hidden = false; tip.style.left = Math.min(e.clientX + 14, innerWidth - 330) + "px"; tip.style.top = (e.clientY + 14) + "px"; };
@@ -286,11 +301,13 @@ function tables() {
     const ok = tools.map(t => row(t.name, c, "solve")).filter(r => r && r.oracle_ok);
     return ok.length ? ok.reduce((a, b) => a.median <= b.median ? a : b).tool : null; };
   $("#t-title").textContent = state.op === "memory" ? `Peak memory: ${gridTitle(state.grid)} (MB added)`
-    : `${state.op === "solve" ? (se() ? "Warm estimate" : state.problem === "opf" ? "Warm OPF solve" : "Warm solve") : "Import"}: ${gridTitle(state.grid)} (median ms)`;
+    : `${state.op === "solve" ? (se() ? "Warm estimate" : state.problem === "opf" ? "Warm OPF solve" : batch() ? `${state.problem === "n1" ? "N-1" : "Batch"}, ${state.threads === "1" ? "one thread" : "fastest thread count"}` : "Warm solve") : "Import"}: ${gridTitle(state.grid)} (median ms${batch() && state.op === "solve" ? (state.problem === "n1" ? " per outage" : " per scenario") : ""})`;
   $("#t-desc").textContent = state.op === "memory"
     ? "Peak RSS of a fresh process loading the case and solving it once, minus the peak after importing the tool (hover for the baseline). The Python process only: cgmes2pgm's Fuseki server is not included."
     : state.op === "solve" && state.problem === "opf"
     ? "✓: feasible for the case (balance and every limit, from the .m) and at most 0.01% above PGLib's reference cost (oracle, independent of every tool). ✗: a limit is broken or the cost is higher; hover the cell for which. Bold: the fastest ✓ in the row."
+    : state.op === "solve" && batch()
+    ? (state.problem === "n1" ? "Median time of the whole call (base case included) over its outages. ✓: every outage's solution satisfies the case with that branch out of service (tier 1 per outage). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row." : "Median time of the whole batch over its 100 scenarios. ✓: every scenario's solution satisfies the case with that scenario's demand (tier 1 per scenario). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row.")
     : state.op === "solve" && se()
     ? "✓: the estimate is the weighted least-squares optimum of its measurement set (oracle, independent of every tool). ✗: it is not; hover the cell for how far off. Bold: the fastest ✓ in the row."
     : state.op === "solve"
@@ -309,11 +326,11 @@ function tables() {
         h += mb === undefined ? `<td class="na" data-v="1e97">—</td>` : `<td data-v="${mb}" title="${esc(`peak over a ${Math.round(r.rss_baseline_mb)} MB baseline after importing the tool`)}">${mb.toFixed(mb < 10 ? 1 : 0)}</td>`;
         continue;
       }
-      let cls = "", title = `${r.rounds} rounds, min ${fmt(r.min)} ms`;
+      let cls = "", title = r.scenarios ? `batch of ${r.scenarios} on ${r.threads} thread${r.threads > 1 ? "s" : ""}: median ${fmt(r.median)} ms, ${r.rounds} rounds` : `${r.rounds} rounds, min ${fmt(r.min)} ms`;
       if (r.op === "solve" && r.oracle_ok !== undefined) { cls = r.oracle_ok ? (t.name === b ? "ok best" : "ok") : "bad";
         if (!r.oracle_ok || se()) title += ` · ${verdict(r)}`; }
       if (r.op === "import" && r.rss_import_mb) title += ` · peak memory +${Math.round((r.rss_solve_mb || r.rss_import_mb) - r.rss_baseline_mb)} MB over the ${Math.round(r.rss_baseline_mb)} MB import baseline`;
-      h += `<td class="${cls}" data-v="${r.median}" title="${esc(title)}">${fmt(r.median)}</td>`;
+      h += `<td class="${cls}" data-v="${ms(r)}" title="${esc(title)}">${fmt(ms(r))}${r.op === "solve" && r.threads && state.threads !== "1" ? ` <span class="meta">@${r.threads}</span>` : ""}</td>`;
     }
     h += "</tr>";
   }
@@ -360,9 +377,11 @@ function legendNote() {
 
 const SB_DESC = {pf: $("#sb-desc").textContent,
   opf: "AC optimal power flow on PGLib-OPF cases: ✓ / ✗ / FAILED per grid. ✓: feasible for the case and at most 0.01% above PGLib's reference cost.",
-  se: "Weighted least-squares state estimation on the default cases, both measurement scenarios: ✓ / ✗ / FAILED per grid. ✓: the estimate is the optimum of its measurement set."};
+  se: "Weighted least-squares state estimation on the default cases, both measurement scenarios: ✓ / ✗ / FAILED per grid. ✓: the estimate is the optimum of its measurement set.",
+  batch: "Batch power flow, 100 operating points per case, at one thread: ✓ / ✗ / FAILED per grid. ✓: every scenario's solution satisfies the case with that scenario's demand.",
+  n1: "N-1 contingency analysis, 200 branch outages per case (19 for case14), at one thread: ✓ / ✗ / FAILED. ✓: every outage's solution satisfies the case with that branch out of service."};
 function render() {
-  const problems = [["pf", "Power flow"], ["se", "State estimation"], ["opf", "Optimal power flow"]].filter(([p]) => ALL[p]);
+  const problems = [["pf", "Power flow"], ["se", "State estimation"], ["opf", "Optimal power flow"], ["batch", "Batch power flow"], ["n1", "N-1 contingencies"]].filter(([p]) => ALL[p]);
   $("#problem").hidden = problems.length < 2;
   seg($("#problem"), "problem", problems);
   D = ALL[state.problem];
@@ -374,6 +393,8 @@ function render() {
   if (!inputs.includes(state.input)) state.input = inputs[0];
   $("#input").hidden = inputs.length < 2;
   seg($("#input"), "input", inputs.map(i => [i, `Chart: ${i}`]));
+  $("#threads").hidden = !batch() || state.op !== "solve";
+  seg($("#threads"), "threads", [["1", "1 thread"], ["best", "Fastest thread count"]]);
   scoreboard();
   chips(); chart(); tables(); legendNote();
 }

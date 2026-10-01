@@ -9,9 +9,13 @@ without a tier-1 verdict (`solved`, CGMES fixtures). A missing case, or any
 change in either direction, fails the check: a regression, or a fix that
 should be recorded as the new expectation. A tool with a state estimator has
 its state-estimation smoke cases (`<case>~<scenario>`) in the same entry,
-read from `<tool>-se.json`, and a tool with an OPF its OPF smoke case,
-from `<tool>-opf.json`. Standard library only, so CI can run it on the
-host.
+read from `<tool>-se.json`, a tool with an OPF its OPF smoke case,
+from `<tool>-opf.json`, and its batch smoke cases (`<case>#sweep`) from
+`<tool>-batch.json`, and its N-1 smoke case (`case14#n1`) from
+`<tool>-n1.json`. A batch or N-1 case has a record per thread count; their
+outcomes must agree (`inconsistent` otherwise, which no expectation names:
+a thread count that changes the answer is a race). Standard library only,
+so CI can run it on the host.
 """
 import json
 import sys
@@ -21,20 +25,21 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def outcomes(results: dict) -> dict[str, str]:
-    out = {}
+    seen: dict[str, set[str]] = {}
     for b in results["benchmarks"]:
         e = b["extra_info"]
         if e["operation"] == "solve":
-            out[e["case"]] = "solved" if "oracle_ok" not in e else ("ok" if e["oracle_ok"] else "rejected")
+            seen.setdefault(e["case"], set()).add(
+                "solved" if "oracle_ok" not in e else ("ok" if e["oracle_ok"] else "rejected"))
     for f in results["failures"]:
         if f["operation"] == "solve":
-            out.setdefault(f["case"], "failed")
-    return out
+            seen.setdefault(f["case"], set()).add("failed")
+    return {case: next(iter(o)) if len(o) == 1 else "inconsistent" for case, o in seen.items()}
 
 
 def main(tool: str, results_dir: str = "results-docker") -> int:
     expected = json.loads((ROOT / "benchmarks" / "smoke_expectations.json").read_text())[tool]
-    paths = [Path(results_dir) / f"{tool}{suffix}.json" for suffix in ("", "-se", "-opf")]
+    paths = [Path(results_dir) / f"{tool}{suffix}.json" for suffix in ("", "-se", "-opf", "-batch", "-n1")]
     runs = [json.loads(p.read_text()) for p in paths if p.exists()]
     results = {"benchmarks": [b for r in runs for b in r["benchmarks"]],
                "failures": [f for r in runs for f in r["failures"]]}

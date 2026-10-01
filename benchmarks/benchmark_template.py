@@ -6,7 +6,7 @@
 (a state-estimation benchmark file passes `"se"`, an optimal-power-flow one
 `"opf"`: the same tests, on the tool's `EstimatorAdapter` or
 `OptimizerAdapter`, over that problem's cases, graded by `oracle.wls` or
-`oracle.opf`)
+`oracle.opf`; a batch one `"batch"` and an N-1 one `"n1"`, see below)
 
 which injects two tests into that module, each parametrized over every case
 the tool can read (selected by `--groups` / `--cases`, see conftest.py):
@@ -32,6 +32,16 @@ the tool can read (selected by `--groups` / `--cases`, see conftest.py):
 A tool in a process of its own (`SolverAdapter.clock`) is timed by that
 process: the records hold the time measured inside the tool.
 
+Batch power flow and N-1 (`"batch"`, `"n1"`, `adapters.batch_adapter`): `test_solve` is
+also parametrized by `threads`, the adapter's `thread_counts()`. A round is
+one call that solves every scenario of the sweep, timed the same way; every
+thread count's solution is graded, scenario by scenario
+(`oracle.evaluate.evaluate_batch`), since a race between threads would show
+only there. One round is a whole batch, so these tests get
+`BATCH_TIMEOUT_SECONDS` instead of the 30 minutes of pyproject.toml: a loop
+of PyPSA's 5 s solve over 200 outages of case9241pegase takes 17 minutes a
+round, warm-up included twice that.
+
 Warm solve is the headline because cold numbers mostly measure one-time
 setup: in gridoxide's bench, a 1.3-1.7x cold gap to lightsim2grid traced
 entirely to symbolic factorization being redone.
@@ -47,15 +57,18 @@ import os
 import time
 from pathlib import Path
 
+import pytest
+
 from adapters import get, memory
 from cases.registry import CASES
-from oracle.evaluate import evaluate
+from oracle.evaluate import evaluate, evaluate_batch
 
 IMPORT_ROUNDS = 3
 SLOW_IMPORT_SECONDS = 30.0
 SLOW_SOLVE_SECONDS = 30.0
 TARGET_SECONDS = 2.0
 MIN_ROUNDS, MAX_ROUNDS = 5, 200
+BATCH_TIMEOUT_SECONDS = 3600
 RESULTS = Path(os.environ.get("GRID_BENCH_RESULTS", Path(__file__).resolve().parent.parent / "results"))
 
 
@@ -109,5 +122,22 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
         benchmark.extra_info.update({"iterations": sol.iterations, "n_reported": len(sol.vm)})
         benchmark.extra_info.update(evaluate(case, sol.vm, sol.va_deg, sol.pg_mw, sol.qg_mvar))
 
+    @pytest.mark.timeout(BATCH_TIMEOUT_SECONDS)
+    def test_solve_batch(benchmark, case, threads):
+        _record(benchmark, adapter, case, "solve")
+        benchmark.extra_info.update({"threads": threads, "mode": adapter.mode})
+        model = adapter.load(case)
+        t0 = time.perf_counter()
+        adapter.solve(model, threads)             # warm-up; raises on non-convergence
+        if time.perf_counter() - t0 > SLOW_SOLVE_SECONDS:
+            rounds = 1
+        else:
+            t0 = time.perf_counter()
+            adapter.solve(model, threads)         # calibration
+            rounds = min(MAX_ROUNDS, max(MIN_ROUNDS, math.ceil(TARGET_SECONDS / (time.perf_counter() - t0))))
+        benchmark.pedantic(adapter.solve, args=(model, threads), rounds=rounds, iterations=1)
+        sol = adapter.solution(model, case)
+        benchmark.extra_info.update(evaluate_batch(case, sol.bus_ids, sol.vm, sol.va_deg))
+
     namespace["test_import"] = test_import
-    namespace["test_solve"] = test_solve
+    namespace["test_solve"] = test_solve_batch if problem in ("batch", "n1") else test_solve

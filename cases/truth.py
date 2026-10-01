@@ -24,16 +24,18 @@ TOLERANCE_PU = 1e-10
 MAX_ITERATIONS = 30
 
 
-def solve_pf(mpc: dict) -> tuple[np.ndarray, np.ndarray]:
+def solve_pf(mpc: dict, v0: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
     """Returns `(bus_ids, V)`, complex p.u., NaN on isolated buses. Raises
-    RuntimeError if Newton-Raphson does not converge from flat start."""
+    RuntimeError if Newton-Raphson does not converge from flat start, or
+    from `v0` (a voltage per bus, e.g. the base case's solution for an N-1
+    outage of it) if given."""
     ids, y = make_ybus(mpc)
     s, vset = specified_injections(mpc, ids)
     types = effective_bus_types(mpc, vset)
     on = np.flatnonzero(types != ISOLATED)
     y, s, vset, types = y[on][:, on].tocsc(), s[on], vset[on], types[on]
     pvpq, pq = np.flatnonzero(types != REF), np.flatnonzero(types == PQ)
-    v = np.where(np.isnan(vset), 1.0, vset).astype(complex)
+    v = np.where(np.isnan(vset), 1.0, vset).astype(complex) if v0 is None else np.asarray(v0)[on].astype(complex)
     for _ in range(MAX_ITERATIONS):
         mis = v * np.conj(y @ v) - s
         f = np.r_[mis.real[pvpq], mis.imag[pq]]
@@ -51,4 +53,4 @@ def solve_pf(mpc: dict) -> tuple[np.ndarray, np.ndarray]:
         va[pvpq] += dx[:len(pvpq)]
         vm[pq] += dx[len(pvpq):]
         v = vm * np.exp(1j * va)
-    raise RuntimeError(f"no convergence from flat start in {MAX_ITERATIONS} iterations")
+    raise RuntimeError(f"no convergence from {'flat start' if v0 is None else 'v0'} in {MAX_ITERATIONS} iterations")

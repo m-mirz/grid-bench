@@ -34,13 +34,24 @@ class Results:
     failures: list = field(default_factory=list)    # {tool, case, operation, error}
     runs: list = field(default_factory=list)        # {tool, datetime, git_sha, image, machine}
     conversion: list = field(default_factory=list)  # oracle.check_conversion output, one entry per converted case
-    # State estimation and optimal power flow, in the same structure (`tools`
-    # holds that problem's adapters' metadata), so every table works on any.
+    # State estimation, optimal power flow and batch power flow, in the same
+    # structure (`tools` holds that problem's adapters' metadata), so every
+    # table works on any.
     se: "Results | None" = None
     opf: "Results | None" = None
+    batch: "Results | None" = None
+    n1: "Results | None" = None
 
-    def get(self, tool: str, case: str, operation: str) -> Record | None:
-        return next((r for r in self.records if (r.tool, r.case, r.operation) == (tool, case, operation)), None)
+    def get(self, tool: str, case: str, operation: str, threads: int | None = None) -> Record | None:
+        """A batch case has a solve record per thread count: `threads` picks
+        one, and without it the fewest threads (1) is the record."""
+        recs = [r for r in self.records if (r.tool, r.case, r.operation) == (tool, case, operation)
+                and (threads is None or r.extra.get("threads") == threads)]
+        return min(recs, key=lambda r: r.extra.get("threads", 1), default=None)
+
+    def thread_counts(self, tool: str, case: str) -> list[int]:
+        return sorted(r.extra["threads"] for r in self.records
+                      if (r.tool, r.case, r.operation) == (tool, case, "solve") and "threads" in r.extra)
 
     def failure(self, tool: str, case: str, operation: str) -> str | None:
         return next((f["error"] for f in self.failures
@@ -146,9 +157,9 @@ def load(directory: Path) -> Results:
     """Every record of a case in the default groups. A case run by name
     (outside them) stays in its JSON but out of the published reports.
     Power flow at the top level, state estimation in `.se`, optimal power
-    flow in `.opf`: a tool has an entry in each, with that problem's
-    settings."""
-    res = Results(se=Results(), opf=Results())
+    flow in `.opf`, batch power flow in `.batch`, N-1 contingencies in
+    `.n1`: a tool has an entry in each, with that problem's settings."""
+    res = Results(se=Results(), opf=Results(), batch=Results(), n1=Results())
     conversion = Path(directory) / "conversion.json"
     if conversion.exists():
         res.conversion = json.loads(conversion.read_text())
@@ -163,7 +174,8 @@ def load(directory: Path) -> Results:
             part = _problem(res, meta.get("problem", "pf"))
             part.tools[tool] = meta
             part.runs.append({"tool": tool, "datetime": data.get("datetime"), "git_sha": gb.get("git_sha"),
-                              "image": gb.get("container_image"), "machine": data.get("machine_info", {})})
+                              "image": gb.get("container_image"), "machine": data.get("machine_info", {}),
+                              "cpus": gb.get("cpus", {})})
         for f in data.get("failures", []):
             if _published(f["case"]):
                 _part(res, f["case"]).failures.append(f)
@@ -177,7 +189,7 @@ def load(directory: Path) -> Results:
 
 
 def _problem(res: Results, problem: str) -> Results:
-    return {"pf": res, "se": res.se, "opf": res.opf}[problem]
+    return {"pf": res, "se": res.se, "opf": res.opf, "batch": res.batch, "n1": res.n1}[problem]
 
 
 def _part(res: Results, case: str) -> Results:

@@ -111,6 +111,13 @@ def opf_note(e: dict) -> str:
     return "; ".join(parts)
 
 
+def batch_note(e: dict, unit: str = "scenario") -> str:
+    """Why a batch is not accepted (`oracle.batch`): how many scenarios
+    (or outages), then the worst one."""
+    return (f"{e['scenarios_failed']} of {e['scenarios']} {unit}s fail; worst, {unit} {e['worst_scenario']}: "
+            + residual_note(e))
+
+
 def failed(res: Results, notes: Notes, tool: str, case: str, operation: str) -> str:
     err = res.failure(tool, case, operation)
     if err is None:
@@ -129,16 +136,28 @@ def cell(res: Results, notes: Notes, tool: str, case: str, operation: str) -> st
         return text
     if "oracle_ok" not in rec.extra:   # a fixture: its tier-2 deviation, no verdict
         return f"{text} · {rec.extra['sv_dv_median']:.3%}" if rec.extra.get("sv_n") else text
+    return f"{text} {verdict(res, notes, rec)}"
+
+
+def verdict(res: Results, notes: Notes, rec) -> str:
+    """✓, or ✗ with the note that says why, per problem."""
     if rec.extra["oracle_ok"]:
-        return f"{text} ✓"
+        return "✓"
+    tool, case = rec.tool, rec.case
     if CASES[case]["problem"] == "se":
         head = f"✗ · **{res.tools[tool]['display_name']}, state estimation**"
-        return f"{text} ✗{notes.ref(head, case, se_note(rec.extra))}"
+        return f"✗{notes.ref(head, case, se_note(rec.extra))}"
     if CASES[case]["problem"] == "opf":
         head = f"✗ · **{res.tools[tool]['display_name']}, optimal power flow**"
-        return f"{text} ✗{notes.ref(head, case, opf_note(rec.extra))}"
+        return f"✗{notes.ref(head, case, opf_note(rec.extra))}"
+    if CASES[case]["problem"] == "batch":
+        head = f"✗ · **{res.tools[tool]['display_name']}, batch power flow**"
+        return f"✗{notes.ref(head, case, batch_note(rec.extra))}"
+    if CASES[case]["problem"] == "n1":
+        head = f"✗ · **{res.tools[tool]['display_name']}, N-1**"
+        return f"✗{notes.ref(head, case, batch_note(rec.extra, 'outage'))}"
     head = f"✗ · **{res.tools[tool]['display_name']}, {input_label(case)}**"
-    return f"{text} ✗{notes.ref(head, case, residual_note(rec.extra))}"
+    return f"✗{notes.ref(head, case, residual_note(rec.extra))}"
 
 
 def fastest_ok(res: Results, tools: list[str], case: str) -> str | None:
@@ -425,6 +444,139 @@ def opf_section(opf: Results, notes: Notes) -> str:
     ])
 
 
+def per_scenario_cells(res: Results, notes: Notes, fastest: bool):
+    """Median time of the whole batch over its scenarios, ms per scenario,
+    with the verdict. `fastest`: at the thread count where it is lowest, and
+    which (`@8`); otherwise at one thread. Bold: the fastest ✓ in the row."""
+    def best(t, case):
+        recs = [res.get(t, case, "solve", n) for n in res.thread_counts(t, case)] if fastest else []
+        return min(recs, key=lambda r: r.median_ms, default=None) or res.get(t, case, "solve")
+
+    def render(tools, case):
+        recs = {t: best(t, case) for t in tools if reads(res, t, case)}
+        ok = [r for r in recs.values() if r and r.extra["oracle_ok"]]
+        top = min(ok, key=lambda r: r.median_ms).tool if ok else None
+        row = []
+        for t in tools:
+            rec = recs.get(t)
+            if not reads(res, t, case):
+                row.append("·")
+                continue
+            if rec is None:
+                row.append(failed(res, notes, t, case, "solve"))
+                continue
+            text = fmt_ms(rec.median_ms / rec.extra["scenarios"]) + (f" @{rec.extra['threads']}" if fastest else "")
+            row.append(f"{f'**{text}**' if t == top else text} {verdict(res, notes, rec)}")
+        return row
+    return render
+
+
+def scaling_table(res: Results) -> str:
+    """Speedup over the same tool's one-thread batch, per tool whose batch
+    API takes a thread count, and case; ✗ where that thread count's verdict
+    differs from the one-thread run's."""
+    counts = sorted({n for r in res.records if r.operation == "solve" for n in [r.extra.get("threads")] if n})
+    rows = []
+    for grid in res.grids():
+        for c in res.grid_cases(grid):
+            for t in res.tool_order():
+                one = res.get(t, c, "solve", 1)
+                if one is None or len(res.thread_counts(t, c)) < 2:   # loops and one-thread batch APIs
+                    continue
+                cells = []
+                for n in counts:
+                    r = res.get(t, c, "solve", n)
+                    cells.append("" if r is None else f"{one.median_ms / r.median_ms:.2f}×"
+                                 + ("" if r.extra["oracle_ok"] == one.extra["oracle_ok"] else " ✗"))
+                rows.append([c.partition("#")[0], f"{case_size(c):,}", res.tools[t]["display_name"]] + cells)
+    if not rows:
+        return "No native batch results."
+    return table(["case", "buses", "tool"] + [f"{n} thread{'s' if n > 1 else ''}" for n in counts], rows, (0, 2))
+
+
+def cpus(res: Results) -> str:
+    c = next((r["cpus"] for r in res.runs if r.get("cpus")), {})
+    return (f"{c.get('available', '?')} of {c.get('logical', '?')} logical CPUs available to the run "
+            f"({c.get('model', '?')})")
+
+
+BATCH_TEXT = {
+    "batch": {
+        "title": "Batch power flow", "unit": "scenario",
+        "intro": "Each case is a MATPOWER case and 100 operating points on its topology (`cases/sweep.py`): every "
+                 "bus's demand scaled along one period of a daily curve between 60 % and 100 % of the case, with 5 % "
+                 "noise per bus, generators redispatched in proportion. Every tool solves all of them in one timed "
+                 "call, each scenario the power-flow problem above (flat start, tolerance 1e-8 p.u.), through its "
+                 "batch API where it has one",
+        "loop": "so the call is a loop of the tool's warm single solve after writing the scenario into its model",
+        "verdict": "✓: every scenario's solution satisfies the case with that scenario's demand, at every bus (tier 1 "
+                   "per scenario, `oracle/batch.py`).",
+        "time": "Median time of the whole batch divided by its 100 scenarios, in ms; the fastest ✓ in each row in "
+                "bold. Compare with the warm single solve above: the difference is what the batch API saves (or a "
+                "loop adds).",
+    },
+    "n1": {
+        "title": "N-1 contingency analysis", "unit": "outage",
+        "intro": "Each transmission case with 200 single-branch outages that keep the grid connected and whose power "
+                 "flow converges from the base case (`cases/contingency.py`; all 19 such of case14), chosen in a "
+                 "seeded order. Every tool solves the base case and every outage in one timed call, each outage the "
+                 "power-flow problem above with that branch out of service, started from the tool's own solution "
+                 "of the base case (the one exception to the flat start, as contingency analysis is done; "
+                 "power-grid-model takes no start voltages and starts each outage flat), through its contingency "
+                 "API where it has one",
+        "loop": "so the call is a loop of the tool's single solve with the branch taken out",
+        "verdict": "✓: every outage's solution satisfies the case with that branch out of service, at every bus "
+                   "(tier 1 per outage, `oracle/batch.py`).",
+        "time": "Median time of the whole call (base case included) divided by its number of outages, in ms; the "
+                "fastest ✓ in each row in bold.",
+    },
+}
+
+
+def batch_section(batch: Results, notes: Notes, problem: str = "batch") -> str:
+    """Batch power flow (one sweep of operating points per case) or N-1 (the
+    outages of a case): the same tables, graded per scenario by `oracle.batch`."""
+    text = BATCH_TEXT[problem]
+    unit = text["unit"]
+    loop = [batch.tools[t]["display_name"] for t in batch.tool_order() if batch.tools[t]["settings"].get("mode") == "loop"]
+    return "\n".join([
+        f"## {text['title']}",
+        "",
+        text["intro"] + ("; " + f"{', '.join(loop)} {'has' if len(loop) == 1 else 'have'} none, " + text["loop"]
+                         + " (`loop`). " if loop else ". ") + text["verdict"],
+        "",
+        "### Scoreboard",
+        "",
+        scoreboard_section(batch),
+        "",
+        f"### Time per {unit}, one thread",
+        "",
+        text["time"],
+        "",
+        per_grid(batch, per_scenario_cells(batch, notes, fastest=False)).replace("### ", "#### "),
+        f"### Time per {unit}, fastest thread count",
+        "",
+        f"As above, at the thread count where each tool is fastest (`@n`). {cpus(batch)}; a loop runs on one.",
+        "",
+        per_grid(batch, per_scenario_cells(batch, notes, fastest=True)).replace("### ", "#### "),
+        "### Thread scaling",
+        "",
+        f"Speedup of each batch API that takes a thread count over its own one-thread run, same case, same "
+        f"{unit}s. Each thread count's solution is graded on its own; ✗ where its verdict differs from the "
+        "one-thread run's.",
+        "",
+        scaling_table(batch),
+        "",
+        f"### Import: file to model, with {unit}s",
+        "",
+        per_grid(batch, timing_cells(batch, notes, "import")).replace("### ", "#### "),
+        "### Environment",
+        "",
+        environment(batch),
+        "",
+    ])
+
+
 def environment(res: Results) -> str:
     rows = []
     for t in res.tool_order():
@@ -449,6 +601,8 @@ def generate(directory: Path, res: Results) -> str:
     imports = per_grid(res, timing_cells(res, notes, "import"))
     se = se_section(res.se, notes) if res.se and (res.se.records or res.se.failures) else ""
     opf = opf_section(res.opf, notes) if res.opf and (res.opf.records or res.opf.failures) else ""
+    batch = batch_section(res.batch, notes) if res.batch and (res.batch.records or res.batch.failures) else ""
+    n1 = batch_section(res.n1, notes, "n1") if res.n1 and (res.n1.records or res.n1.failures) else ""
     parts = [
         "# grid-bench results",
         "",
@@ -530,6 +684,8 @@ def generate(directory: Path, res: Results) -> str:
         "",
         *([se] if se else []),
         *([opf] if opf else []),
+        *([batch] if batch else []),
+        *([n1] if n1 else []),
         "## Notes",
         "",
         "Wrong solutions are grouped by tool and input, failures by tool and message (numbers that differ per case "
