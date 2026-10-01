@@ -9,10 +9,13 @@ Changing this file needs `docker/build.sh sparlectra`.
 
 It depends on PythonCall (unused here) for the same reason as
 GridBenchSienna: juliacall loads PythonCall first, and code compiled without
-it is invalidated by PythonCall's method definitions.
+it is invalidated by PythonCall's method definitions. It loads KLU (unused
+here too) because that activates Sparlectra's KLU extension, which makes
+KLU the sparse LU of a power-mode solve (UMFPACK otherwise).
 """
 module GridBenchSparlectra
 
+using KLU: KLU
 using Logging
 using PrecompileTools: @compile_workload, @setup_workload
 using PythonCall: PythonCall
@@ -31,6 +34,7 @@ struct Model
 end
 
 function Model(net::SP.Net, nodes::Vector{Int}, ids::Vector{String}, vn_kV::Vector{Float64})
+    @assert SP.power_mode_linear_solver_backend() === :klu "Sparlectra's KLU extension is not loaded"
     # Isolated buses (MATPOWER type 4, CGMES buses without an energised
     # branch) are excluded from the solve and so from the solution.
     keep = [SP.getNodeType(net.nodeVec[k]) != SP.Isolated for k in nodes]
@@ -104,11 +108,14 @@ function solve!(m::Model, tol::Float64, max_iterations::Int)
 end
 
 """The solve settings (see adapters/sparlectra_adapter.py); `flatstart`
-false starts from the voltages held in the nodes."""
-function runpf!(net::SP.Net, tol::Float64, max_iterations::Int, flatstart::Bool)
+false starts from the voltages held in the nodes, `power_mode` false keeps
+nothing from the previous solve (see adapters/sparlectra_n1_adapter.py)."""
+function runpf!(net::SP.Net, tol::Float64, max_iterations::Int, flatstart::Bool; power_mode::Bool = true)
     iters, status = SP.runpf_rectangular!(
         net;
         method = :rectangular,
+        newton_update = :polar,
+        power_mode = power_mode,
         maxiter = max_iterations + 1,
         tol = tol,
         damp = 1.0,
@@ -239,7 +246,7 @@ function solve_outage!(m::Model, o::Outages, k::Int, tol::Float64, max_iteration
         node._va_deg = o.va[i]
         node._nodeType = m.types0[i]
     end
-    steps = runpf!(m.net, tol, max_iterations, false)
+    steps = runpf!(m.net, tol, max_iterations, false; power_mode = false)
     br.status, br.from_status, br.to_status = 1, 1, 1
     return steps
 end
@@ -250,6 +257,7 @@ include("se.jl")
 versions() = Dict(
     "Sparlectra" => pkgversion(Sparlectra),
     "AnalyticLoadFlow" => pkgversion(SP.AnalyticLoadFlow),
+    "KLU" => pkgversion(KLU),
 )
 
 # Info and warning logs off: the importers log per case and per defect,
