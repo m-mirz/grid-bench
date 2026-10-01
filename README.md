@@ -153,6 +153,53 @@ tests. PowerModels.jl with Ipopt is the solver behind PGLib's own
 references; like MATPOWER, it is drawn as a reference line (dotted) and
 graded like every other tool.
 
+## Batch power flow
+
+How fast a tool solves many operating points of one grid, the workload of a
+time series or a Monte-Carlo study, and how that scales with threads. Each
+`<case>#sweep` is a MATPOWER case with 100 operating points
+(`cases/sweep.py`): every bus's demand along a daily curve between 60 % and
+100 % of the case with 5 % noise per bus, generators redispatched in
+proportion. Each scenario is the power-flow problem above, flat start
+included, and every tool solves all of them in one timed call:
+
+- through its own batch API, at 1, 2, 4, … threads up to every core the
+  run has: power-grid-model (`calculate_power_flow` with update data), p3s
+  (`solve_batch`, OpenMP), lightsim2grid (`InjectionSweepCPP`);
+- through its own batch API on one thread: PyPSA (snapshots), VeraGrid
+  (time-series driver), Sienna (PowerFlows' time steps);
+- as a loop of its single solve, where it has no batch power flow:
+  pandapower, pypowsybl, Sparlectra.jl, MATPOWER.
+
+The oracle (`oracle/batch.py`) grades every scenario of every thread count
+with tier 1 against the case with that scenario's demand, so a race between
+threads, or a batch API that reuses one scenario's result, cannot pass.
+Times are reported per scenario. Speedups depend on the machine: each result
+records the cores it ran on.
+
+## N-1 contingency analysis
+
+Each transmission case `<case>#n1` comes with 200 single-branch outages
+(`cases/contingency.py`; case14 has only 19), chosen in a seeded order. Each
+one keeps the grid connected, and its power flow converges from the base
+case. Every tool solves the base case from a flat start and then every
+outage, in one timed call. Each outage starts from the tool's own base-case
+solution, as contingency analysis is done in practice; this is the one
+exception to the flat start. Tools run through their contingency API where
+they have one:
+
+- at 1, 2, 4, … threads: lightsim2grid (`ContingencyAnalysisCPP`), p3s
+  (`solve_batch_contingency`, OpenMP), pypowsybl (OpenLoadFlow's security
+  analysis, `threadCount`), and power-grid-model (a batch with branch status
+  updates; it takes no start voltages, so its outages start flat);
+- on one thread: VeraGrid (`ContingencyAnalysisDriver`);
+- as a loop of single solves with the branch taken out: pandapower, PyPSA,
+  Sienna (which rebuilds its power-flow data for each outage), Sparlectra.jl
+  and MATPOWER.
+
+The oracle grades every outage of every thread count with tier 1 against the
+case with that branch out of service.
+
 ## Cases
 
 Chosen for what they exercise, not just their size (`cases/registry.py`):

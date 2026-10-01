@@ -12,7 +12,13 @@ power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
 VeraGrid and Sparlectra.jl, and AC optimal power flow for MATPOWER,
 pandapower, VeraGrid and PowerModels.jl (Ipopt; its own image, OPF only) on
-PGLib-OPF cases. The
+PGLib-OPF cases, and batch power flow (a sweep of operating points per case)
+for every tool that reads `.m`: through the tool's own batch API at 1..n
+threads (power-grid-model, p3s, lightsim2grid) or on one thread (PyPSA,
+VeraGrid, Sienna), or a loop of single solves (pandapower, pypowsybl,
+Sparlectra.jl, MATPOWER), and N-1 contingency analysis for the same tools
+(200 branch outages per transmission case, through a native contingency API
+where there is one). The
 infrastructure follows cim-bench (adapters, one container per tool, JSON as
 the only contract between measuring and reporting). The methodology follows
 gridoxide's `scripts/bench` (warm solves on persistent models, justified
@@ -37,7 +43,15 @@ settings, a tool-independent oracle).
    tolerance `SE_TOLERANCE` on the state update. AC-OPF
    (`adapters/optimizer_adapter.py`): MATPOWER's formulation (polynomial
    cost; voltage, generator, branch MVA and angle-difference limits), flat
-   start where settable, `OPF_TOLERANCE`. Every setting in an adapter
+   start where settable, `OPF_TOLERANCE`. Batch power flow
+   (`adapters/batch_adapter.py`): every scenario the power-flow problem
+   (flat start per scenario, never the previous scenario's result), the
+   tool's own thread setting with BLAS pinned to one thread, every scenario
+   of every thread count graded. N-1 (`ContingencyAdapter`, same module):
+   the same, except that every outage starts from the tool's own solution
+   of the base case (solved from flat start in the same timed call), the
+   one exception to the flat start, as contingency analysis is done; a tool
+   that cannot start from it says what it does instead. Every setting in an adapter
    gets one sentence of justification in its docstring, including what it
    deliberately does not do.
 4. **Report, don't fix.** When a tool's importer changes the problem (the
@@ -59,17 +73,22 @@ settings, a tool-independent oracle).
 cases/       registry.py (every case: groups, family, grid, problem), matpower.py (.m reader), prep.py (tool inputs),
              truth.py (the power flow behind a state-estimation case), measurements.py (its measurement sets),
              pglib.py (PGLib's reference OPF objectives, read from its BASELINE.md),
+             sweep.py (the operating points of a batch case), contingency.py (the outages of an N-1 case),
              gridoxide_matpower.py (vendored MATPOWER->PGM converter, gridoxide 0.0.2),
              matpower_to_cgmes.py (cimoxide converter), convert_pypowsybl.py (pypowsybl converter)
 oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), wls.py (state estimation), opf.py (AC-OPF),
+             batch.py (batch power flow, tier 1 per scenario),
              evaluate.py (entry point),
              cgmes_model.py (tool-free CGMES reader: TN->bus join, converter fidelity),
              check_conversion.py (writes conversion.json)
 adapters/    solver_adapter.py (the ABCs), <tool>_adapter.py, estimator_adapter.py + <tool>_se_adapter.py
-             (state estimation), optimizer_adapter.py + <tool>_opf_adapter.py (AC-OPF), cgmes_ids.py, memory.py,
+             (state estimation), optimizer_adapter.py + <tool>_opf_adapter.py (AC-OPF),
+             batch_adapter.py + <tool>_batch_adapter.py (batch power flow) and <tool>_n1_adapter.py (N-1),
+             cgmes_ids.py, memory.py,
              octave_session.py + matpower_octave/ (MATPOWER's Octave side, timed inside Octave)
 benchmarks/  benchmark_template.py (generates tests), conftest.py (selection, failures, metadata),
-             <tool>_benchmark.py, <tool>_se_benchmark.py, <tool>_opf_benchmark.py (3 lines each)
+             <tool>_benchmark.py, <tool>_se_benchmark.py, <tool>_opf_benchmark.py,
+             <tool>_batch_benchmark.py, <tool>_n1_benchmark.py (3 lines each)
 tools/       benchmark_data.py (loader, grids, scoreboard) + generate_{comparison,site,all}.py,
              palette.py, check_smoke.py (CI's smoke outcomes)
 tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned exactly)
@@ -77,12 +96,15 @@ tool-configs/matpower/Dockerfile      the official Octave image + uv Python + th
 tool-configs/sienna/Dockerfile, julia/   Julia on top of the base image; Project.toml, Manifest.toml,
              setup.jl (registry snapshot), GridBenchSienna (the adapter's Julia half, precompiled)
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
-tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources
+tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources,
+             with OpenMP for its batch solver (libgomp from the same pinned gcc image)
 docker/      base.dockerfile, tool.dockerfile, docker-compose.yml, build.sh, run_*.sh
-tests/       the oracle's own tests (test_wls.py: state estimation, test_opf.py: AC-OPF), and the converter's
+tests/       the oracle's own tests (test_wls.py: state estimation, test_opf.py: AC-OPF, test_batch.py and
+             test_contingency.py: sweeps and outages), and the converter's
              (exactness + planted errors)
 data/        submodules: benchmark-grids (MATPOWER, PGLib-OPF), CGMES-Test-Configurations
-results-docker/  published results: <tool>.json, <tool>-se.json, <tool>-opf.json, comparison.md
+results-docker/  published results: <tool>.json, <tool>-se.json, <tool>-opf.json, <tool>-batch.json, <tool>-n1.json,
+             comparison.md
 docs/index.html  generated site
 ```
 
@@ -141,6 +163,17 @@ internal compose network; the run scripts stop the sidecar afterwards.
    `<tool>-opf.json`; the solution carries the dispatch of every online
    generator, keyed by gen row. On `pglib_opf_case14_ieee` a correct tool is
    feasible to about 1e-4 MVA and 9e-6 below PGLib's rounded reference.
+   Batch power flow the same way: `adapters/<tool>_batch_adapter.py` on
+   `BatchAdapter` (a native batch API, timed per thread count) or
+   `LoopBatchAdapter` (the power-flow adapter's solve per scenario, one
+   thread), in `BATCHES`, `create_benchmarks("<tool>", "batch")`,
+   `<tool>-batch.json`. Scenarios are joined by bus number and gen row. On
+   `case14#sweep` a correct tool shows residuals around 1e-9 MVA on all 100
+   scenarios, at every thread count. N-1 likewise: `<tool>_n1_adapter.py`
+   on `ContingencyAdapter` or `LoopContingencyAdapter`, in `CONTINGENCIES`,
+   `create_benchmarks("<tool>", "n1")`, `<tool>-n1.json`; outages are joined
+   by branch row (with from and to bus to assert). On `case14#n1` a correct
+   tool passes all 19 outages.
 9. Add the tool's smoke outcomes to `benchmarks/smoke_expectations.json` and
    the tool to the CI matrix (`.github/workflows/smoke.yml`). CI checks each
    smoke case against its known outcome (`tools/check_smoke.py`), including
@@ -158,10 +191,15 @@ cases converted to CGMES, graded by the tier-1 residual against the original
 a measurement scenario, `exact` or `noisy`, generated from the case's own
 power flow and graded by `oracle.wls`), and `opf-pglib` (AC-OPF on
 PGLib-OPF v23.07, keyed by PGLib's names, graded by `oracle.opf` against
-the `.m` and PGLib's reference objective). A tool declares the families it
+the `.m` and PGLib's reference objective), and `sweep-matpower`,
+`sweep-distribution` (batch power flow: a case plus 100 operating points,
+keyed `<case>#sweep`, each scenario graded by tier 1 in `oracle.batch`),
+and `n1-matpower` (N-1: a transmission case plus its outages, keyed
+`<case>#n1`, each graded the same way against the case with that branch
+out; radial grids have no outage that keeps them connected). A tool declares the families it
 reads in `SolverAdapter.families`. Converted cases are keyed
 `<case>@<converter>`, state-estimation cases `<case>~<scenario>`; a case's
-`problem` ("pf", "se" or "opf") says which adapter solves it. Branch on a case's input
+`problem` ("pf", "se", "opf", "batch" or "n1") says which adapter solves it. Branch on a case's input
 format with `is_cgmes(case)` (the `format` field), never on its family.
 
 Only exact conversions are solved: `SOLVED_CONVERTERS` in the registry.
@@ -194,6 +232,10 @@ writes. Conventions both pages share:
 - The site's chart shows one input at a time (one line per tool needs one
   input); for state estimation, the input is the measurement scenario, for
   OPF the operating condition (typical, congested, small angle difference).
+- Batch power flow and N-1 are shown per scenario or outage (the call's
+  median over its size), at one thread and at each tool's fastest thread count, with a
+  thread-scaling table for native batch APIs. Scaling numbers depend on the
+  machine: `grid_bench.cpus` in each JSON records the cores the run had.
 
 ## Adding a case
 

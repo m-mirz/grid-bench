@@ -24,6 +24,11 @@ Writes into `data/.case-cache/`:
 - `<case>~<scenario>.meas.json` (state-estimation cases): the measurement
   set (`cases.measurements`), generated from the case's own power flow
   (`cases.truth`), which is first checked by the oracle's tier-1 residual.
+- `<case>#sweep.sweep.npz` (batch cases): the operating points
+  (`cases.sweep`), every one solved by `cases.truth` and checked by tier 1.
+- `<case>#n1.n1.npz` (contingency cases): the outages (`cases.contingency`),
+  every one solved by `cases.truth` from the base case's solution and
+  checked by tier 1.
 
 Conversion happens here, not inside a tool's timed import, so a tool's
 import time never includes our own conversion code.
@@ -40,9 +45,11 @@ import zipfile
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
-from cases import gridoxide_matpower, matpower, measurements, truth
-from cases.registry import (CACHE, CASES, FAMILIES, cgmes_files, mat_path, measurements_path, pgm_branch_ids_path,
-                            pgm_json_path)
+import numpy as np
+
+from cases import contingency, gridoxide_matpower, matpower, measurements, sweep, truth
+from cases.registry import (CACHE, CASES, FAMILIES, cgmes_files, contingency_path, mat_path, measurements_path,
+                            pgm_branch_ids_path, pgm_json_path, sweep_path)
 from oracle import residual, ybus
 
 
@@ -122,6 +129,72 @@ def prepare_se(key: str) -> None:
     print(f"prepared {key}", file=sys.stderr)
 
 
+def prepare_sweep(key: str) -> None:
+    """The scenarios, after the base case's tool inputs (tools read the
+    network from those and apply each scenario to it)."""
+    case = CASES[key]
+    prepare(case["base_case"])
+    stamp = CACHE / f"{key}.key"
+    h = hashlib.sha256()
+    for p in (case["file"], Path(__file__), Path(matpower.__file__), Path(truth.__file__),
+              Path(sweep.__file__), Path(residual.__file__), Path(ybus.__file__)):
+        h.update(Path(p).read_bytes())
+    if stamp.exists() and stamp.read_text() == h.hexdigest() and sweep_path(key).exists():
+        return
+    mpc = matpower.parse_m(case["file"])
+    data = sweep.generate(mpc, key)
+    for k in range(len(data["scale"])):
+        mpc_k = sweep.scenario(mpc, data, k)
+        ids, v = truth.solve_pf(mpc_k)
+        on = ~np.isnan(v)
+        vm = {str(b): float(abs(x)) for b, x in zip(ids[on], v[on])}
+        va = {str(b): float(np.rad2deg(np.angle(x))) for b, x in zip(ids[on], v[on])}
+        r = residual.residual(mpc_k, vm, va)
+        assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
+            f"{key}: scenario {k} has no solution from flat start ({r})"
+    sweep.write(data, sweep_path(key))
+    stamp.write_text(h.hexdigest())
+    print(f"prepared {key}", file=sys.stderr)
+
+
+def prepare_n1(key: str) -> None:
+    """The outages, after the base case's tool inputs."""
+    case = CASES[key]
+    prepare(case["base_case"])
+    stamp = CACHE / f"{key}.key"
+    h = hashlib.sha256()
+    for p in (case["file"], Path(__file__), Path(matpower.__file__), Path(truth.__file__),
+              Path(contingency.__file__), Path(residual.__file__), Path(ybus.__file__)):
+        h.update(Path(p).read_bytes())
+    if stamp.exists() and stamp.read_text() == h.hexdigest() and contingency_path(key).exists():
+        return
+    mpc = matpower.parse_m(case["file"])
+    _, v_base = truth.solve_pf(mpc)
+    rows, skipped = [], 0
+    for row in contingency.candidates(mpc, key):
+        mpc_k = contingency.outage(mpc, {"branch_row": [row]}, 0)
+        try:
+            ids, v = truth.solve_pf(mpc_k, v_base)
+        except RuntimeError:
+            skipped += 1
+            continue
+        on = ~np.isnan(v)
+        r = residual.residual(mpc_k, {str(b): float(abs(x)) for b, x in zip(ids[on], v[on])},
+                              {str(b): float(np.rad2deg(np.angle(x))) for b, x in zip(ids[on], v[on])})
+        assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
+            f"{key}: outage of branch row {row} solved, but not to the case ({r})"
+        rows.append(row)
+        if len(rows) == contingency.N_OUTAGES:
+            break
+    branch = mpc["branch"]
+    contingency.write({"branch_row": np.array(rows, dtype=np.int64),
+                       "from_bus": branch[rows, matpower.F_BUS].astype(np.int64),
+                       "to_bus": branch[rows, matpower.T_BUS].astype(np.int64), "n_skipped": np.int64(skipped)},
+                      contingency_path(key))
+    stamp.write_text(h.hexdigest())
+    print(f"prepared {key} ({len(rows)} outages, {skipped} skipped: no convergence)", file=sys.stderr)
+
+
 def prepare(key: str) -> None:
     case = CASES[key]
     if case["family"] == "cgmes":
@@ -130,6 +203,10 @@ def prepare(key: str) -> None:
         return prepare_converted(key)
     if case["problem"] == "se":
         return prepare_se(key)
+    if case["problem"] == "batch":
+        return prepare_sweep(key)
+    if case["problem"] == "n1":
+        return prepare_n1(key)
     stamp = CACHE / f"{key}.key"
     digest = _cache_key(case)
     if (stamp.exists() and stamp.read_text() == digest and mat_path(key).exists() and pgm_json_path(key).exists()
