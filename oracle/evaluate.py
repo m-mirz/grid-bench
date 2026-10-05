@@ -4,7 +4,8 @@ Returns flat fields that go straight into a result record's `extra_info`:
 
 - matpower: tier 1, the power-flow residual against the `.m` (see
   `oracle.residual`). `oracle_ok` holds when every checked bus meets
-  `RESIDUAL_OK_MVA` and `SETPOINT_OK_PU`. For cases with phase shifters the
+  `RESIDUAL_OK_MVA` and `SETPOINT_OK_PU`, and no energized bus is below
+  `VM_FLOOR_PU`. For cases with phase shifters the
   residual against the zero-shift network is recorded too: a tool that
   cannot represent phase shift (power-grid-model via its converter) passes
   that one and fails the real one, which identifies the loss.
@@ -35,6 +36,15 @@ from oracle.residual import residual
 
 RESIDUAL_OK_MVA = 1e-3   # all tools are asked to converge to 1e-8 p.u. (1e-6 MVA on 100 MVA)
 SETPOINT_OK_PU = 1e-6
+# The residual accepts any root of the power-flow equations, including a
+# low-voltage one: Sparlectra 0.17.3 solved case1888rte from the flat start
+# to 1e-7 MW at a bus at 0.060 p.u. with 1397 MW of losses (981 MW at the
+# case's own operating point). Such a root is not the operating state. The
+# floor is below every bus voltage at the operating point of every registered
+# case (lowest: case6495rte and case6515rte, 0.559 p.u.) and of every radial
+# feeder's solution (about 0.9); a low-voltage root whose lowest bus stays
+# above it still passes.
+VM_FLOOR_PU = 0.5
 
 
 @lru_cache(maxsize=None)
@@ -67,7 +77,7 @@ def evaluate(case: str, vm: dict[str, float], va_deg: dict[str, float],
     r = residual(mpc, vm, va_deg, tol_mva=RESIDUAL_OK_MVA, tol_pu=SETPOINT_OK_PU)
     out = {f"residual_{k}": v for k, v in r.asdict().items()}
     out["oracle_ok"] = bool(max(r.max_dp_mw, r.max_dq_mvar) <= RESIDUAL_OK_MVA and r.max_dvm_pu <= SETPOINT_OK_PU
-                            and r.n_checked == r.n_buses)
+                            and r.n_checked == r.n_buses and r.min_vm_pu >= VM_FLOOR_PU)
     if (mpc["branch"][:, ANGLE] != 0).any():
         z = residual(mpc, vm, va_deg, zero_phase_shifts=True)
         out["residual_zero_shift_max_dp_mw"] = z.max_dp_mw
@@ -85,4 +95,5 @@ def evaluate_batch(case: str, bus_ids: list[str], vm: np.ndarray, va_deg: np.nda
     else:
         data = sweep.read(sweep_path(case))
         scenario, n = (lambda k: sweep.scenario(mpc, data, k)), len(data["scale"])
-    return batch.check(scenario, n, bus_ids, vm, va_deg, tol_mva=RESIDUAL_OK_MVA, tol_pu=SETPOINT_OK_PU)
+    return batch.check(scenario, n, bus_ids, vm, va_deg, tol_mva=RESIDUAL_OK_MVA, tol_pu=SETPOINT_OK_PU,
+                       vm_floor=VM_FLOOR_PU)

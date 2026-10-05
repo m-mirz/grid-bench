@@ -10,6 +10,13 @@ start (`adapters/sparlectra_adapter.py`, its settings); every outage starts
 from the base solution, written into the nodes (`opt_flatstart=false`). One
 call into Julia per outage; Julia runs single-threaded.
 
+Outages are solved with `power_mode=true`, like the base case: the Ybus is
+rebuilt when the outage changes its fingerprint, the Jacobian assembly and
+LU analysis when the pattern changes. In 0.30.1 power mode replayed the
+previous outage's Jacobian assembly (two outages of one branch count had the
+same entry count and a different pattern; 13 of 20 case14 outages then
+diverged), so outages ran without it; fixed in 0.30.2.
+
 Join: Sparlectra's importer makes `branchVec[row + 1]` of every branch row,
 asserted by the MATPOWER numbers of its buses (`busOrigIdxDict`).
 """

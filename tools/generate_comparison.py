@@ -20,6 +20,7 @@ from pathlib import Path
 import numpy as np
 
 from cases.registry import CASES
+from oracle.evaluate import VM_FLOOR_PU
 from tools.benchmark_data import (GRID_TITLES, Results, case_size, graded, input_label, load_solution, reads,
                                   scoreboard)
 
@@ -73,6 +74,8 @@ def residual_note(e: dict) -> str:
     parts += [f"max |ΔP| {e['residual_max_dp_mw']:.3g} MW, max |ΔQ| {e['residual_max_dq_mvar']:.3g} MVAr"]
     if e["residual_max_dvm_pu"] > 1e-6:
         parts.append(f"|V| off its setpoint by {e['residual_max_dvm_pu']:.3g} p.u.")
+    if e.get("residual_min_vm_pu", VM_FLOOR_PU) < VM_FLOOR_PU:
+        parts.append(f"lowest |V| {e['residual_min_vm_pu']:.3g} p.u.: a low-voltage root, not the operating state")
     if e["residual_n_checked"] < e["residual_n_buses"]:
         parts.append(f"only {e['residual_n_checked']} of {e['residual_n_buses']} buses checkable")
     if "residual_zero_shift_max_dp_mw" in e and max(e["residual_zero_shift_max_dp_mw"],

@@ -4,6 +4,7 @@
 # one is not 7 days old).
 [deps]
 GridBenchSparlectra = "eae2b233-c753-4a71-815f-ed6b2e2b1b4d"
+KLU = "ef3ab10e-7fda-4108-b977-705223b18434"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Sparlectra = "31ce9bba-fd9d-44a1-b005-f5f509afda38"
 
@@ -12,5 +13,6 @@ GridBenchSparlectra = {path = "GridBenchSparlectra"}   # the adapter's Julia hal
 
 [compat]
 julia = "=1.12.7"
+KLU = "=0.6.0"            # loaded for Sparlectra's KLU extension: the LU of a power-mode solve
 PythonCall = "=0.9.35"    # exactly the version juliacall 0.9.35 requires
-Sparlectra = "=0.17.3"
+Sparlectra = "=0.30.3"

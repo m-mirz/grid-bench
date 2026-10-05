@@ -17,8 +17,9 @@ from cases.matpower import BUS_I, PD, parse_m
 from cases.registry import CASES
 from cases.truth import solve_pf
 from oracle import batch
+from oracle.evaluate import VM_FLOOR_PU
 
-TOL = {"tol_mva": 1e-3, "tol_pu": 1e-6}
+TOL = {"tol_mva": 1e-3, "tol_pu": 1e-6, "vm_floor": VM_FLOOR_PU}
 
 
 @pytest.fixture(scope="module", params=["case14#sweep", "case33bw#sweep"])

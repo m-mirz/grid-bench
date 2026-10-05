@@ -18,6 +18,7 @@ import pytest
 
 from cases.matpower import ANGLE, BR_STATUS, BR_X, parse_m
 from cases.registry import CASES
+from oracle.evaluate import VM_FLOOR_PU
 from oracle.residual import residual, specified_injections
 from oracle.ybus import make_ybus
 
@@ -146,3 +147,19 @@ def test_zero_phase_shift_diagnostic(shift):
     zero = residual(mpc, vm, va, zero_phase_shifts=True)
     assert zero.max_dp_mw < 1e-6
     assert (real.max_dp_mw > 1.0) == (shift != 0.0)
+
+
+def test_low_voltage_root_has_zero_residual_and_is_below_the_floor():
+    """A lossless line (x = 0.1) feeding 200 MW at unity power factor has two
+    roots, |V2|^2 = (1 +- sqrt(1 - 4 (P x)^2)) / 2: the operating point at
+    0.979 p.u. and a low-voltage root at 0.204 p.u. Both solve the equations,
+    so only the floor tells them apart (case1888rte, see VM_FLOOR_PU)."""
+    buses = [[1, 3, 0, 0, 0, 0, 1, 1.0, 0, 1, 1, 1.1, 0.9],
+             [2, 1, 200, 0, 0, 0, 1, 1.0, 0, 1, 1, 1.1, 0.9]]
+    mpc = _case([[1, 2, 0.0, 0.1, 0.0, 0, 0, 0, 0, 0, 1]], buses, [[1, 0, 0, 999, -999, 1.0, 100, 1, 999, 0]])
+    for sign, high in ((1, True), (-1, False)):
+        v2 = np.sqrt((1 + sign * np.sqrt(1 - 4 * 0.2 ** 2)) / 2)
+        r = residual(mpc, {"1": 1.0, "2": v2}, {"1": 0.0, "2": -np.rad2deg(np.arcsin(0.2 / v2))})
+        assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-9
+        assert r.min_vm_pu == pytest.approx(v2)
+        assert (r.min_vm_pu >= VM_FLOOR_PU) == high

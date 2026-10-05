@@ -7,11 +7,12 @@ import json
 from pathlib import Path
 
 from cases.registry import CASES
+from oracle.evaluate import VM_FLOOR_PU
 from tools.benchmark_data import GRID_TITLES, Results, case_size, graded, input_label, scoreboard
 from tools.palette import DARK, DASH, LIGHT, LIGHT_TO_DARK
 
 KEEP = ("iterations", "oracle_ok", "residual_max_dp_mw", "residual_max_dq_mvar", "residual_max_dvm_pu",
-        "residual_worst_bus", "residual_n_checked", "residual_n_buses", "sv_n", "sv_n_published",
+        "residual_worst_bus", "residual_min_vm_pu", "residual_n_checked", "residual_n_buses", "sv_n", "sv_n_published",
         "sv_dv_median", "sv_dv_max", "sv_da_max_deg", "rss_baseline_mb", "rss_import_mb", "rss_solve_mb",
         "se_J", "se_J_true", "se_max_step", "se_max_dvm_true_pu", "se_n_reported", "se_n_buses",
         "opf_gap", "opf_objective", "opf_max_dp_mw", "opf_max_dq_mvar", "opf_max_vm_violation_pu",
@@ -66,7 +67,7 @@ def generate(directory: Path, res: Results) -> str:
     data = json.dumps({"pf": payload(res), "se": part(res.se), "opf": part(res.opf), "batch": part(res.batch),
                        "n1": part(res.n1)},
                       separators=(",", ":")).replace("</", "<\\/")
-    return (TEMPLATE.replace("__DATA__", data)
+    return (TEMPLATE.replace("__DATA__", data).replace("__VM_FLOOR__", repr(VM_FLOOR_PU))
             .replace("__LIGHT__", "".join(f"--{k}:{v};" for k, v in LIGHT.items()))
             .replace("__DARK__", "".join(f"--{k}:{v};" for k, v in DARK.items()))
             .replace("__TITLE__", html.escape("grid-bench")))
@@ -167,6 +168,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 </main>
 <script>
 const ALL = __DATA__;
+const VM_FLOOR = __VM_FLOOR__;
 let D = ALL.pf;
 const state = {problem: "pf", op: "solve", grid: (D.grids[0] || ["transmission"])[0], input: null, threads: "1", off: new Set()};
 const se = () => state.problem === "se";
@@ -179,7 +181,7 @@ const verdict = r => r.scenarios !== undefined ? `${r.scenarios_failed} of ${r.s
   ? `step to the WLS optimum ${r.se_max_step.toExponential(1)} · J ${r.se_J.toPrecision(4)} (at the truth ${r.se_J_true.toPrecision(4)}) · max |ΔV| from the truth ${r.se_max_dvm_true_pu.toExponential(1)} p.u.`
   : r.se_n_buses !== undefined ? `only ${r.se_n_reported} of ${r.se_n_buses} buses reported`
   : pfVerdict(r);
-function pfVerdict(r) { return `max |ΔP| ${r.residual_max_dp_mw.toExponential(2)} MW, |ΔQ| ${r.residual_max_dq_mvar.toExponential(2)} MVAr, |ΔV| setpoint ${r.residual_max_dvm_pu.toExponential(1)} p.u., worst bus ${r.residual_worst_bus}`; }
+function pfVerdict(r) { return `max |ΔP| ${r.residual_max_dp_mw.toExponential(2)} MW, |ΔQ| ${r.residual_max_dq_mvar.toExponential(2)} MVAr, |ΔV| setpoint ${r.residual_max_dvm_pu.toExponential(1)} p.u.${r.residual_min_vm_pu < VM_FLOOR ? `, lowest |V| ${r.residual_min_vm_pu.toFixed(3)} p.u. (low-voltage root)` : ""}, worst bus ${r.residual_worst_bus}`; }
 const gridTitle = g => (D.grids.find(x => x[0] === g) || [g, g, g])[2];
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));

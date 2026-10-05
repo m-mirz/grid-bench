@@ -136,7 +136,9 @@ CASES: dict[str, dict] = {
     "case3120sp": _mp("case3120sp.m", ["feature"], "Polish summer peak",
                       "101 PV buses with no online generator, 207 offline generators"),
     "case2848rte": _mp("case2848rte.m", ["feature"], "RTE",
-                       "every branch encoded as a transformer; the one RTE case that converges from flat start"),
+                       "every branch encoded as a transformer; the one RTE case that converges from flat start, "
+                       "but to a low-voltage root (8 buses below 0.5 p.u.; the operating point, near the case's "
+                       "own VM/VA, is another root)"),
     "case1888rte": _mp("case1888rte.m", ["robustness"], "RTE"),
     "case6495rte": _mp("case6495rte.m", ["robustness"], "RTE"),
     "case6515rte": _mp("case6515rte.m", [], "RTE", "same grid and structure as case6495rte, another snapshot"),

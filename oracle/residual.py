@@ -43,6 +43,7 @@ class Residual:
     worst_bus: str          # bus with the largest |dP| or |dQ|
     n_checked: int          # buses whose full neighbourhood the tool reported
     n_buses: int            # energized buses in the case
+    min_vm_pu: float        # lowest reported |V| of an energized bus (see oracle.evaluate.VM_FLOOR_PU)
     failing: dict           # {bus class: count} of buses over tolerance, see classify()
 
     def asdict(self) -> dict:
@@ -138,5 +139,6 @@ def residual(mpc: dict, vm_pu: dict[str, float], va_deg: dict[str, float],
         worst_bus=keys[worst],
         n_checked=int(checkable.sum()),
         n_buses=int(energized.sum()),
+        min_vm_pu=float(vm[energized & known].min(initial=np.inf)),
         failing={str(k): int(c) for k, c in zip(labels, counts)},
     )

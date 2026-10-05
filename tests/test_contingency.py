@@ -21,8 +21,9 @@ from cases.matpower import BR_STATUS, BUS_I, F_BUS, T_BUS, parse_m
 from cases.registry import CASES
 from cases.truth import solve_pf
 from oracle import batch
+from oracle.evaluate import VM_FLOOR_PU
 
-TOL = {"tol_mva": 1e-3, "tol_pu": 1e-6}
+TOL = {"tol_mva": 1e-3, "tol_pu": 1e-6, "vm_floor": VM_FLOOR_PU}
 N = 12   # outages per test case: case14 has 20 branches
 
 

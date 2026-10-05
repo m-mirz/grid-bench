@@ -2,7 +2,7 @@
 
 julia_version = "1.12.7"
 manifest_format = "2.0"
-project_hash = "e200af90434b109f4275e301403025e85c51b66e"
+project_hash = "1ed847108e95032d9c5678ea20f34330b753f909"
 
 [[deps.AnalyticLoadFlow]]
 deps = ["LinearAlgebra", "Logging", "PrecompileTools", "Printf", "SparseArrays"]
@@ -27,12 +27,6 @@ version = "1.11.0"
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 version = "1.11.0"
 
-[[deps.BenchmarkTools]]
-deps = ["Compat", "JSON", "Logging", "PrecompileTools", "Printf", "Profile", "Statistics", "UUIDs"]
-git-tree-sha1 = "9670d3febc2b6da60a0ae57846ba74670290653f"
-uuid = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
-version = "1.8.0"
-
 [[deps.CodecInflate64]]
 deps = ["TranscodingStreams"]
 git-tree-sha1 = "d981a6e8656b1e363a2731716f46851a2257deb7"
@@ -44,16 +38,6 @@ deps = ["TranscodingStreams", "Zlib_jll"]
 git-tree-sha1 = "970758a3d591a2a5c2a907c53f2e2f8c1b1d3537"
 uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
 version = "0.7.9"
-
-[[deps.Compat]]
-deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "9d8a54ce4b17aa5bdce0ea5c34bc5e7c340d16ad"
-uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.18.1"
-weakdeps = ["Dates", "LinearAlgebra"]
-
-    [deps.Compat.extensions]
-    CompatLinearAlgebraExt = "LinearAlgebra"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -81,6 +65,12 @@ deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 version = "1.11.0"
 
+[[deps.DelimitedFiles]]
+deps = ["Mmap"]
+git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
+uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+version = "1.9.1"
+
 [[deps.Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
@@ -97,7 +87,7 @@ uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 version = "1.11.0"
 
 [[deps.GridBenchSparlectra]]
-deps = ["Logging", "PrecompileTools", "PythonCall", "Sparlectra"]
+deps = ["KLU", "Logging", "PrecompileTools", "PythonCall", "Sparlectra"]
 path = "GridBenchSparlectra"
 uuid = "eae2b233-c753-4a71-815f-ed6b2e2b1b4d"
 version = "0.1.0"
@@ -139,6 +129,12 @@ version = "1.9.0"
 deps = ["StyledStrings"]
 uuid = "ac6e5ff7-fb65-4e79-a425-ec3bc9c03011"
 version = "1.12.0"
+
+[[deps.KLU]]
+deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse_jll"]
+git-tree-sha1 = "07649c499349dad9f08dde4243a4c597064663e9"
+uuid = "ef3ab10e-7fda-4108-b977-705223b18434"
+version = "0.6.0"
 
 [[deps.LazyArtifacts]]
 deps = ["Artifacts", "Pkg"]
@@ -205,6 +201,10 @@ git-tree-sha1 = "535656ce55266bfed0575cd051acc4f36dc869a0"
 uuid = "0b3b1443-0f03-428d-bdfb-f27f9c1191ea"
 version = "0.1.15"
 
+[[deps.Mmap]]
+uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+version = "1.11.0"
+
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 version = "2025.11.4"
@@ -268,11 +268,6 @@ deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 version = "1.11.0"
 
-[[deps.Profile]]
-deps = ["StyledStrings"]
-uuid = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
-version = "1.11.0"
-
 [[deps.PythonCall]]
 deps = ["CondaPkg", "Dates", "Libdl", "MacroTools", "Markdown", "Preferences", "Serialization", "Tables", "UnsafePointers"]
 git-tree-sha1 = "2b67e030054dd9438a00e3d7f59927e839b00569"
@@ -311,25 +306,23 @@ uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 version = "1.11.0"
 
 [[deps.Sparlectra]]
-deps = ["AnalyticLoadFlow", "BenchmarkTools", "Dates", "Downloads", "EzXML", "LinearAlgebra", "Logging", "Markdown", "PrecompileTools", "Printf", "Random", "SHA", "Serialization", "Sockets", "SparseArrays", "TOML", "UUIDs", "ZipArchives"]
-git-tree-sha1 = "beb4626e99b5f82a9f12a97f420a0d8e4acc88e8"
+deps = ["AnalyticLoadFlow", "Dates", "DelimitedFiles", "Downloads", "EzXML", "LinearAlgebra", "Logging", "Markdown", "PrecompileTools", "Printf", "Random", "SHA", "Serialization", "Sockets", "SparseArrays", "TOML", "UUIDs", "ZipArchives"]
+git-tree-sha1 = "ea989a2904ded9d46f11c4d11018ff81d317b585"
 uuid = "31ce9bba-fd9d-44a1-b005-f5f509afda38"
-version = "0.17.3"
+version = "0.30.3"
+
+    [deps.Sparlectra.extensions]
+    SparlectraBenchmarkToolsExt = "BenchmarkTools"
+    SparlectraKLUExt = "KLU"
+
+    [deps.Sparlectra.weakdeps]
+    BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+    KLU = "ef3ab10e-7fda-4108-b977-705223b18434"
 
 [[deps.SparseArrays]]
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 version = "1.12.0"
-
-[[deps.Statistics]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "e2b53ce13a53367e96601081e33d34746b571bad"
-uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-version = "1.11.5"
-weakdeps = ["SparseArrays"]
-
-    [deps.Statistics.extensions]
-    SparseArraysExt = ["SparseArrays"]
 
 [[deps.StructUtils]]
 deps = ["Dates", "UUIDs"]
