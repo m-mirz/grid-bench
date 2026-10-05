@@ -11,9 +11,13 @@ dependencies = [
     "pytest>=8.3",
     "pytest-benchmark>=5.1",
     "pytest-timeout>=2.3",
-    "power-grid-model==1.13.172",
+    "power-grid-model==1.13.185",
 ]
 
 [tool.uv]
 package = false
 exclude-newer = "P7D"
+# The one exception: power-grid-model 1.13.185 (uploaded 2026-10-05) was taken
+# on the day of release, on purpose, for its Newton-Raphson flat start
+# (`calculation_initialization`, PR #1607); everything else keeps P7D.
+exclude-newer-package = { power-grid-model = "2026-10-06T00:00:00Z" }

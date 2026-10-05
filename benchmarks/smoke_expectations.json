@@ -24,13 +24,13 @@
     "case14#n1": "ok"
   },
   "pgm": {
-    "case14": "rejected",
-    "case33bw": "rejected",
+    "case14": "ok",
+    "case33bw": "ok",
     "case14~exact": "ok",
     "case33bw~exact": "ok",
-    "case14#sweep": "rejected",
-    "case33bw#sweep": "rejected",
-    "case14#n1": "rejected"
+    "case14#sweep": "ok",
+    "case33bw#sweep": "ok",
+    "case14#n1": "ok"
   },
   "pypowsybl": {
     "case14": "ok",
