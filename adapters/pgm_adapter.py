@@ -1,18 +1,19 @@
 """power-grid-model: C++ Newton-Raphson.
 
 Input: PGM JSON produced by `cases.prep` with `gridoxide.matpower.convert`
-(PGM has no MATPOWER importer). Known losses of that conversion, both of
-which the oracle reports rather than hides:
-- PGM's transformer `clock` cannot hold a continuous phase shift, so every
-  MATPOWER phase shift is rounded to zero (PEGASE and RTE cases).
-- The slack is a PGM `source`: an ideal voltage behind an impedance
-  (sk = 1e10 VA), not an ideal slack bus, so the slack voltage lands off its
-  setpoint (visible as `max_dvm_pu`): slightly on transmission cases, by
-  2-3% on the heavily loaded 150 kV slack of the generated MV/LV grids
-  (2.25 ohm carrying ~1 kA).
-- The source's `u_ref` is the slack bus's `Vm` column, where MATPOWER's
-  setpoint is the generator's `Vg`: case4_dist and case18 (Vm 1, Vg 1.05)
-  are solved 0.05 p.u. low throughout. PGM's own power balance is exact on
+(PGM has no MATPOWER importer). Its known loss, which the oracle reports
+rather than hides: PGM's transformer `clock` cannot hold a continuous phase
+shift, so every MATPOWER phase shift is rounded to zero (PEGASE and RTE
+cases).
+
+The slack is a PGM `source`, an ideal voltage behind an impedance, which
+`cases.prep` (`_ideal_source`) makes the `.m`'s slack. The converter's sk =
+1e10 VA left it 1e-3 to 0.4 p.u. off its setpoint (0.4 on case9241pegase,
+whose slack carries 2.6 GW): sk is raised to 1e40, an ideal slack to machine
+precision with nothing else changed (checked from 1e10 to 1e40). The
+converter took `u_ref` from the bus's `Vm` column, which MATPOWER never
+reads at a generator bus: it is set to the generators' `Vg` (case4_dist and
+case18 were solved 0.05 p.u. low, case3120sp 0.04). PGM's own power balance is exact on
   every distribution case (1e-11 MW); it is the conversion that fails.
 No CGMES importer, so the cgmes family is not run.
 
@@ -33,11 +34,11 @@ Settings:
   start solves.
 
 Result: from the flat start PGM converges on every case (from the linear
-guess, on none above case14 but case_illinois200); every rejection is the
-conversion's (the slack off its setpoint, phase shifts dropped: the
-zero-shift residual is 1e-9 MVA on PEGASE and RTE). `average_source`
-converges on the same cases and agrees except on case6495rte, where its
-slack lands at its setpoint and the flat start's at 0.659 p.u.
+guess, on none above case14 but case_illinois200), and with the ideal slack
+it is exact (1e-13 to 1e-9 MVA) on every case without phase shifts. The
+PEGASE and RTE cases are rejected on exactly the buses next to the shifts
+dropped by the converter (the zero-shift residual is 1e-9 MVA).
+`average_source` converges on the same cases.
 """
 import numpy as np
 

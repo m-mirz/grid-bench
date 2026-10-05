@@ -19,6 +19,8 @@ Writes into `data/.case-cache/`:
   benchmark feeds PGM with. Its known loss: PGM's transformer `clock` cannot
   hold a continuous phase shift, so every MATPOWER phase shift is rounded to
   zero. The oracle reports that as a residual on the shifting branches.
+  The slack's source is made the `.m`'s slack: ideal (`PGM_SOURCE_SK`), at
+  its generators' `Vg`.
   Next to it, `<case>.pgm.branch-ids.json`: the PGM id of each branch row,
   the join for PGM's branch sensors in state estimation.
 - `<case>~<scenario>.meas.json` (state-estimation cases): the measurement
@@ -218,6 +220,7 @@ def prepare(key: str) -> None:
     branch_ids = convert(mat_path(key), pgm_json_path(key))
     pgm_branch_ids_path(key).write_text(json.dumps(branch_ids))
     _strip_reactive_limits(pgm_json_path(key))
+    _ideal_source(pgm_json_path(key), mpc)
     stamp.write_text(digest)
     print(f"prepared {key}", file=sys.stderr)
 
@@ -230,6 +233,31 @@ def _strip_reactive_limits(path: Path) -> None:
     for vr in data["data"].get("voltage_regulator", []):
         vr.pop("q_min", None)
         vr.pop("q_max", None)
+    path.write_text(json.dumps(data))
+
+
+# The slack is a PGM `source`, an ideal voltage behind an impedance of
+# u_ref^2 / sk. The converter's sk = 1e10 VA leaves the slack 1e-3 to 0.4
+# p.u. off its setpoint, a different problem from MATPOWER's ideal slack
+# bus. The error falls as 1/sk; from 1e30 on it is 2e-16 p.u. on every
+# case, and convergence and every other residual are unchanged up to 1e40.
+PGM_SOURCE_SK = 1e40
+
+
+def _ideal_source(path: Path, mpc: dict) -> None:
+    """Makes every source the `.m`'s slack: short-circuit power
+    PGM_SOURCE_SK, and `u_ref` the slack generators' `Vg`. The converter
+    takes `u_ref` from the bus's `Vm` column, which MATPOWER's power flow
+    never reads at a generator bus (`Vg` is the setpoint), so this changes
+    no equation of the `.m`; case4_dist and case18 (Vm 1, Vg 1.05) and
+    case3120sp (Vg 1.04) were solved at the wrong slack voltage."""
+    gen = mpc["gen"][mpc["gen"][:, matpower.GEN_STATUS] > 0]
+    data = json.loads(path.read_text())
+    for source in data["data"]["source"]:
+        vg = np.unique(gen[gen[:, matpower.GEN_BUS] == source["node"], matpower.VG])
+        assert len(vg) == 1, f"slack bus {source['node']}: online generators' Vg {vg}"
+        source["sk"] = PGM_SOURCE_SK
+        source["u_ref"] = float(vg[0])
     path.write_text(json.dumps(data))
 
 

@@ -6,9 +6,8 @@ batch, on as many threads as `threading` says. The power-flow adapter
 (`adapters/pgm_adapter.py`) times one scenario; this one times the batch.
 
 Input: the base case's PGM JSON, as in the power-flow adapter, with the same
-conversion losses (phase shifts rounded to zero, the slack as a source
-behind an impedance, the source's `u_ref` from the slack bus's `Vm`), which
-the oracle reports on every scenario.
+conversion loss (phase shifts rounded to zero), which the oracle reports on
+every scenario, and the same ideal slack.
 
 Scenarios: one update dataset for the whole sweep, scenarios x elements,
 built in `load` (it is input data, like the network):
