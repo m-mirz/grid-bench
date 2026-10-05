@@ -6,8 +6,8 @@ update data that switches the outaged branch off (`from_status`,
 `to_status` = 0) in its scenario. Every scenario is independent and runs on
 `threading` threads (see adapters/pgm_batch_adapter.py).
 
-Start: PGM takes no initial voltages, so every outage starts from PGM's own
-flat start, not from the base case's solution as the problem asks: a harder
+Start: PGM takes no initial voltages, so every outage starts from the flat
+start (`calculation_initialization="flat"`), not from the base case's solution as the problem asks: a harder
 start, never an easier one. The base case is not solved, since nothing would
 use it.
 

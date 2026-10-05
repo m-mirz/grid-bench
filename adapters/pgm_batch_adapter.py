@@ -22,13 +22,14 @@ built in `load` (it is input data, like the network):
 
 Settings, as in the power-flow adapter (Newton-Raphson, voltage regulators
 through `experimental_features="enabled"` on the private
-`_calculate_power_flow`, no reactive limits, `error_tolerance=TOLERANCE_PU`,
-`max_iterations=MAX_ITERATIONS`), and:
+`_calculate_power_flow`, no reactive limits, `calculation_initialization=
+"flat"`, `error_tolerance=TOLERANCE_PU`, `max_iterations=MAX_ITERATIONS`),
+and:
 - `threading`: -1 (PGM's sequential mode, no thread pool) at one thread,
   otherwise the thread count. PGM splits the scenarios over its threads; each
   thread solves its scenarios with its own copy of the model.
-- Every scenario starts from PGM's own flat start: a batch calculation does
-  not carry one scenario's result into the next.
+- Every scenario starts from the flat start: a batch calculation does not
+  carry one scenario's result into the next.
 - `output_component_types=["node"]`: only the node voltages, which is all
   the oracle reads and what a sweep user would ask for; PGM otherwise
   computes and copies out every branch and appliance result too.
@@ -89,8 +90,8 @@ class PgmBatch(BatchAdapter):
         try:
             model["result"] = model["model"]._calculate_power_flow(  # noqa: SLF001, see the docstring
                 calculation_method=CalculationMethod.newton_raphson, symmetric=True,
-                error_tolerance=TOLERANCE_PU, max_iterations=MAX_ITERATIONS, experimental_features="enabled",
-                update_data=model["update"], threading=-1 if threads == 1 else threads,
+                error_tolerance=TOLERANCE_PU, max_iterations=MAX_ITERATIONS, calculation_initialization="flat",
+                experimental_features="enabled", update_data=model["update"], threading=-1 if threads == 1 else threads,
                 output_component_types=[ComponentType.node], continue_on_batch_error=False)
         except PowerGridBatchError as e:
             first = e.errors[0]

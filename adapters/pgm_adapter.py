@@ -25,11 +25,19 @@ Settings:
 - Reactive limits are stripped from the regulators by `cases.prep`.
 - `error_tolerance=TOLERANCE_PU` (PGM's tolerance is on the voltage update,
   not the power mismatch), `max_iterations=MAX_ITERATIONS`.
-- PGM always initializes from its own flat start.
+- `calculation_initialization="flat"` (since 1.13.185): every node at 1
+  p.u. with the source's angle plus its topological phase shift, regulated
+  nodes at their `u_ref`: the common flat start. PGM's default starts Newton-
+  Raphson from a linear voltage guess (every load and generator as a constant
+  admittance), which diverges on meshed transmission grids that a flat
+  start solves.
 
-Result: PGM's experimental PV support diverges from case118 upward (same as
-gridoxide's bench records for power-grid-model 1.13.120); it converges on
-case14 and case_illinois200.
+Result: from the flat start PGM converges on every case (from the linear
+guess, on none above case14 but case_illinois200); every rejection is the
+conversion's (the slack off its setpoint, phase shifts dropped: the
+zero-shift residual is 1e-9 MVA on PEGASE and RTE). `average_source`
+converges on the same cases and agrees except on case6495rte, where its
+slack lands at its setpoint and the flat start's at 0.659 p.u.
 """
 import numpy as np
 
@@ -46,6 +54,7 @@ class PgmAdapter(SolverAdapter):
     language = "c++"
     families = ("matpower", "distribution")
     settings = {"calculation_method": "newton_raphson", "voltage_regulators": "experimental",
+                "init": "flat (calculation_initialization)",
                 "reactive_limits": False, "tolerance_pu": TOLERANCE_PU, "max_iteration": MAX_ITERATIONS}
 
     def load(self, case):
@@ -60,7 +69,8 @@ class PgmAdapter(SolverAdapter):
         try:
             model["result"] = model["model"]._calculate_power_flow(  # noqa: SLF001, see docstring
                 calculation_method=CalculationMethod.newton_raphson, symmetric=True,
-                error_tolerance=TOLERANCE_PU, max_iterations=MAX_ITERATIONS, experimental_features="enabled")
+                error_tolerance=TOLERANCE_PU, max_iterations=MAX_ITERATIONS, calculation_initialization="flat",
+                experimental_features="enabled")
         except PowerGridError as e:
             raise DidNotConverge(f"{type(e).__name__}: {str(e).splitlines()[0]}") from e
 
