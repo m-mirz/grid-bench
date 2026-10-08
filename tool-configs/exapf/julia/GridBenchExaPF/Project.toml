@@ -1,0 +1,10 @@
+name = "GridBenchExaPF"
+uuid = "64cc1256-c406-4d61-ad19-fdbc0383df50"
+version = "0.1.0"
+
+[deps]
+ExaPF = "0cf0e50c-a82e-488f-ac7e-41ffdff1b8aa"
+KLU = "ef3ab10e-7fda-4108-b977-705223b18434"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
