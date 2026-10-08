@@ -55,9 +55,9 @@ def _child(tool: str, case: str, operation: str) -> dict:
     if operation == "validate":
         adapter.validate(case)
         return out | {"rss_validate_mb": _status_mb("VmHWM", pid)}
-    model = adapter.load(case)
-    out["rss_import_mb"] = _status_mb("VmHWM", pid)
     try:
+        model = adapter.load(case)
+        out["rss_import_mb"] = _status_mb("VmHWM", pid)
         if isinstance(adapter, SolvingAdapter):
             adapter.solve(model)
             out["rss_solve_mb"] = _status_mb("VmHWM", pid)
@@ -65,7 +65,7 @@ def _child(tool: str, case: str, operation: str) -> dict:
             with tempfile.TemporaryDirectory() as out_dir:
                 adapter.export(model, Path(out_dir))
                 out["rss_export_mb"] = _status_mb("VmHWM", pid)
-    except Exception:  # noqa: BLE001 - the solve/export test records why; here only memory matters
+    except Exception:  # noqa: BLE001 - the import, solve and export tests record why; here only memory matters
         pass
     return out
 
