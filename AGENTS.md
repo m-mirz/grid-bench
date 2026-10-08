@@ -6,8 +6,8 @@ Contributor guide for grid-bench (people and coding agents alike).
 
 A benchmark of power system analysis software. v1 covers AC power flow for
 pandapower, p3s (pandapower's parallel solver, C++/KLU), lightsim2grid, PyPSA,
-power-grid-model, pypowsybl, VeraGrid, Sienna (PowerFlows.jl) and
-Sparlectra.jl (both Julia, through juliacall), MATPOWER (GNU Octave), and
+power-grid-model, pypowsybl, VeraGrid, Sienna (PowerFlows.jl), ExaPF.jl (on
+its CPU backend) and Sparlectra.jl (all Julia, through juliacall), MATPOWER (GNU Octave), and
 power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
 VeraGrid and Sparlectra.jl, and AC optimal power flow for MATPOWER,
@@ -15,7 +15,7 @@ pandapower, VeraGrid and PowerModels.jl (Ipopt; its own image, OPF only) on
 PGLib-OPF cases, and batch power flow (a sweep of operating points per case)
 for every tool that reads `.m`: through the tool's own batch API at 1..n
 threads (power-grid-model, p3s, lightsim2grid) or on one thread (PyPSA,
-VeraGrid, Sienna), or a loop of single solves (pandapower, pypowsybl,
+VeraGrid, Sienna, ExaPF.jl), or a loop of single solves (pandapower, pypowsybl,
 Sparlectra.jl, MATPOWER), and N-1 contingency analysis for the same tools
 (200 branch outages per transmission case, through a native contingency API
 where there is one). The
@@ -95,6 +95,7 @@ tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned ex
 tool-configs/matpower/Dockerfile      the official Octave image + uv Python + the MATPOWER release
 tool-configs/sienna/Dockerfile, julia/   Julia on top of the base image; Project.toml, Manifest.toml,
              setup.jl (registry snapshot), GridBenchSienna (the adapter's Julia half, precompiled)
+tool-configs/exapf/Dockerfile, julia/   the same for ExaPF.jl (GridBenchExaPF, CPU backend)
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
 tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources,
              with OpenMP for its batch solver (libgomp from the same pinned gcc image)
@@ -133,7 +134,7 @@ internal compose network; the run scripts stop the sidecar afterwards.
    `display_name`, `color` (the next unused slot in `tools/palette.py`, kept
    for life; all nine slots are taken, and a tenth tool needs a different
    encoding, not another hue, see the palette's docstring (p3s is
-   pandapower's blue, dashed: `P3S`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
+   pandapower's blue, dashed: `P3S`; ExaPF.jl is Sienna's red, dotted: `EXAPF`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
    reference solver, `REFERENCE_DOTTED`), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,
    `families`, `settings`. Implement `load`, `solve`, `solution`. Docstring:

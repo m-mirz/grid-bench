@@ -6,7 +6,7 @@ tools *read* CGMES grid models, grid-bench compares what the tools are for:
 **solving** them. It does not stop at speed. Every solve is checked by an
 oracle that none of the tools under test takes part in.
 
-v1 covers AC power flow in eleven tool setups:
+v1 covers AC power flow in twelve tool setups:
 [pandapower](https://github.com/e2nIEE/pandapower) and its
 [parallel solver p3s](https://github.com/e2nIEE/parallel-pandapower-solver) (C++/KLU),
 [lightsim2grid](https://github.com/Grid2op/lightsim2grid),
@@ -15,6 +15,7 @@ v1 covers AC power flow in eleven tool setups:
 [pypowsybl](https://github.com/powsybl/pypowsybl) (OpenLoadFlow),
 [VeraGrid](https://github.com/SanPen/VeraGrid),
 [Sienna](https://github.com/Sienna-Platform) (PowerFlows.jl),
+[ExaPF.jl](https://github.com/exanauts/ExaPF.jl) (GPU-oriented, run on its CPU backend),
 [Sparlectra.jl](https://github.com/Welthulk/Sparlectra.jl),
 [MATPOWER](https://matpower.org) on GNU Octave, and power-grid-model on CGMES
 through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
@@ -42,6 +43,8 @@ is traced to its cause in the tool's adapter docstring (`adapters/`).
     open tie switches as closed.
   - Sienna builds Ybus in single precision (residuals of 1e-5 to 1e-3 MW
     where others reach 1e-9), and cannot parse pure phase shifters.
+  - ExaPF.jl also makes online generators on PQ-typed buses regulate
+    (case2848rte), and cannot read a `.m` without `gencost`.
 - **Read as CGMES, some of those problems disappear.** pypowsybl solves every
   cimoxide-converted case exactly (except case2848rte, which it cannot solve
   from the `.m` either), including the three its MATPOWER importer gets
@@ -167,7 +170,8 @@ included, and every tool solves all of them in one timed call:
   run has: power-grid-model (`calculate_power_flow` with update data), p3s
   (`solve_batch`, OpenMP), lightsim2grid (`InjectionSweepCPP`);
 - through its own batch API on one thread: PyPSA (snapshots), VeraGrid
-  (time-series driver), Sienna (PowerFlows' time steps);
+  (time-series driver), Sienna (PowerFlows' time steps), ExaPF.jl
+  (`BlockPolarForm`, one block-diagonal Newton system, CPU backend);
 - as a loop of its single solve, where it has no batch power flow:
   pandapower, pypowsybl, Sparlectra.jl, MATPOWER.
 
@@ -240,6 +244,7 @@ output is graded but not solved by default.
 | pypowsybl | `network.load` (.mat) | `network.load` (zip); slack from `referencePriority` | OpenLoadFlow |
 | VeraGrid | `parse_matpower_file` (.m) | `open_cgmes` | NR |
 | Sienna | `PowerSystems.System` (.m) via juliacall | — | PowerFlows.jl NR (KLU) |
+| ExaPF.jl | `PowerFlowProblem` (.m) via juliacall, CPU backend | — | polar NR, AD Jacobian (KLU) |
 | Sparlectra.jl | `createNetFromMatPowerFile` (.m) via juliacall | `importCGMES` (zip) | rectangular NR (UMFPACK) |
 | MATPOWER | `loadcase` (.m), in GNU Octave | — | `runpf`, NR (UMFPACK) |
 | PGM via cgmes2pgm | — | upload to a Fuseki sidecar, `CgmesToPgmConverter` | PGM 1.12 NR (generators as fixed P/Q) |

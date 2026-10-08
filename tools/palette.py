@@ -10,7 +10,9 @@ and under protanopia next to slot 5 magenta (2.9 light). A tenth tool needs a
 different encoding (small multiples, "other"), never another hue. p3s (the
 parallel pandapower solver, from pandapower's makers) is drawn as a variant
 of slot 1: pandapower's blue, dashed, keyed one unit off like
-REFERENCE_DOTTED; the dash and its label tell the two apart.
+REFERENCE_DOTTED; the dash and its label tell the two apart. ExaPF.jl, the
+tenth tool, is drawn the same way as a variant of slot 8: Sienna's red,
+dotted (both Julia), which is the encoding rule above, not a new hue.
 Checked all-pairs, as a chart showing every tool at once needs, the palette
 fails: slot 8 red vs slot 2 orange is dE 7.1 even with full colour vision,
 and several pairs sit below 4 under colour-vision deficiency. The legend,
@@ -40,6 +42,8 @@ LIGHT_TO_DARK[REFERENCE] = "#c3c2b7"
 LIGHT_TO_DARK[REFERENCE_DOTTED] = "#c3c2b8"
 P3S = "#2a78d7"   # slot 1's blue, one unit off: pandapower's variant, dashed
 LIGHT_TO_DARK[P3S] = "#3987e6"
-DASH = {REFERENCE: "6 4", REFERENCE_DOTTED: "1.5 3.5", P3S: "6 4"}
+EXAPF = "#e34949"   # slot 8's red, one unit off: drawn as Sienna's variant, dotted
+LIGHT_TO_DARK[EXAPF] = "#e66768"
+DASH = {REFERENCE: "6 4", REFERENCE_DOTTED: "1.5 3.5", P3S: "6 4", EXAPF: "1.5 3.5"}
 LIGHT = {"surface": "#fcfcfb", "text": "#0b0b0b", "text2": "#52514e", "grid": "#e4e3df", "axis": "#8a8984"}
 DARK = {"surface": "#1a1a19", "text": "#ffffff", "text2": "#c3c2b7", "grid": "#33332f", "axis": "#6f6e69"}

@@ -109,6 +109,11 @@ services:
     image: grid-bench/sienna:latest
     command: pytest benchmarks/sienna_benchmark.py --benchmark-json=/output/sienna.json
 
+  exapf:
+    <<: *bench
+    image: grid-bench/exapf:latest
+    command: pytest benchmarks/exapf_benchmark.py --benchmark-json=/output/exapf.json
+
   sparlectra:
     <<: *bench
     image: grid-bench/sparlectra:latest
