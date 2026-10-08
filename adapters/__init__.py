@@ -11,6 +11,7 @@ ADAPTERS = {
     "veragrid": "adapters.veragrid_adapter:VeragridAdapter",
     "cgmes2pgm": "adapters.cgmes2pgm_adapter:Cgmes2pgmAdapter",
     "sienna": "adapters.sienna_adapter:SiennaAdapter",
+    "exapf": "adapters.exapf_adapter:ExapfAdapter",   # slot 8's variant (tools/palette.py EXAPF)
     "sparlectra": "adapters.sparlectra_adapter:SparlectraAdapter",
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
@@ -49,6 +50,7 @@ BATCHES = {
     "pypowsybl": "adapters.pypowsybl_batch_adapter:PypowsyblBatch",
     "veragrid": "adapters.veragrid_batch_adapter:VeragridBatch",
     "sienna": "adapters.sienna_batch_adapter:SiennaBatch",
+    "exapf": "adapters.exapf_batch_adapter:ExapfBatch",
     "sparlectra": "adapters.sparlectra_batch_adapter:SparlectraBatch",
     "matpower": "adapters.matpower_batch_adapter:MatpowerBatch",
 }
