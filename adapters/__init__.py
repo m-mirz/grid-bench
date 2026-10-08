@@ -66,6 +66,7 @@ CONTINGENCIES = {
     "pypowsybl": "adapters.pypowsybl_n1_adapter:PypowsyblN1",
     "veragrid": "adapters.veragrid_n1_adapter:VeragridN1",
     "sienna": "adapters.sienna_n1_adapter:SiennaN1",
+    "exapf": "adapters.exapf_n1_adapter:ExapfN1",
     "sparlectra": "adapters.sparlectra_n1_adapter:SparlectraN1",
     "matpower": "adapters.matpower_n1_adapter:MatpowerN1",
 }
