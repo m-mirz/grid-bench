@@ -132,6 +132,78 @@ end
 """Bus numbers, |V| in p.u. and angle in degrees, buses x scenarios, of the last solve_batch!."""
 batch_solution(b::Batch) = (b.numbers, b.vm, b.va)
 
+"""
+N-1: ExaPF's line-contingency formulation, `PowerFlowBalance(blk,
+contingencies)`: block 1 the base case, block 1 + j the network with
+contingency j's line admittances zeroed (`PS.drop_line`), one
+block-diagonal Newton system on a `BatchJacobian`. A `LineContingency` is
+the 1-based row of the `.m`'s branch matrix (out-of-service rows
+included), asserted against each outage's buses. `base` is the single power
+flow (`load`), whose network the blocks reuse, so the `.m` is parsed once.
+"""
+struct N1
+    base::Model
+    stack::ExaPF.NetworkStack
+    jac::ExaPF.BatchJacobian
+    linear_solver::LS.DirectSolver
+    algo::ExaPF.NewtonRaphson
+    buffer::ExaPF.NLBuffer
+    vm::Matrix{Float64}   # buses x outages, written by solve_n1!
+    va::Matrix{Float64}
+end
+
+"""A lower bound on the memory of k blocks, in bytes: the `BatchJacobian`'s
+own `NetworkStack` of ForwardDiff duals (one partial per colour of the
+Jacobian, the single Jacobian's colouring, which `BatchJacobian` repeats per
+block), counted from ExaPF's layout (`NetworkStack`: input 2nbus + ngen,
+basis 2nlines + nbus, intermediates ngen + 8 nlines). For 100 blocks of
+case1354pegase it counts 0.51 GB; the stack measured 0.55 GB of 0.72 GB
+live."""
+function dual_bytes(m::Model, k::Int)
+    net = m.prob.form.network
+    nlines = size(net.branches, 1)
+    per_block = 3 * net.nbus + 2 * net.ngen + 10 * nlines
+    return k * per_block * (m.prob.jac.ncolors + 1) * sizeof(Float64)
+end
+
+function load_n1(base::Model, rows::AbstractVector, from::AbstractVector, to::AbstractVector)
+    polar = base.prob.form
+    net = polar.network
+    lines = [Int(r) + 1 for r in rows]
+    @assert Int.(net.branches[lines, 1]) == Int.(from) && Int.(net.branches[lines, 2]) == Int.(to)
+    k = length(lines) + 1
+    blk = ExaPF.BlockPolarForm(polar, k)
+    stack = ExaPF.NetworkStack(blk)
+    powerflow = ExaPF.PowerFlowBalance(blk, ExaPF.LineContingency.(lines)) ∘ ExaPF.Basis(blk)
+    jac = ExaPF.BatchJacobian(blk, powerflow, ExaPF.State())
+    ExaPF.set_params!(jac, stack)
+    ExaPF.jacobian!(jac, stack)
+    linear_solver = ExaPF.default_linear_solver(jac.J; nblocks = k)
+    @assert linear_solver isa LS.DirectSolver{<:KLU.KLUFactorization}
+    return N1(base, stack, jac, linear_solver, base.prob.non_linear_solver,
+              ExaPF.NLBuffer{Vector{Float64}}(size(jac.J, 2)), zeros(net.nbus, k - 1), zeros(net.nbus, k - 1))
+end
+
+"""The base case from flat start (the single power flow), then every block
+from its solution. Returns (base converged, outages whose own mismatch
+2-norm is not below the tolerance)."""
+function solve_n1!(n::N1)
+    converged, _ = solve!(n.base)
+    converged || return false, 0
+    nbus, k = size(n.vm, 1), size(n.vm, 2) + 1
+    reshape(n.stack.vmag, nbus, k) .= n.base.prob.stack.vmag
+    reshape(n.stack.vang, nbus, k) .= n.base.prob.stack.vang
+    conv = ExaPF.nlsolve!(n.algo, n.jac, n.stack; linear_solver = n.linear_solver, nl_buffer = n.buffer)
+    n.vm .= view(reshape(n.stack.vmag, nbus, k), :, 2:k)
+    n.va .= rad2deg.(view(reshape(n.stack.vang, nbus, k), :, 2:k))
+    conv.has_converged && return true, 0
+    per_block = reshape(n.buffer.y, :, k)
+    return true, count(j -> !(sqrt(sum(abs2, view(per_block, :, j))) < n.algo.tol), 2:k)
+end
+
+"""Bus numbers, |V| in p.u. and angle in degrees, buses x outages, of the last solve_n1!."""
+n1_solution(n::N1) = (solution(n.base)[1], n.vm, n.va)
+
 versions() = Dict("ExaPF" => pkgversion(ExaPF), "KLU" => pkgversion(KLU))
 
 # Info and warning logs off: ExaPF's parser logs at info level on every
@@ -172,6 +244,10 @@ quiet() = Logging.disable_logging(Logging.Warn)
             b = load_batch(path, 1e-8, 30, [3], [0.9; 0.8;;], [0.3; 0.25;;], [2], [2], [0.5; 0.4;;])
             solve_batch!(b)
             batch_solution(b)
+            o = load_n1(load(path, 1e-8, 30), [0, 2], [1, 1], [2, 3])
+            dual_bytes(o.base, 3)
+            solve_n1!(o)
+            n1_solution(o)
         end
     end
 end
