@@ -196,7 +196,8 @@ they have one:
   (`solve_batch_contingency`, OpenMP), pypowsybl (OpenLoadFlow's security
   analysis, `threadCount`), and power-grid-model (a batch with branch status
   updates; it takes no start voltages, so its outages start flat);
-- on one thread: VeraGrid (`ContingencyAnalysisDriver`);
+- on one thread: VeraGrid (`ContingencyAnalysisDriver`), ExaPF.jl (its
+  line-contingency block formulation, one Newton system for every outage);
 - as a loop of single solves with the branch taken out: pandapower, PyPSA,
   Sienna (which rebuilds its power-flow data for each outage), Sparlectra.jl
   and MATPOWER.

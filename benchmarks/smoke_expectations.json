@@ -71,7 +71,8 @@
     "case14": "ok",
     "case33bw": "ok",
     "case14#sweep": "ok",
-    "case33bw#sweep": "ok"
+    "case33bw#sweep": "ok",
+    "case14#n1": "ok"
   },
   "sparlectra": {
     "case14": "ok",

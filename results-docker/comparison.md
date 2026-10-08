@@ -634,6 +634,7 @@ Each transmission case with 200 single-branch outages that keep the grid connect
 | pypowsybl (OpenLoadFlow) | 4 / 0 / 0 |
 | VeraGrid | 4 / 0 / 0 |
 | Sienna (PowerFlows.jl) | 1 / 0 / 3 |
+| ExaPF.jl | 3 / 0 / 1 |
 | Sparlectra.jl | 4 / 0 / 0 |
 | MATPOWER (Octave) | 4 / 0 / 0 |
 
@@ -643,12 +644,12 @@ Median time of the whole call (base case included) divided by its number of outa
 
 #### Transmission grids (meshed)
 
-| case | buses | pandapower | pandapower (p3s) | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| case14#n1 | 14 | 6.079 ✓ | 0.012 ✓ | **0.009** ✓ | 74.5 ✓ | 0.046 ✓ | 0.214 ✓ | 2.698 ✓ | 0.270 ✓ | 0.091 ✓ | 42.5 ✓ |
-| case1354pegase#n1 | 1,354 | 15.6 ✓ | 1.589 ✓ | **0.684** ✓ | 407.2 ✓ | 4.284 ✗⁵⁶ | 6.595 ✓ | 17.3 ✓ | FAILED¹⁰ | 7.044 ✓ | 69.5 ✓ |
-| case2869pegase#n1 | 2,869 | 28.2 ✓ | FAILED⁵⁷ | **2.214** ✓ | 992.5 ✓ | 12.5 ✗⁵⁶ | 18.7 ✓ | 35.6 ✓ | FAILED¹⁰ | 19.9 ✓ | 95.6 ✓ |
-| case9241pegase#n1 | 9,241 | 86.6 ✗⁵⁸ | FAILED⁵⁷ | **8.740** ✓ | 5,047 ✓ | 57.9 ✗⁵⁶ | 76.7 ✓ | 126.8 ✓ | FAILED¹⁰ | 122.2 ✓ | 258.5 ✓ |
+| case | buses | pandapower | pandapower (p3s) | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | Sienna (PowerFlows.jl) | ExaPF.jl | Sparlectra.jl | MATPOWER (Octave) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| case14#n1 | 14 | 6.079 ✓ | 0.012 ✓ | **0.009** ✓ | 74.5 ✓ | 0.046 ✓ | 0.214 ✓ | 2.698 ✓ | 0.270 ✓ | 0.012 ✓ | 0.091 ✓ | 42.5 ✓ |
+| case1354pegase#n1 | 1,354 | 15.6 ✓ | 1.589 ✓ | **0.684** ✓ | 407.2 ✓ | 4.284 ✗⁵⁶ | 6.595 ✓ | 17.3 ✓ | FAILED¹⁰ | 4.602 ✓ | 7.044 ✓ | 69.5 ✓ |
+| case2869pegase#n1 | 2,869 | 28.2 ✓ | FAILED⁵⁷ | **2.214** ✓ | 992.5 ✓ | 12.5 ✗⁵⁶ | 18.7 ✓ | 35.6 ✓ | FAILED¹⁰ | 13.7 ✓ | 19.9 ✓ | 95.6 ✓ |
+| case9241pegase#n1 | 9,241 | 86.6 ✗⁵⁸ | FAILED⁵⁷ | **8.740** ✓ | 5,047 ✓ | 57.9 ✗⁵⁶ | 76.7 ✓ | 126.8 ✓ | FAILED¹⁰ | FAILED⁵⁹ | 122.2 ✓ | 258.5 ✓ |
 
 ### Time per outage, fastest thread count
 
@@ -656,12 +657,12 @@ As above, at the thread count where each tool is fastest (`@n`). 16 of 16 logica
 
 #### Transmission grids (meshed)
 
-| case | buses | pandapower | pandapower (p3s) | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| case14#n1 | 14 | 6.079 @1 ✓ | **0.004 @8** ✓ | 0.008 @4 ✓ | 74.5 @1 ✓ | 0.022 @4 ✓ | 0.191 @4 ✓ | 2.698 @1 ✓ | 0.270 @1 ✓ | 0.091 @1 ✓ | 42.5 @1 ✓ |
-| case1354pegase#n1 | 1,354 | 15.6 @1 ✓ | 0.220 @16 ✓ | **0.142 @16** ✓ | 407.2 @1 ✓ | 0.556 @16 ✗⁵⁶ | 2.222 @8 ✓ | 17.3 @1 ✓ | FAILED¹⁰ | 7.044 @1 ✓ | 69.5 @1 ✓ |
-| case2869pegase#n1 | 2,869 | 28.2 @1 ✓ | FAILED⁵⁷ | **0.409 @16** ✓ | 992.5 @1 ✓ | 1.610 @16 ✗⁵⁶ | 5.397 @8 ✓ | 35.6 @1 ✓ | FAILED¹⁰ | 19.9 @1 ✓ | 95.6 @1 ✓ |
-| case9241pegase#n1 | 9,241 | 86.6 @1 ✗⁵⁸ | FAILED⁵⁷ | **2.184 @8** ✓ | 5,047 @1 ✓ | 10.4 @16 ✗⁵⁶ | 21.5 @8 ✓ | 126.8 @1 ✓ | FAILED¹⁰ | 122.2 @1 ✓ | 258.5 @1 ✓ |
+| case | buses | pandapower | pandapower (p3s) | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | Sienna (PowerFlows.jl) | ExaPF.jl | Sparlectra.jl | MATPOWER (Octave) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| case14#n1 | 14 | 6.079 @1 ✓ | **0.004 @8** ✓ | 0.008 @4 ✓ | 74.5 @1 ✓ | 0.022 @4 ✓ | 0.191 @4 ✓ | 2.698 @1 ✓ | 0.270 @1 ✓ | 0.012 @1 ✓ | 0.091 @1 ✓ | 42.5 @1 ✓ |
+| case1354pegase#n1 | 1,354 | 15.6 @1 ✓ | 0.220 @16 ✓ | **0.142 @16** ✓ | 407.2 @1 ✓ | 0.556 @16 ✗⁵⁶ | 2.222 @8 ✓ | 17.3 @1 ✓ | FAILED¹⁰ | 4.602 @1 ✓ | 7.044 @1 ✓ | 69.5 @1 ✓ |
+| case2869pegase#n1 | 2,869 | 28.2 @1 ✓ | FAILED⁵⁷ | **0.409 @16** ✓ | 992.5 @1 ✓ | 1.610 @16 ✗⁵⁶ | 5.397 @8 ✓ | 35.6 @1 ✓ | FAILED¹⁰ | 13.7 @1 ✓ | 19.9 @1 ✓ | 95.6 @1 ✓ |
+| case9241pegase#n1 | 9,241 | 86.6 @1 ✗⁵⁸ | FAILED⁵⁷ | **2.184 @8** ✓ | 5,047 @1 ✓ | 10.4 @16 ✗⁵⁶ | 21.5 @8 ✓ | 126.8 @1 ✓ | FAILED¹⁰ | FAILED⁵⁹ | 122.2 @1 ✓ | 258.5 @1 ✓ |
 
 ### Thread scaling
 
@@ -688,16 +689,16 @@ Speedup of each batch API that takes a thread count over its own one-thread run,
 
 #### Transmission grids (meshed)
 
-| case | buses | pandapower | pandapower (p3s) | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | Sienna (PowerFlows.jl) | Sparlectra.jl | MATPOWER (Octave) |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| case14#n1 | 14 | 81.0 | 86.6 | 0.770 | 51.3 | 0.876 | 2.054 | 6.068 | 8.264 | 0.667 | 20.5 |
-| case1354pegase#n1 | 1,354 | 80.9 | 138.6 | 16.8 | 72.3 | 10.3 | 51.8 | 567.5 | FAILED¹⁰ | 15.6 | 73.5 |
-| case2869pegase#n1 | 2,869 | 89.4 | FAILED⁵⁷ | 37.6 | 96.4 | 21.9 | 136.9 | 1,446 | FAILED¹⁰ | 44.1 | 137.7 |
-| case9241pegase#n1 | 9,241 | 106.2 | FAILED⁵⁷ | 146.7 | 212.1 | 70.5 | 483.3 | 4,982 | FAILED¹⁰ | 310.4 | 408.9 |
+| case | buses | pandapower | pandapower (p3s) | lightsim2grid (KLU) | PyPSA | power-grid-model | pypowsybl (OpenLoadFlow) | VeraGrid | Sienna (PowerFlows.jl) | ExaPF.jl | Sparlectra.jl | MATPOWER (Octave) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| case14#n1 | 14 | 81.0 | 86.6 | 0.770 | 51.3 | 0.876 | 2.054 | 6.068 | 8.264 | 1.742 | 0.667 | 20.5 |
+| case1354pegase#n1 | 1,354 | 80.9 | 138.6 | 16.8 | 72.3 | 10.3 | 51.8 | 567.5 | FAILED¹⁰ | 1,987 | 15.6 | 73.5 |
+| case2869pegase#n1 | 2,869 | 89.4 | FAILED⁵⁷ | 37.6 | 96.4 | 21.9 | 136.9 | 1,446 | FAILED¹⁰ | 4,335 | 44.1 | 137.7 |
+| case9241pegase#n1 | 9,241 | 106.2 | FAILED⁵⁷ | 146.7 | 212.1 | 70.5 | 483.3 | 4,982 | FAILED¹⁰ | FAILED⁵⁹ | 310.4 | 408.9 |
 
 ### Environment
 
-Machine: AMD Ryzen 7 250 w/ Radeon 780M Graphics, 16 logical CPUs; Linux 7.0.0-34-generic; Python 3.13.14.
+Machine: AMD Ryzen 7 250 w/ Radeon 780M Graphics, 16 logical CPUs; Linux 7.0.0-38-generic; Python 3.13.14.
 
 | tool | version | core | settings | commit | run |
 |---|---:|---:|---:|---:|---:|
@@ -709,6 +710,7 @@ Machine: AMD Ryzen 7 250 w/ Radeon 780M Graphics, 16 logical CPUs; Linux 7.0.0-3
 | pypowsybl (OpenLoadFlow) | 1.16.1 | java | voltage_init_mode=UNIFORM_VALUES, distributed_slack=False, use_reactive_limits=False, outer_loop_controls=off, remote_voltage_control=True, connected_component_mode=MAIN, tolerance_pu=1e-08, max_iteration=30, mode=native, batch_api=security analysis (OpenLoadFlow), start=base-case state, threadCount=the thread count | 880e4d239379 | 2026-10-01T11:50 |
 | VeraGrid | 6.5.29 | python | solver_type=NR, retry_with_other_methods=False, init=flat, distributed_slack=False, outer_loop_controls=off, remote_voltage_control=True, tolerance_pu=1e-08, max_iteration=30, mode=native, batch_api=ContingencyAnalysisDriver (PowerFlow), start=base-case solution, engine=VeraGrid (single thread) | 880e4d239379 | 2026-10-01T10:28 |
 | Sienna (PowerFlows.jl) | 0.25.2 | julia | solver=NewtonRaphsonACPowerFlow, init=flat, enhanced_flat_start=False, reactive_limits=False, distributed_slack=False, tolerance_pu=1e-08, max_iteration=30, mode=loop, start=base-case solution, update=branch unavailable, PowerFlowData rebuilt | 880e4d239379 | 2026-10-01T10:29 |
+| ExaPF.jl | 0.13.0 | julia | solver=NewtonRaphson, formulation=polar, backend=cpu, linear_solver=klu, init=flat, reactive_limits=False, distributed_slack=False, tolerance_pu=1e-08, tolerance_norm=2, over all blocks, max_iteration=30, mode=native, batch_api=PowerFlowBalance(BlockPolarForm, LineContingency), start=base-case solution | db3056064db1 | 2026-10-08T21:04 |
 | Sparlectra.jl | 0.30.3 | julia | solver=runpf_rectangular!, formulation=rectangular, init=flat, damping=1.0, newton_update=polar, linear_solver=klu, power_mode=True, start_improvers=False, reactive_limits=False, distributed_slack=False, remote_voltage_control=False, outer_loop_controls=off, tolerance_pu=1e-08, max_iteration=30, mode=loop, start=base-case solution (opt_flatstart=false) | 5e8f364d10f6 | 2026-10-05T18:59 |
 | MATPOWER (Octave) | 8.1 | matlab | pf.alg=NR, init=flat, pf.enforce_q_lims=0, pf.tol=1e-08, pf.nr.max_it=30, runtime=GNU Octave, mode=loop, start=base-case solution, update=branch status, then runpf (in Octave) | 11edc96595c6 | 2026-10-05T19:48 |
 
@@ -882,6 +884,7 @@ Wrong solutions are grouped by tool and input, failures by tool and message (num
 57. FAILED · **pandapower (p3s)**: `AssertionError: branch row … is a p3s-unstamped impedance`: case2869pegase#n1, case9241pegase#n1
 58. ✗ · **pandapower, N-1**
     - case9241pegase#n1: 200 of 200 outages fail; worst, outage 49: fails at 5 other PQ buses; 1 PV buses; max |ΔP| 83 MW, max |ΔQ| 1.05e+03 MVAr (worst: bus 4458)
+59. FAILED · **ExaPF.jl**: `MemoryError: ExaPF's contingency system needs at least … GB (its Jacobian duals alone), … GB available`: case9241pegase#n1
 
 ## Environment
 
