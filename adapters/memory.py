@@ -41,12 +41,12 @@ def _child(tool: str, case: str) -> dict:
     pid = adapter.tool_pid() or "self"
     Path(f"/proc/{pid}/clear_refs").write_text("5")   # reset VmHWM to current RSS
     out = {"rss_baseline_mb": _status_mb("VmRSS", pid)}
-    model = adapter.load(case)
-    out["rss_import_mb"] = _status_mb("VmHWM", pid)
     try:
+        model = adapter.load(case)
+        out["rss_import_mb"] = _status_mb("VmHWM", pid)
         adapter.solve(model)
         out["rss_solve_mb"] = _status_mb("VmHWM", pid)
-    except Exception:  # noqa: BLE001 - the solve test records why; here only memory matters
+    except Exception:  # noqa: BLE001 - the import and solve tests record why; here only memory matters
         pass
     return out
 

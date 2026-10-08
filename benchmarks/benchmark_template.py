@@ -16,7 +16,13 @@ the tool can read (selected by `--groups` / `--cases`, see conftest.py):
   `IMPORT_ROUNDS` timed rounds, or 1 if the warm-up alone took longer than
   `SLOW_IMPORT_SECONDS` (cgmes2pgm uploading RealGrid to Fuseki would
   otherwise approach the 30-minute test timeout). Peak memory is measured separately in a
-  fresh process (adapters/memory.py) and attached to this record.
+  fresh process (adapters/memory.py) and attached to this record, before
+  this process loads the case: the two never hold it at once, which a
+  model of half the machine's memory needs (ExaPF's batch of
+  case9241pegase, 16 GB). For the same reason the timed rounds never hold
+  two models: each round's model is released before the next round starts,
+  outside the timer. A case that does not load leaves no memory record;
+  this process's own load then raises and is recorded.
 - `test_solve[case]`: repeated solves on ONE persistent model, as every tool
   is used in practice and as every tool here supports. 1 untimed warm-up
   solve (JIT, first symbolic factorization), then enough timed rounds to
@@ -99,11 +105,15 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
 
     def test_import(benchmark, case):
         _record(benchmark, adapter, case, "import")
+        benchmark.extra_info.update(memory.measure(tool, case))   # first: see the module docstring
         t0 = time.perf_counter()
         adapter.load(case)                        # warm-up, timed only to choose the round count
         rounds = 1 if time.perf_counter() - t0 > SLOW_IMPORT_SECONDS else IMPORT_ROUNDS
-        benchmark.pedantic(adapter.load, args=(case,), rounds=rounds, iterations=1)
-        benchmark.extra_info.update(memory.measure(tool, case))
+        # pytest-benchmark holds a round's return value until the next round
+        # returns, i.e. two models at once; `setup` (untimed, before every
+        # round) releases the previous one instead.
+        held = []
+        benchmark.pedantic(lambda: held.append(adapter.load(case)), setup=held.clear, rounds=rounds, iterations=1)
 
     def test_solve(benchmark, case):
         _record(benchmark, adapter, case, "solve")
