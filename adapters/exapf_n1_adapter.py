@@ -47,7 +47,7 @@ import numpy as np
 from adapters.batch_adapter import BatchSolution, ContingencyAdapter, base_case, outages
 from adapters.exapf_adapter import ExapfAdapter, _gb
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge
-from cases.registry import CASES
+from cases.registry import m_path
 
 
 def _available_bytes() -> int:
@@ -73,7 +73,7 @@ class ExapfN1(ContingencyAdapter):
 
     def load(self, case):
         out = outages(case)
-        path = str(CASES[base_case(case)]["file"])
+        path = str(m_path(base_case(case)))
         base = _gb().load(path, TOLERANCE_PU, MAX_ITERATIONS)
         need, available = int(_gb().dual_bytes(base, len(out["branch_row"]) + 1)), _available_bytes()
         if need > available:

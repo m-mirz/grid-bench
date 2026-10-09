@@ -5,8 +5,10 @@ a call costs microseconds, so the timing is Julia's. ExaPF is written for
 GPUs (CUDA with cuDSS, ROCm); the CPU backend runs the same code, so this
 adapter checks its model before any GPU number exists.
 
-Input: `ExaPF.PowerFlowProblem(<case>.m, CPU(), :polar)` on the original
-`.m` (ExaPF's own MATPOWER parser and a port of MATPOWER's makeYbus), the
+Input: `ExaPF.PowerFlowProblem(<case>.m, CPU(), :polar)` on the `.m` that
+`cases.prep` writes (`m_path`: the original text, plus a zero `gencost`
+where the case has none; see below), read by ExaPF's own MATPOWER parser
+and a port of MATPOWER's makeYbus. The `PowerFlowProblem` is the
 persistent model every solve reuses: the Jacobian's sparsity pattern and
 colouring (ExaPF differentiates the power balance with ForwardDiff, not by
 hand) and the KLU factorization, refactored in place each step. ExaPF
@@ -27,12 +29,16 @@ Known losses, reported by the oracle rather than hidden (v0.13.0):
   start there (0.020 p.u.), which the oracle's voltage floor rejects too.
   case1888rte and case6495rte have such buses too, but diverge first, as
   they do for every tool except power-grid-model.
-- `.m` files without `mpc.gencost` fail to import (`KeyError: key
-  "gencost" not found`, parse_mat.jl): the parser requires it, so the
-  "no costs" fallback in `PowerNetwork` is never reached. A power flow never
-  uses costs; case4_dist and the mvlv grids have none.
 - A PV bus without an online generator is solved as PQ: MATPOWER's own
   `bustypes` rule and the one the oracle applies, so no loss.
+
+Input normalised (rule 4, as `normalize_for_tools` does for pandapower):
+ExaPF's parser requires `mpc.gencost` (`data_mat["gencost"]`,
+parse_mat.jl), so the "no costs" fallback in `PowerNetwork` is never
+reached and a case without one fails to import (`KeyError: key "gencost"
+not found`: case4_dist and the mvlv grids). A cost is not part of the
+power-flow equations, so `cases.matpower.with_gencost` appends a zero cost
+per generator to such a case, and the oracle grades the raw one.
 
 Settings (`PowerFlowProblem`, `NewtonRaphson`):
 - `:polar`, one scenario: the single power flow. `:block_polar` is the
@@ -58,7 +64,7 @@ Settings (`PowerFlowProblem`, `NewtonRaphson`):
 from importlib.metadata import version
 
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge, Solution, SolverAdapter
-from cases.registry import CASES
+from cases.registry import m_path
 
 
 def _gb():
@@ -87,7 +93,7 @@ class ExapfAdapter(SolverAdapter):
                                                                     "juliacall": version("juliacall")}
 
     def load(self, case):
-        return _gb().load(str(CASES[case]["file"]), TOLERANCE_PU, MAX_ITERATIONS)
+        return _gb().load(str(m_path(case)), TOLERANCE_PU, MAX_ITERATIONS)
 
     def solve(self, model):
         converged, steps = _gb().solve_b(model)   # juliacall spells solve! as solve_b

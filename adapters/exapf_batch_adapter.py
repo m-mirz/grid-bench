@@ -13,7 +13,8 @@ another, so the thread count is not a setting.
 Input and settings: the power-flow adapter's (`adapters/exapf_adapter.py`):
 ExaPF's MATPOWER parser on the `.m`, KLU, every scenario restored to the
 flat start before the solve, `TOLERANCE_PU`, `MAX_ITERATIONS`. Its losses
-stand (PQ buses with a generator solved as PV; no import without gencost).
+stand (PQ buses with a generator solved as PV), and it reads the same
+prepared `.m` (`m_path`, a zero gencost where the case has none).
 
 Scenarios: ExaPF keeps loads (`pload`, `qload`) per bus and dispatch
 (`pgen`) per online generator, block after block; `GridBenchExaPF.load_batch`
@@ -52,7 +53,7 @@ from adapters.batch_adapter import BatchAdapter, BatchSolution, base_case, scena
 from adapters.exapf_adapter import ExapfAdapter, _gb
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge
 from cases.matpower import GEN_STATUS, parse_m
-from cases.registry import CASES
+from cases.registry import CASES, m_path
 
 
 class ExapfBatch(BatchAdapter):
@@ -76,7 +77,7 @@ class ExapfBatch(BatchAdapter):
         online = np.flatnonzero(mpc["gen"][:, GEN_STATUS] > 0)
         gen_pos = np.searchsorted(online, sweep["gen_row"])
         assert (online[gen_pos] == sweep["gen_row"]).all()
-        batch = _gb().load_batch(str(CASES[base]["file"]), TOLERANCE_PU, MAX_ITERATIONS,
+        batch = _gb().load_batch(str(m_path(base)), TOLERANCE_PU, MAX_ITERATIONS,
                                  sweep["load_bus"].tolist(), sweep["pd"] / base_mva, sweep["qd"] / base_mva,
                                  (gen_pos + 1).tolist(), sweep["gen_bus"].tolist(), sweep["pg"] / base_mva)
         return {"batch": batch, "n": len(sweep["scale"])}

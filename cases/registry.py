@@ -322,6 +322,12 @@ def mat_path(key: str) -> Path:
     return CACHE / f"{key}.mat"
 
 
+def m_path(key: str) -> Path:
+    """The `.m` with a zero gencost where it had none, produced by `cases.prep`
+    (see `cases.matpower.with_gencost`)."""
+    return CACHE / f"{key}.m"
+
+
 def pgm_json_path(key: str) -> Path:
     return CACHE / f"{key}.pgm.json"
 

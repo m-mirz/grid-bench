@@ -64,6 +64,22 @@ def normalize_for_tools(mpc: dict) -> dict:
     return out
 
 
+ZERO_COST_ROW = "2\t0\t0\t3\t0\t0\t0;"   # polynomial, no start-up or shut-down cost, c2 = c1 = c0 = 0
+
+
+def with_gencost(path: Path) -> str:
+    """The `.m` text as written, plus `mpc.gencost` with one zero-cost row per
+    generator row when the case has none. A cost is not part of the AC
+    power-flow equations; ExaPF.jl's MATPOWER parser requires one anyway
+    (adapters/exapf_adapter.py). Appended rather than rewritten, so nothing
+    else in the file can change; the oracle grades against the raw case."""
+    text = Path(path).read_text()
+    if re.search(r"mpc\.gencost\s*=", text):
+        return text
+    rows = "".join(f"\t{ZERO_COST_ROW}\n" for _ in range(len(parse_m(path)["gen"])))
+    return f"{text.rstrip()}\n\n%% zero cost, added by cases.matpower.with_gencost\nmpc.gencost = [\n{rows}];\n"
+
+
 def write_mat(mpc: dict, path: Path) -> None:
     """Writes a MATPOWER `.mat` (the `mpc` struct), which is what pypowsybl's
     and pandapower's MATPOWER importers read. `version` must be present."""
