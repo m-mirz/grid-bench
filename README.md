@@ -19,12 +19,19 @@ v1 covers AC power flow in eleven tool setups:
 [MATPOWER](https://matpower.org) on GNU Octave, and power-grid-model on CGMES
 through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
-**Results:** [`results-docker/comparison.md`](results-docker/comparison.md) ·
-[site](docs/index.html) (charts of time and memory against case size, sortable and filterable tables, hover detail)
+Beside the solvers, five CIM libraries are timed on reading, writing and
+validating CGMES, as cim-bench does:
+[cimoxide](https://github.com/m-mirz/cimoxide),
+[triplets](https://github.com/Haigutus/triplets),
+[OpenCGMES](https://github.com/SOPTIM/OpenCGMES),
+[PowSyBl](https://github.com/powsybl/powsybl-core)'s CGMES model, and pypowsybl
+(see [CIM import, export and validation](#cim-import-export-and-validation)).
+
+**Results:** [site](docs/index.html) (charts of time and memory against case size, sortable and filterable tables, hover detail)
 
 ## What it found
 
-Numbers are in [comparison.md](results-docker/comparison.md); each finding
+Numbers are on the [site](docs/index.html); each finding
 is traced to its cause in the tool's adapter docstring (`adapters/`).
 
 - **lightsim2grid is the fastest correct solver** on every MATPOWER case but
@@ -199,6 +206,32 @@ they have one:
 
 The oracle grades every outage of every thread count with tier 1 against the
 case with that branch out of service.
+
+## CIM import, export and validation
+
+The CIM libraries are timed on the Svedala and RealGrid CGMES 3.0
+conformity models (`<case>#cim`), every profile (SV included) read from the
+published XML files:
+
+- **Import**: the files into the library's model: triples for triplets,
+  OpenCGMES (Apache Jena) and PowSyBl's `CgmesModel` (RDF4J), typed objects
+  for cimoxide, and a network model for pypowsybl, which converts CGMES.
+- **Export**: that model written back as CGMES RDF/XML, warm, into an empty
+  directory.
+- **Validate**: the files to a violation report in one call, parsing
+  included, because cimoxide's Python API validates files only. cimoxide
+  runs its own rules; triplets (on polars and oxigraph) and OpenCGMES (with
+  Jena SHACL), which have none, get the ENTSO-E CGMES 3.0 SHACL shapes from
+  the `application-profiles-library` submodule. PowSyBl and pypowsybl have
+  no validator.
+
+These numbers are the one exception to the oracle: like cim-bench, they are
+timed, not graded. The libraries read CGMES into different models and
+validate against different rules, so there is no single right answer. The
+site shows what each read and found, next to the times. Peak memory is
+measured for each operation in a fresh process: import, import plus one
+export, and one validate. OpenCGMES and PowSyBl run in-process through
+JPype, the JVM's memory included.
 
 ## Cases
 

@@ -36,12 +36,12 @@ injection cannot be measured; the slack's |V| held at its start value
 instead of estimated; its tolerance hardcoded (1e-5 on the gradient norm).
 Every case would be CaseUnsupported, so it has no adapter.
 """
-from adapters.solver_adapter import ToolAdapter
+from adapters.solver_adapter import SolvingAdapter
 
 SE_TOLERANCE = 1e-8   # max state update at convergence, p.u. and rad
 
 
-class EstimatorAdapter(ToolAdapter):
+class EstimatorAdapter(SolvingAdapter):
     problem = "se"
     families = ("se-matpower", "se-distribution")
 

@@ -7,17 +7,17 @@ exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for 
 exclude-newer-span = "P7D"
 
 [options.exclude-newer-package]
-cimoxide = "2026-09-18T18:00:00Z"
+cimoxide = "2026-10-09T18:00:00Z"
 
 [[package]]
 name = "cimoxide"
-version = "0.3.3"
+version = "0.5.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/77/df/5506c1580aa375a5848f47b59545bc471f564de6c8cf537730e477a9431e/cimoxide-0.3.3.tar.gz", hash = "sha256:9f0e97be4a440caf83bed25f1b27abcd8994dc930008726db5c143c3865132d5", size = 904393, upload-time = "2026-09-18T17:36:16.182Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/49/439ea3b7f2a914f390822852eab7856901f92ec02bd6968f37a5b4dc4507/cimoxide-0.5.0.tar.gz", hash = "sha256:14553c6bcc2beba0c2f088d5a5f94557b8e9b9eb3340659ed1f42257cf80c824", size = 1063420, upload-time = "2026-10-09T17:42:32.191Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0e/d3/a610a2eb109bf440a33d1ba55d3eb12cfaf66a934429fd04ab644e1a3472/cimoxide-0.3.3-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:16ff0438db003272af07cfef942371a31dad89a20d9a41fb3367f05c6f43ede6", size = 8303885, upload-time = "2026-09-18T17:36:09.01Z" },
-    { url = "https://files.pythonhosted.org/packages/a4/39/25ac8fe74925d6104fd56086d3f80b83358bb35954e0dd280280e26d4f78/cimoxide-0.3.3-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:758c4cda602a620a15c86879c1631eadae25595c26fd667bd5e0078d96c1e661", size = 8919000, upload-time = "2026-09-18T17:36:11.397Z" },
-    { url = "https://files.pythonhosted.org/packages/ba/a0/db35540c01c7955f42ab60d52eee43e75fb8ca733ac3c949e8d234ca055d/cimoxide-0.3.3-cp39-abi3-win_amd64.whl", hash = "sha256:84d90d80eba55a92caf7bc9419c4a27dd6caa5eb3fb81c96f14bba84bcea96e2", size = 10057430, upload-time = "2026-09-18T17:36:13.838Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/5a/b32e24a4952fea09064bedd55b3ecf970a768a7057819c600394c6fcfb78/cimoxide-0.5.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:7eef49e1813f400bea61a39889fdbe09c0618148b136805a0a8e0d30cfedbffa", size = 4514861, upload-time = "2026-10-09T17:42:16.672Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/3c/df88e51f3272d6725a22137fe74fed77e54227a2187abc3c3bdbd11ffb36/cimoxide-0.5.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:996d29db5c5f4d7f9bc6679d3d28118ec7d1fa8f77b2579d4adf0a77c60f7066", size = 5440097, upload-time = "2026-10-09T17:42:18.414Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/29/a5677f36715380a10ca0ed7578f811f705651fa99622ddc0760b69e01d4c/cimoxide-0.5.0-cp39-abi3-win_amd64.whl", hash = "sha256:da6a9777518af13d8d72fc46e004c5ec53d4e0a8c586ee7260375833f483267e", size = 3890816, upload-time = "2026-10-09T17:42:20.737Z" },
 ]
 
 [[package]]
@@ -44,7 +44,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cimoxide", specifier = "==0.3.3" },
+    { name = "cimoxide", specifier = "==0.5.0" },
     { name = "numpy", specifier = ">=2.2" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-benchmark", specifier = ">=5.1" },

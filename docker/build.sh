@@ -14,8 +14,10 @@ if [ ${#targets[@]} -eq 0 ]; then
 fi
 for t in "${targets[@]}"; do
     echo "=== building grid-bench/$t"
-    # A tool that needs more than Python packages (sienna: Julia) brings its own Dockerfile.
+    # A tool that needs more than Python packages (sienna: Julia) brings its own
+    # Dockerfile; one on the JVM (a pom.xml) shares docker/java-tool.dockerfile.
     dockerfile=docker/tool.dockerfile
+    [ -f "tool-configs/$t/pom.xml" ] && dockerfile=docker/java-tool.dockerfile
     [ -f "tool-configs/$t/Dockerfile" ] && dockerfile="tool-configs/$t/Dockerfile"
     docker build -f "$dockerfile" --build-arg TOOL="$t" -t "grid-bench/$t:latest" .
 done

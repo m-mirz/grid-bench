@@ -1,0 +1,21 @@
+# Dependencies of the cimoxide benchmark image (CIM import, export and
+# validation). The tool is pinned exactly: a version change is a deliberate,
+# recorded event. See adapters/cimoxide_cim_adapter.py.
+[project]
+name = "grid-bench-cimoxide"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+    "cimoxide==0.5.0",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"
+# The same cimoxide as the harness's converter (see the root pyproject.toml).
+exclude-newer-package = { cimoxide = "2026-10-09T18:00:00Z" }

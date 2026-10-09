@@ -42,6 +42,19 @@ only there. One round is a whole batch, so these tests get
 of PyPSA's 5 s solve over 200 outages of case9241pegase takes 17 minutes a
 round, warm-up included twice that.
 
+CIM libraries (`"cim"`, `adapters.cim_adapter`) get no `test_solve`. They
+get `test_import`, with what the model holds attached (`counts`), and:
+
+- `test_export[case]`: one model, repeated exports of it into an emptied
+  directory (emptied untimed, before each round), rounds chosen like a
+  solve's. Files and bytes written are attached.
+- `test_validate[case]` (validators only): files to violation report,
+  rounds like an import's. The violation counts are attached, and the peak
+  memory of one validate in a fresh process (`adapters/memory.py`).
+
+These are timed, not graded: the one exception to "no speed number without
+a correctness number" (AGENTS.md, rule 1), as in cim-bench.
+
 Warm solve is the headline because cold numbers mostly measure one-time
 setup: in gridoxide's bench, a 1.3-1.7x cold gap to lightsim2grid traced
 entirely to symbolic factorization being redone.
@@ -54,6 +67,7 @@ import inspect
 import json
 import math
 import os
+import shutil
 import time
 from pathlib import Path
 
@@ -102,8 +116,10 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
         t0 = time.perf_counter()
         adapter.load(case)                        # warm-up, timed only to choose the round count
         rounds = 1 if time.perf_counter() - t0 > SLOW_IMPORT_SECONDS else IMPORT_ROUNDS
-        benchmark.pedantic(adapter.load, args=(case,), rounds=rounds, iterations=1)
+        model = benchmark.pedantic(adapter.load, args=(case,), rounds=rounds, iterations=1)
         benchmark.extra_info.update(memory.measure(tool, case))
+        if problem == "cim":
+            benchmark.extra_info.update(adapter.counts(model))
 
     def test_solve(benchmark, case):
         _record(benchmark, adapter, case, "solve")
@@ -139,5 +155,42 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
         sol = adapter.solution(model, case)
         benchmark.extra_info.update(evaluate_batch(case, sol.bus_ids, sol.vm, sol.va_deg))
 
+    def test_export(benchmark, case, tmp_path):
+        _record(benchmark, adapter, case, "export")
+        model = adapter.load(case)
+        out = tmp_path / "export"
+
+        def emptied():
+            shutil.rmtree(out, ignore_errors=True)
+            out.mkdir()
+            return (model, out), {}
+
+        t0 = time.perf_counter()
+        adapter.export(*emptied()[0])             # warm-up
+        if time.perf_counter() - t0 > SLOW_SOLVE_SECONDS:
+            rounds = 1
+        else:
+            t0 = time.perf_counter()
+            adapter.export(*emptied()[0])         # calibration
+            rounds = min(MAX_ROUNDS, max(MIN_ROUNDS, math.ceil(TARGET_SECONDS / (time.perf_counter() - t0))))
+        benchmark.pedantic(adapter.export, setup=emptied, rounds=rounds, iterations=1)
+        written = [p for p in out.rglob("*") if p.is_file()]
+        assert written, f"{tool} wrote nothing"
+        benchmark.extra_info.update({"files_written": len(written), "bytes_written": sum(p.stat().st_size for p in written)})
+
+    def test_validate(benchmark, case):
+        _record(benchmark, adapter, case, "validate")
+        t0 = time.perf_counter()
+        adapter.validate(case)                    # warm-up
+        rounds = 1 if time.perf_counter() - t0 > SLOW_IMPORT_SECONDS else IMPORT_ROUNDS
+        report = benchmark.pedantic(adapter.validate, args=(case,), rounds=rounds, iterations=1)
+        benchmark.extra_info.update(report)
+        benchmark.extra_info.update(memory.measure(tool, case, "validate"))
+
     namespace["test_import"] = test_import
-    namespace["test_solve"] = test_solve_batch if problem in ("batch", "n1") else test_solve
+    if problem == "cim":
+        namespace["test_export"] = test_export
+        if adapter.validates:
+            namespace["test_validate"] = test_validate
+    else:
+        namespace["test_solve"] = test_solve_batch if problem in ("batch", "n1") else test_solve

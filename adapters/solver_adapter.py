@@ -47,10 +47,11 @@ class Solution:
 
 class ToolAdapter(ABC):
     """What every benchmarked tool declares, whatever problem it solves:
-    identity, versions, and the three calls the benchmark template times.
-    `SolverAdapter` (power flow) and `EstimatorAdapter` (state estimation)
-    say what problem those calls solve."""
-    problem: str                # "pf" | "se", the registry's `problem`
+    identity, versions, and `load`. The problem's subclass declares the
+    other calls the benchmark template times: `solve` and `solution` for
+    `SolverAdapter` (power flow), `EstimatorAdapter`, `OptimizerAdapter` and
+    `BatchAdapter`; `export` and `validate` for `CimAdapter`."""
+    problem: str                # the registry's `problem`: "pf", "se", "opf", "batch", "n1", "cim"
     name: str                   # short id, used in file names and results
     display_name: str
     color: str                  # light-mode hex, a slot of tools/palette.py (fixed per tool)
@@ -95,6 +96,10 @@ class ToolAdapter(ABC):
     def load(self, case: str) -> Any:
         """Read the case from disk into the tool's model. Timed as `import`."""
 
+
+class SolvingAdapter(ToolAdapter):
+    """A tool that solves a problem on the model `load` returns."""
+
     @abstractmethod
     def solve(self, model: Any) -> None:
         """Solve on the persistent `model`. Timed as `solve`. Raises
@@ -105,7 +110,7 @@ class ToolAdapter(ABC):
         """Voltages after the last `solve`. Untimed."""
 
 
-class SolverAdapter(ToolAdapter):
+class SolverAdapter(SolvingAdapter):
     """A power-flow solver; see the module docstring for the problem."""
     problem = "pf"
 

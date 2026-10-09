@@ -52,10 +52,12 @@ Modelling decisions (MATPOWER manual, "Branch model" / `bustypes.m`):
   authority, with SSH and TP depending on EQ. (cimoxide >= 0.3.2 would
   synthesize a valid header itself; these carry the real values.)
 
-Requires cimoxide >= 0.3.2 (pinned: 0.3.3): earlier versions wrote TopologicalNodes in TP as
+Requires cimoxide >= 0.4 (pinned: 0.5.0), whose element dicts carry
+`"Class.attr"` keys with string values (0.3.x took snake_case keys and typed
+values). The files it writes are byte-identical to 0.3.3's on every case
+converted by default. Versions before 0.3.2 wrote TopologicalNodes in TP as
 bare references, dropped `Equipment.inService` for lines and transformers,
-and synthesized headers PowSyBl ignores. This module patched those until the
-fixes were released.
+and synthesized headers PowSyBl ignores.
 """
 import sys
 import uuid
@@ -79,25 +81,44 @@ EMPTY = ('<?xml version="1.0" encoding="utf-8"?><rdf:RDF xmlns:rdf="http://www.w
          'xmlns:eu="http://iec.ch/TC57/CIM100-European#"></rdf:RDF>')
 
 
+def text(value) -> str:
+    """A value as RDF/XML writes it: booleans in lower case, numbers in their
+    shortest round-trip form without exponent, as cimoxide < 0.4 wrote them,
+    so the conversion stayed byte-identical across the API change."""
+    if isinstance(value, (bool, np.bool_)):
+        return "true" if value else "false"
+    if isinstance(value, (float, np.floating)):
+        return np.format_float_positional(value, trim="-")
+    return str(value)
+
+
 class Builder:
     """Accumulates CIM objects keyed by deterministic UUIDs (uuid5 of a
-    readable key), so the same case always converts to the same files."""
+    readable key), so the same case always converts to the same files.
+
+    Fields are cimoxide's element dicts: `"Class.attr"` keys as in the XML
+    (the class that declares the attribute, not the object's own), string
+    values, a reference as the referenced id. cimoxide keeps an attribute
+    its class does not declare, so a misspelt key is written, not dropped."""
 
     def __init__(self, case_name: str):
         self.case = case_name
         self.objects: dict[str, dict] = {}
 
-    def add(self, cls: str, key: str, name: str, **fields) -> str:
+    def add(self, cls: str, key: str, name: str | None, fields: dict) -> str:
         m = str(uuid.uuid5(NAMESPACE, f"{self.case}/{cls}/{key}"))
-        # cimoxide's structs hold these IdentifiedObject strings as required
-        # fields, although CGMES treats them as optional.
-        self.objects[m] = {"_type": cls, "id": f"_{m}", "m_rid": m, "name": name, "description": "",
-                           "short_name": "", "energy_ident_code_eic": "", **fields}
+        # A table point is no IdentifiedObject in CGMES 3.0: no mRID, no name.
+        identity = {} if name is None else {"IdentifiedObject.mRID": m, "IdentifiedObject.name": name}
+        # An unbounded limit (MATPOWER's Qmax = Inf) is left out, as cimoxide
+        # < 0.4 did: CGMES has no "unlimited", and `inf` is no xsd:float.
+        self.objects[m] = {"_type": cls, "id": f"_{m}", **identity,
+                           **{k: text(v) for k, v in fields.items() if not (isinstance(v, float) and np.isinf(v))}}
         return f"_{m}"
 
     def terminal(self, equipment: str, key: str, seq: int, node: str, connected: bool = True) -> str:
-        return self.add("Terminal", f"{key}/T{seq}", f"{key} T{seq}", conducting_equipment=equipment,
-                        sequence_number=seq, topological_node=node, connected=connected)
+        return self.add("Terminal", f"{key}/T{seq}", f"{key} T{seq}", {
+            "Terminal.ConductingEquipment": equipment, "ACDCTerminal.sequenceNumber": seq,
+            "Terminal.TopologicalNode": node, "ACDCTerminal.connected": connected})
 
 
 def _substations(mpc: dict, energized: np.ndarray) -> dict[int, int]:
@@ -131,17 +152,19 @@ def convert(mpc: dict, case_name: str) -> Builder:
     btype = {int(b[BUS_I]): int(b[BUS_TYPE]) for b in energized}
     b = Builder(case_name)
 
-    region = b.add("GeographicalRegion", "region", case_name)
-    subregion = b.add("SubGeographicalRegion", "subregion", case_name, region=region)
-    base_voltages = {v: b.add("BaseVoltage", f"bv/{v:g}", f"{v:g} kV", nominal_voltage=v) for v in sorted(set(kv.values()))}
+    region = b.add("GeographicalRegion", "region", case_name, {})
+    subregion = b.add("SubGeographicalRegion", "subregion", case_name, {"SubGeographicalRegion.Region": region})
+    base_voltages = {v: b.add("BaseVoltage", f"bv/{v:g}", f"{v:g} kV", {"BaseVoltage.nominalVoltage": v})
+                     for v in sorted(set(kv.values()))}
     substation_of = _substations(mpc, energized[:, BUS_I])
-    substations = {s: b.add("Substation", f"sub/{s}", f"SUB-{s}", region=subregion) for s in set(substation_of.values())}
+    substations = {s: b.add("Substation", f"sub/{s}", f"SUB-{s}", {"Substation.Region": subregion})
+                   for s in set(substation_of.values())}
     vl, tn = {}, {}
     for n in kv:
-        vl[n] = b.add("VoltageLevel", f"vl/{n}", f"VL-{n}", base_voltage=base_voltages[kv[n]],
-                      substation=substations[substation_of[n]])
-        tn[n] = b.add("TopologicalNode", f"tn/{n}", f"BUS-{n}", base_voltage=base_voltages[kv[n]],
-                      connectivity_node_container=vl[n])
+        vl[n] = b.add("VoltageLevel", f"vl/{n}", f"VL-{n}", {
+            "VoltageLevel.BaseVoltage": base_voltages[kv[n]], "VoltageLevel.Substation": substations[substation_of[n]]})
+        tn[n] = b.add("TopologicalNode", f"tn/{n}", f"BUS-{n}", {
+            "TopologicalNode.BaseVoltage": base_voltages[kv[n]], "TopologicalNode.ConnectivityNodeContainer": vl[n]})
 
     for i, br in enumerate(mpc["branch"]):
         if br[BR_STATUS] == 0:
@@ -150,50 +173,51 @@ def convert(mpc: dict, case_name: str) -> Builder:
         key = f"br/{i}"
         if not _is_transformer(br, kv[f], kv[t]):
             z_base = kv[f] ** 2 / s_base
-            line = b.add("ACLineSegment", key, f"LINE-{f}-{t}-{i}", base_voltage=base_voltages[kv[f]],
-                         r=br[BR_R] * z_base, x=br[BR_X] * z_base, bch=br[BR_B] / z_base, gch=0.0,
-                         length=1.0, in_service=True)
+            line = b.add("ACLineSegment", key, f"LINE-{f}-{t}-{i}", {
+                "ConductingEquipment.BaseVoltage": base_voltages[kv[f]], "ACLineSegment.r": br[BR_R] * z_base,
+                "ACLineSegment.x": br[BR_X] * z_base, "ACLineSegment.bch": br[BR_B] / z_base,
+                "ACLineSegment.gch": 0.0, "Conductor.length": 1.0, "Equipment.inService": True})
             b.terminal(line, key, 1, tn[f])
             b.terminal(line, key, 2, tn[t])
             continue
         tap = br[RATIO] if br[RATIO] != 0 else 1.0
         z2 = kv[t] ** 2 / s_base
-        xf = b.add("PowerTransformer", key, f"TWT-{f}-{t}-{i}", equipment_container=substations[substation_of[f]],
-                   in_service=True)
+        xf = b.add("PowerTransformer", key, f"TWT-{f}-{t}-{i}", {
+            "Equipment.EquipmentContainer": substations[substation_of[f]], "Equipment.inService": True})
         t1 = b.terminal(xf, key, 1, tn[f])
         t2 = b.terminal(xf, key, 2, tn[t])
-        end1 = b.add("PowerTransformerEnd", f"{key}/E1", f"TWT-{f}-{t}-{i}_1", power_transformer=xf, terminal=t1,
-                     end_number=1, base_voltage=base_voltages[kv[f]], rated_u=tap * kv[f], rated_s=s_base,
-                     r=0.0, x=0.0, b=0.0, g=0.0)
-        b.add("PowerTransformerEnd", f"{key}/E2", f"TWT-{f}-{t}-{i}_2", power_transformer=xf, terminal=t2,
-              end_number=2, base_voltage=base_voltages[kv[t]], rated_u=kv[t], rated_s=s_base,
-              r=br[BR_R] * z2, x=br[BR_X] * z2, b=0.0, g=0.0)
+        end1 = b.add("PowerTransformerEnd", f"{key}/E1", f"TWT-{f}-{t}-{i}_1", _end(
+            xf, t1, 1, base_voltages[kv[f]], rated_u=tap * kv[f], rated_s=s_base, r=0.0, x=0.0))
+        b.add("PowerTransformerEnd", f"{key}/E2", f"TWT-{f}-{t}-{i}_2", _end(
+            xf, t2, 2, base_voltages[kv[t]], rated_u=kv[t], rated_s=s_base, r=br[BR_R] * z2, x=br[BR_X] * z2))
         if br[BR_B]:
             for side, node, b_pu in (("F", f, br[BR_B] / 2 / tap ** 2), ("T", t, br[BR_B] / 2)):
                 sh = b.add("LinearShuntCompensator", f"{key}/chg{side}", f"TWT-{f}-{t}-{i}_CHG_{side}",
-                           equipment_container=vl[node], nom_u=kv[node], g_per_section=0.0,
-                           b_per_section=b_pu * s_base / kv[node] ** 2, maximum_sections=1, normal_sections=1,
-                           sections=1.0, control_enabled=False, in_service=True)
+                           _shunt(vl[node], kv[node], g=0.0, b=b_pu * s_base / kv[node] ** 2))
                 b.terminal(sh, f"{key}/chg{side}", 1, tn[node])
         if br[ANGLE] != 0:
-            table = b.add("PhaseTapChangerTable", f"{key}/ptct", f"TWT-{f}-{t}-{i}_PTCT")
-            b.add("PhaseTapChangerTablePoint", f"{key}/ptct/0", f"TWT-{f}-{t}-{i}_PTCT_0",
-                  phase_tap_changer_table=table, step=1, ratio=1.0, angle=float(br[ANGLE]), r=0.0, x=0.0, b=0.0, g=0.0)
-            b.add("PhaseTapChangerTabular", f"{key}/ptc", f"TWT-{f}-{t}-{i}_PTC", transformer_end=end1,
-                  phase_tap_changer_table=table, low_step=1, high_step=1, neutral_step=1, normal_step=1, step=1.0,
-                  neutral_u=tap * kv[f], ltc_flag=False, control_enabled=False)
+            table = b.add("PhaseTapChangerTable", f"{key}/ptct", f"TWT-{f}-{t}-{i}_PTCT", {})
+            b.add("PhaseTapChangerTablePoint", f"{key}/ptct/0", None, {
+                "PhaseTapChangerTablePoint.PhaseTapChangerTable": table, "TapChangerTablePoint.step": 1,
+                "TapChangerTablePoint.ratio": 1.0, "PhaseTapChangerTablePoint.angle": float(br[ANGLE]),
+                "TapChangerTablePoint.r": 0.0, "TapChangerTablePoint.x": 0.0, "TapChangerTablePoint.b": 0.0,
+                "TapChangerTablePoint.g": 0.0})
+            b.add("PhaseTapChangerTabular", f"{key}/ptc", f"TWT-{f}-{t}-{i}_PTC", {
+                "PhaseTapChanger.TransformerEnd": end1, "PhaseTapChangerTabular.PhaseTapChangerTable": table,
+                "TapChanger.lowStep": 1, "TapChanger.highStep": 1, "TapChanger.neutralStep": 1,
+                "TapChanger.normalStep": 1, "TapChanger.step": 1.0, "TapChanger.neutralU": tap * kv[f],
+                "TapChanger.ltcFlag": False, "TapChanger.controlEnabled": False})
 
     for row in energized:
         n = int(row[BUS_I])
         if row[PD] or row[QD]:
-            load = b.add("EnergyConsumer", f"load/{n}", f"LOAD-{n}", equipment_container=vl[n],
-                         p=float(row[PD]), q=float(row[QD]), in_service=True)
+            load = b.add("EnergyConsumer", f"load/{n}", f"LOAD-{n}", {
+                "Equipment.EquipmentContainer": vl[n], "EnergyConsumer.p": float(row[PD]),
+                "EnergyConsumer.q": float(row[QD]), "Equipment.inService": True})
             b.terminal(load, f"load/{n}", 1, tn[n])
         if row[GS] or row[BS]:
-            shunt = b.add("LinearShuntCompensator", f"shunt/{n}", f"SHUNT-{n}", equipment_container=vl[n],
-                          nom_u=kv[n], g_per_section=float(row[GS]) / kv[n] ** 2,
-                          b_per_section=float(row[BS]) / kv[n] ** 2, maximum_sections=1, normal_sections=1,
-                          sections=1.0, control_enabled=False, in_service=True)
+            shunt = b.add("LinearShuntCompensator", f"shunt/{n}", f"SHUNT-{n}",
+                          _shunt(vl[n], kv[n], g=float(row[GS]) / kv[n] ** 2, b=float(row[BS]) / kv[n] ** 2))
             b.terminal(shunt, f"shunt/{n}", 1, tn[n])
 
     slack_done = False
@@ -204,39 +228,62 @@ def convert(mpc: dict, case_name: str) -> Builder:
         online = g[GEN_STATUS] > 0
         regulating = online and btype[n] in (PV, REF)
         key = f"gen/{i}"
-        unit = b.add("GeneratingUnit", f"{key}/unit", f"GU-{n}-{i}", equipment_container=substations[substation_of[n]],
-                     in_service=bool(online), max_operating_p=9999.0, min_operating_p=-9999.0)
-        sm = b.add("SynchronousMachine", key, f"GEN-{n}-{i}", equipment_container=vl[n], generating_unit=unit,
-                   p=-float(g[PG]) if online else 0.0, q=-float(g[QG]) if online else 0.0,
-                   min_q=float(g[QMIN]), max_q=float(g[QMAX]), rated_s=s_base, rated_u=kv[n],
-                   operating_mode="SynchronousMachineOperatingMode.generator",
-                   type_="SynchronousMachineKind.generator", control_enabled=bool(regulating),
-                   reference_priority=1 if (btype[n] == REF and online and not slack_done) else 0,
-                   in_service=bool(online))
+        unit = b.add("GeneratingUnit", f"{key}/unit", f"GU-{n}-{i}", {
+            "Equipment.EquipmentContainer": substations[substation_of[n]], "Equipment.inService": bool(online),
+            "GeneratingUnit.maxOperatingP": 9999.0, "GeneratingUnit.minOperatingP": -9999.0})
+        sm = b.add("SynchronousMachine", key, f"GEN-{n}-{i}", {
+            "Equipment.EquipmentContainer": vl[n], "RotatingMachine.GeneratingUnit": unit,
+            "RotatingMachine.p": -float(g[PG]) if online else 0.0, "RotatingMachine.q": -float(g[QG]) if online else 0.0,
+            "SynchronousMachine.minQ": float(g[QMIN]), "SynchronousMachine.maxQ": float(g[QMAX]),
+            "RotatingMachine.ratedS": s_base, "RotatingMachine.ratedU": kv[n],
+            "SynchronousMachine.operatingMode": "SynchronousMachineOperatingMode.generator",
+            "SynchronousMachine.type": "SynchronousMachineKind.generator",
+            "RegulatingCondEq.controlEnabled": bool(regulating),
+            "SynchronousMachine.referencePriority": 1 if (btype[n] == REF and online and not slack_done) else 0,
+            "Equipment.inService": bool(online)})
         slack_done |= btype[n] == REF and online
         term = b.terminal(sm, key, 1, tn[n], connected=bool(online))
-        rc = b.add("RegulatingControl", f"{key}/rc", f"RC-{n}-{i}", terminal=term,
-                   mode="RegulatingControlModeKind.voltage", discrete=False, enabled=bool(regulating),
-                   target_value=float(g[VG]) * kv[n], target_value_unit_multiplier="UnitMultiplier.k",
-                   target_deadband=0.0)
-        b.objects[sm[1:]]["regulating_control"] = rc
+        rc = b.add("RegulatingControl", f"{key}/rc", f"RC-{n}-{i}", {
+            "RegulatingControl.Terminal": term, "RegulatingControl.mode": "RegulatingControlModeKind.voltage",
+            "RegulatingControl.discrete": False, "RegulatingControl.enabled": bool(regulating),
+            "RegulatingControl.targetValue": float(g[VG]) * kv[n],
+            "RegulatingControl.targetValueUnitMultiplier": "UnitMultiplier.k", "RegulatingControl.targetDeadband": 0.0})
+        b.objects[sm[1:]]["RegulatingCondEq.RegulatingControl"] = rc
     return b
+
+
+def _end(transformer: str, terminal: str, number: int, base_voltage: str, rated_u: float, rated_s: float,
+         r: float, x: float) -> dict:
+    return {"PowerTransformerEnd.PowerTransformer": transformer, "TransformerEnd.Terminal": terminal,
+            "TransformerEnd.endNumber": number, "TransformerEnd.BaseVoltage": base_voltage,
+            "PowerTransformerEnd.ratedU": rated_u, "PowerTransformerEnd.ratedS": rated_s,
+            "PowerTransformerEnd.r": r, "PowerTransformerEnd.x": x, "PowerTransformerEnd.b": 0.0,
+            "PowerTransformerEnd.g": 0.0}
+
+
+def _shunt(container: str, nom_u: float, g: float, b: float) -> dict:
+    return {"Equipment.EquipmentContainer": container, "ShuntCompensator.nomU": nom_u,
+            "LinearShuntCompensator.gPerSection": g, "LinearShuntCompensator.bPerSection": b,
+            "ShuntCompensator.maximumSections": 1, "ShuntCompensator.normalSections": 1,
+            "ShuntCompensator.sections": 1.0, "RegulatingCondEq.controlEnabled": False,
+            "Equipment.inService": True}
 
 
 def write(builder: Builder, out_dir: Path, case_name: str) -> list[Path]:
     import cimoxide
 
     ds = cimoxide.CimDataset.decode_str(EMPTY)
-    for m, obj in builder.objects.items():
+    for obj in builder.objects.values():
         ds[obj["id"]] = obj
     models = {p: f"urn:uuid:{uuid.uuid5(NAMESPACE, f'{case_name}/model/{p}')}" for p in PROFILES}
     for profile, uri in PROFILES.items():
-        ds[models[profile]] = {
-            "_type": "FullModel", "id": models[profile], "profile": [uri], "scenario_time": SCENARIO_TIME,
-            "created": SCENARIO_TIME, "version": 1, "description": f"{case_name} converted from MATPOWER by grid-bench",
-            "modeling_authority_set": "https://github.com/m-mirz/grid-bench", "supersedes": [],
-            "dependent_on": [] if profile == "EQ" else [models["EQ"]],
-        }
+        header = {"_type": "FullModel", "id": models[profile], "Model.profile": uri,
+                  "Model.scenarioTime": SCENARIO_TIME, "Model.created": SCENARIO_TIME, "Model.version": "1",
+                  "Model.description": f"{case_name} converted from MATPOWER by grid-bench",
+                  "Model.modelingAuthoritySet": "https://github.com/m-mirz/grid-bench"}
+        if profile != "EQ":
+            header["Model.DependentOn"] = models["EQ"]
+        ds[models[profile]] = header
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = []
     for profile in ("EQ", "SSH", "TP"):
