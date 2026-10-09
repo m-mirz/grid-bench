@@ -14,7 +14,7 @@ REFERENCE_DOTTED; the dash and its label tell the two apart.
 Checked all-pairs, as a chart showing every tool at once needs, the palette
 fails: slot 8 red vs slot 2 orange is dE 7.1 even with full colour vision,
 and several pairs sit below 4 under colour-vision deficiency. The legend,
-the site's hover and tool toggles, and comparison.md carry identity; small
+the site's hover and tool toggles carry identity; small
 multiples would fix it properly. Three light-mode slots sit below 3:1 contrast on
 the surface, so every chart carries direct labels and a table view.
 """

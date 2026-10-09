@@ -89,7 +89,7 @@ adapters/    solver_adapter.py (the ABCs), <tool>_adapter.py, estimator_adapter.
 benchmarks/  benchmark_template.py (generates tests), conftest.py (selection, failures, metadata),
              <tool>_benchmark.py, <tool>_se_benchmark.py, <tool>_opf_benchmark.py,
              <tool>_batch_benchmark.py, <tool>_n1_benchmark.py (3 lines each)
-tools/       benchmark_data.py (loader, grids, scoreboard) + generate_{comparison,site,all}.py,
+tools/       benchmark_data.py (loader, grids, scoreboard) + generate_{site,all}.py,
              palette.py, check_smoke.py (CI's smoke outcomes)
 tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned exactly)
 tool-configs/matpower/Dockerfile      the official Octave image + uv Python + the MATPOWER release
@@ -104,7 +104,7 @@ tests/       the oracle's own tests (test_wls.py: state estimation, test_opf.py:
              (exactness + planted errors)
 data/        submodules: benchmark-grids (MATPOWER, PGLib-OPF), CGMES-Test-Configurations
 results-docker/  published results: <tool>.json, <tool>-se.json, <tool>-opf.json, <tool>-batch.json, <tool>-n1.json,
-             comparison.md
+             conversion.json
 docs/index.html  generated site
 ```
 
@@ -215,27 +215,27 @@ and the checker disagree, check the reading of CGMES against a third party
 
 ## Reports
 
-`tools/generate_all.py` writes `comparison.md` and `docs/index.html`
-(whose charts are drawn in the browser from the data embedded in it) from the JSON in a results directory; run it (or the
-`reports` compose service) after any change to `tools/`, and commit what it
-writes. Conventions both pages share:
+`tools/generate_all.py` writes `docs/index.html` (whose charts and tables
+are drawn in the browser from the data embedded in it) from the JSON in a
+results directory; run it (or the `reports` compose service) after any
+change to `tools/`, and commit what it writes. Conventions:
 
 - Only cases in the default groups are published (`benchmark_data.load`);
   a case run by name stays in its JSON.
 - Tables are split by `grid` (transmission, distribution, fixtures), not by
   family: a converted case is a row under the case it came from, with an
   input column, so what the input route changes is one row apart.
-- The scoreboard (`benchmark_data.scoreboard`) is computed once for both
-  pages. The `robustness` group is shown as "hard transmission cases".
-- In `comparison.md`, notes are grouped by cause: a wrong solution per
-  (tool, input), a failure per (tool, message with its numbers dropped).
-- The site's chart shows one input at a time (one line per tool needs one
+- The scoreboard (`benchmark_data.scoreboard`) shows the `robustness`
+  group as "hard transmission cases".
+- The chart shows one input at a time (one line per tool needs one
   input); for state estimation, the input is the measurement scenario, for
   OPF the operating condition (typical, congested, small angle difference).
 - Batch power flow and N-1 are shown per scenario or outage (the call's
-  median over its size), at one thread and at each tool's fastest thread count, with a
-  thread-scaling table for native batch APIs. Scaling numbers depend on the
-  machine: `grid_bench.cpus` in each JSON records the cores the run had.
+  median over its size), at one thread and at each tool's fastest thread
+  count, with a thread-scaling plot (small multiples, one per case) for
+  APIs that take a thread count.
+  Scaling numbers depend on the machine: `grid_bench.cpus` in each JSON
+  records the cores the run had.
 
 ## Adding a case
 

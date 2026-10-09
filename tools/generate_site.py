@@ -56,8 +56,9 @@ def payload(res: Results) -> dict:
               GRID_TITLES[g]] for g in res.grids()]
     columns, board = scoreboard(res)
     return {"tools": tools, "cases": cases, "rows": rows, "failures": res.failures, "grids": grids,
-            "scoreboard": {"columns": [label.replace("`", "") for label, _ in columns], "rows": board},
+            "scoreboard": {"columns": [label.replace("`", "") for label in columns], "rows": board},
             "run": {"cpu": cpu.get("brand_raw", "?"), "cores": cpu.get("count", "?"),
+                    "cpus": next((r["cpus"] for r in res.runs if r.get("cpus")), {}),
                     "os": f"{run.get('machine', {}).get('system', '?')} {run.get('machine', {}).get('release', '')}",
                     "git": str(run.get("git_sha", "?"))[:12], "date": str(run.get("datetime", "?"))[:10]}}
 
@@ -116,6 +117,9 @@ td.na{color:var(--axis)}
 td.best{font-weight:700}
 .seg[hidden]{display:none}
 .legend-note{font-size:13px;color:var(--text2);margin:8px 0 0}
+.multiples{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-top:12px}
+.multiples .card{padding:10px 12px}.multiples h3{font-size:14px;margin:0 0 4px}.multiples svg{width:100%;height:auto;display:block}
+#s-legend .chip{cursor:default}
 details{margin:6px 0}summary{cursor:pointer;color:var(--text)}
 code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 </style>
@@ -144,6 +148,15 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <h2 id="t-title"></h2>
 <p id="t-desc"></p>
 <div class="scroll"><table id="timing"></table></div>
+
+<section id="scaling-sec" hidden>
+<h2>Thread scaling</h2>
+<p id="s-desc"></p>
+<div class="chips" id="s-legend"></div>
+<div class="multiples" id="scaling-plots"></div>
+<p class="legend-note">One panel per case, same y-axis. Dashed grey: ideal scaling (speedup equal to the thread count). Filled point: the oracle verified that thread count's solution; hollow: it did not. Hover a point for the time.</p>
+<details><summary>As a table</summary><div class="scroll"><table id="scaling"></table></div></details>
+</section>
 
 <h2>Accuracy</h2>
 <p id="a-desc"></p>
@@ -216,8 +229,10 @@ function seg(el, key, options) {
   el.innerHTML = options.map(([v, l]) => `<button data-v="${v}" aria-pressed="${state[key] === v}">${l}</button>`).join("");
   el.onclick = e => { const b = e.target.closest("button"); if (!b) return; state[key] = b.dataset.v; render(); };
 }
+// A tool's colour key: a dot, or a dashed stroke for a tool drawn dashed.
+const swatch = t => `<i style="${t.dash ? `width:16px;height:3px;border-radius:0;background:repeating-linear-gradient(90deg,${color(t)} 0 ${t.dash.split(" ")[0]}px,transparent ${t.dash.split(" ")[0]}px ${t.dash.split(" ").reduce((a, b) => a + +b, 0)}px)` : `background:${color(t)}`}"></i>`;
 function chips() {
-  $("#toolchips").innerHTML = D.tools.map(t => `<button class="chip" data-t="${t.name}" aria-pressed="${!state.off.has(t.name)}"><i style="${t.dash ? `width:16px;height:3px;border-radius:0;background:repeating-linear-gradient(90deg,${color(t)} 0 ${t.dash.split(" ")[0]}px,transparent ${t.dash.split(" ")[0]}px ${t.dash.split(" ").reduce((a, b) => a + +b, 0)}px)` : `background:${color(t)}`}"></i>${esc(t.display)}</button>`).join("");
+  $("#toolchips").innerHTML = D.tools.map(t => `<button class="chip" data-t="${t.name}" aria-pressed="${!state.off.has(t.name)}">${swatch(t)}${esc(t.display)}</button>`).join("");
 }
 $("#toolchips").onclick = e => { const b = e.target.closest(".chip"); if (!b) return;
   state.off.has(b.dataset.t) ? state.off.delete(b.dataset.t) : state.off.add(b.dataset.t); render(); };
@@ -371,6 +386,64 @@ function tables() {
   sortable($("#failures"));
 }
 
+// Speedup of each API that takes a thread count over its own one-thread run:
+// one panel per case on a shared y-axis, one line per tool, and the same as a table.
+function scaling() {
+  $("#scaling-sec").hidden = !batch();
+  if (!batch()) return;
+  const cases = casesOf(state.grid), unit = state.problem === "n1" ? "outage" : "scenario", c = D.run.cpus;
+  const counts = [...new Set(D.rows.filter(r => r.op === "solve" && r.threads).map(r => r.threads))].sort((a, b) => a - b);
+  $("#s-desc").textContent = `Speedup of each ${state.problem === "n1" ? "contingency" : "batch"} API that takes a thread count over its own one-thread run, same case, same ${unit}s, on ${c.available ?? "?"} of ${c.logical ?? "?"} logical CPUs available to the run. Loops and APIs without a thread count are not shown. Each thread count's solution is graded on its own.`;
+  const series = [];
+  for (const k of cases) for (const t of D.tools) {
+    const rs = D.rows.filter(r => r.tool === t.name && r.case === k && r.op === "solve" && r.threads).sort((a, b) => a.threads - b.threads);
+    const one = rs.find(r => r.threads === 1);
+    if (!state.off.has(t.name) && one && rs.length > 1) series.push({k, t, one, rs});
+  }
+  const speedup = (s, r) => s.one.median / r.median;
+  const tip = (s, r) => `${r.threads} thread${r.threads > 1 ? "s" : ""}: ${speedup(s, r).toFixed(2)}× · ${fmt(ms(r))} ms per ${unit}` + (r.oracle_ok ? " · oracle: verified" : ` · oracle: FAILED · ${verdict(r)}`);
+
+  const panels = cases.map(k => [k, series.filter(s => s.k === k)]).filter(([, ss]) => ss.length);
+  $("#s-legend").innerHTML = [...new Set(series.map(s => s.t))].map(t => `<span class="chip">${swatch(t)}${esc(t.display)}</span>`).join("");
+  const W = 300, H = 210, m = {l: 36, r: 10, t: 10, b: 34}, nMax = counts[counts.length - 1] || 2;
+  const yMax = Math.max(2, Math.ceil(Math.max(...series.flatMap(s => s.rs.map(r => speedup(s, r))))));
+  const step = yMax <= 4 ? 1 : yMax <= 10 ? 2 : 4;
+  const X = n => m.l + Math.log2(n) / Math.log2(nMax) * (W - m.l - m.r);
+  const Y = v => H - m.b - v / yMax * (H - m.t - m.b);
+  const hits = [];
+  $("#scaling-plots").innerHTML = panels.map(([k, ss]) => {
+    let g = "";
+    for (let v = 0; v <= yMax; v += step) g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${css("--grid")}"/><text x="${m.l - 6}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="${css("--text2")}">${v}×</text>`;
+    for (const n of counts) g += `<text x="${X(n)}" y="${H - m.b + 16}" text-anchor="middle" font-size="11" fill="${css("--text2")}">${n}</text>`;
+    g += `<text x="${(m.l + W - m.r) / 2}" y="${H - 4}" text-anchor="middle" font-size="11" fill="${css("--text2")}">threads</text>`;
+    const ideal = counts.filter(n => n <= yMax).concat(yMax < nMax ? [yMax] : []);
+    g += `<polyline fill="none" stroke="${css("--axis")}" stroke-width="1.5" stroke-dasharray="4 4" points="${ideal.map(n => `${X(n)},${Y(n)}`).join(" ")}"/>`;
+    for (const s of ss) {
+      const col = color(s.t);
+      g += `<polyline fill="none" stroke="${col}" stroke-width="2"${s.t.dash ? ` stroke-dasharray="${s.t.dash}"` : ""} stroke-linejoin="round" stroke-linecap="round" points="${s.rs.map(r => `${X(r.threads)},${Y(speedup(s, r))}`).join(" ")}"/>`;
+      for (const r of s.rs) {
+        g += `<circle cx="${X(r.threads)}" cy="${Y(speedup(s, r))}" r="4" fill="${r.oracle_ok ? col : css("--surface")}" stroke="${col}" stroke-width="2"/>`;
+        hits.push({s, r, x: X(r.threads), y: Y(speedup(s, r))});
+      }
+    }
+    g += hits.filter(h => h.s.k === k).map(h => `<circle cx="${h.x}" cy="${h.y}" r="10" fill="transparent" data-i="${hits.indexOf(h)}"/>`).join("");
+    return `<div class="card"><h3>${esc(D.cases[k].base)} <span class="meta">${D.cases[k].size.toLocaleString()} buses</span></h3><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Speedup against threads for ${esc(D.cases[k].base)}">${g}</svg></div>`;
+  }).join("") || `<p>None for this selection.</p>`;
+  $("#scaling-plots").onmousemove = e => { const i = e.target.dataset?.i, el = $("#tip");
+    if (i === undefined) { el.hidden = true; return; }
+    const {s, r} = hits[+i];
+    el.innerHTML = `<b>${esc(s.t.display)} · ${esc(D.cases[s.k].base)}</b><span>${esc(tip(s, r))}</span>`;
+    el.hidden = false; el.style.left = Math.min(e.clientX + 14, innerWidth - 330) + "px"; el.style.top = (e.clientY + 14) + "px"; };
+  $("#scaling-plots").onmouseleave = () => { $("#tip").hidden = true; };
+
+  $("#scaling").innerHTML = `<thead><tr><th>case</th><th>buses</th><th style="text-align:left">tool</th>${counts.map(n => `<th>${n} thread${n > 1 ? "s" : ""}</th>`).join("")}</tr></thead><tbody>` +
+    (series.map(s => `<tr>${head(s.k, cases, false)}<td style="text-align:left">${esc(s.t.display)}</td>` + counts.map(n => {
+      const r = s.rs.find(x => x.threads === n);
+      return r ? `<td${r.oracle_ok ? "" : ' class="bad"'} data-v="${speedup(s, r)}" title="${esc(tip(s, r))}">${speedup(s, r).toFixed(2)}×</td>` : `<td class="na" data-v="0">·</td>`;
+    }).join("") + "</tr>").join("") || `<tr><td colspan="${counts.length + 3}">None for this selection.</td></tr>`) + "</tbody>";
+  sortable($("#scaling"));
+}
+
 function legendNote() {
   $("#legend-note").textContent = "Log-log, scaling cases and their variants only (feature cases of different grid families are in the tables), one input at a time. " + (state.op === "memory"
     ? "Hollow point: memory of loading only, because the solve failed. Values below 1 MB are drawn at 1 MB."
@@ -398,7 +471,7 @@ function render() {
   $("#threads").hidden = !batch() || state.op !== "solve";
   seg($("#threads"), "threads", [["1", "1 thread"], ["best", "Fastest thread count"]]);
   scoreboard();
-  chips(); chart(); tables(); legendNote();
+  chips(); chart(); tables(); scaling(); legendNote();
 }
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
 new MutationObserver(render).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});

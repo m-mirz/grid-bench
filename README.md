@@ -19,12 +19,11 @@ v1 covers AC power flow in eleven tool setups:
 [MATPOWER](https://matpower.org) on GNU Octave, and power-grid-model on CGMES
 through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
-**Results:** [`results-docker/comparison.md`](results-docker/comparison.md) ·
-[site](docs/index.html) (charts of time and memory against case size, sortable and filterable tables, hover detail)
+**Results:** [site](docs/index.html) (charts of time and memory against case size, sortable and filterable tables, hover detail)
 
 ## What it found
 
-Numbers are in [comparison.md](results-docker/comparison.md); each finding
+Numbers are on the [site](docs/index.html); each finding
 is traced to its cause in the tool's adapter docstring (`adapters/`).
 
 - **lightsim2grid is the fastest correct solver** on every MATPOWER case but
