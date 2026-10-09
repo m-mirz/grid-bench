@@ -6,6 +6,9 @@ Writes into `data/.case-cache/`:
 
 - `<case>.mat`: the case after `normalize_for_tools`, for pypowsybl,
   pandapower and lightsim2grid (each through its own MATPOWER importer).
+- `<case>.m`: the `.m` as written plus a zero gencost where it has none
+  (`with_gencost`), for ExaPF.jl, whose parser requires one. Every other
+  `.m` reader reads the original.
 - `<case>.zip` (cgmes cases): the profiles a tool is given, zipped, for
   pypowsybl, whose importer reads one file.
 - `<case>@<converter>/` and `.zip`: the case converted to CGMES 3.0 by each
@@ -50,7 +53,7 @@ from pathlib import Path
 import numpy as np
 
 from cases import contingency, gridoxide_matpower, matpower, measurements, sweep, truth
-from cases.registry import (CACHE, CASES, FAMILIES, cgmes_files, contingency_path, mat_path, measurements_path,
+from cases.registry import (CACHE, CASES, FAMILIES, cgmes_files, contingency_path, m_path, mat_path, measurements_path,
                             pgm_branch_ids_path, pgm_json_path, sweep_path)
 from oracle import residual, ybus
 
@@ -211,12 +214,13 @@ def prepare(key: str) -> None:
         return prepare_n1(key)
     stamp = CACHE / f"{key}.key"
     digest = _cache_key(case)
-    if (stamp.exists() and stamp.read_text() == digest and mat_path(key).exists() and pgm_json_path(key).exists()
-            and pgm_branch_ids_path(key).exists()):
+    if (stamp.exists() and stamp.read_text() == digest and mat_path(key).exists() and m_path(key).exists()
+            and pgm_json_path(key).exists() and pgm_branch_ids_path(key).exists()):
         return
     convert = gridoxide_matpower.convert
     mpc = matpower.normalize_for_tools(matpower.parse_m(case["file"]))
     matpower.write_mat(mpc, mat_path(key))
+    m_path(key).write_text(matpower.with_gencost(case["file"]))
     branch_ids = convert(mat_path(key), pgm_json_path(key))
     pgm_branch_ids_path(key).write_text(json.dumps(branch_ids))
     _strip_reactive_limits(pgm_json_path(key))

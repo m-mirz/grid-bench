@@ -4,7 +4,9 @@ MATPOWER's distribution feeders convert their published units (ohm, kW) in
 MATLAB code after the matrices, which no tool's importer runs; the registry
 reads the submodule's `matpower-plain/` copies with that code evaluated.
 These tests pin that: two feeders reproduce their papers' power-flow results,
-and no registered file still carries conversion code.
+and no registered file still carries conversion code. They also pin the one
+`.m` a tool gets instead of the original (`with_gencost`): the same text and
+data, plus a zero cost.
 """
 import re
 
@@ -13,7 +15,7 @@ import pytest
 import scipy.sparse as sp
 import scipy.sparse.linalg as spl
 
-from cases.matpower import parse_m
+from cases.matpower import parse_m, with_gencost
 from cases.registry import CASES
 from oracle.residual import specified_injections
 from oracle.ybus import make_ybus
@@ -67,3 +69,19 @@ def test_no_registered_case_needs_matlab():
     unevaluated = [k for k, c in CASES.items() if c.get("format") == "matpower"
                    and re.search(r"^\s*mpc\.(bus|branch)\(", c["file"].read_text(), re.M)]
     assert unevaluated == []
+
+
+@pytest.mark.parametrize("case", [k for k, c in CASES.items() if c["family"] in ("matpower", "distribution")])
+def test_with_gencost_only_adds_a_zero_cost(case, tmp_path):
+    path = CASES[case]["file"]
+    text = with_gencost(path)
+    assert text.startswith(path.read_text().rstrip())
+    (tmp_path / "case.m").write_text(text)
+    raw, out = parse_m(path), parse_m(tmp_path / "case.m")
+    assert out["baseMVA"] == raw["baseMVA"]
+    for name in ("bus", "gen", "branch"):
+        np.testing.assert_array_equal(out[name], raw[name])
+    if raw["gencost"].size:
+        assert text == path.read_text()
+    else:
+        assert out["gencost"].shape == (len(raw["gen"]), 7) and not out["gencost"][:, 4:].any()

@@ -44,7 +44,8 @@ is traced to its cause in the tool's adapter docstring (`adapters/`).
   - Sienna builds Ybus in single precision (residuals of 1e-5 to 1e-3 MW
     where others reach 1e-9), and cannot parse pure phase shifters.
   - ExaPF.jl also makes online generators on PQ-typed buses regulate
-    (case2848rte), and cannot read a `.m` without `gencost`.
+    (case2848rte); its parser requires `gencost`, so it gets the `.m` with
+    a zero cost appended where a case has none.
 - **Read as CGMES, some of those problems disappear.** pypowsybl solves every
   cimoxide-converted case exactly (except case2848rte, which it cannot solve
   from the `.m` either), including the three its MATPOWER importer gets
