@@ -14,11 +14,14 @@ from tools.palette import DARK, DASH, LIGHT, LIGHT_TO_DARK
 KEEP = ("iterations", "oracle_ok", "residual_max_dp_mw", "residual_max_dq_mvar", "residual_max_dvm_pu",
         "residual_worst_bus", "residual_min_vm_pu", "residual_n_checked", "residual_n_buses", "sv_n", "sv_n_published",
         "sv_dv_median", "sv_dv_max", "sv_da_max_deg", "rss_baseline_mb", "rss_import_mb", "rss_solve_mb",
+        "rss_export_mb", "rss_validate_mb",
         "se_J", "se_J_true", "se_max_step", "se_max_dvm_true_pu", "se_n_reported", "se_n_buses",
         "opf_gap", "opf_objective", "opf_max_dp_mw", "opf_max_dq_mvar", "opf_max_vm_violation_pu",
         "opf_max_pg_violation_mw", "opf_max_qg_violation_mvar", "opf_max_flow_violation_mva",
         "opf_max_angle_violation_deg", "opf_n_buses", "opf_n_reported_buses",
-        "threads", "scenarios", "scenarios_failed", "worst_scenario")
+        "threads", "scenarios", "scenarios_failed", "worst_scenario",
+        "read", "unit", "lines", "generators", "loads", "substations", "files_written", "bytes_written",
+        "violations", "by_severity")
 OPF_CONDITION = {"": "typical", "api": "congested", "sad": "small angle difference"}
 
 
@@ -38,7 +41,7 @@ def _input(case: str) -> str:
 def payload(res: Results) -> dict:
     tools = [{"name": t, "display": m["display_name"], "color": m["color"],
               "colorDark": LIGHT_TO_DARK.get(m["color"], m["color"]), "dash": DASH.get(m["color"]),
-              "version": m["version"],
+              "version": m["version"], "tags": m["tags"],
               "language": m["language"], "families": m["families"], "settings": m["settings"]}
              for t in res.tool_order() for m in [res.tools[t]]]
     # `order`: the report's row order (by size, each conversion under its source case).
@@ -66,7 +69,7 @@ def payload(res: Results) -> dict:
 def generate(directory: Path, res: Results) -> str:
     part = lambda r: payload(r) if r and (r.records or r.failures) else None
     data = json.dumps({"pf": payload(res), "se": part(res.se), "opf": part(res.opf), "batch": part(res.batch),
-                       "n1": part(res.n1)},
+                       "n1": part(res.n1), "cim": part(res.cim)},
                       separators=(",", ":")).replace("</", "<\\/")
     return (TEMPLATE.replace("__DATA__", data).replace("__VM_FLOOR__", repr(VM_FLOOR_PU))
             .replace("__LIGHT__", "".join(f"--{k}:{v};" for k, v in LIGHT.items()))
@@ -127,7 +130,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <body>
 <main>
 <h1>grid-bench</h1>
-<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in. MATPOWER cases are also converted to CGMES, and tools are graded on those against the original case. State estimation (weighted least squares), AC optimal power flow, batch power flow (a sweep of operating points, through each tool's batch API on as many threads as it can use) and N-1 contingency analysis are benchmarked the same way: switch below.</p>
+<p class="lede">Power-flow speed of open-source power system tools, where every timing is graded by an oracle that no tool under test takes part in. MATPOWER cases are also converted to CGMES, and tools are graded on those against the original case. State estimation (weighted least squares), AC optimal power flow, batch power flow (a sweep of operating points, through each tool's batch API on as many threads as it can use) and N-1 contingency analysis are benchmarked the same way, and CIM libraries on reading, writing and validating CGMES (timed only): switch below.</p>
 <p class="meta" id="meta"></p>
 
 <div class="controls"><div class="seg" role="group" aria-label="Problem" id="problem"></div></div>
@@ -140,6 +143,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
   <div class="seg" role="group" aria-label="Grid" id="grid"></div>
   <div class="seg" role="group" aria-label="Input plotted" id="input"></div>
   <div class="seg" role="group" aria-label="Threads" id="threads"></div>
+  <div class="seg" role="group" aria-label="Memory of" id="memop"></div>
   <div class="chips" id="toolchips" aria-label="Tools"></div>
 </div>
 <div class="card"><svg id="chart" viewBox="0 0 960 440" role="img" aria-label="Time versus case size, one line per tool"></svg>
@@ -158,7 +162,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <details><summary>As a table</summary><div class="scroll"><table id="scaling"></table></div></details>
 </section>
 
-<h2>Accuracy</h2>
+<h2 id="a-title">Accuracy</h2>
 <p id="a-desc"></p>
 <div class="scroll"><table id="accuracy"></table></div>
 
@@ -175,6 +179,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <li><b>Optimal power flow</b>: MATPOWER's AC-OPF on PGLib-OPF v23.07 cases (polynomial cost; power-flow equations; voltage, generator, branch MVA and angle-difference limits), flat start, tolerance 1e-6. The oracle checks the solution's feasibility against the <code>.m</code> and recomputes its cost, accepted at most 0.01% above PGLib's published reference (a local optimum given to five digits).</li>
 <li><b>Batch power flow</b>: each case with 100 operating points (every bus's demand along a daily curve between 60% and 100% of the case, 5% noise per bus, generators redispatched in proportion), all solved in one timed call, each scenario the power-flow problem above. Tools with a batch API run it at 1, 2, 4, … threads, up to every core available; a tool without one runs a loop of its warm single solve, on one thread. Times are per scenario. The oracle grades every scenario of every thread count.</li>
 <li><b>N-1 contingencies</b>: each transmission case with 200 single-branch outages that keep the grid connected (all 19 of case14), solved in one timed call with the base case, each outage started from the tool's own base-case solution (power-grid-model takes no start voltages and starts flat). Contingency APIs that take a thread count run at 1, 2, 4, … threads. Times are per outage. The oracle grades every outage of every thread count against the case with that branch out.</li>
+<li><b>CIM import/export</b>: CIM libraries on the Svedala and RealGrid CGMES 3.0 conformity models, every profile (SV included) read from the published XML. <b>Import</b>: files to the library's model. <b>Export</b>: that model back to CGMES RDF/XML, warm, into an empty directory. <b>Validate</b>: files to violation report in one call, parsing included (cimoxide validates files only); cimoxide runs its own rules, triplets and OpenCGMES (with Jena SHACL) the ENTSO-E CGMES 3.0 SHACL shapes. These are timed, not graded, as in cim-bench: what each tool read and found is shown, but the tools read CGMES into different models and validate against different rules. The Java libraries run in-process through JPype, JVM included in memory.</li>
 <li><b>Memory</b> is the peak RSS of a fresh process loading and solving the case, minus the peak after importing the tool (values below 1 MB are drawn at 1 MB on the log axis). Only the benchmark process counts: cgmes2pgm's Fuseki server is not included.</li>
 </ul>
 <div class="tip" id="tip" hidden></div>
@@ -183,8 +188,11 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 const ALL = __DATA__;
 const VM_FLOOR = __VM_FLOOR__;
 let D = ALL.pf;
-const state = {problem: "pf", op: "solve", grid: (D.grids[0] || ["transmission"])[0], input: null, threads: "1", off: new Set()};
+const state = {problem: "pf", op: "solve", grid: (D.grids[0] || ["transmission"])[0], input: null, threads: "1", memop: "import", off: new Set()};
 const se = () => state.problem === "se";
+const cim = () => state.problem === "cim";
+const OP_NAME = {solve: "Solve", import: "Import", export: "Export", validate: "Validate", memory: "Memory"};
+const validator = t => (t.tags || []).includes("validator");
 // The oracle's verdict detail for a record, per problem.
 const opfVerdict = r => r.opf_gap === undefined || r.opf_gap === null
   ? `only ${r.opf_n_reported_buses} of ${r.opf_n_buses} buses reported`
@@ -218,9 +226,17 @@ const reads = (t, c) => t.families.includes(D.cases[c].family);
 const graded = cases => cases.every(c => D.cases[c].graded);   // tier-1 residual against a MATPOWER case
 const verified = r => r.op !== "solve" || r.oracle_ok === undefined || r.oracle_ok;
 const MEM_FLOOR = 1;   // MB; log axis
-const memAdded = r => r && r.rss_import_mb !== undefined ? (r.rss_solve_mb ?? r.rss_import_mb) - r.rss_baseline_mb : undefined;
+// Memory a record holds: power flow and the rest, the solve's peak if it
+// solved, else the import's; CIM, the peak of the operation chosen (export's
+// is over loading plus one export; validate's is a record of its own).
+const MEM_KEY = {import: "rss_import_mb", export: "rss_export_mb", validate: "rss_validate_mb"};
+const MEM_NAME = {import: "Import", export: "Import + export", validate: "Validate"};
+const memKey = r => cim() ? MEM_KEY[state.memop] : r.rss_solve_mb !== undefined ? "rss_solve_mb" : "rss_import_mb";
+const memAdded = r => r && r[memKey(r)] !== undefined ? r[memKey(r)] - r.rss_baseline_mb : undefined;
+const validating = () => state.op === "validate" || (cim() && state.op === "memory" && state.memop === "validate");
 // The record a view reads, and the value it plots: memory lives on the import record.
-const rec = (t, c) => row(t, c, state.op === "memory" ? "import" : state.op);
+const recOp = () => state.op !== "memory" ? state.op : validating() ? "validate" : "import";
+const rec = (t, c) => row(t, c, recOp());
 const val = r => state.op === "memory" ? memAdded(r) : ms(r);
 
 $("#meta").textContent = `Run ${D.run.date} · commit ${D.run.git} · ${D.run.cpu}, ${D.run.cores} logical CPUs · ${D.run.os}`;
@@ -248,7 +264,7 @@ function chart() {
   const tools = D.tools.filter(t => !state.off.has(t.name) && cases.some(c => reads(t, c)));
   const series = tools.map(t => ({t, pts: cases.map(c => ({c, r: rec(t.name, c)})).filter(p => p.r && val(p.r) !== undefined)
     .map(p => ({x: D.cases[p.c].size, y: state.op === "memory" ? Math.max(val(p.r), MEM_FLOOR) : val(p.r),
-                ok: state.op === "memory" ? p.r.rss_solve_mb !== undefined : verified(p.r), c: p.c, r: p.r}))})).filter(s => s.pts.length);
+                ok: state.op === "memory" ? cim() || p.r.rss_solve_mb !== undefined : verified(p.r), c: p.c, r: p.r}))})).filter(s => s.pts.length);
   const all = series.flatMap(s => s.pts);
   if (!all.length) { svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="${css("--text2")}">No results for this selection</text>`; return; }
   const lg = Math.log10, x0 = Math.floor(lg(Math.min(...all.map(p => p.x)))), x1 = Math.ceil(lg(Math.max(...all.map(p => p.x))));
@@ -280,7 +296,8 @@ function chart() {
     if (r.op === "solve" && r.oracle_ok !== undefined) acc = (r.oracle_ok ? "oracle: verified · " : "oracle: FAILED · ") + verdict(r);
     else if (r.sv_n) acc = `vs published SV: median ${(r.sv_dv_median * 100).toFixed(3)}%, max ${(r.sv_dv_max * 100).toFixed(2)}%`;
     const what = state.op === "memory"
-      ? `+${memAdded(r).toFixed(1)} MB peak over a ${Math.round(r.rss_baseline_mb)} MB baseline (import peak +${(r.rss_import_mb - r.rss_baseline_mb).toFixed(1)} MB)`
+      ? cim() ? `${MEM_NAME[state.memop]}: +${memAdded(r).toFixed(1)} MB peak over a ${Math.round(r.rss_baseline_mb)} MB baseline`
+      : `+${memAdded(r).toFixed(1)} MB peak over a ${Math.round(r.rss_baseline_mb)} MB baseline (import peak +${(r.rss_import_mb - r.rss_baseline_mb).toFixed(1)} MB)`
       : r.scenarios ? `${fmt(ms(r))} ms per scenario on ${r.threads} thread${r.threads > 1 ? "s" : ""} (batch of ${r.scenarios}: median ${fmt(r.median)} ms, ${r.rounds} rounds)`
       : `median ${fmt(r.median)} ms (min ${fmt(r.min)}, ${r.rounds} rounds)${r.iterations ? ` · ${r.iterations} iterations` : ""}`;
     tip.innerHTML = `<b>${esc(t.display)} · ${esc(p.c)}</b><span>${p.x.toLocaleString()} ${D.cases[p.c].graded ? "buses" : "nodes"} · ${what}<br>${state.op === "memory" ? "" : acc}</span>`;
@@ -317,10 +334,11 @@ function tables() {
   const best = c => { if (state.op !== "solve") return null;
     const ok = tools.map(t => row(t.name, c, "solve")).filter(r => r && r.oracle_ok);
     return ok.length ? ok.reduce((a, b) => a.median <= b.median ? a : b).tool : null; };
-  $("#t-title").textContent = state.op === "memory" ? `Peak memory: ${gridTitle(state.grid)} (MB added)`
-    : `${state.op === "solve" ? (se() ? "Warm estimate" : state.problem === "opf" ? "Warm OPF solve" : batch() ? `${state.problem === "n1" ? "N-1" : "Batch"}, ${state.threads === "1" ? "one thread" : "fastest thread count"}` : "Warm solve") : "Import"}: ${gridTitle(state.grid)} (median ms${batch() && state.op === "solve" ? (state.problem === "n1" ? " per outage" : " per scenario") : ""})`;
+  $("#t-title").textContent = state.op === "memory" ? `Peak memory${cim() ? `, ${MEM_NAME[state.memop].toLowerCase()}` : ""}: ${gridTitle(state.grid)} (MB added)`
+    : `${state.op === "solve" ? (se() ? "Warm estimate" : state.problem === "opf" ? "Warm OPF solve" : batch() ? `${state.problem === "n1" ? "N-1" : "Batch"}, ${state.threads === "1" ? "one thread" : "fastest thread count"}` : "Warm solve") : state.op === "export" ? "Warm export" : OP_NAME[state.op]}: ${gridTitle(state.grid)} (median ms${batch() && state.op === "solve" ? (state.problem === "n1" ? " per outage" : " per scenario") : ""})`;
   $("#t-desc").textContent = state.op === "memory"
-    ? "Peak RSS of a fresh process loading the case and solving it once, minus the peak after importing the tool (hover for the baseline). The Python process only: cgmes2pgm's Fuseki server is not included."
+    ? (cim() ? {import: "Peak RSS of a fresh process loading the case", export: "Peak RSS of a fresh process loading the case and exporting it once", validate: "Peak RSS of a fresh process validating the case's files once"}[state.memop] + ", minus the RSS after importing the tool (hover for the baseline; for the Java libraries it includes the JVM, and the heap it has taken counts, collected or not)."
+      : "Peak RSS of a fresh process loading the case and solving it once, minus the peak after importing the tool (hover for the baseline). The Python process only: cgmes2pgm's Fuseki server is not included.")
     : state.op === "solve" && state.problem === "opf"
     ? "✓: feasible for the case (balance and every limit, from the .m) and at most 0.01% above PGLib's reference cost (oracle, independent of every tool). ✗: a limit is broken or the cost is higher; hover the cell for which. Bold: the fastest ✓ in the row."
     : state.op === "solve" && batch()
@@ -329,15 +347,19 @@ function tables() {
     ? "✓: the estimate is the weighted least-squares optimum of its measurement set (oracle, independent of every tool). ✗: it is not; hover the cell for how far off. Bold: the fastest ✓ in the row."
     : state.op === "solve"
     ? (graded(cases) ? "✓: the solution satisfies the original MATPOWER case's equations at every bus (tier 1), whatever the input: a CGMES row is graded against the .m it was converted from. ✗: converged to a different problem; hover the cell for where. Bold: the fastest ✓ in the row. ·: the tool does not read this input." : "Accuracy for CGMES fixtures is judged against the published SV solution, below.")
+    : state.op === "export"
+    ? "The model the import built, written back to CGMES RDF/XML into an empty directory: median of repeated exports after one warm-up. Hover for files and bytes written."
+    : state.op === "validate"
+    ? "Files to violation report in one call, parsing included: median of 3 after one warm-up. cimoxide: its own rules; triplets and OpenCGMES: the ENTSO-E CGMES 3.0 SHACL shapes. ·: no validator. Hover for what was found."
     : "File to model: median of 3 cold loads after one warm-up load. Memory: hover a cell.";
   let h = `<thead><tr><th>case</th><th>${unit}</th>${withInput ? '<th style="text-align:left">input</th>' : ""}${tools.map(t => `<th>${esc(t.display)}</th>`).join("")}</tr></thead><tbody>`;
   for (const c of cases) {
     const b = best(c);
     h += `<tr>${head(c, cases, withInput)}`;
     for (const t of tools) {
-      if (!reads(t, c)) { h += `<td class="na" data-v="1e99">·</td>`; continue; }
+      if (!reads(t, c) || (validating() && !validator(t))) { h += `<td class="na" data-v="1e99">·</td>`; continue; }
       const r = rec(t.name, c);
-      if (!r) { const op = state.op === "memory" ? "import" : state.op, f = fail(t.name, c, op); h += `<td class="fail" data-v="1e98" title="${esc(f ? f.error : "not run")}">${f ? "FAILED" : "not run"}</td>`; continue; }
+      if (!r) { const op = recOp(), f = fail(t.name, c, op); h += `<td class="fail" data-v="1e98" title="${esc(f ? f.error : "not run")}">${f ? "FAILED" : "not run"}</td>`; continue; }
       if (state.op === "memory") {
         const mb = memAdded(r);
         h += mb === undefined ? `<td class="na" data-v="1e97">—</td>` : `<td data-v="${mb}" title="${esc(`peak over a ${Math.round(r.rss_baseline_mb)} MB baseline after importing the tool`)}">${mb.toFixed(mb < 10 ? 1 : 0)}</td>`;
@@ -346,6 +368,9 @@ function tables() {
       let cls = "", title = r.scenarios ? `batch of ${r.scenarios} on ${r.threads} thread${r.threads > 1 ? "s" : ""}: median ${fmt(r.median)} ms, ${r.rounds} rounds` : `${r.rounds} rounds, min ${fmt(r.min)} ms`;
       if (r.op === "solve" && r.oracle_ok !== undefined) { cls = r.oracle_ok ? (t.name === b ? "ok best" : "ok") : "bad";
         if (!r.oracle_ok || se()) title += ` · ${verdict(r)}`; }
+      if (r.violations !== undefined) title += ` · ${r.violations.toLocaleString()} found (${Object.entries(r.by_severity).map(([k, v]) => `${v.toLocaleString()} ${k}`).join(", ")})`;
+      if (r.files_written !== undefined) title += ` · ${r.files_written} files, ${(r.bytes_written / 1e6).toFixed(1)} MB written`;
+      if (r.read !== undefined) title += ` · read ${r.read.toLocaleString()} ${r.unit}`;
       if (r.op === "import" && r.rss_import_mb) title += ` · peak memory +${Math.round((r.rss_solve_mb || r.rss_import_mb) - r.rss_baseline_mb)} MB over the ${Math.round(r.rss_baseline_mb)} MB import baseline`;
       h += `<td class="${cls}" data-v="${ms(r)}" title="${esc(title)}">${fmt(ms(r))}${r.op === "solve" && r.threads && state.threads !== "1" ? ` <span class="meta">@${r.threads}</span>` : ""}</td>`;
     }
@@ -354,6 +379,8 @@ function tables() {
   $("#timing").innerHTML = h + "</tbody>"; sortable($("#timing"));
 
   const mp = graded(cases);
+  $("#a-title").textContent = !cim() ? "Accuracy" : state.op === "validate" ? "What each validator found" : "What each tool read";
+  if (cim()) { whatRead(cases, tools, unit, withInput); } else {
   $("#a-desc").textContent = state.problem === "opf"
     ? "Cost against PGLib's reference, relative (negative: cheaper, which a solution breaking a limit can be). Hover for balance and every limit."
     : se()
@@ -379,6 +406,7 @@ function tables() {
     a += "</tr>";
   }
   $("#accuracy").innerHTML = a + "</tbody>"; sortable($("#accuracy"));
+  }
 
   const fs = D.failures.filter(f => !state.off.has(f.tool) && D.cases[f.case]?.grid === state.grid);
   $("#failures").innerHTML = `<thead><tr><th>tool</th><th>case</th><th>operation</th><th style="text-align:left">error</th></tr></thead><tbody>` +
@@ -444,8 +472,33 @@ function scaling() {
   sortable($("#scaling"));
 }
 
+// CIM: not graded, so in place of accuracy, what each library read (import)
+// and what its validator found (validate).
+function whatRead(cases, tools, unit, withInput) {
+  const v = state.op === "validate";
+  $("#a-desc").textContent = v
+    ? "Findings of each validator, by severity. Not graded: cimoxide runs its own rules, triplets and OpenCGMES the ENTSO-E shapes on the merged model, each engine with its own coverage, so the counts differ by rule set as much as by data."
+    : "What the import holds: triples (triplets, OpenCGMES, PowSyBl's triplestore), typed objects (cimoxide) or network elements (pypowsybl, which converts CGMES into its network model). Hover for lines, generators, loads and substations. Not graded.";
+  let a = `<thead><tr><th>case</th><th>${unit}</th>${withInput ? '<th style="text-align:left">input</th>' : ""}${tools.map(t => `<th>${esc(t.display)}</th>`).join("")}</tr></thead><tbody>`;
+  for (const c of cases) {
+    a += `<tr>${head(c, cases, withInput)}`;
+    for (const t of tools) {
+      if (!reads(t, c) || (v && !validator(t))) { a += `<td class="na" data-v="1e99">·</td>`; continue; }
+      const r = row(t.name, c, v ? "validate" : "import");
+      if (!r) { a += `<td class="fail" data-v="1e98">failed</td>`; continue; }
+      a += v
+        ? `<td data-v="${r.violations}" title="${esc(Object.entries(r.by_severity).map(([k, n]) => `${n.toLocaleString()} ${k}`).join(", "))}">${r.violations.toLocaleString()}</td>`
+        : `<td data-v="${r.read}" title="${esc(`${r.lines} lines, ${r.generators} generators, ${r.loads} loads, ${r.substations} substations`)}">${r.read.toLocaleString()} <span class="meta">${esc(r.unit)}</span></td>`;
+    }
+    a += "</tr>";
+  }
+  $("#accuracy").innerHTML = a + "</tbody>"; sortable($("#accuracy"));
+}
+
 function legendNote() {
-  $("#legend-note").textContent = "Log-log, scaling cases and their variants only (feature cases of different grid families are in the tables), one input at a time. " + (state.op === "memory"
+  $("#legend-note").textContent = "Log-log, scaling cases and their variants only (feature cases of different grid families are in the tables), one input at a time. " + (cim() ? "Timed, not graded: every point is a completed run. No point: the tool failed or has no such operation; the table says which."
+      + (state.op === "memory" ? " Values below 1 MB are drawn at 1 MB." : "")
+    : state.op === "memory"
     ? "Hollow point: memory of loading only, because the solve failed. Values below 1 MB are drawn at 1 MB."
     : "Filled point: the oracle verified the solution. Hollow: the tool converged, but to a solution of a different problem. No point: the tool failed; the table says why.");
 }
@@ -454,15 +507,18 @@ const SB_DESC = {pf: $("#sb-desc").textContent,
   opf: "AC optimal power flow on PGLib-OPF cases: ✓ / ✗ / FAILED per grid. ✓: feasible for the case and at most 0.01% above PGLib's reference cost.",
   se: "Weighted least-squares state estimation on the default cases, both measurement scenarios: ✓ / ✗ / FAILED per grid. ✓: the estimate is the optimum of its measurement set.",
   batch: "Batch power flow, 100 operating points per case, at one thread: ✓ / ✗ / FAILED per grid. ✓: every scenario's solution satisfies the case with that scenario's demand.",
-  n1: "N-1 contingency analysis, 200 branch outages per case (19 for case14), at one thread: ✓ / ✗ / FAILED. ✓: every outage's solution satisfies the case with that branch out of service."};
+  n1: "N-1 contingency analysis, 200 branch outages per case (19 for case14), at one thread: ✓ / ✗ / FAILED. ✓: every outage's solution satisfies the case with that branch out of service.",
+  cim: "CIM libraries reading, writing and validating CGMES: cases done of all, per operation. Timed, not graded (see How this is measured). ·: the tool has no validator."};
 function render() {
-  const problems = [["pf", "Power flow"], ["se", "State estimation"], ["opf", "Optimal power flow"], ["batch", "Batch power flow"], ["n1", "N-1 contingencies"]].filter(([p]) => ALL[p]);
+  const problems = [["pf", "Power flow"], ["se", "State estimation"], ["opf", "Optimal power flow"], ["batch", "Batch power flow"], ["n1", "N-1 contingencies"], ["cim", "CIM import/export"]].filter(([p]) => ALL[p]);
   $("#problem").hidden = problems.length < 2;
   seg($("#problem"), "problem", problems);
   D = ALL[state.problem];
   if (!D.grids.some(([g]) => g === state.grid)) state.grid = D.grids[0][0];
   $("#sb-desc").textContent = SB_DESC[state.problem];
-  seg($("#op"), "op", [["solve", "Solve"], ["import", "Import"], ["memory", "Memory"]]);
+  const ops = (cim() ? ["import", "export", "validate", "memory"] : ["solve", "import", "memory"]).map(o => [o, OP_NAME[o]]);
+  if (!ops.some(([o]) => o === state.op)) state.op = ops[0][0];
+  seg($("#op"), "op", ops);
   seg($("#grid"), "grid", D.grids.map(([g, label]) => [g, label]));
   const inputs = inputsOf(state.grid);
   if (!inputs.includes(state.input)) state.input = inputs[0];
@@ -470,6 +526,8 @@ function render() {
   seg($("#input"), "input", inputs.map(i => [i, `Chart: ${i}`]));
   $("#threads").hidden = !batch() || state.op !== "solve";
   seg($("#threads"), "threads", [["1", "1 thread"], ["best", "Fastest thread count"]]);
+  $("#memop").hidden = !cim() || state.op !== "memory";
+  seg($("#memop"), "memop", Object.entries(MEM_NAME));
   scoreboard();
   chips(); chart(); tables(); scaling(); legendNote();
 }

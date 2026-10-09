@@ -129,3 +129,25 @@ services:
     <<: *bench
     image: grid-bench/powermodels:latest
     command: pytest benchmarks/powermodels_opf_benchmark.py --benchmark-json=/output/powermodels-opf.json
+
+  # CIM libraries (import, export, validation only): see adapters/cim_adapter.py.
+  # pypowsybl's CIM benchmark runs in its own service above.
+  cimoxide:
+    <<: *bench
+    image: grid-bench/cimoxide:latest
+    command: pytest benchmarks/cimoxide_cim_benchmark.py --benchmark-json=/output/cimoxide-cim.json
+
+  triplets:
+    <<: *bench
+    image: grid-bench/triplets:latest
+    command: pytest benchmarks/triplets_cim_benchmark.py --benchmark-json=/output/triplets-cim.json
+
+  opencgmes:
+    <<: *bench
+    image: grid-bench/opencgmes:latest
+    command: pytest benchmarks/opencgmes_cim_benchmark.py --benchmark-json=/output/opencgmes-cim.json
+
+  powsybl:
+    <<: *bench
+    image: grid-bench/powsybl:latest
+    command: pytest benchmarks/powsybl_cim_benchmark.py --benchmark-json=/output/powsybl-cim.json

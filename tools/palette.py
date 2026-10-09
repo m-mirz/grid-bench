@@ -17,6 +17,17 @@ and several pairs sit below 4 under colour-vision deficiency. The legend,
 the site's hover and tool toggles carry identity; small
 multiples would fix it properly. Three light-mode slots sit below 3:1 contrast on
 the surface, so every chart carries direct labels and a table view.
+
+The CIM libraries (cimoxide, triplets, OpenCGMES, PowSyBl's CgmesModel) are
+four more tools, but they only ever share a chart with each other and
+pypowsybl (the CIM tab). They take slot hues, one unit off and dotted: hue
+and pattern together are their identity. Of the 70 ways to pick four of the
+eight hues next to pypowsybl's magenta, yellow, green, violet and teal is
+the only one that passes the normal-vision floor in both modes (all pairs,
+worst 19.5 light / 15.3 dark). Among the four dotted ones, CVD passes in
+light (worst 16.2) and sits in the 6-8 band in dark (green-yellow 6.9),
+legal with the labels and table view; magenta against teal is 2.9 under
+protanopia in light, but solid against dotted.
 """
 LIGHT_TO_DARK = {
     "#2a78d6": "#3987e5",   # 1 blue    pandapower
@@ -40,6 +51,9 @@ LIGHT_TO_DARK[REFERENCE] = "#c3c2b7"
 LIGHT_TO_DARK[REFERENCE_DOTTED] = "#c3c2b8"
 P3S = "#2a78d7"   # slot 1's blue, one unit off: pandapower's variant, dashed
 LIGHT_TO_DARK[P3S] = "#3987e6"
-DASH = {REFERENCE: "6 4", REFERENCE_DOTTED: "1.5 3.5", P3S: "6 4"}
+CIMOXIDE, TRIPLETS, OPENCGMES, POWSYBL = "#eda101", "#008301", "#4a3aa8", "#0f8fa9"   # slots 4, 6, 7, 9, dotted
+LIGHT_TO_DARK |= {CIMOXIDE: "#c98501", TRIPLETS: "#008301", OPENCGMES: "#9085ea", POWSYBL: "#1b9cb7"}
+DASH = {REFERENCE: "6 4", REFERENCE_DOTTED: "1.5 3.5", P3S: "6 4",
+        **dict.fromkeys((CIMOXIDE, TRIPLETS, OPENCGMES, POWSYBL), "2 3")}
 LIGHT = {"surface": "#fcfcfb", "text": "#0b0b0b", "text2": "#52514e", "grid": "#e4e3df", "axis": "#8a8984"}
 DARK = {"surface": "#1a1a19", "text": "#ffffff", "text2": "#c3c2b7", "grid": "#33332f", "axis": "#6f6e69"}

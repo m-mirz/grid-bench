@@ -199,6 +199,8 @@ def prepare_n1(key: str) -> None:
 
 def prepare(key: str) -> None:
     case = CASES[key]
+    if case["problem"] == "cim":
+        return   # read as published, nothing to prepare
     if case["family"] == "cgmes":
         return prepare_cgmes(key)
     if "converter" in case:

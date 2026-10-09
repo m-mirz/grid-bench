@@ -32,8 +32,8 @@ failed=()
 for t in "${tools[@]}"; do
     echo "=== $t"
     # Every problem the tool has a benchmark for (power flow, state estimation,
-    # OPF, batch power flow, N-1), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
-    for suffix in "" _se _opf _batch _n1; do
+    # OPF, batch power flow, N-1, CIM), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
+    for suffix in "" _se _opf _batch _n1 _cim; do
         if [ -f "benchmarks/${t}${suffix}_benchmark.py" ]; then
             $compose run --rm $(blas_env "$suffix") "$t" pytest "benchmarks/${t}${suffix}_benchmark.py" \
                 "--benchmark-json=/output/$t${suffix/_/-}.json" "${extra[@]}" || failed+=("$t${suffix/_/-}")

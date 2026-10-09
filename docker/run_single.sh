@@ -20,8 +20,8 @@ else
 fi
 $compose run --rm conversion-check
 # Every problem the tool has a benchmark for (power flow, state estimation,
-# OPF, batch power flow, N-1), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
-for suffix in "" _se _opf _batch _n1; do
+# OPF, batch power flow, N-1, CIM), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
+for suffix in "" _se _opf _batch _n1 _cim; do
     if [ -f "benchmarks/${tool}${suffix}_benchmark.py" ]; then
         $compose run --rm $(blas_env "$suffix") "$tool" pytest "benchmarks/${tool}${suffix}_benchmark.py" \
             "--benchmark-json=/output/$tool${suffix/_/-}.json" "$@"

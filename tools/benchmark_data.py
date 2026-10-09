@@ -40,6 +40,7 @@ class Results:
     opf: "Results | None" = None
     batch: "Results | None" = None
     n1: "Results | None" = None
+    cim: "Results | None" = None
 
     def get(self, tool: str, case: str, operation: str, threads: int | None = None) -> Record | None:
         """A batch case has a solve record per thread count: `threads` picks
@@ -103,7 +104,10 @@ def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
     """Per tool, one cell per grid and input: "✓ / ✗ / FAILED" counts of the
     solves, or "solved of all" where there is no verdict (fixtures); then the
     robustness cases, where failing is the expected outcome. `·` where the
-    tool reads none of them. Returns the column labels and (tool, cells) rows."""
+    tool reads none of them. Returns the column labels and (tool, cells) rows.
+    CIM libraries have no solve: one column per operation instead."""
+    if any(CASES[c]["problem"] == "cim" for c in res._seen()):
+        return _cim_scoreboard(res)
     columns = []   # (label, cases)
     for grid in res.grids():
         cases = res.grid_cases(grid)
@@ -131,13 +135,34 @@ def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
     return [label for label, _ in columns], rows
 
 
+CIM_OPERATIONS = ("import", "export", "validate")
+
+
+def _cim_scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
+    """"done of all" per CIM operation; `·` for validate where the tool has
+    no validator."""
+    cases = [c for g in res.grids() for c in res.grid_cases(g)]
+    rows = []
+    for t in res.tool_order():
+        mine = [c for c in cases if reads(res, t, c)]
+        cells = []
+        for op in CIM_OPERATIONS:
+            if not mine or (op == "validate" and "validator" not in res.tools[t]["tags"]):
+                cells.append("·")
+            else:
+                cells.append(f"{sum(1 for c in mine if res.get(t, c, op))} of {len(mine)}")
+        rows.append((t, cells))
+    return list(CIM_OPERATIONS), rows
+
+
 def load(directory: Path) -> Results:
     """Every record of a case in the default groups. A case run by name
     (outside them) stays in its JSON but out of the published reports.
     Power flow at the top level, state estimation in `.se`, optimal power
     flow in `.opf`, batch power flow in `.batch`, N-1 contingencies in
-    `.n1`: a tool has an entry in each, with that problem's settings."""
-    res = Results(se=Results(), opf=Results(), batch=Results(), n1=Results())
+    `.n1`, CIM import/export/validation in `.cim`: a tool has an entry in
+    each, with that problem's settings."""
+    res = Results(se=Results(), opf=Results(), batch=Results(), n1=Results(), cim=Results())
     for path in sorted(Path(directory).glob("*.json")):
         if path.name == "conversion.json":
             continue
@@ -164,7 +189,7 @@ def load(directory: Path) -> Results:
 
 
 def _problem(res: Results, problem: str) -> Results:
-    return {"pf": res, "se": res.se, "opf": res.opf, "batch": res.batch, "n1": res.n1}[problem]
+    return {"pf": res, "se": res.se, "opf": res.opf, "batch": res.batch, "n1": res.n1, "cim": res.cim}[problem]
 
 
 def _part(res: Results, case: str) -> Results:

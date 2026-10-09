@@ -64,6 +64,11 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   keyed `<case>#n1`, all solved in one timed call from the tool's solution of
   the base case, each graded by tier 1 against the case with that branch out.
   `problem` is "n1". Radial grids have no such outage.
+- `cim-cgmes`: CIM import, export and validation, timed like cim-bench and,
+  unlike every other family, not graded (AGENTS.md, rule 1). A CGMES
+  fixture read whole, every profile including SV (`cim_files`), keyed
+  `<case>#cim`. `problem` is "cim". Validators with no rules of their own
+  check it against the ENTSO-E CGMES 3.0 SHACL shapes (`CIM_SHAPES`).
 
 Groups say what a case is *for* (a case can be in several):
 
@@ -95,6 +100,7 @@ PLAIN_DIR = DATA / "benchmark-grids" / "matpower-plain"
 GENERATED_DIR = DATA / "benchmark-grids" / "generated"
 PGLIB_DIR = DATA / "benchmark-grids" / "pglib"
 CGMES_DIR = DATA / "CGMES-Test-Configurations" / "v3.0"
+SHACL_DIR = DATA / "application-profiles-library" / "CGMES" / "SHACL"
 
 DEFAULT_GROUPS = ("smoke", "scaling", "feature", "robustness")
 CONVERTERS = ("cimoxide", "pypowsybl")
@@ -102,7 +108,7 @@ SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstri
 SCENARIOS = ("exact", "noisy")   # see cases/measurements.py
 FAMILIES = (("matpower", "distribution", "cgmes") + tuple(f"converted-{c}" for c in CONVERTERS)
             + ("se-matpower", "se-distribution", "opf-pglib", "sweep-matpower", "sweep-distribution",
-               "n1-matpower"))
+               "n1-matpower", "cim-cgmes"))
 GRIDS = ("transmission", "distribution", "fixtures")
 
 
@@ -242,6 +248,26 @@ for _base in N1_FROM:
         "source": f"{_base}, N-1 branch outages", "note": CASES[_base]["note"],
     }
 
+# CIM import/export/validate: the two largest fixtures, Svedala also the smoke case.
+for _base, _groups in (("cgmes_svedala", ["smoke", "scaling"]), ("cgmes_realgrid", ["scaling"])):
+    CASES[f"{_base}#cim"] = {
+        "family": "cim-cgmes", "grid": "fixtures", "format": "cgmes", "problem": "cim",
+        "dir": CASES[_base]["dir"], "boundary": CASES[_base]["boundary"], "base_case": _base, "groups": _groups,
+        "source": f"{CASES[_base]['source']}, read, written and validated whole", "note": CASES[_base]["note"],
+    }
+
+# The ENTSO-E SHACL files for the profiles a CIM case has (EQ, SSH, TP, SV,
+# header, and the files across them), in the variant for a solved merged
+# model: not the NotSolvedMAS ones, and none for DL, DY, GL, OP or SC. The
+# validators given these check the merged model in one pass, so the
+# EquipmentBoundary files are left out too: they target every Terminal and
+# require a Junction, which holds inside a boundary set and fails on all
+# 6,088 equipment terminals of merged Svedala. The boundary's objects are
+# still checked by the EQ shapes.
+_NOT_CIM_SHAPES = ("DiagramLayout", "Dynamics", "GeographicalLocation", "Operation", "ShortCircuit", "NotSolvedMAS",
+                   "EquipmentBoundary")
+CIM_SHAPES = [p for p in sorted(SHACL_DIR.glob("*.ttl")) if not any(s in p.name for s in _NOT_CIM_SHAPES)]
+
 for _c in CASES.values():
     _c.setdefault("problem", "pf")
 
@@ -262,6 +288,20 @@ def cgmes_files(key: str) -> list[Path]:
     skip = ("_SV", "_DL", "_GL", "_DY", "_OP", "_SC")
     files = sorted(p for p in case["dir"].glob("*.xml") if not any(s in p.name for s in skip))
     return files + ([case["boundary"]] if case["boundary"] else [])
+
+
+def cim_files(key: str) -> list[Path]:
+    """Every profile of a CIM case, SV included: the whole published model is
+    what is read, written and validated."""
+    case = CASES[key]
+    return sorted(case["dir"].glob("*.xml")) + ([case["boundary"]] if case["boundary"] else [])
+
+
+def cim_profiles(key: str) -> list[str]:
+    """The profiles of a CIM case, by the suffix of its file names
+    (`Svedala_EQBD.xml` -> EQBD): what a tool that writes one profile at a
+    time is asked to write back."""
+    return [p.stem.rpartition("_")[2] for p in cim_files(key)]
 
 
 def is_cgmes(key: str) -> bool:

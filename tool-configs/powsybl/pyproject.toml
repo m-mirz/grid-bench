@@ -1,0 +1,19 @@
+# Python side of the powsybl benchmark image: the harness and JPype, which runs
+# the JVM in this process. The Java library itself is pom.xml, its jars
+# checked against jars.sha256 (docker/java-tool.dockerfile).
+[project]
+name = "grid-bench-powsybl"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+    "jpype1==1.7.1",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"

@@ -44,7 +44,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from adapters.solver_adapter import ToolAdapter
+from adapters.solver_adapter import SolvingAdapter, ToolAdapter
 from cases.contingency import read as read_outages
 from cases.registry import CASES, contingency_path, sweep_path
 from cases.sweep import read
@@ -87,7 +87,7 @@ def columns(ids, keys) -> np.ndarray:
     return np.array([pos[int(i)] for i in ids], dtype=np.int64)
 
 
-class BatchAdapter(ToolAdapter):
+class BatchAdapter(SolvingAdapter):
     problem = "batch"
     families = ("sweep-matpower", "sweep-distribution")
     mode = "native"

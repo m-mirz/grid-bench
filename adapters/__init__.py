@@ -68,12 +68,22 @@ CONTINGENCIES = {
     "matpower": "adapters.matpower_n1_adapter:MatpowerN1",
 }
 
+# CIM import, export and validation (adapters/cim_adapter.py): CIM libraries,
+# most with no power-flow adapter. pypowsybl is the one tool in both.
+CIM = {
+    "cimoxide": "adapters.cimoxide_cim_adapter:CimoxideCim",
+    "triplets": "adapters.triplets_cim_adapter:TripletsCim",
+    "opencgmes": "adapters.opencgmes_cim_adapter:OpencgmesCim",
+    "powsybl": "adapters.powsybl_cim_adapter:PowsyblCim",
+    "pypowsybl": "adapters.pypowsybl_cim_adapter:PypowsyblCim",
+}
+
 REGISTRIES = {"pf": ADAPTERS, "se": ESTIMATORS, "opf": OPTIMIZERS, "batch": BATCHES,
-              "n1": CONTINGENCIES}   # by the registry's `problem`
+              "n1": CONTINGENCIES, "cim": CIM}   # by the registry's `problem`
 
 
 def get(name: str, problem: str = "pf"):
-    """The tool's adapter for one problem ("pf", "se", "opf", "batch", "n1")."""
+    """The tool's adapter for one problem ("pf", "se", "opf", "batch", "n1", "cim")."""
     return _instantiate(REGISTRIES[problem][name])
 
 

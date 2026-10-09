@@ -10,6 +10,17 @@ docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e UV_CACHE_DIR=/tmp/loc
     -v "$PWD":/repo -w /repo grid-bench/base:latest bash -c '
     for d in tool-configs/*/; do (cd "$d" && uv lock && echo "locked $d"); done
     uv lock && echo "locked ./"'
+# Java libraries (tool-configs/*/pom.xml): jars.sha256, the SHA-256 of every
+# jar Maven resolves for the pom, in the Maven image docker/java-tool.dockerfile
+# builds with. The build checks the jars against it.
+maven_image=$(sed -n 's/^FROM \(maven:[^ ]*\) AS jars$/\1/p' docker/java-tool.dockerfile)
+for pom in tool-configs/*/pom.xml; do
+    d=$(dirname "$pom")
+    docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD/$d":/proj:ro --entrypoint bash "$maven_image" -c '
+        mvn -q -B -f /proj/pom.xml -Dmaven.repo.local=/tmp/m2 dependency:copy-dependencies \
+            -DoutputDirectory=/tmp/lib -DincludeScope=runtime && cd /tmp/lib && sha256sum *' > "$d/jars.sha256" \
+        && echo "locked $d/jars.sha256"
+done
 # Julia environments (tool-configs/*/julia/): Manifest.toml, resolved by the
 # tool's own pinned Julia image against the registry snapshot in setup.jl.
 for d in tool-configs/*/julia/; do

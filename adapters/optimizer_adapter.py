@@ -29,13 +29,13 @@ number, gen row), and says what it deliberately does not do.
 A tool keeps its power-flow adapter's identity (`name`, `color`, ...); its
 OPF results go to `<tool>-opf.json`.
 """
-from adapters.solver_adapter import ToolAdapter
+from adapters.solver_adapter import SolvingAdapter
 
 OPF_TOLERANCE = 1e-6   # MATPOWER's default for MIPS; interior-point tolerances are relative
 OPF_MAX_ITERATIONS = 200
 
 
-class OptimizerAdapter(ToolAdapter):
+class OptimizerAdapter(SolvingAdapter):
     problem = "opf"
     families = ("opf-pglib",)
 
