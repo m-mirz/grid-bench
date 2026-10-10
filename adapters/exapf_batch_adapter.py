@@ -50,7 +50,7 @@ Results (CPU, 100 scenarios), the oracle accepting every scenario it ran:
 import numpy as np
 
 from adapters.batch_adapter import BatchAdapter, BatchSolution, base_case, scenarios
-from adapters.exapf_adapter import ExapfAdapter, _gb
+from adapters.exapf_adapter import ExapfAdapter
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge
 from cases.matpower import GEN_STATUS, parse_m
 from cases.registry import CASES, m_path
@@ -62,11 +62,13 @@ class ExapfBatch(BatchAdapter):
     color = ExapfAdapter.color
     package = ExapfAdapter.package
     language = ExapfAdapter.language
+    julia = ExapfAdapter.julia
     modules = ExapfAdapter.modules
     mode = "native"
     threaded = False
     settings = ExapfAdapter.settings | {"mode": "native", "batch_api": "BlockPolarForm",
                                         "tolerance_norm": "2, over all scenarios"}
+    _jl = ExapfAdapter._jl
     version = ExapfAdapter.version
     dependencies = ExapfAdapter.dependencies
 
@@ -77,18 +79,19 @@ class ExapfBatch(BatchAdapter):
         online = np.flatnonzero(mpc["gen"][:, GEN_STATUS] > 0)
         gen_pos = np.searchsorted(online, sweep["gen_row"])
         assert (online[gen_pos] == sweep["gen_row"]).all()
-        batch = _gb().load_batch(str(m_path(base)), TOLERANCE_PU, MAX_ITERATIONS,
+        jl = self._jl()
+        batch = jl.GB.load_batch(str(m_path(base)), jl.BACKEND, jl.FACTORIZATION, TOLERANCE_PU, MAX_ITERATIONS,
                                  sweep["load_bus"].tolist(), sweep["pd"] / base_mva, sweep["qd"] / base_mva,
                                  (gen_pos + 1).tolist(), sweep["gen_bus"].tolist(), sweep["pg"] / base_mva)
         return {"batch": batch, "n": len(sweep["scale"])}
 
     def solve(self, model, threads=1):
-        assert threads == 1, "ExaPF's CPU backend solves the blocks on one thread"
-        converged, bad = _gb().solve_batch_b(model["batch"])   # solve_batch!
+        assert threads == 1, "ExaPF solves all blocks in one call: threads are not a setting"
+        converged, bad = self._jl().GB.solve_batch_b(model["batch"])   # solve_batch!
         if not converged:
             raise DidNotConverge(f"{int(bad)} of {model['n']} scenarios not below tolerance "
                                  f"after {MAX_ITERATIONS} iterations")
 
     def solution(self, model, case):
-        numbers, vm, va = _gb().batch_solution(model["batch"])
+        numbers, vm, va = self._jl().GB.batch_solution(model["batch"])
         return BatchSolution([str(int(b)) for b in numbers], np.asarray(vm).T, np.asarray(va).T)

@@ -37,7 +37,14 @@ def _child(tool: str, case: str) -> dict:
 
     adapter = get(tool, CASES[case]["problem"])
     for name in adapter.modules:
-        import_module(name)
+        try:
+            import_module(name)
+        except Exception as e:
+            # Re-raised as a plain exception, since the parent unpickles what
+            # the child raises: a tool's own exception type can need the tool
+            # to unpickle (juliacall's JuliaError starts Julia in the pool's
+            # result thread, which hangs: exapf_gpu without a usable GPU).
+            raise RuntimeError(f"{type(e).__name__}: {e}") from None
     pid = adapter.tool_pid() or "self"
     Path(f"/proc/{pid}/clear_refs").write_text("5")   # reset VmHWM to current RSS
     out = {"rss_baseline_mb": _status_mb("VmRSS", pid)}

@@ -15,7 +15,8 @@ v1 covers AC power flow in twelve tool setups:
 [pypowsybl](https://github.com/powsybl/pypowsybl) (OpenLoadFlow),
 [VeraGrid](https://github.com/SanPen/VeraGrid),
 [Sienna](https://github.com/Sienna-Platform) (PowerFlows.jl),
-[ExaPF.jl](https://github.com/exanauts/ExaPF.jl) (GPU-oriented, run on its CPU backend),
+[ExaPF.jl](https://github.com/exanauts/ExaPF.jl) (GPU-oriented: on its CPU backend, and on
+an NVIDIA GPU as `exapf_gpu`, not run yet),
 [Sparlectra.jl](https://github.com/Welthulk/Sparlectra.jl),
 [MATPOWER](https://matpower.org) on GNU Octave, and power-grid-model on CGMES
 through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
@@ -172,7 +173,8 @@ included, and every tool solves all of them in one timed call:
   (`solve_batch`, OpenMP), lightsim2grid (`InjectionSweepCPP`);
 - through its own batch API on one thread: PyPSA (snapshots), VeraGrid
   (time-series driver), Sienna (PowerFlows' time steps), ExaPF.jl
-  (`BlockPolarForm`, one block-diagonal Newton system, CPU backend);
+  (`BlockPolarForm`, one block-diagonal Newton system, CPU backend, and on
+  a GPU as `exapf_gpu`, where the blocks run in parallel);
 - as a loop of its single solve, where it has no batch power flow:
   pandapower, pypowsybl, Sparlectra.jl, MATPOWER.
 
@@ -198,7 +200,8 @@ they have one:
   analysis, `threadCount`), and power-grid-model (a batch with branch status
   updates; it takes no start voltages, so its outages start flat);
 - on one thread: VeraGrid (`ContingencyAnalysisDriver`), ExaPF.jl (its
-  line-contingency block formulation, one Newton system for every outage);
+  line-contingency block formulation, one Newton system for every outage;
+  also on a GPU, `exapf_gpu`);
 - as a loop of single solves with the branch taken out: pandapower, PyPSA,
   Sienna (which rebuilds its power-flow data for each outage), Sparlectra.jl
   and MATPOWER.
@@ -247,6 +250,7 @@ output is graded but not solved by default.
 | VeraGrid | `parse_matpower_file` (.m) | `open_cgmes` | NR |
 | Sienna | `PowerSystems.System` (.m) via juliacall | — | PowerFlows.jl NR (KLU) |
 | ExaPF.jl | `PowerFlowProblem` (.m) via juliacall, CPU backend | — | polar NR, AD Jacobian (KLU) |
+| ExaPF.jl (GPU) | the same, CUDA backend | — | polar NR, AD Jacobian (cuDSS) |
 | Sparlectra.jl | `createNetFromMatPowerFile` (.m) via juliacall | `importCGMES` (zip) | rectangular NR (UMFPACK) |
 | MATPOWER | `loadcase` (.m), in GNU Octave | — | `runpf`, NR (UMFPACK) |
 | PGM via cgmes2pgm | — | upload to a Fuseki sidecar, `CgmesToPgmConverter` | PGM 1.12 NR (generators as fixed P/Q) |
@@ -270,6 +274,12 @@ docker/run_single.sh pypowsybl --cases case300   # one tool, some cases
 
 For development without containers: `./setup.sh` (needs [uv](https://docs.astral.sh/uv/)),
 then `./run_benchmarks.sh [tool ...] [-- --groups smoke]`.
+
+`exapf_gpu` (ExaPF.jl on CUDA) needs an NVIDIA GPU and the
+[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/)
+to run, not to build; a default sweep leaves it out where `nvidia-smi` fails.
+`GRID_BENCH_GPU=<n>` picks the device (default 0):
+`docker/build.sh exapf_gpu && docker/run_single.sh exapf_gpu --groups smoke`.
 
 Published numbers in `results-docker/` come from one full sweep on one
 otherwise idle machine, recorded with its CPU, OS and git commit. CI only
