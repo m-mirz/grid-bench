@@ -5,11 +5,15 @@ linear solver differ, so the two rows of a case compare the hardware and
 the solver, not two problems. A separate tool (own image, own JSON) because
 the image carries CUDA.jl and cuDSS, which the CPU image does not need.
 
-Not yet run: written and built without a GPU (the CPU path it shares was
-checked to be bit-identical to before), so its first run on an NVIDIA GPU
-is its test (`docker/build.sh exapf_gpu && docker/run_single.sh exapf_gpu
---groups smoke`). A correct run shows the CPU adapter's oracle residuals
-on case14, around 1e-9 MVA or below.
+Results (A100-SXM4-40GB, CUDA runtime 12.9, driver 580; `results-docker/gpu/`,
+next to lightsim2grid on the same machine's EPYC 7J13): every case the CPU
+adapter solves is accepted with the same residuals to round-off (case14
+2.7e-13 MW), and it fails the same ones (case1888rte, case6495rte diverge;
+case2848rte is rejected, see the CPU adapter). A warm solve costs at least
+about 2.8 ms whatever the size (kernel launches, a cuDSS refactorization and
+a synchronize per Newton step): 100x the CPU's 0.02 ms on case14, but ahead
+of lightsim2grid from about 3000 buses (case9241pegase 13.6 against
+60.8 ms, mvlv29840 10.0 against 68.1 ms).
 
 Input, bus-id mapping, flat start, tolerance, iteration limit and known
 losses: the CPU adapter's, unchanged (its docstring). Here:

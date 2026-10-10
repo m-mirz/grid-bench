@@ -35,5 +35,8 @@ def versions() -> dict[str, str]:
 
 def available_bytes() -> int:
     """Memory a model's arrays can still take: on a GPU, the device's free
-    memory, which is where ExaPF keeps them."""
-    return int(_jl.seval("CUDA.free_memory()"))
+    memory, which is where ExaPF keeps them. CUDA.jl's pool keeps freed
+    memory (earlier cases' models) reserved, and `free_memory` counts it as
+    used; an allocation would reclaim it, so it is reclaimed before asking
+    (case9241pegase#n1 saw 9.3 GB free of 40 GB without this, 41.9 GB with)."""
+    return int(_jl.seval("GC.gc(true); CUDA.reclaim(); CUDA.free_memory()"))
