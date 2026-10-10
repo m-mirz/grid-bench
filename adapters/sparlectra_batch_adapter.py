@@ -1,14 +1,17 @@
 """Sparlectra: batch power flow as a loop of `runpf_rectangular!` (`loop`).
 
 Sparlectra's batch machinery, the scenario engine (`src/scenario/`), runs
-patch scenarios and N-1 outages for contingency analysis: each case starts
-warm from the solved base, and a result reports limit metrics, not the
-voltages of every bus. It does not state this problem, so a sweep is a loop
-of the power-flow adapter's solve (`adapters/sparlectra_adapter.py`, with its
-flat start restored before every solve and its settings), one thread
-(Julia runs single-threaded).
+patch scenarios and N-1 outages for contingency analysis, each case
+started from the solved base as here, but a result reports limit metrics,
+not the voltages of every bus. So a sweep is a loop on the power-flow
+adapter's model (`adapters/sparlectra_adapter.py`, its settings): the base
+case from its flat start (`solve_sweep_base!`), then every scenario started
+from the base solution written into the nodes (`solve_scenario!`,
+`opt_flatstart=false`), as the N-1 adapter's outages; one thread (Julia
+runs single-threaded).
 
-Scenarios (`GridBenchSparlectra.load_sweep`, `apply!`): Sparlectra's solver
+Scenarios (`GridBenchSparlectra.load_sweep`, `apply!`, which with k = 0
+restores the case's own values for the base solve): Sparlectra's solver
 builds its injections from the prosumers on every solve, so scenario k sets
 the load prosumer of each loaded bus and one generator prosumer of each
 generator bus to its imported value plus the scenario's change (`Pd`,
@@ -21,6 +24,7 @@ passed once, in `load`.
 import numpy as np
 
 from adapters.batch_adapter import LoopBatchAdapter, base_case, scenarios
+from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge
 from adapters.sparlectra_adapter import SparlectraAdapter, _gb
 from cases.matpower import BUS_I, PD, PG, QD, parse_m
 from cases.registry import CASES
@@ -33,7 +37,8 @@ class SparlectraBatch(LoopBatchAdapter):
     package = SparlectraAdapter.package
     language = SparlectraAdapter.language
     modules = SparlectraAdapter.modules
-    settings = SparlectraAdapter.settings | {"mode": "loop", "update": "node load and generation totals"}
+    settings = SparlectraAdapter.settings | {"mode": "loop", "update": "node load and generation totals",
+                                             "start": "base-case solution (opt_flatstart=false)"}
     single = SparlectraAdapter()
     version = SparlectraAdapter.version
     dependencies = SparlectraAdapter.dependencies
@@ -56,8 +61,14 @@ class SparlectraBatch(LoopBatchAdapter):
         return {"single": model, "sweep": sweep, "bus_ids": ids,
                 "jl_sweep": _gb().load_sweep(model, numbers.tolist(), dp_load, dq_load, dp_gen)}
 
-    def apply(self, model, sweep, k):
-        _gb().apply_b(model["single"], model["jl_sweep"], k + 1)   # apply!, Julia counts from 1
+    def solve_base(self, model):
+        if _gb().solve_sweep_base_b(model["single"], model["jl_sweep"], TOLERANCE_PU, MAX_ITERATIONS) < 0:
+            raise DidNotConverge(f"base case: NR did not converge in {MAX_ITERATIONS} iterations")
+
+    def solve_scenario(self, model, k):
+        # solve_scenario!, Julia counts from 1
+        if _gb().solve_scenario_b(model["single"], model["jl_sweep"], k + 1, TOLERANCE_PU, MAX_ITERATIONS) < 0:
+            raise DidNotConverge(f"scenario {k}: NR did not converge in {MAX_ITERATIONS} iterations")
 
     def voltages(self, model):
         _, vm, va = _gb().solution(model["single"])

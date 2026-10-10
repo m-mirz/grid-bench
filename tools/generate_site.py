@@ -38,21 +38,9 @@ def _input(case: str) -> str:
     return input_label(case).strip("`")
 
 
-def _variant(name: str, what: str) -> str:
-    """`name (x)` -> `name (x, what)`, otherwise `name (what)`."""
-    return f"{name[:-1]}, {what})" if name.endswith(")") else f"{name} ({what})"
-
-
 def payload(res: Results, kind: str = "pf") -> dict:
     """One tab's data. `kind`: the problem it shows (pf, se, opf, batch, n1, cim), which sets its views."""
-    # A batch tool that starts its scenarios from the base case's solution
-    # (`settings["start"]`) solves an easier problem than the flat start: it
-    # is shown as a base-case-start variant and never ranked with the others.
-    # (In N-1 every tool starts there; that is the problem.) Not "warm":
-    # here a warm solve is a timed repeat on a persistent model.
-    base_start = lambda m: kind == "batch" and m["settings"].get("start") == "base-case solution"
-    tools = [{"name": t, "display": _variant(m["display_name"], "base-case start") if base_start(m) else m["display_name"],
-              "baseStart": base_start(m),
+    tools = [{"name": t, "display": m["display_name"],
               "color": m["color"],
               "colorDark": LIGHT_TO_DARK.get(m["color"], m["color"]), "dash": DASH.get(m["color"]),
               "version": m["version"], "tags": m["tags"],
@@ -201,7 +189,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <li><b>Tier 1 oracle</b> (MATPOWER): the residual <code>V·conj(Ybus·V) − S</code> with Ybus built from the <code>.m</code> file by the benchmark itself. <b>Tier 2</b> (CGMES): deviation from the case's published SV solution. <b>Tier 3</b>: tools against each other, the weakest evidence.</li>
 <li><b>State estimation</b>: weighted least squares on each case with a measurement set generated from its own power flow. <code>exact</code>: |V| and P/Q injections at every bus without noise, so the optimum is the true state. <code>noisy</code>: |V| at generator buses, P/Q injections at every bus, P/Q flows at every branch's from end, with Gaussian noise. Same measurements and sigmas for every tool, flat start, no bad-data handling. The oracle accepts an estimate when one Gauss-Newton step from it moves it by at most 1e-6 and its J is no larger than J at the true state.</li>
 <li><b>Optimal power flow</b>: MATPOWER's AC-OPF on PGLib-OPF v23.07 cases (polynomial cost; power-flow equations; voltage, generator, branch MVA and angle-difference limits), flat start, tolerance 1e-6. The oracle checks the solution's feasibility against the <code>.m</code> and recomputes its cost, accepted at most 0.01% above PGLib's published reference (a local optimum given to five digits).</li>
-<li><b>Batch power flow</b>: each case with 100 operating points (every bus's demand along a daily curve between 60% and 100% of the case, 5% noise per bus, generators redispatched in proportion), all solved in one timed call, each scenario the power-flow problem above. Tools with a batch API run it at 1, 2, 4, … threads, up to every core available; a tool without one runs a loop of its warm single solve, on one thread. Times are per scenario. The oracle grades every scenario of every thread count.</li>
+<li><b>Batch power flow</b>: each case with 100 operating points (every bus's demand along a daily curve between 60% and 100% of the case, 5% noise per bus, generators redispatched in proportion), all solved in one timed call with the base case: the base case from a flat start, then each scenario the power-flow problem above started from the tool's own base-case solution, as a sweep from a solved base case is run (power-grid-model takes no start voltages and starts flat). Tools with a batch API run it at 1, 2, 4, … threads, up to every core available; a tool without one runs a loop of its single solve, on one thread. Times are per scenario. The oracle grades every scenario of every thread count.</li>
 <li><b>N-1 contingencies</b>: each transmission case with 200 single-branch outages that keep the grid connected (all 19 of case14), solved in one timed call with the base case, each outage started from the tool's own base-case solution (power-grid-model takes no start voltages and starts flat). Contingency APIs that take a thread count run at 1, 2, 4, … threads. Times are per outage. The oracle grades every outage of every thread count against the case with that branch out.</li>
 <li><b>CIM import/export</b>: CIM libraries on the Svedala and RealGrid CGMES 3.0 conformity models, every profile (SV included) read from the published XML. <b>Import</b>: files to the library's model. <b>Export</b>: that model back to CGMES RDF/XML, warm, into an empty directory. <b>Validate</b>: files to violation report in one call, parsing included (cimoxide validates files only); cimoxide runs its own rules, triplets and OpenCGMES (with Jena SHACL) the ENTSO-E CGMES 3.0 SHACL shapes. These are timed, not graded, as in cim-bench: what each tool read and found is shown, but the tools read CGMES into different models and validate against different rules. The Java libraries run in-process through JPype, JVM included in memory.</li>
 <li><b>GPU tabs</b>: GPU solvers on the same power flow, batch and N-1 problems, cases, settings and oracle, against CPU baselines run on the same machine. That machine is not the one behind the other tabs, so its tools are compared only with each other. A GPU tool's timed call ends with a device synchronize; memory is host RSS only, not device memory.</li>
@@ -361,7 +349,7 @@ function tables() {
   const tools = D.tools.filter(t => !state.off.has(t.name) && cases.some(c => reads(t, c)));
   const withInput = inputsOf(state.grid).length > 1;
   const best = c => { if (state.op !== "solve") return null;
-    const ok = tools.filter(t => !t.baseStart).map(t => row(t.name, c, "solve")).filter(r => r && r.oracle_ok);
+    const ok = tools.map(t => row(t.name, c, "solve")).filter(r => r && r.oracle_ok);
     return ok.length ? ok.reduce((a, b) => a.median <= b.median ? a : b).tool : null; };
   $("#t-title").textContent = state.op === "memory" ? `Peak memory${cim() ? `, ${MEM_NAME[state.memop].toLowerCase()}` : ""}: ${gridTitle(state.grid)} (MB added)`
     : `${state.op === "solve" ? (se() ? "Warm estimate" : D.kind === "opf" ? "Warm OPF solve" : batch() ? `${D.kind === "n1" ? "N-1" : "Batch"}, ${state.threads === "1" ? "one thread" : "fastest thread count"}` : "Warm solve") : state.op === "export" ? "Warm export" : OP_NAME[state.op]}: ${gridTitle(state.grid)} (median ms${batch() && state.op === "solve" ? (D.kind === "n1" ? " per outage" : " per scenario") : ""})`;
@@ -371,7 +359,7 @@ function tables() {
     : state.op === "solve" && D.kind === "opf"
     ? "✓: feasible for the case (balance and every limit, from the .m) and at most 0.01% above PGLib's reference cost (oracle, independent of every tool). ✗: a limit is broken or the cost is higher; hover the cell for which. Bold: the fastest ✓ in the row."
     : state.op === "solve" && batch()
-    ? (D.kind === "n1" ? "Median time of the whole call (base case included) over its outages. ✓: every outage's solution satisfies the case with that branch out of service (tier 1 per outage). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row." : "Median time of the whole batch over its 100 scenarios. ✓: every scenario's solution satisfies the case with that scenario's demand (tier 1 per scenario). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row." + (tools.some(t => t.baseStart) ? " Base-case start: the tool starts every scenario from the base case's solution instead of a flat start, an easier problem, so it is never bold." : ""))
+    ? (D.kind === "n1" ? "Median time of the whole call (base case included) over its outages. ✓: every outage's solution satisfies the case with that branch out of service (tier 1 per outage). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row." : "Median time of the whole call (base case included) over its 100 scenarios. ✓: every scenario's solution satisfies the case with that scenario's demand (tier 1 per scenario). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row.")
     : state.op === "solve" && se()
     ? "✓: the estimate is the weighted least-squares optimum of its measurement set (oracle, independent of every tool). ✗: it is not; hover the cell for how far off. Bold: the fastest ✓ in the row."
     : state.op === "solve"

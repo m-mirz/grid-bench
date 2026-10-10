@@ -11,8 +11,10 @@ backend is built for; on the CPU the blocks are processed one after
 another, so the thread count is not a setting.
 
 Input and settings: the power-flow adapter's (`adapters/exapf_adapter.py`):
-ExaPF's MATPOWER parser on the `.m`, KLU, every scenario restored to the
-flat start before the solve, `TOLERANCE_PU`, `MAX_ITERATIONS`. Its losses
+ExaPF's MATPOWER parser on the `.m`, KLU, `TOLERANCE_PU`, `MAX_ITERATIONS`.
+Start: the timed call solves the base case with the power-flow adapter's
+model from its flat start, then fills every block with that solution and
+solves the blocks from there, as the N-1 adapter does. Its losses
 stand (PQ buses with a generator solved as PV), and it reads the same
 prepared `.m` (`m_path`, a zero gencost where the case has none).
 
@@ -32,10 +34,13 @@ scenario only costs time, which is the API's cost and is timed. If the
 batch does not converge, the scenarios whose own 2-norm is not below the
 tolerance are counted in the failure.
 
-Results (CPU, 100 scenarios), the oracle accepting every scenario it ran:
-- On the CPU the block formulation is slower per scenario than ExaPF's own
-  single warm solve on transmission cases: 5.3 ms against 2.0 ms
-  (case1354pegase), 13.2 ms against 7.0 ms (case2869pegase). Every
+Results (CPU, 100 scenarios from the base case, AMD EPYC 7J13), the oracle
+accepting every scenario: 6.8 ms per scenario on case1354pegase, 18.6 ms on
+case2869pegase, 127 ms on case9241pegase.
+- The block formulation is slower per scenario than ExaPF's own single warm
+  solve on transmission cases (from the flat start, before the batch
+  started from the base case, on another machine: 5.3 ms against 2.0 ms
+  on case1354pegase, 13.2 ms against 7.0 ms on case2869pegase). Every
   intermediate of every block is a ForwardDiff dual with one partial per
   Jacobian colour (25 for case1354pegase), so a Jacobian evaluation does
   that much more arithmetic than an assembled one. The formulation is built
@@ -44,8 +49,8 @@ Results (CPU, 100 scenarios), the oracle accepting every scenario it ran:
   block, 0.55 GB of case1354pegase's 0.72 GB, and 15.3 GB live for
   case9241pegase (about 90 colours with ExaPF's natural-order greedy
   colouring). That case peaks at 16 GB, which is why the benchmark template
-  never holds two models at once (see its docstring); its 106 ms per
-  scenario compare with 93 ms for ExaPF's single solve.
+  never holds two models at once (see its docstring); with the flat start
+  its 106 ms per scenario compared with 93 ms for ExaPF's single solve.
 """
 import numpy as np
 
@@ -67,7 +72,7 @@ class ExapfBatch(BatchAdapter):
     mode = "native"
     threaded = False
     settings = ExapfAdapter.settings | {"mode": "native", "batch_api": "BlockPolarForm",
-                                        "tolerance_norm": "2, over all scenarios"}
+                                        "tolerance_norm": "2, over all scenarios", "start": "base-case solution"}
     _jl = ExapfAdapter._jl
     version = ExapfAdapter.version
     dependencies = ExapfAdapter.dependencies
@@ -87,8 +92,10 @@ class ExapfBatch(BatchAdapter):
 
     def solve(self, model, threads=1):
         assert threads == 1, "ExaPF solves all blocks in one call: threads are not a setting"
-        converged, bad = self._jl().GB.solve_batch_b(model["batch"])   # solve_batch!
-        if not converged:
+        base_converged, bad = self._jl().GB.solve_batch_b(model["batch"])   # solve_batch!
+        if not base_converged:
+            raise DidNotConverge(f"base case did not converge in {MAX_ITERATIONS} iterations")
+        if bad:
             raise DidNotConverge(f"{int(bad)} of {model['n']} scenarios not below tolerance "
                                  f"after {MAX_ITERATIONS} iterations")
 

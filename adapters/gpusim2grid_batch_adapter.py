@@ -1,14 +1,10 @@
 """gpusim2grid: batch power flow through `InjectionSweepGPU` (`native`, one
-GPU), a different problem from every other batch: every scenario starts
-from the base case's solution, not from a flat start.
+GPU).
 
-That is how gpusim2grid's injection sweep is built: the session takes the
-base case's converged voltage at construction and starts each scenario
-there (`init_from_n_powerflow`), with no way to start one elsewhere. That
-start, near every scenario's solution, is an easier problem than the
-benchmark's flat start per scenario, so its rows are shown as a
-base-case-start variant (`settings["start"]`), not ranked with the
-flat-start tools.
+gpusim2grid's injection sweep starts every scenario from the base case's
+solution, the problem's start: the session takes the base case's converged
+voltage at construction and starts each scenario there
+(`init_from_n_powerflow`).
 
 Input and joins: lightsim2grid's (`adapters/lightsim2grid_batch_adapter.py`,
 `injections`): the same grid from `init_from_matpower`, the scenarios'
@@ -23,7 +19,7 @@ Settings:
   session's scenarios start from that same solution, computed the same way
   when the session was built (`init_from_n_powerflow=True`, its default),
   since it takes its start only then; repeating the solve in the call
-  counts its cost, as the N-1 problem counts its base case.
+  counts the base case, as the problem asks.
 - `nb_iter=4` (its default): a fixed number of Newton steps per scenario,
   with no convergence test of its own. Not tuned per case: the oracle
   grades every scenario, and one that 4 steps do not bring to the
@@ -36,12 +32,20 @@ Settings:
 
 Results (A100, 416ae9f, 100 scenarios): every scenario accepted on the
 transmission sweeps, 0.96 ms per scenario on case1354pegase, 2.1 ms on
-case2869pegase, 7.0 ms on case9241pegase (ExaPF.jl's flat-start batch on
-the same GPU 1.0, 2.4 and 12.0 ms; lightsim2grid on 30 threads of the same
-machine 0.30, 0.82 and 3.7 ms), and on mvlv10616 (6.4 ms). mvlv1004#sweep
+case2869pegase, 7.0 ms on case9241pegase (ExaPF.jl's batch on the same GPU
+0.86, 2.0 and 10.2 ms; lightsim2grid on 30 threads of the same machine
+0.27, 0.65 and 3.3 ms), and on mvlv10616 (6.4 ms). mvlv1004#sweep
 is rejected: 4 Newton steps from the base case leave 25 of its 100
 scenarios at up to 3.3e-3 MVA, above the oracle's 1e-3 (heavily loaded
 feeders, down to 0.67 p.u.): the fixed step count, reported, not tuned.
+
+Beyond 100 scenarios (a separate experiment, the same adapter, sweeps of
+1 000 to 50 000 scenarios, every one graded): the time per scenario falls
+3.7 to 4.4x by 1 000 scenarios and then stays (case9241pegase 1.72 ms at
+50 000; lightsim2grid on 30 threads 2.0 ms from the base case at 10 000).
+On case1354pegase, clean at 100 scenarios, 21 to 29 % of the scenarios
+come back NaN from 1 000 on, the batch_size=512 chunks hitting the cuDSS
+fault documented in the N-1 adapter; mvlv10616 and case9241pegase stay clean.
 """
 import numpy as np
 

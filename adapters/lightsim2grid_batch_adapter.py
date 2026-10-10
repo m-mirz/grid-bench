@@ -4,9 +4,9 @@ lightsim2grid has two batch computers on one fixed topology: `TimeSeriesCPP`
 chains the steps (each starts from the previous result, so it cannot be
 split over threads), and `InjectionSweepCPP`, whose every step starts from
 the same voltage and which splits the steps over `nb_thread` OS threads,
-each with its own solver. The second is this problem (flat start per
-scenario); it is driven here without grid2op, as the power-flow adapter
-drives `ac_pf`.
+each with its own solver. The second is this problem (every scenario from
+the base case's solution); it is driven here without grid2op, as the
+power-flow adapter drives `ac_pf`.
 
 Input: the base case's `.mat` through `init_from_matpower`, as in the
 power-flow adapter (`adapters/lightsim2grid_adapter.py`), with its documented
@@ -24,8 +24,10 @@ Settings:
   no static generators), then `compute(v_init, MAX_ITERATIONS,
   TOLERANCE_PU)` with `v_init` the power-flow adapter's flat start. The
   `compute_Vs` call that does both at once is deprecated in 1.0.
-- `init_from_n_powerflow=False` (its default): every step starts from
-  `v_init`, not from a power flow of the base case.
+- `init_from_n_powerflow=True`: `compute` first solves the base case from
+  the `v_init` it is given (the power-flow adapter's flat start) and starts
+  every step from that solution: the problem's base-case start, base solve
+  included in the timed call, as the N-1 adapter does.
 - `nb_thread`: the thread count. The steps are split into contiguous
   ranges, one per thread; lightsim2grid documents that the results do not
   depend on it, which the oracle checks per thread count.
@@ -75,7 +77,8 @@ class Lightsim2gridBatch(BatchAdapter):
     modules = Lightsim2gridAdapter.modules + ("lightsim2grid.injectionSweep",)
     mode = "native"
     settings = Lightsim2gridAdapter.settings | {"mode": "native", "batch_api": "InjectionSweepCPP.compute",
-                                                "init_from_n_powerflow": False, "nb_thread": "the thread count"}
+                                                "init_from_n_powerflow": True, "start": "base-case solution",
+                                                "nb_thread": "the thread count"}
 
     def load(self, case):
         from lightsim2grid.algorithm import AlgorithmType
@@ -86,7 +89,7 @@ class Lightsim2gridBatch(BatchAdapter):
         n = len(gen_p)
         computer = InjectionSweepCPP(grid)
         computer.change_algorithm(AlgorithmType.NR_KLU)
-        computer.init_from_n_powerflow = False
+        computer.init_from_n_powerflow = True
         computer.modify_gen_p(gen_p)
         computer.modify_sgen_p(np.zeros((n, 0)))
         computer.modify_load_p(load_p)

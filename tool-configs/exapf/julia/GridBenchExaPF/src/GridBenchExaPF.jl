@@ -94,16 +94,17 @@ p.u. on the case's base power, scenarios in rows: `pd`, `qd` per bus
 (`load_bus`, MATPOWER numbers, joined by `bus_to_indexes`), `pg` per online
 generator (`gen_pos`, 1-based among ExaPF's online generators, which are the
 `.m`'s in file order; asserted against `gen_bus`). Every other load and
-dispatch stays the case's.
+dispatch stays the case's. `base` is the single power flow of the case
+(`load`), whose solution every scenario starts from.
 """
-struct Batch{VT, BT}
+struct Batch{M <: Model, BT}
+    base::M
     backend::Any
     stack::ExaPF.NetworkStack
     jac::ExaPF.BatchJacobian
     linear_solver::LS.DirectSolver
     algo::ExaPF.NewtonRaphson
     buffer::ExaPF.NLBuffer{BT}
-    vm0::VT
     numbers::Vector{Int}
     vm::Matrix{Float64}   # buses x scenarios, on the host, written by solve_batch!
     va::Matrix{Float64}
@@ -140,9 +141,10 @@ function load_batch(path::AbstractString, backend, factorization::Type, tol::Flo
     @assert linear_solver isa LS.DirectSolver{<:factorization}
     numbers = Int.(net.buses[:, 1])
     @assert all(net.bus_to_indexes[n] == i for (i, n) in enumerate(numbers))
-    return Batch(backend, stack, jac, linear_solver, ExaPF.NewtonRaphson(tol = tol, maxiter = max_iterations + 1),
-                 ExaPF.NLBuffer{typeof(stack.params)}(size(jac.J, 2)), on_device(stack.vmag, repeat(flat_vm(net, stack.vmag), k)),
-                 numbers, zeros(net.nbus, k), zeros(net.nbus, k))
+    base = load(path, backend, factorization, tol, max_iterations)
+    @assert Int.(base.prob.form.network.buses[:, 1]) == numbers
+    return Batch(base, backend, stack, jac, linear_solver, ExaPF.NewtonRaphson(tol = tol, maxiter = max_iterations + 1),
+                 ExaPF.NLBuffer{typeof(stack.params)}(size(jac.J, 2)), numbers, zeros(net.nbus, k), zeros(net.nbus, k))
 end
 
 """Copies the voltages of `stack`'s blocks from block `first` on into the
@@ -161,19 +163,21 @@ function unconverged(buffer::ExaPF.NLBuffer, k::Int, blocks, tol::Float64)
     return count(j -> !(sqrt(sum(abs2, view(per_block, :, j))) < tol), blocks)
 end
 
-"""Restores every scenario's flat start, solves them all, copies every
-scenario's voltages to the host. Returns (converged, scenarios whose own
-mismatch 2-norm is not below `tol`): ExaPF's test is the 2-norm over all of
-them."""
+"""The base case from flat start (the single power flow), then every
+scenario from its solution, solved all at once; copies every scenario's
+voltages to the host. Returns (base converged, scenarios whose own mismatch
+2-norm is not below `tol`): ExaPF's test is the 2-norm over all of them."""
 function solve_batch!(b::Batch)
-    b.stack.vmag .= b.vm0
-    b.stack.vang .= 0.0
+    converged, _ = solve!(b.base)
+    converged || return false, 0
+    nbus, k = size(b.vm)
+    reshape(b.stack.vmag, nbus, k) .= b.base.prob.stack.vmag
+    reshape(b.stack.vang, nbus, k) .= b.base.prob.stack.vang
     conv = ExaPF.nlsolve!(b.algo, b.jac, b.stack; linear_solver = b.linear_solver, nl_buffer = b.buffer)
     sync(b.backend)
     copy_blocks!(b.vm, b.va, b.stack, 1)
     conv.has_converged && return true, 0
-    k = size(b.vm, 2)
-    return false, unconverged(b.buffer, k, 1:k, b.algo.tol)
+    return true, unconverged(b.buffer, k, 1:k, b.algo.tol)
 end
 
 """Bus numbers, |V| in p.u. and angle in degrees, buses x scenarios, of the last solve_batch!."""

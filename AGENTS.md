@@ -17,9 +17,8 @@ pandapower, VeraGrid and PowerModels.jl (Ipopt; its own image, OPF only) on
 PGLib-OPF cases, and batch power flow (a sweep of operating points per case)
 for every tool that reads `.m`: through the tool's own batch API at 1..n
 threads (power-grid-model, p3s, lightsim2grid) or on one thread (PyPSA,
-VeraGrid, Sienna, ExaPF.jl), or on one GPU (ExaPF.jl's CUDA backend; gpusim2grid,
-starting every scenario from the base case's solution, a base-case-start
-variant never ranked with the flat-start tools), or a loop of single solves (pandapower, pypowsybl,
+VeraGrid, Sienna, ExaPF.jl), or on one GPU (ExaPF.jl's CUDA backend,
+gpusim2grid), or a loop of single solves (pandapower, pypowsybl,
 Sparlectra.jl, MATPOWER), and N-1 contingency analysis for the same tools
 (200 branch outages per transmission case, through a native contingency API
 where there is one), and CIM libraries reading, writing and validating CGMES
@@ -56,14 +55,15 @@ settings, a tool-independent oracle).
    (`adapters/optimizer_adapter.py`): MATPOWER's formulation (polynomial
    cost; voltage, generator, branch MVA and angle-difference limits), flat
    start where settable, `OPF_TOLERANCE`. Batch power flow
-   (`adapters/batch_adapter.py`): every scenario the power-flow problem
-   (flat start per scenario, never the previous scenario's result), the
+   (`adapters/batch_adapter.py`): every scenario the power-flow problem,
+   started from the tool's own solution of the base case (solved from flat
+   start in the same timed call), never from another scenario's result, the
    tool's own thread setting with BLAS pinned to one thread, every scenario
    of every thread count graded. N-1 (`ContingencyAdapter`, same module):
-   the same, except that every outage starts from the tool's own solution
-   of the base case (solved from flat start in the same timed call), the
-   one exception to the flat start, as contingency analysis is done; a tool
-   that cannot start from it says what it does instead. CIM
+   the same, every outage started from the base-case solution, as
+   contingency analysis is done. These two are the exceptions to the flat
+   start; a tool that cannot start from the base case says what it does
+   instead. CIM
    (`adapters/cim_adapter.py`): every profile of the case as published,
    from the uncompressed XML; export warm, into an emptied directory;
    validate from files to report in one call, parsing included; cimoxide
@@ -195,8 +195,8 @@ internal compose network; the run scripts stop the sidecar afterwards.
    feasible to about 1e-4 MVA and 9e-6 below PGLib's rounded reference.
    Batch power flow the same way: `adapters/<tool>_batch_adapter.py` on
    `BatchAdapter` (a native batch API, timed per thread count) or
-   `LoopBatchAdapter` (the power-flow adapter's solve per scenario, one
-   thread), in `BATCHES`, `create_benchmarks("<tool>", "batch")`,
+   `LoopBatchAdapter` (the base case, then every scenario from its solution
+   on the power-flow adapter's model, one thread), in `BATCHES`, `create_benchmarks("<tool>", "batch")`,
    `<tool>-batch.json`. Scenarios are joined by bus number and gen row. On
    `case14#sweep` a correct tool shows residuals around 1e-9 MVA on all 100
    scenarios, at every thread count. N-1 likewise: `<tool>_n1_adapter.py`

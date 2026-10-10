@@ -104,7 +104,9 @@ Every adapter configures its tool to solve the same problem, and its
 docstring justifies each setting and what it deliberately does not do:
 
 - the tool's *own* solver (pandapower would otherwise hand off to lightsim2grid)
-- flat start on **every** solve, so repeated timings do not warm-start
+- flat start on **every** solve, so repeated timings do not warm-start;
+  in batch power flow and N-1 the base case starts flat and every scenario
+  or outage from its solution, solved in the same timed call
 - one slack bus, the case's own
 - no reactive limits, no outer-loop controls (taps, phase shifters, switched shunts)
 - generator voltage regulation as the case defines it, including a remote
@@ -173,8 +175,11 @@ time series or a Monte-Carlo study, and how that scales with threads. Each
 `<case>#sweep` is a MATPOWER case with 100 operating points
 (`cases/sweep.py`): every bus's demand along a daily curve between 60 % and
 100 % of the case with 5 % noise per bus, generators redispatched in
-proportion. Each scenario is the power-flow problem above, flat start
-included, and every tool solves all of them in one timed call:
+proportion. Every tool solves the base case from a flat start and then
+every scenario, the power-flow problem above, in one timed call. Each
+scenario starts from the tool's own base-case solution, as a sweep from a
+solved base case is run (and as N-1 starts its outages); never from another
+scenario's result, so scenarios stay independent. Tools run:
 
 - through its own batch API, at 1, 2, 4, … threads up to every core the
   run has: power-grid-model (`calculate_power_flow` with update data), p3s
@@ -183,12 +188,11 @@ included, and every tool solves all of them in one timed call:
   (time-series driver), Sienna (PowerFlows' time steps), ExaPF.jl
   (`BlockPolarForm`, one block-diagonal Newton system, CPU backend, and on
   a GPU as `exapf_gpu`, where the blocks run in parallel), and on a GPU
-  gpusim2grid (`InjectionSweepGPU`), which starts every scenario from the
-  base case's solution, not from a flat start: an easier problem, shown as
-  a base-case-start variant and not ranked with the others;
+  gpusim2grid (`InjectionSweepGPU`, a fixed 4 Newton steps per scenario);
 - as a loop of its single solve, where it has no batch power flow:
   pandapower, pypowsybl, Sparlectra.jl, MATPOWER.
 
+power-grid-model takes no start voltages, so its scenarios start flat.
 The oracle (`oracle/batch.py`) grades every scenario of every thread count
 with tier 1 against the case with that scenario's demand, so a race between
 threads, or a batch API that reuses one scenario's result, cannot pass.
@@ -202,8 +206,8 @@ Each transmission case `<case>#n1` comes with 200 single-branch outages
 one keeps the grid connected, and its power flow converges from the base
 case. Every tool solves the base case from a flat start and then every
 outage, in one timed call. Each outage starts from the tool's own base-case
-solution, as contingency analysis is done in practice; this is the one
-exception to the flat start. Tools run through their contingency API where
+solution, as contingency analysis is done in practice, the same start as
+the batch's scenarios. Tools run through their contingency API where
 they have one:
 
 - at 1, 2, 4, … threads: lightsim2grid (`ContingencyAnalysisCPP`), p3s

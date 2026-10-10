@@ -9,8 +9,11 @@ would time pandapower's bookkeeping rather than its solver. It runs on one
 thread; pandapower has no parallel batch power flow.
 
 Every `runpp` is the power-flow adapter's (`adapters/pandapower_adapter.py`),
-with its settings and its `from_mpc` losses; in particular `init="flat"`,
-where `run_timeseries`' default would start each step from the last.
+with its settings and its `from_mpc` losses: the base case (the tables'
+own values) with its `init="flat"`, then every scenario started from the
+base solution, `init="auto"` with `init_vm_pu` and `init_va_degree` set to
+the base case's `res_bus`, as the N-1 adapter does (where `run_timeseries`'
+default would start each step from the last).
 
 The scenario values of every element are built in `load` (`scenario_tables`,
 also used by p3s, which reads the same nets): the per-scenario update is
@@ -20,6 +23,7 @@ import numpy as np
 
 from adapters.batch_adapter import LoopBatchAdapter, base_case, columns, scenarios
 from adapters.pandapower_adapter import PandapowerAdapter
+from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge
 
 TABLES = (("load", "p_mw"), ("load", "q_mvar"), ("sgen", "p_mw"), ("sgen", "q_mvar"), ("gen", "p_mw"))
 
@@ -76,18 +80,34 @@ class PandapowerBatch(LoopBatchAdapter):
     language = PandapowerAdapter.language
     modules = PandapowerAdapter.modules
     single = PandapowerAdapter()
-    settings = PandapowerAdapter.settings | {"mode": "loop", "update": "element tables, then runpp"}
+    settings = PandapowerAdapter.settings | {"mode": "loop", "update": "element tables, then runpp",
+                                             "start": "base-case solution (init_vm_pu, init_va_degree)"}
 
     def load(self, case):
         net = self.single.load(base_case(case))
         sweep = scenarios(case)
         return {"single": net, "sweep": sweep, "bus_ids": [str(int(i) + 1) for i in net.bus.index],
-                "tables": scenario_tables(net, sweep)}
+                "tables": scenario_tables(net, sweep),
+                "base": {(el, col): net[el][col].to_numpy().copy() for el, col in TABLES}}
 
-    def apply(self, model, sweep, k):
+    def solve_base(self, model):
+        net = model["single"]
+        for (el, col), values in model["base"].items():
+            net[el][col] = values
+        self.single.solve(net)
+        model["vm0"], model["va0"] = net.res_bus.vm_pu.to_numpy().copy(), net.res_bus.va_degree.to_numpy().copy()
+
+    def solve_scenario(self, model, k):
+        import pandapower as pp
         net = model["single"]
         for (el, col), values in model["tables"].items():
             net[el][col] = values[k]
+        try:
+            pp.runpp(net, algorithm="nr", init="auto", init_vm_pu=model["vm0"], init_va_degree=model["va0"],
+                     calculate_voltage_angles=True, enforce_q_lims=False, distributed_slack=False,
+                     tolerance_mva=TOLERANCE_PU, max_iteration=MAX_ITERATIONS, numba=True, lightsim2grid=False)
+        except pp.LoadflowNotConverged as e:
+            raise DidNotConverge(f"scenario {k}: {e}") from e
 
     def voltages(self, model):
         res = model["single"].res_bus
