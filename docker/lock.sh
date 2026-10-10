@@ -23,8 +23,10 @@ for pom in tool-configs/*/pom.xml; do
 done
 # Julia environments (tool-configs/*/julia/): Manifest.toml, resolved by the
 # tool's own pinned Julia image against the registry snapshot in setup.jl.
+# All of tool-configs/ is mounted, at the same relative layout: a project may
+# take a package from another tool's directory (exapf_gpu: GridBenchExaPF).
 for d in tool-configs/*/julia/; do
     julia_image=$(sed -n 's/^FROM \(julia:[^ ]*\) AS julia$/\1/p' "$(dirname "$d")/Dockerfile")
     docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -e JULIA_DEPOT_PATH=/tmp/depot \
-        -v "$PWD/$d":/proj "$julia_image" julia /proj/setup.jl lock /proj && echo "locked $d"
+        -v "$PWD/tool-configs":/tool-configs "$julia_image" julia "/$d/setup.jl" lock "/$d" && echo "locked $d"
 done

@@ -1,0 +1,3 @@
+This tool runs only on a host with an NVIDIA GPU and the NVIDIA Container
+Toolkit: docker/run_benchmark.sh leaves it out of a default sweep where
+`nvidia-smi -L` fails. Naming it explicitly runs it anyway.
