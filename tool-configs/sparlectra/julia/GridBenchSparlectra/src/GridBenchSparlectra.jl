@@ -153,6 +153,8 @@ online generators' P (at a PV bus only the total P enters the equations).
 `numbers`: MATPOWER bus numbers of the rows of the change matrices (buses x
 scenarios). Joined through `busOrigIdxDict`; a loaded bus must have exactly
 one load prosumer, a generator bus with a change at least one generator.
+Every scenario starts from the base case's solution (`solve_sweep_base!`,
+kept in `vm`, `va`), held in the nodes, as an outage does.
 """
 struct Sweep
     loads::Vector{Int}      # prosumer index per row, 0: none
@@ -163,6 +165,8 @@ struct Sweep
     dp_load::Matrix{Float64}
     dq_load::Matrix{Float64}
     dp_gen::Matrix{Float64}
+    vm::Vector{Float64}   # base solution, written by solve_sweep_base!
+    va::Vector{Float64}
 end
 
 function load_sweep(m::Model, numbers::AbstractVector, dp_load::AbstractMatrix, dq_load::AbstractMatrix,
@@ -188,20 +192,43 @@ function load_sweep(m::Model, numbers::AbstractVector, dp_load::AbstractMatrix, 
     val(j, f) = j == 0 ? 0.0 : something(getfield(ps[j], f), 0.0)
     return Sweep(loads, gens, [val(j, :pVal) for j in loads], [val(j, :qVal) for j in loads],
                  [val(j, :pVal) for j in gens], Matrix{Float64}(dp_load), Matrix{Float64}(dq_load),
-                 Matrix{Float64}(dp_gen))
+                 Matrix{Float64}(dp_gen), zeros(length(m.net.nodeVec)), zeros(length(m.net.nodeVec)))
 end
 
+"""Scenario k's demand and dispatch into the prosumers; k = 0: the case's own."""
 function apply!(m::Model, s::Sweep, k::Int)
     ps = m.net.prosumpsVec
     for i in eachindex(s.loads)
         if s.loads[i] != 0
-            ps[s.loads[i]].pVal = s.p_load0[i] + s.dp_load[i, k]
-            ps[s.loads[i]].qVal = s.q_load0[i] + s.dq_load[i, k]
+            ps[s.loads[i]].pVal = s.p_load0[i] + (k == 0 ? 0.0 : s.dp_load[i, k])
+            ps[s.loads[i]].qVal = s.q_load0[i] + (k == 0 ? 0.0 : s.dq_load[i, k])
         end
         if s.gens[i] != 0
-            ps[s.gens[i]].pVal = s.p_gen0[i] + s.dp_gen[i, k]
+            ps[s.gens[i]].pVal = s.p_gen0[i] + (k == 0 ? 0.0 : s.dp_gen[i, k])
         end
     end
+end
+
+"""The base case (the case's own demand and dispatch) from the common flat
+start; keeps its solution. Returns the Newton steps, or -1."""
+function solve_sweep_base!(m::Model, s::Sweep, tol::Float64, max_iterations::Int)
+    apply!(m, s, 0)
+    steps = solve!(m, tol, max_iterations)
+    s.vm .= [node._vm_pu for node in m.net.nodeVec]
+    s.va .= [node._va_deg for node in m.net.nodeVec]
+    return steps
+end
+
+"""Scenario k (1-based) from the base solution held in the nodes, with the
+imported bus types (see `solve!`). Returns the Newton steps, or -1."""
+function solve_scenario!(m::Model, s::Sweep, k::Int, tol::Float64, max_iterations::Int)
+    apply!(m, s, k)
+    for (i, node) in enumerate(m.net.nodeVec)
+        node._vm_pu = s.vm[i]
+        node._va_deg = s.va[i]
+        node._nodeType = m.types0[i]
+    end
+    return runpf!(m.net, tol, max_iterations, false)
 end
 
 """
@@ -294,8 +321,8 @@ quiet() = Logging.disable_logging(Logging.Warn)
                 solve!(m, 1e-8, 30)
                 solution(m)
                 sw = load_sweep(m, [2, 3], [0.0 0.0; 1.0 -1.0], [0.0 0.0; 0.5 -0.5], [2.0 -2.0; 0.0 0.0])
-                apply!(m, sw, 2)
-                solve!(m, 1e-8, 30)
+                solve_sweep_base!(m, sw, 1e-8, 30)
+                solve_scenario!(m, sw, 2, 1e-8, 30)
                 solution(m)
                 o = load_outages(m, [0, 2], [1, 1], [2, 3])
                 solve_base!(m, o, 1e-8, 30)

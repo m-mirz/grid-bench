@@ -7,10 +7,18 @@ every scenario in one call, on `threads` threads (timed as `solve`, once per
 thread count), `solution` returns every scenario's voltages for the oracle
 (`oracle.batch`).
 
-Each scenario is the problem a power-flow adapter solves: flat start (not
-the previous scenario's result, which most time-series APIs default to and
-which would time a warm start), a single slack, no reactive limits, no
-outer-loop controls, `TOLERANCE_PU`, `MAX_ITERATIONS`. What changes between
+Each scenario is the problem a power-flow adapter solves (a single slack,
+no reactive limits, no outer-loop controls, `TOLERANCE_PU`,
+`MAX_ITERATIONS`), started from the tool's own solution of the base case
+(the case's own demand and dispatch), as N-1 starts its outages: one timed
+`solve` is the base-case power flow from flat start and every scenario,
+each from that solution. That is how a sweep is run from a solved base case
+(a Monte-Carlo study, an operating-point scan), and every scenario still
+starts from the same point, never from another scenario's result (which
+most time-series APIs default to), so scenarios stay independent and
+threads cannot share state through them. A tool that cannot start a
+scenario from the base case says so in its docstring and what it does
+instead. What changes between
 scenarios is demand (`Pd`, `Qd` per bus) and dispatch (`Pg` per generator);
 an adapter updates exactly the elements its importer created for those,
 joined by MATPOWER bus number and gen row, never by position.
@@ -21,12 +29,13 @@ Two modes, recorded in `settings["mode"]`:
   these are timed at more than one thread count (`thread_counts`), if the
   API has a thread setting (`threaded`), with that setting; BLAS stays single-threaded (the run scripts
   set `OPENBLAS_NUM_THREADS=1`), so the parallelism measured is the tool's.
-- `loop`: a tool with no batch API, or none that states this problem, runs
-  its power-flow adapter's warm `solve` once per scenario after writing the
-  scenario into its model (`apply`), on one thread. That is how such a
-  tool is used for a sweep, and it is the reference the native batch APIs
-  are compared against: the time per scenario of a loop is close to the
-  single warm solve, plus the cost of the update.
+- `loop`: a tool with no batch API, or none that states this problem, solves
+  the base case on its power-flow adapter's model, then every scenario
+  written into that model and started from the base solution
+  (`solve_base`, `solve_scenario`), on one thread. That is how such a tool
+  is used for a sweep, and it is the reference the native batch APIs are
+  compared against: the time per scenario of a loop is close to a single
+  solve from a near start, plus the cost of the update.
 
 Reading the voltages of every scenario is part of the timed call: a sweep
 that keeps only the last result is not a sweep.
@@ -35,8 +44,8 @@ A tool keeps its power-flow adapter's identity (`name`, `color`, ...); its
 batch results go to `<tool>-batch.json`.
 
 N-1 contingency analysis (`ContingencyAdapter`, problem "n1") is the same
-machinery on a case's outages, with one difference in the problem: every
-outage starts from the base case's solution (see its docstring).
+machinery on a case's outages, each outage starting from the base case's
+solution the same way (see its docstring).
 """
 import os
 from abc import abstractmethod
@@ -106,15 +115,22 @@ class BatchAdapter(SolvingAdapter):
 
 
 class LoopBatchAdapter(BatchAdapter):
-    """A batch of single warm solves on the power-flow adapter's model.
-    Subclasses set `single` and implement `apply` and `voltages`."""
+    """A loop over the power-flow adapter's model: solve the base case, then
+    for every scenario write it into the model, solve from the base
+    solution, keep the voltages. Subclasses set `single` and implement the
+    hooks; joins belong in `load`."""
     mode = "loop"
     single: ToolAdapter
 
     @abstractmethod
-    def apply(self, model, sweep: dict, k: int) -> None:
-        """Writes scenario k's demand and dispatch into the model. Joins
-        belong in `load`; this is the per-scenario update only."""
+    def solve_base(self, model) -> None:
+        """Restores the case's own demand and dispatch and solves it from
+        flat start; keeps what the scenarios start from. Raises DidNotConverge."""
+
+    @abstractmethod
+    def solve_scenario(self, model, k: int) -> None:
+        """Writes scenario k's demand and dispatch into the model and solves
+        it from the base solution. Raises DidNotConverge."""
 
     @abstractmethod
     def voltages(self, model) -> tuple[np.ndarray, np.ndarray]:
@@ -122,12 +138,11 @@ class LoopBatchAdapter(BatchAdapter):
 
     def solve(self, model, threads: int = 1) -> None:
         assert threads == 1, "a loop runs on one thread"
-        sweep = model["sweep"]
-        n = len(sweep["scale"])
+        n = len(model["sweep"]["scale"])
         vm, va = np.empty((n, len(model["bus_ids"]))), np.empty((n, len(model["bus_ids"])))
+        self.solve_base(model)
         for k in range(n):
-            self.apply(model, sweep, k)
-            self.single.solve(model["single"])
+            self.solve_scenario(model, k)
             vm[k], va[k] = self.voltages(model)
         model["vm"], model["va"] = vm, va
 

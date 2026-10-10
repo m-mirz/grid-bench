@@ -27,8 +27,11 @@ and:
 - `threading`: -1 (PGM's sequential mode, no thread pool) at one thread,
   otherwise the thread count. PGM splits the scenarios over its threads; each
   thread solves its scenarios with its own copy of the model.
-- Every scenario starts from the flat start: a batch calculation does not
-  carry one scenario's result into the next.
+- Start: PGM takes no initial voltages, so every scenario starts from the
+  flat start (`calculation_initialization="flat"`), not from the base
+  case's solution as the problem asks: a harder start, never an easier one.
+  The base case is not solved, since nothing would use it; a batch
+  calculation does not carry one scenario's result into the next.
 - `output_component_types=["node"]`: only the node voltages, which is all
   the oracle reads and what a sweep user would ask for; PGM otherwise
   computes and copies out every branch and appliance result too.
@@ -55,7 +58,8 @@ class PgmBatch(BatchAdapter):
     mode = "native"
     settings = PgmAdapter.settings | {"mode": "native", "batch_api": "calculate_power_flow(update_data)",
                                       "threading": "-1 at 1 thread, else the thread count",
-                                      "output_component_types": ["node"]}
+                                      "output_component_types": ["node"],
+                                      "start": "flat (PGM takes no initial voltages)"}
 
     def load(self, case):
         from power_grid_model import ComponentType, DatasetType, PowerGridModel, initialize_array

@@ -64,16 +64,17 @@ PowerFlows solves several operating points of one system
 (`solve_power_flow!` over its time steps, one after another). Every column is
 seeded from the system; each scenario's change of injections and withdrawals
 per bus (p.u. on the system base, rows `numbers`, MATPOWER bus numbers) is
-added to its column. `vm0`, `va0`: the flat start of every column.
+added to its column. `base`: the case's single power flow (`load`'s model,
+on the same system), whose solution every column starts from.
 """
 struct Batch
     data::PF.ACPowerFlowData
-    vm0::Matrix{Float64}
-    va0::Matrix{Float64}
+    base::Model
 end
 
 function load_batch(path::AbstractString, numbers::AbstractVector, dp_injection::AbstractMatrix,
                     dp_withdrawal::AbstractMatrix, dq_withdrawal::AbstractMatrix)
+    base = load(path)
     sys = System(path)
     n = size(dp_injection, 2)
     pf = ACPowerFlow{NewtonRaphsonACPowerFlow}(;
@@ -86,15 +87,17 @@ function load_batch(path::AbstractString, numbers::AbstractVector, dp_injection:
     data.bus_active_power_injections[ix, :] .+= dp_injection
     data.bus_active_power_withdrawals[ix, :] .+= dp_withdrawal
     data.bus_reactive_power_withdrawals[ix, :] .+= dq_withdrawal
-    vm0 = copy(data.bus_magnitude)
-    vm0[data.bus_type .== (PSY.ACBusTypes.PQ,)] .= 1.0
-    return Batch(data, vm0, zeros(size(vm0)))
+    @assert PF.get_bus_lookup(base.data) == lookup
+    return Batch(data, base)
 end
 
-"""Restores the flat start of every time step, solves them all; true if every one converged."""
+"""The base case from flat start (the single power flow), then every time
+step from its solution; returns the number of time steps that did not
+converge (-1: the base case did not)."""
 function solve_batch!(b::Batch, tol::Float64, max_iterations::Int)
-    b.data.bus_magnitude .= b.vm0
-    b.data.bus_angles .= b.va0
+    solve!(b.base, tol, max_iterations) || return -1
+    b.data.bus_magnitude .= b.base.data.bus_magnitude[:, 1]
+    b.data.bus_angles .= b.base.data.bus_angles[:, 1]
     PF.solve_power_flow!(b.data; tol = tol, maxIterations = max_iterations + 1)
     return count(!, b.data.converged)
 end

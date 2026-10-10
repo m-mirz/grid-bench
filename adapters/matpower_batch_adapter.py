@@ -2,16 +2,18 @@
 
 MATPOWER has no batch power flow: `runpf` solves one case struct (MOST,
 its multi-period tool, is an optimal power flow). A sweep is the loop a
-MATPOWER user writes: put the scenario into the case struct, `runpf`, keep
-the voltages (adapters/matpower_octave/gb_sweep_solve.m). The whole loop
+MATPOWER user writes: `runpf` on the base case, then for every scenario put
+it into the case struct, `runpf` from the base solution, keep the voltages
+(adapters/matpower_octave/gb_sweep_solve.m). The whole loop
 runs in Octave and is timed there, as the power-flow adapter's solves are,
 so the bridge adds nothing; one thread (Octave inherits the batch run's
 `OPENBLAS_NUM_THREADS=1`, and `runpf` has nothing to parallelise over
 scenarios).
 
 Every `runpf` is the power-flow adapter's (`adapters/matpower_adapter.py`):
-its options, MATPOWER as shipped (MP-Core), and a flat start (the struct's
-voltages are never written back, so every scenario starts flat).
+its options, MATPOWER as shipped (MP-Core). The base case starts flat; every
+scenario starts from the base solution, written into the struct's VM and
+VA columns (from which `runpf` starts), as the N-1 adapter does.
 
 Scenarios: written in `load` to a `.mat` in the container's /tmp (the
 checkout is read-only) as rows of the case's own bus and gen matrices
@@ -38,7 +40,8 @@ class MatpowerBatch(MatpowerAdapter):
     problem = "batch"
     families = ("sweep-matpower", "sweep-distribution")
     mode = "loop"
-    settings = MatpowerAdapter.settings | {"mode": "loop", "update": "case struct, then runpf (in Octave)"}
+    settings = MatpowerAdapter.settings | {"mode": "loop", "update": "case struct, then runpf (in Octave)",
+                                           "start": "base-case solution"}
 
     def tags(self):
         return ["powerflow", "ac", "batch", self.mode, self.language]
@@ -66,8 +69,10 @@ class MatpowerBatch(MatpowerAdapter):
     def solve(self, model, threads=1):
         assert threads == 1, "a loop runs on one thread"
         (line,) = self._octave().eval(f"gb_sweep_solve({model.id})")
-        failed, seconds = line.split()
+        base_ok, failed, seconds = line.split()
         self._seconds += float(seconds)
+        if base_ok != "1":
+            raise DidNotConverge("runpf did not converge on the base case")
         if failed != "0":
             raise DidNotConverge(f"runpf did not converge on {failed} of {model.n} scenarios")
 

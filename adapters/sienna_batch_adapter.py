@@ -11,8 +11,10 @@ columns PowerFlows seeds from the system, which is what `load_batch` does.
 Input and settings: the power-flow adapter's (`adapters/sienna_adapter.py`):
 PowerSystems' MATPOWER parser on the `.m`, `NewtonRaphsonACPowerFlow`,
 `correct_bustypes=true`, `enhanced_flat_start=false`, `TOLERANCE_PU`,
-`MAX_ITERATIONS`, every time step restored to the flat start before the
-solve. Its losses stand (single-precision Ybus, transformer line charging on
+`MAX_ITERATIONS`. Start: the timed call solves the base case with the
+power-flow adapter's model from its flat start, then writes that solution
+into every time step and solves them from there (the same bus lookup,
+asserted), as the N-1 adapter does. Its losses stand (single-precision Ybus, transformer line charging on
 one end, phase shifters that do not parse).
 
 Scenarios: PowerFlows keeps injections and withdrawals per bus and time
@@ -46,7 +48,8 @@ class SiennaBatch(BatchAdapter):
     modules = SiennaAdapter.modules
     mode = "native"
     threaded = False
-    settings = SiennaAdapter.settings | {"mode": "native", "batch_api": "PowerFlowData(time_steps=n)"}
+    settings = SiennaAdapter.settings | {"mode": "native", "batch_api": "PowerFlowData(time_steps=n)",
+                                         "start": "base-case solution"}
     version = SiennaAdapter.version
     dependencies = SiennaAdapter.dependencies
 
@@ -71,6 +74,8 @@ class SiennaBatch(BatchAdapter):
     def solve(self, model, threads=1):
         assert threads == 1, "PowerFlows solves time steps one after another; Julia runs single-threaded"
         bad = int(_gb().solve_batch_b(model["batch"], TOLERANCE_PU, MAX_ITERATIONS))   # solve_batch!
+        if bad < 0:
+            raise DidNotConverge(f"base case: NR did not converge in {MAX_ITERATIONS} iterations")
         if bad:
             raise DidNotConverge(f"{bad} of {model['n']} time steps did not converge")
 

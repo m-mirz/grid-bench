@@ -21,10 +21,25 @@ number, and one generator per gen row, in order (asserted against the
 case's gen buses). Offline generators keep their own P.
 
 Settings: the power-flow adapter's `PowerFlowOptions` (Newton-Raphson, no
-fallback, `initialize_with_existing_solution=False` so every step starts
-flat rather than from the previous step, every outer-loop control off,
-`TOLERANCE_PU`, `MAX_ITERATIONS`). A step that does not converge
-(`results.converged_values`) fails the batch, with the count.
+fallback, every outer-loop control off, `TOLERANCE_PU`, `MAX_ITERATIONS`).
+Start: the timed call solves the base case (the grid's snapshot, the case's
+own values) with `PowerFlowDriver` from the flat start, writes its voltages
+into every bus's stored guess (`Vm0`, `Va0` and their profiles, angles in
+radians) and runs the time series with `use_stored_guess=True`, from which
+every step's initial voltages are compiled (`Bus.get_voltage_guess_at`):
+each starts from the base solution, never from the previous step (the
+Python engine passes no other guess between steps). A step that does not
+converge (`results.converged_values`) fails the batch, with the count.
+
+Known loss of that start, reported rather than worked around: on
+mvlv1004#sweep and mvlv10616#sweep 51 and 33 of the 100 scenarios do not
+converge in `MAX_ITERATIONS`, the lightest ones (60 % of the base load,
+|V| no lower than 0.89 p.u.) started from a base case loaded down to 0.67
+p.u. From the flat start every one converges, and from this start every
+one does with 200 iterations: VeraGrid's Newton-Raphson crosses that
+distance slowly, where the other tools converge within the limit from the
+same start. Every step's initial voltages were checked to be the base
+solution (to 2e-16).
 
 Result: every step is solved exactly (checked: the worst scenario of
 case1354pegase#sweep, solved by the driver's own `multi_island_pf` and kept
@@ -60,7 +75,8 @@ class VeragridBatch(BatchAdapter):
     mode = "native"
     threaded = False
     settings = VeragridAdapter.settings | {"mode": "native", "batch_api": "PowerFlowTimeSeriesDriver",
-                                           "engine": "VeraGrid (single thread)"}
+                                           "engine": "VeraGrid (single thread)",
+                                           "start": "base-case solution (use_stored_guess)"}
 
     def load(self, case):
         import VeraGridEngine as vg
@@ -83,15 +99,24 @@ class VeragridBatch(BatchAdapter):
         for g, pg in zip([grid.generators[r] for r in sweep["gen_row"]], sweep["pg"].T):
             g.P_prof.set(pg)
 
-        options = vg.PowerFlowOptions(
+        settings = dict(
             solver_type=vg.SolverType.NR, retry_with_other_methods=False, initialize_with_existing_solution=False,
             distributed_slack=False, control_q=False, control_taps_modules=False, control_taps_phase=False,
             control_remote_voltage=True, tolerance=TOLERANCE_PU, max_iter=MAX_ITERATIONS, verbose=0)
-        return {"driver": vg.PowerFlowTimeSeriesDriver(grid, options), "n": n,
-                "bus_ids": [str(b.code) for b in grid.get_buses()], "v": None}
+        return {"base": vg.PowerFlowDriver(grid, vg.PowerFlowOptions(**settings)), "grid": grid,
+                "driver": vg.PowerFlowTimeSeriesDriver(grid, vg.PowerFlowOptions(**settings, use_stored_guess=True)),
+                "n": n, "bus_ids": [str(b.code) for b in grid.get_buses()], "v": None}
 
     def solve(self, model, threads=1):
         assert threads == 1, "VeraGrid's own time-series engine runs on one thread"
+        base, n = model["base"], model["n"]
+        base.run()
+        if not base.results.converged:
+            raise DidNotConverge("base case: NR did not converge")
+        for bus, v in zip(model["grid"].get_buses(), base.results.voltage):
+            bus.Vm0, bus.Va0 = float(abs(v)), float(np.angle(v))
+            bus.Vm0_prof.set(np.full(n, bus.Vm0))
+            bus.Va0_prof.set(np.full(n, bus.Va0))
         driver = model["driver"]
         driver.run()
         bad = int((~np.asarray(driver.results.converged_values, bool)).sum())
