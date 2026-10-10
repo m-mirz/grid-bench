@@ -114,6 +114,20 @@ services:
     image: grid-bench/exapf:latest
     command: pytest benchmarks/exapf_benchmark.py --benchmark-json=/output/exapf.json
 
+  # ExaPF on its CUDA backend: one NVIDIA GPU (device GRID_BENCH_GPU, default
+  # 0), through the NVIDIA Container Toolkit. See adapters/exapf_gpu_adapter.py.
+  exapf_gpu:
+    <<: *bench
+    image: grid-bench/exapf_gpu:latest
+    command: pytest benchmarks/exapf_gpu_benchmark.py --benchmark-json=/output/exapf_gpu.json
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${GRID_BENCH_GPU:-0}"]
+              capabilities: [gpu]
+
   sparlectra:
     <<: *bench
     image: grid-bench/sparlectra:latest

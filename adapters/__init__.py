@@ -12,6 +12,7 @@ ADAPTERS = {
     "cgmes2pgm": "adapters.cgmes2pgm_adapter:Cgmes2pgmAdapter",
     "sienna": "adapters.sienna_adapter:SiennaAdapter",
     "exapf": "adapters.exapf_adapter:ExapfAdapter",   # slot 8's variant (tools/palette.py EXAPF)
+    "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",   # slot 8's second variant (EXAPF_GPU)
     "sparlectra": "adapters.sparlectra_adapter:SparlectraAdapter",
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
@@ -51,6 +52,7 @@ BATCHES = {
     "veragrid": "adapters.veragrid_batch_adapter:VeragridBatch",
     "sienna": "adapters.sienna_batch_adapter:SiennaBatch",
     "exapf": "adapters.exapf_batch_adapter:ExapfBatch",
+    "exapf_gpu": "adapters.exapf_gpu_batch_adapter:ExapfGpuBatch",
     "sparlectra": "adapters.sparlectra_batch_adapter:SparlectraBatch",
     "matpower": "adapters.matpower_batch_adapter:MatpowerBatch",
 }
@@ -67,6 +69,7 @@ CONTINGENCIES = {
     "veragrid": "adapters.veragrid_n1_adapter:VeragridN1",
     "sienna": "adapters.sienna_n1_adapter:SiennaN1",
     "exapf": "adapters.exapf_n1_adapter:ExapfN1",
+    "exapf_gpu": "adapters.exapf_gpu_n1_adapter:ExapfGpuN1",
     "sparlectra": "adapters.sparlectra_n1_adapter:SparlectraN1",
     "matpower": "adapters.matpower_n1_adapter:MatpowerN1",
 }

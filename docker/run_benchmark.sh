@@ -14,7 +14,15 @@ while [ $# -gt 0 ]; do
     if [ "$1" = "--" ]; then shift; extra=("$@"); break; fi
     tools+=("$1"); shift
 done
-[ ${#tools[@]} -eq 0 ] && tools=($(ls tool-configs | grep -v '^harness$'))
+if [ ${#tools[@]} -eq 0 ]; then
+    for t in $(ls tool-configs | grep -v '^harness$'); do
+        # A tool that needs an NVIDIA GPU (tool-configs/<tool>/needs-gpu) only where there is one.
+        if [ -f "tool-configs/$t/needs-gpu" ] && ! nvidia-smi -L >/dev/null 2>&1; then
+            echo "no NVIDIA GPU: not running $t"; continue
+        fi
+        tools+=("$t")
+    done
+fi
 
 export HOST_UID="$(id -u)" HOST_GID="$(id -g)"
 export GIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)$(git diff --quiet HEAD -- . ":!results-docker" ":!results" ":!docs" 2>/dev/null || echo -dirty)"

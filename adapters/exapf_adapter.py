@@ -61,15 +61,11 @@ Settings (`PowerFlowProblem`, `NewtonRaphson`):
   warning logs off: the parser logs at info level on every field outside
   MATPOWER's core matrices, which would be timed. Errors still print.
 """
+from importlib import import_module
 from importlib.metadata import version
 
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge, Solution, SolverAdapter
 from cases.registry import m_path
-
-
-def _gb():
-    from adapters.exapf_julia import GB   # starts Julia on first use
-    return GB
 
 
 class ExapfAdapter(SolverAdapter):
@@ -77,31 +73,34 @@ class ExapfAdapter(SolverAdapter):
     display_name = "ExaPF.jl"
     color = "#e34949"   # tools/palette.py EXAPF: Sienna's red, dotted
     package = "juliacall"
-    modules = ("adapters.exapf_julia",)
+    julia = "adapters.exapf_julia"   # the backend: GB, BACKEND, FACTORIZATION, versions, available_bytes
+    modules = (julia,)
     language = "julia"
     families = ("matpower", "distribution")
     settings = {"solver": "NewtonRaphson", "formulation": "polar", "backend": "cpu", "linear_solver": "klu",
                 "init": "flat", "reactive_limits": False, "distributed_slack": False,
                 "tolerance_pu": TOLERANCE_PU, "tolerance_norm": 2, "max_iteration": MAX_ITERATIONS}
 
+    def _jl(self):
+        return import_module(self.julia)   # starts Julia on first use
+
     def version(self):
         return self.dependencies()["ExaPF"]
 
     def dependencies(self):
-        from adapters.exapf_julia import JULIA_VERSION
-        return {k: str(v) for k, v in _gb().versions().items()} | {"julia": JULIA_VERSION,
-                                                                    "juliacall": version("juliacall")}
+        return self._jl().versions() | {"juliacall": version("juliacall")}
 
     def load(self, case):
-        return _gb().load(str(m_path(case)), TOLERANCE_PU, MAX_ITERATIONS)
+        jl = self._jl()
+        return jl.GB.load(str(m_path(case)), jl.BACKEND, jl.FACTORIZATION, TOLERANCE_PU, MAX_ITERATIONS)
 
     def solve(self, model):
-        converged, steps = _gb().solve_b(model)   # juliacall spells solve! as solve_b
+        converged, steps = self._jl().GB.solve_b(model)   # juliacall spells solve! as solve_b
         if not converged:
             raise DidNotConverge(f"NR did not converge in {MAX_ITERATIONS} iterations")
         self._iterations = int(steps)
 
     def solution(self, model, case):
-        numbers, vm, va = _gb().solution(model)
+        numbers, vm, va = self._jl().GB.solution(model)
         ids = [str(int(n)) for n in numbers]
         return Solution(dict(zip(ids, map(float, vm))), dict(zip(ids, map(float, va))), self._iterations)
