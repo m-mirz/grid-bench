@@ -42,6 +42,30 @@ from cases.matpower import BUS_I, GEN_BUS, PD, parse_m
 from cases.registry import CASES, mat_path
 
 
+def injections(case: str, grid) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """The sweep's generator P, load P and load Q, scenarios x elements, in
+    `grid`'s element order (the joins in the module docstring, asserted),
+    and the case's MATPOWER bus numbers. Shared with gpusim2grid, which is
+    seeded from the same grid."""
+    mpc = parse_m(CASES[base_case(case)]["file"])
+    number = mpc["bus"][:, BUS_I].astype(int)
+    sweep = scenarios(case)
+    n = len(sweep["scale"])
+    loads = grid.get_loads()
+    load_bus = number[[ld.bus_id for ld in loads]]
+    col = columns(load_bus, sweep["load_bus"])
+    assert len(set(load_bus)) == len(loads) == len(sweep["load_bus"]), "one load per loaded bus"
+    row = {b: i for i, b in enumerate(number)}
+    assert np.allclose([ld.target_p_mw for ld in loads], mpc["bus"][[row[b] for b in load_bus], PD])
+    gens = grid.get_generators()
+    assert len(gens) == len(mpc["gen"]) and \
+        (number[[g.bus_id for g in gens]] == mpc["gen"][:, GEN_BUS].astype(int)).all(), "one generator per gen row"
+    gen_p = np.repeat(np.array([g.target_p_mw for g in gens])[None, :], n, axis=0)
+    gen_p[:, sweep["gen_row"]] = sweep["pg"]
+    return (np.ascontiguousarray(gen_p), np.ascontiguousarray(sweep["pd"][:, col]),
+            np.ascontiguousarray(sweep["qd"][:, col]), number)
+
+
 class Lightsim2gridBatch(BatchAdapter):
     name = Lightsim2gridAdapter.name
     display_name = Lightsim2gridAdapter.display_name
@@ -57,33 +81,16 @@ class Lightsim2gridBatch(BatchAdapter):
         from lightsim2grid.algorithm import AlgorithmType
         from lightsim2grid.injectionSweep import InjectionSweepCPP
         from lightsim2grid.network import init_from_matpower
-        base = base_case(case)
-        mpc = parse_m(CASES[base]["file"])
-        number = mpc["bus"][:, BUS_I].astype(int)
-        sweep = scenarios(case)
-        n = len(sweep["scale"])
-        grid = init_from_matpower(str(mat_path(base)))
-
-        loads = grid.get_loads()
-        load_bus = number[[ld.bus_id for ld in loads]]
-        col = columns(load_bus, sweep["load_bus"])
-        assert len(set(load_bus)) == len(loads) == len(sweep["load_bus"]), "one load per loaded bus"
-        row = {b: i for i, b in enumerate(number)}
-        assert np.allclose([ld.target_p_mw for ld in loads], mpc["bus"][[row[b] for b in load_bus], PD])
-
-        gens = grid.get_generators()
-        assert len(gens) == len(mpc["gen"]) and \
-            (number[[g.bus_id for g in gens]] == mpc["gen"][:, GEN_BUS].astype(int)).all(), "one generator per gen row"
-        gen_p = np.repeat(np.array([g.target_p_mw for g in gens])[None, :], n, axis=0)
-        gen_p[:, sweep["gen_row"]] = sweep["pg"]
-
+        grid = init_from_matpower(str(mat_path(base_case(case))))
+        gen_p, load_p, load_q, number = injections(case, grid)
+        n = len(gen_p)
         computer = InjectionSweepCPP(grid)
         computer.change_algorithm(AlgorithmType.NR_KLU)
         computer.init_from_n_powerflow = False
-        computer.modify_gen_p(np.ascontiguousarray(gen_p))
+        computer.modify_gen_p(gen_p)
         computer.modify_sgen_p(np.zeros((n, 0)))
-        computer.modify_load_p(np.ascontiguousarray(sweep["pd"][:, col]))
-        computer.modify_load_q(np.ascontiguousarray(sweep["qd"][:, col]))
+        computer.modify_load_p(load_p)
+        computer.modify_load_q(load_q)
         v_init = np.full(len(grid.get_bus_vn_kv()), grid.get_init_vm_pu(), dtype=complex)
         return {"computer": computer, "grid": grid, "v_init": v_init, "n": n,
                 "bus_ids": [str(b) for b in number], "v": None}

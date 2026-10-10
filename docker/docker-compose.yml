@@ -128,6 +128,19 @@ services:
               device_ids: ["${GRID_BENCH_GPU:-0}"]
               capabilities: [gpu]
 
+  # gpusim2grid (CUDA, cuDSS): one NVIDIA GPU, as exapf_gpu. See adapters/gpusim2grid_adapter.py.
+  gpusim2grid:
+    <<: *bench
+    image: grid-bench/gpusim2grid:latest
+    command: pytest benchmarks/gpusim2grid_benchmark.py --benchmark-json=/output/gpu/gpusim2grid.json
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${GRID_BENCH_GPU:-0}"]
+              capabilities: [gpu]
+
   sparlectra:
     <<: *bench
     image: grid-bench/sparlectra:latest

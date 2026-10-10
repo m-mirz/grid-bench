@@ -8,15 +8,18 @@ A benchmark of power system analysis software. v1 covers AC power flow for
 pandapower, p3s (pandapower's parallel solver, C++/KLU), lightsim2grid, PyPSA,
 power-grid-model, pypowsybl, VeraGrid, Sienna (PowerFlows.jl), ExaPF.jl (on
 its CPU backend, and on its CUDA backend as `exapf_gpu`, which needs an
-NVIDIA GPU) and Sparlectra.jl (all Julia, through juliacall), MATPOWER (GNU Octave), and
-power-grid-model on CGMES through cgmes2pgm, and
+NVIDIA GPU) and Sparlectra.jl (all Julia, through juliacall), MATPOWER (GNU Octave),
+gpusim2grid (lightsim2grid's GPU companion, CUDA and cuDSS, which needs an
+NVIDIA GPU), and power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
 VeraGrid and Sparlectra.jl, and AC optimal power flow for MATPOWER,
 pandapower, VeraGrid and PowerModels.jl (Ipopt; its own image, OPF only) on
 PGLib-OPF cases, and batch power flow (a sweep of operating points per case)
 for every tool that reads `.m`: through the tool's own batch API at 1..n
 threads (power-grid-model, p3s, lightsim2grid) or on one thread (PyPSA,
-VeraGrid, Sienna, ExaPF.jl), or a loop of single solves (pandapower, pypowsybl,
+VeraGrid, Sienna, ExaPF.jl), or on one GPU (ExaPF.jl's CUDA backend; gpusim2grid,
+starting every scenario from the base case's solution, a base-case-start
+variant never ranked with the flat-start tools), or a loop of single solves (pandapower, pypowsybl,
 Sparlectra.jl, MATPOWER), and N-1 contingency analysis for the same tools
 (200 branch outages per transmission case, through a native contingency API
 where there is one), and CIM libraries reading, writing and validating CGMES
@@ -114,6 +117,8 @@ tool-configs/exapf/Dockerfile, julia/   the same for ExaPF.jl (GridBenchExaPF, C
 tool-configs/exapf_gpu/Dockerfile, julia/   ExaPF.jl on CUDA: exapf's GridBenchExaPF plus CUDA.jl and
              CUDSS.jl, the CUDA runtime fixed by LocalPreferences.toml (built without a GPU);
              needs-gpu: left out of a default run_benchmark.sh sweep where nvidia-smi fails
+tool-configs/gpusim2grid/Dockerfile   compiles gpusim2grid (CUDA, cuDSS; not on PyPI) and the lightsim2grid
+             it is seeded from (with its C++ headers) from pinned sources; needs-gpu, like exapf_gpu
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
 tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources,
              with OpenMP for its batch solver (libgomp from the same pinned gcc image)
@@ -157,7 +162,7 @@ internal compose network; the run scripts stop the sidecar afterwards.
    for life; all nine slots are taken, and a tenth tool needs a different
    encoding, not another hue, see the palette's docstring (p3s is
    pandapower's blue, dashed: `P3S`; ExaPF.jl is Sienna's red, dotted: `EXAPF`, and on a
-   GPU dash-dotted: `EXAPF_GPU`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
+   GPU dash-dotted: `EXAPF_GPU`; gpusim2grid lightsim2grid's orange, dash-dotted: `GPUSIM2GRID`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
    reference solver, `REFERENCE_DOTTED`; the CIM libraries, which only
    share a chart with pypowsybl, slot hues dotted: `CIMOXIDE` etc.), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,
@@ -304,11 +309,15 @@ the native path), Julia by the official image's digest and Julia packages by
 registry at a commit at least 7 days old (`REGISTRY_COMMIT` in `setup.jl`;
 move it forward deliberately, like `exclude-newer`; the one exception is
 sparlectra, pinned to its newest release on purpose, see its `setup.jl`;
-p3s likewise, through `exclude-newer-package` in its `pyproject.toml`),
+p3s likewise, through `exclude-newer-package` in its `pyproject.toml`,
+and gpusim2grid, which has no release, at the newest commit of its main
+branch, see its Dockerfile),
 the Fuseki jar by SHA-256 (`docker/fuseki/Dockerfile`), GNU Octave by the
 official image's digest and the MATPOWER release zip by SHA-256
 (`tool-configs/matpower/Dockerfile`), the gcc image by digest and the
 SuiteSparse and p3s source tarballs by SHA-256 (`tool-configs/p3s/Dockerfile`),
+NVIDIA's CUDA devel image by digest and the cuDSS, lightsim2grid sdist and
+gpusim2grid tarballs by SHA-256 (`tool-configs/gpusim2grid/Dockerfile`),
 the Maven and JRE images by digest and every jar of a Java library by
 SHA-256 (`tool-configs/*/jars.sha256`, checked by
 `docker/java-tool.dockerfile`; its pom pins versions at least 7 days old),

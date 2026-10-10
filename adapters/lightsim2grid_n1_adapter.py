@@ -37,6 +37,26 @@ from cases.matpower import ANGLE, BUS_I, F_BUS, RATIO, T_BUS, parse_m
 from cases.registry import CASES, mat_path
 
 
+def contingency_ids(case: str, grid) -> tuple[np.ndarray, np.ndarray]:
+    """The outages' contingency ids in `grid` (line ids, then `n_line +`
+    transformer ids; the joins in the module docstring, asserted), in the
+    case's outage order, and the case's MATPOWER bus numbers. Shared with
+    gpusim2grid, which is seeded from the same grid."""
+    mpc, out = parse_m(CASES[base_case(case)]["file"]), outages(case)
+    branch, number = mpc["branch"], mpc["bus"][:, BUS_I].astype(int)
+    lines, trafos = grid.get_lines(), grid.get_trafos()
+    is_trafo = (branch[:, RATIO] != 0) | (branch[:, ANGLE] != 0)
+    line_rows, trafo_rows = np.flatnonzero(~is_trafo), np.flatnonzero(is_trafo)
+    assert len(lines) == len(line_rows) and len(trafos) == len(trafo_rows), "one element per branch row"
+    for elements, rows in ((lines, line_rows), (trafos, trafo_rows)):
+        for e, r in zip(elements, rows):
+            assert {number[e.bus1_id], number[e.bus2_id]} == {int(branch[r, F_BUS]), int(branch[r, T_BUS])}
+    cid = np.empty(len(branch), dtype=np.int64)
+    cid[line_rows] = np.arange(len(line_rows))
+    cid[trafo_rows] = len(line_rows) + np.arange(len(trafo_rows))
+    return cid[out["branch_row"]], number
+
+
 class Lightsim2gridN1(ContingencyAdapter):
     name = Lightsim2gridAdapter.name
     display_name = Lightsim2gridAdapter.display_name
@@ -52,21 +72,8 @@ class Lightsim2gridN1(ContingencyAdapter):
         from lightsim2grid.algorithm import AlgorithmType
         from lightsim2grid.contingencyAnalysis import ContingencyAnalysisCPP
         from lightsim2grid.network import init_from_matpower
-        base = base_case(case)
-        mpc, out = parse_m(CASES[base]["file"]), outages(case)
-        branch, number = mpc["branch"], mpc["bus"][:, BUS_I].astype(int)
-        grid = init_from_matpower(str(mat_path(base)))
-        lines, trafos = grid.get_lines(), grid.get_trafos()
-        is_trafo = (branch[:, RATIO] != 0) | (branch[:, ANGLE] != 0)
-        line_rows, trafo_rows = np.flatnonzero(~is_trafo), np.flatnonzero(is_trafo)
-        assert len(lines) == len(line_rows) and len(trafos) == len(trafo_rows), "one element per branch row"
-        for elements, rows in ((lines, line_rows), (trafos, trafo_rows)):
-            for e, r in zip(elements, rows):
-                assert {number[e.bus1_id], number[e.bus2_id]} == {int(branch[r, F_BUS]), int(branch[r, T_BUS])}
-        cid = np.empty(len(branch), dtype=np.int64)
-        cid[line_rows] = np.arange(len(line_rows))
-        cid[trafo_rows] = len(line_rows) + np.arange(len(trafo_rows))
-        ids = cid[out["branch_row"]]
+        grid = init_from_matpower(str(mat_path(base_case(case))))
+        ids, number = contingency_ids(case, grid)
 
         computer = ContingencyAnalysisCPP(grid)
         computer.change_algorithm(AlgorithmType.NR_KLU)
