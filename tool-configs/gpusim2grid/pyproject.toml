@@ -1,0 +1,34 @@
+# Dependencies of the gpusim2grid benchmark image. gpusim2grid is not on PyPI:
+# tool-configs/gpusim2grid/Dockerfile compiles it (CUDA, cuDSS) from a pinned
+# commit, together with the lightsim2grid it is seeded from, built from that
+# release's sdist because its PyPI wheel lacks the C++ headers gpusim2grid's
+# bridge compiles against. Both wheels are installed on top of this lockfile's
+# environment. See adapters/gpusim2grid_adapter.py for how the tool is driven.
+[project]
+name = "grid-bench-gpusim2grid"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",   # gpusim2grid's own dependency (sparse matrices from lightsim2grid)
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+]
+
+# Only for the Dockerfile's builder stage (`uv sync --only-group build`): the
+# build requirements of lightsim2grid and gpusim2grid come from this lockfile
+# instead of unpinned isolated build environments.
+[dependency-groups]
+build = [
+    "numpy>=2.2",
+    "scipy>=1.15",
+    "scikit-build-core>=0.10",
+    "pybind11>=2.12",
+    "cmake>=3.18",
+    "ninja>=1.11",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"

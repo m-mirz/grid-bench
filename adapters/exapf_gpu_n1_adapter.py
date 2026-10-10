@@ -24,6 +24,8 @@ time (block 1, the base case, among them) and every other block within
 3e-13 of KLU. On this case it starts between 100 and 128 blocks (100:
 none, 128: 5 to 8) and grows with their number; case1354pegase at 201
 blocks and case9241pegase at 201 blocks of 18 000 rows are unaffected.
+gpusim2grid, which shares no code with ExaPF but cuDSS 0.8.0, fails the
+same case the same way (adapters/gpusim2grid_n1_adapter.py).
 
 Results (A100, every other outage accepted): 0.52 ms per outage for
 case1354pegase and 6.9 ms for case9241pegase, 5.5x and 4.5x lightsim2grid's

@@ -38,9 +38,22 @@ def _input(case: str) -> str:
     return input_label(case).strip("`")
 
 
+def _variant(name: str, what: str) -> str:
+    """`name (x)` -> `name (x, what)`, otherwise `name (what)`."""
+    return f"{name[:-1]}, {what})" if name.endswith(")") else f"{name} ({what})"
+
+
 def payload(res: Results, kind: str = "pf") -> dict:
     """One tab's data. `kind`: the problem it shows (pf, se, opf, batch, n1, cim), which sets its views."""
-    tools = [{"name": t, "display": m["display_name"], "color": m["color"],
+    # A batch tool that starts its scenarios from the base case's solution
+    # (`settings["start"]`) solves an easier problem than the flat start: it
+    # is shown as a base-case-start variant and never ranked with the others.
+    # (In N-1 every tool starts there; that is the problem.) Not "warm":
+    # here a warm solve is a timed repeat on a persistent model.
+    base_start = lambda m: kind == "batch" and m["settings"].get("start") == "base-case solution"
+    tools = [{"name": t, "display": _variant(m["display_name"], "base-case start") if base_start(m) else m["display_name"],
+              "baseStart": base_start(m),
+              "color": m["color"],
               "colorDark": LIGHT_TO_DARK.get(m["color"], m["color"]), "dash": DASH.get(m["color"]),
               "version": m["version"], "tags": m["tags"],
               "language": m["language"], "families": m["families"], "settings": m["settings"]}
@@ -348,7 +361,7 @@ function tables() {
   const tools = D.tools.filter(t => !state.off.has(t.name) && cases.some(c => reads(t, c)));
   const withInput = inputsOf(state.grid).length > 1;
   const best = c => { if (state.op !== "solve") return null;
-    const ok = tools.map(t => row(t.name, c, "solve")).filter(r => r && r.oracle_ok);
+    const ok = tools.filter(t => !t.baseStart).map(t => row(t.name, c, "solve")).filter(r => r && r.oracle_ok);
     return ok.length ? ok.reduce((a, b) => a.median <= b.median ? a : b).tool : null; };
   $("#t-title").textContent = state.op === "memory" ? `Peak memory${cim() ? `, ${MEM_NAME[state.memop].toLowerCase()}` : ""}: ${gridTitle(state.grid)} (MB added)`
     : `${state.op === "solve" ? (se() ? "Warm estimate" : D.kind === "opf" ? "Warm OPF solve" : batch() ? `${D.kind === "n1" ? "N-1" : "Batch"}, ${state.threads === "1" ? "one thread" : "fastest thread count"}` : "Warm solve") : state.op === "export" ? "Warm export" : OP_NAME[state.op]}: ${gridTitle(state.grid)} (median ms${batch() && state.op === "solve" ? (D.kind === "n1" ? " per outage" : " per scenario") : ""})`;
@@ -358,7 +371,7 @@ function tables() {
     : state.op === "solve" && D.kind === "opf"
     ? "✓: feasible for the case (balance and every limit, from the .m) and at most 0.01% above PGLib's reference cost (oracle, independent of every tool). ✗: a limit is broken or the cost is higher; hover the cell for which. Bold: the fastest ✓ in the row."
     : state.op === "solve" && batch()
-    ? (D.kind === "n1" ? "Median time of the whole call (base case included) over its outages. ✓: every outage's solution satisfies the case with that branch out of service (tier 1 per outage). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row." : "Median time of the whole batch over its 100 scenarios. ✓: every scenario's solution satisfies the case with that scenario's demand (tier 1 per scenario). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row.")
+    ? (D.kind === "n1" ? "Median time of the whole call (base case included) over its outages. ✓: every outage's solution satisfies the case with that branch out of service (tier 1 per outage). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row." : "Median time of the whole batch over its 100 scenarios. ✓: every scenario's solution satisfies the case with that scenario's demand (tier 1 per scenario). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row." + (tools.some(t => t.baseStart) ? " Base-case start: the tool starts every scenario from the base case's solution instead of a flat start, an easier problem, so it is never bold." : ""))
     : state.op === "solve" && se()
     ? "✓: the estimate is the weighted least-squares optimum of its measurement set (oracle, independent of every tool). ✗: it is not; hover the cell for how far off. Bold: the fastest ✓ in the row."
     : state.op === "solve"

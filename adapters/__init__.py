@@ -5,6 +5,7 @@ ADAPTERS = {
     "pandapower": "adapters.pandapower_adapter:PandapowerAdapter",
     "p3s": "adapters.p3s_adapter:P3sAdapter",   # slot 1's variant (tools/palette.py P3S)
     "lightsim2grid": "adapters.lightsim2grid_adapter:Lightsim2gridAdapter",
+    "gpusim2grid": "adapters.gpusim2grid_adapter:Gpusim2gridAdapter",   # slot 2's variant (GPUSIM2GRID)
     "pypsa": "adapters.pypsa_adapter:PypsaAdapter",
     "pgm": "adapters.pgm_adapter:PgmAdapter",
     "pypowsybl": "adapters.pypowsybl_adapter:PypowsyblAdapter",
@@ -46,6 +47,7 @@ BATCHES = {
     "pandapower": "adapters.pandapower_batch_adapter:PandapowerBatch",
     "p3s": "adapters.p3s_batch_adapter:P3sBatch",
     "lightsim2grid": "adapters.lightsim2grid_batch_adapter:Lightsim2gridBatch",
+    "gpusim2grid": "adapters.gpusim2grid_batch_adapter:Gpusim2gridBatch",
     "pypsa": "adapters.pypsa_batch_adapter:PypsaBatch",
     "pgm": "adapters.pgm_batch_adapter:PgmBatch",
     "pypowsybl": "adapters.pypowsybl_batch_adapter:PypowsyblBatch",
@@ -63,6 +65,7 @@ CONTINGENCIES = {
     "pandapower": "adapters.pandapower_n1_adapter:PandapowerN1",
     "p3s": "adapters.p3s_n1_adapter:P3sN1",
     "lightsim2grid": "adapters.lightsim2grid_n1_adapter:Lightsim2gridN1",
+    "gpusim2grid": "adapters.gpusim2grid_n1_adapter:Gpusim2gridN1",
     "pypsa": "adapters.pypsa_n1_adapter:PypsaN1",
     "pgm": "adapters.pgm_n1_adapter:PgmN1",
     "pypowsybl": "adapters.pypowsybl_n1_adapter:PypowsyblN1",
