@@ -32,8 +32,7 @@ class Results:
     tools: dict = field(default_factory=dict)       # name -> metadata (display_name, color, version, ...)
     records: list = field(default_factory=list)
     failures: list = field(default_factory=list)    # {tool, case, operation, error}
-    runs: list = field(default_factory=list)        # {tool, datetime, git_sha, image, machine}
-    conversion: list = field(default_factory=list)  # oracle.check_conversion output, one entry per converted case
+    runs: list = field(default_factory=list)        # {tool, datetime, git_sha, image, machine, cpus}
     # State estimation, optimal power flow and batch power flow, in the same
     # structure (`tools` holds that problem's adapters' metadata), so every
     # table works on any.
@@ -41,6 +40,7 @@ class Results:
     opf: "Results | None" = None
     batch: "Results | None" = None
     n1: "Results | None" = None
+    cim: "Results | None" = None
 
     def get(self, tool: str, case: str, operation: str, threads: int | None = None) -> Record | None:
         """A batch case has a solve record per thread count: `threads` picks
@@ -49,28 +49,8 @@ class Results:
                 and (threads is None or r.extra.get("threads") == threads)]
         return min(recs, key=lambda r: r.extra.get("threads", 1), default=None)
 
-    def thread_counts(self, tool: str, case: str) -> list[int]:
-        return sorted(r.extra["threads"] for r in self.records
-                      if (r.tool, r.case, r.operation) == (tool, case, "solve") and "threads" in r.extra)
-
-    def failure(self, tool: str, case: str, operation: str) -> str | None:
-        return next((f["error"] for f in self.failures
-                     if (f["tool"], f["case"], f["operation"]) == (tool, case, operation)), None)
-
-    def families(self) -> list[str]:
-        """Families with results, in registry order."""
-        from cases.registry import FAMILIES
-        seen = {r.family for r in self.records} | {CASES[f["case"]]["family"] for f in self.failures}
-        return [f for f in FAMILIES if f in seen]
-
     def _seen(self) -> set[str]:
         return {r.case for r in self.records} | {f["case"] for f in self.failures}
-
-    def cases(self, family: str, robustness: bool = False) -> list[str]:
-        """Cases with results, by size. Robustness-only cases (expected to fail
-        everywhere) are kept out of headline tables unless asked for."""
-        return sorted((c for c in self._seen() if CASES[c]["family"] == family
-                       and (CASES[c]["groups"] == ["robustness"]) == robustness), key=lambda c: (case_size(c), c))
 
     def grids(self) -> list[str]:
         """Grids with results, in registry order."""
@@ -80,7 +60,8 @@ class Results:
 
     def grid_cases(self, grid: str, robustness: bool = False) -> list[str]:
         """Cases with results on one grid, by size, each conversion right
-        after the case it was converted from."""
+        after the case it was converted from. Robustness-only cases (expected
+        to fail everywhere) are kept out of headline tables unless asked for."""
         def key(c):
             base = CASES[c].get("source_case", c)
             return case_size(c), base, CASES[c].get("converter", "")
@@ -115,30 +96,46 @@ def graded(case: str) -> bool:
     return c["format"] == "matpower" or "source_case" in c
 
 
+def gpu(meta: dict) -> str | None:
+    """The device a tool ran on, if a GPU (`dependencies.gpu`, recorded by its adapter)."""
+    return meta.get("dependencies", {}).get("gpu")
+
+
+def gpu_run(res: Results) -> tuple[list[str], list[str], list[str]]:
+    """Of a GPU results directory (power flow, batch and N-1): the GPU tools,
+    the CPU baselines run next to them, and the devices, in registry order."""
+    parts = [p for p in (res, res.batch, res.n1) if p]
+    tools = {t: m for p in parts for t, m in p.tools.items()}
+    order = list(dict.fromkeys(t for p in parts for t in p.tool_order()))
+    return ([t for t in order if gpu(tools[t])], [t for t in order if not gpu(tools[t])],
+            list(dict.fromkeys(gpu(tools[t]) for t in order if gpu(tools[t]))))
+
+
 def reads(res: Results, tool: str, case: str) -> bool:
     return CASES[case]["family"] in res.tools[tool]["families"]
 
 
-def scoreboard(res: Results) -> tuple[list[tuple[str, str | None]], list[tuple[str, list[str]]]]:
+def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
     """Per tool, one cell per grid and input: "✓ / ✗ / FAILED" counts of the
     solves, or "solved of all" where there is no verdict (fixtures); then the
     robustness cases, where failing is the expected outcome. `·` where the
-    tool reads none of them. Returns the columns as (label, the report
-    section that explains it, if any) and (tool, cells) rows, for
-    comparison.md and the site."""
-    columns = []   # (label, section, cases)
+    tool reads none of them. Returns the column labels and (tool, cells) rows.
+    CIM libraries have no solve: one column per operation instead."""
+    if any(CASES[c]["problem"] == "cim" for c in res._seen()):
+        return _cim_scoreboard(res)
+    columns = []   # (label, cases)
     for grid in res.grids():
         cases = res.grid_cases(grid)
         for label in dict.fromkeys(input_label(c) for c in cases):
             sub = [c for c in cases if input_label(c) == label]
-            columns.append((f"{grid} {label}" if all(graded(c) for c in sub) else GRID_TITLES[grid], None, sub))
+            columns.append((f"{grid} {label}" if all(graded(c) for c in sub) else GRID_TITLES[grid], sub))
     robust = [c for g in res.grids() for c in res.grid_cases(g, robustness=True)]
     if robust:
-        columns.append(("hard transmission cases", "hard-transmission-cases", robust))
+        columns.append(("hard transmission cases", robust))
     rows = []
     for t in res.tool_order():
         cells = []
-        for _, _, cases in columns:
+        for _, cases in columns:
             mine = [c for c in cases if reads(res, t, c)]
             recs = [res.get(t, c, "solve") for c in mine]
             if not mine:
@@ -150,7 +147,27 @@ def scoreboard(res: Results) -> tuple[list[tuple[str, str | None]], list[tuple[s
             else:
                 cells.append(f"{sum(1 for r in recs if r)} of {len(mine)}")
         rows.append((t, cells))
-    return [(label, section) for label, section, _ in columns], rows
+    return [label for label, _ in columns], rows
+
+
+CIM_OPERATIONS = ("import", "export", "validate")
+
+
+def _cim_scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
+    """"done of all" per CIM operation; `·` for validate where the tool has
+    no validator."""
+    cases = [c for g in res.grids() for c in res.grid_cases(g)]
+    rows = []
+    for t in res.tool_order():
+        mine = [c for c in cases if reads(res, t, c)]
+        cells = []
+        for op in CIM_OPERATIONS:
+            if not mine or (op == "validate" and "validator" not in res.tools[t]["tags"]):
+                cells.append("·")
+            else:
+                cells.append(f"{sum(1 for c in mine if res.get(t, c, op))} of {len(mine)}")
+        rows.append((t, cells))
+    return list(CIM_OPERATIONS), rows
 
 
 def load(directory: Path) -> Results:
@@ -158,11 +175,9 @@ def load(directory: Path) -> Results:
     (outside them) stays in its JSON but out of the published reports.
     Power flow at the top level, state estimation in `.se`, optimal power
     flow in `.opf`, batch power flow in `.batch`, N-1 contingencies in
-    `.n1`: a tool has an entry in each, with that problem's settings."""
-    res = Results(se=Results(), opf=Results(), batch=Results(), n1=Results())
-    conversion = Path(directory) / "conversion.json"
-    if conversion.exists():
-        res.conversion = json.loads(conversion.read_text())
+    `.n1`, CIM import/export/validation in `.cim`: a tool has an entry in
+    each, with that problem's settings."""
+    res = Results(se=Results(), opf=Results(), batch=Results(), n1=Results(), cim=Results())
     for path in sorted(Path(directory).glob("*.json")):
         if path.name == "conversion.json":
             continue
@@ -189,7 +204,7 @@ def load(directory: Path) -> Results:
 
 
 def _problem(res: Results, problem: str) -> Results:
-    return {"pf": res, "se": res.se, "opf": res.opf, "batch": res.batch, "n1": res.n1}[problem]
+    return {"pf": res, "se": res.se, "opf": res.opf, "batch": res.batch, "n1": res.n1, "cim": res.cim}[problem]
 
 
 def _part(res: Results, case: str) -> Results:
@@ -210,8 +225,3 @@ def case_size(case: str) -> int:
     if c["format"] == "matpower":
         return int((parse_m(c["file"])["bus"][:, 1] != ISOLATED).sum())
     return len(published_voltages(cgmes_sv_file(case)))
-
-
-def load_solution(directory: Path, tool: str, case: str) -> dict | None:
-    path = Path(directory) / "solutions" / tool / f"{case}.json"
-    return json.loads(path.read_text()) if path.exists() else None

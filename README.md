@@ -6,7 +6,7 @@ tools *read* CGMES grid models, grid-bench compares what the tools are for:
 **solving** them. It does not stop at speed. Every solve is checked by an
 oracle that none of the tools under test takes part in.
 
-v1 covers AC power flow in eleven tool setups:
+v1 covers AC power flow in twelve tool setups:
 [pandapower](https://github.com/e2nIEE/pandapower) and its
 [parallel solver p3s](https://github.com/e2nIEE/parallel-pandapower-solver) (C++/KLU),
 [lightsim2grid](https://github.com/Grid2op/lightsim2grid),
@@ -15,16 +15,26 @@ v1 covers AC power flow in eleven tool setups:
 [pypowsybl](https://github.com/powsybl/pypowsybl) (OpenLoadFlow),
 [VeraGrid](https://github.com/SanPen/VeraGrid),
 [Sienna](https://github.com/Sienna-Platform) (PowerFlows.jl),
+[ExaPF.jl](https://github.com/exanauts/ExaPF.jl) (GPU-oriented: on its CPU backend, and on
+an NVIDIA GPU as `exapf_gpu`),
+[gpusim2grid](https://github.com/Grid2op/gpusim2grid) (lightsim2grid's GPU companion, CUDA and cuDSS),
 [Sparlectra.jl](https://github.com/Welthulk/Sparlectra.jl),
 [MATPOWER](https://matpower.org) on GNU Octave, and power-grid-model on CGMES
 through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
-**Results:** [`results-docker/comparison.md`](results-docker/comparison.md) ·
-[site](docs/index.html) (charts of time and memory against case size, sortable and filterable tables, hover detail)
+Beside the solvers, five CIM libraries are timed on reading, writing and
+validating CGMES, as cim-bench does:
+[cimoxide](https://github.com/m-mirz/cimoxide),
+[triplets](https://github.com/Haigutus/triplets),
+[OpenCGMES](https://github.com/SOPTIM/OpenCGMES),
+[PowSyBl](https://github.com/powsybl/powsybl-core)'s CGMES model, and pypowsybl
+(see [CIM import, export and validation](#cim-import-export-and-validation)).
+
+**Results:** [site](docs/index.html) (charts of time and memory against case size, sortable and filterable tables, hover detail)
 
 ## What it found
 
-Numbers are in [comparison.md](results-docker/comparison.md); each finding
+Numbers are on the [site](docs/index.html); each finding
 is traced to its cause in the tool's adapter docstring (`adapters/`).
 
 - **lightsim2grid is the fastest correct solver** on every MATPOWER case but
@@ -42,6 +52,9 @@ is traced to its cause in the tool's adapter docstring (`adapters/`).
     open tie switches as closed.
   - Sienna builds Ybus in single precision (residuals of 1e-5 to 1e-3 MW
     where others reach 1e-9), and cannot parse pure phase shifters.
+  - ExaPF.jl also makes online generators on PQ-typed buses regulate
+    (case2848rte); its parser requires `gencost`, so it gets the `.m` with
+    a zero cost appended where a case has none.
 - **Read as CGMES, some of those problems disappear.** pypowsybl solves every
   cimoxide-converted case exactly (except case2848rte, which it cannot solve
   from the `.m` either), including the three its MATPOWER importer gets
@@ -91,7 +104,9 @@ Every adapter configures its tool to solve the same problem, and its
 docstring justifies each setting and what it deliberately does not do:
 
 - the tool's *own* solver (pandapower would otherwise hand off to lightsim2grid)
-- flat start on **every** solve, so repeated timings do not warm-start
+- flat start on **every** solve, so repeated timings do not warm-start;
+  in batch power flow and N-1 the base case starts flat and every scenario
+  or outage from its solution, solved in the same timed call
 - one slack bus, the case's own
 - no reactive limits, no outer-loop controls (taps, phase shifters, switched shunts)
 - generator voltage regulation as the case defines it, including a remote
@@ -160,17 +175,24 @@ time series or a Monte-Carlo study, and how that scales with threads. Each
 `<case>#sweep` is a MATPOWER case with 100 operating points
 (`cases/sweep.py`): every bus's demand along a daily curve between 60 % and
 100 % of the case with 5 % noise per bus, generators redispatched in
-proportion. Each scenario is the power-flow problem above, flat start
-included, and every tool solves all of them in one timed call:
+proportion. Every tool solves the base case from a flat start and then
+every scenario, the power-flow problem above, in one timed call. Each
+scenario starts from the tool's own base-case solution, as a sweep from a
+solved base case is run (and as N-1 starts its outages); never from another
+scenario's result, so scenarios stay independent. Tools run:
 
 - through its own batch API, at 1, 2, 4, … threads up to every core the
   run has: power-grid-model (`calculate_power_flow` with update data), p3s
   (`solve_batch`, OpenMP), lightsim2grid (`InjectionSweepCPP`);
 - through its own batch API on one thread: PyPSA (snapshots), VeraGrid
-  (time-series driver), Sienna (PowerFlows' time steps);
+  (time-series driver), Sienna (PowerFlows' time steps), ExaPF.jl
+  (`BlockPolarForm`, one block-diagonal Newton system, CPU backend, and on
+  a GPU as `exapf_gpu`, where the blocks run in parallel), and on a GPU
+  gpusim2grid (`InjectionSweepGPU`, a fixed 4 Newton steps per scenario);
 - as a loop of its single solve, where it has no batch power flow:
   pandapower, pypowsybl, Sparlectra.jl, MATPOWER.
 
+power-grid-model takes no start voltages, so its scenarios start flat.
 The oracle (`oracle/batch.py`) grades every scenario of every thread count
 with tier 1 against the case with that scenario's demand, so a race between
 threads, or a batch API that reuses one scenario's result, cannot pass.
@@ -184,21 +206,50 @@ Each transmission case `<case>#n1` comes with 200 single-branch outages
 one keeps the grid connected, and its power flow converges from the base
 case. Every tool solves the base case from a flat start and then every
 outage, in one timed call. Each outage starts from the tool's own base-case
-solution, as contingency analysis is done in practice; this is the one
-exception to the flat start. Tools run through their contingency API where
+solution, as contingency analysis is done in practice, the same start as
+the batch's scenarios. Tools run through their contingency API where
 they have one:
 
 - at 1, 2, 4, … threads: lightsim2grid (`ContingencyAnalysisCPP`), p3s
   (`solve_batch_contingency`, OpenMP), pypowsybl (OpenLoadFlow's security
   analysis, `threadCount`), and power-grid-model (a batch with branch status
   updates; it takes no start voltages, so its outages start flat);
-- on one thread: VeraGrid (`ContingencyAnalysisDriver`);
+- on one thread: VeraGrid (`ContingencyAnalysisDriver`), ExaPF.jl (its
+  line-contingency block formulation, one Newton system for every outage;
+  also on a GPU, `exapf_gpu`) and gpusim2grid (`ContingencyAnalysisGPU`,
+  on a GPU, a fixed 4 Newton steps per outage);
 - as a loop of single solves with the branch taken out: pandapower, PyPSA,
   Sienna (which rebuilds its power-flow data for each outage), Sparlectra.jl
   and MATPOWER.
 
 The oracle grades every outage of every thread count with tier 1 against the
 case with that branch out of service.
+
+## CIM import, export and validation
+
+The CIM libraries are timed on the Svedala and RealGrid CGMES 3.0
+conformity models (`<case>#cim`), every profile (SV included) read from the
+published XML files:
+
+- **Import**: the files into the library's model: triples for triplets,
+  OpenCGMES (Apache Jena) and PowSyBl's `CgmesModel` (RDF4J), typed objects
+  for cimoxide, and a network model for pypowsybl, which converts CGMES.
+- **Export**: that model written back as CGMES RDF/XML, warm, into an empty
+  directory.
+- **Validate**: the files to a violation report in one call, parsing
+  included, because cimoxide's Python API validates files only. cimoxide
+  runs its own rules; triplets (on polars and oxigraph) and OpenCGMES (with
+  Jena SHACL), which have none, get the ENTSO-E CGMES 3.0 SHACL shapes from
+  the `application-profiles-library` submodule. PowSyBl and pypowsybl have
+  no validator.
+
+These numbers are the one exception to the oracle: like cim-bench, they are
+timed, not graded. The libraries read CGMES into different models and
+validate against different rules, so there is no single right answer. The
+site shows what each read and found, next to the times. Peak memory is
+measured for each operation in a fresh process: import, import plus one
+export, and one validate. OpenCGMES and PowSyBl run in-process through
+JPype, the JVM's memory included.
 
 ## Cases
 
@@ -240,6 +291,9 @@ output is graded but not solved by default.
 | pypowsybl | `network.load` (.mat) | `network.load` (zip); slack from `referencePriority` | OpenLoadFlow |
 | VeraGrid | `parse_matpower_file` (.m) | `open_cgmes` | NR |
 | Sienna | `PowerSystems.System` (.m) via juliacall | — | PowerFlows.jl NR (KLU) |
+| ExaPF.jl | `PowerFlowProblem` (.m) via juliacall, CPU backend | — | polar NR, AD Jacobian (KLU) |
+| ExaPF.jl (GPU) | the same, CUDA backend | — | polar NR, AD Jacobian (cuDSS) |
+| gpusim2grid | lightsim2grid's `init_from_matpower` (.mat) | — | NR on CUDA (cuDSS); batch and N-1 a fixed 4 steps |
 | Sparlectra.jl | `createNetFromMatPowerFile` (.m) via juliacall | `importCGMES` (zip) | rectangular NR (UMFPACK) |
 | MATPOWER | `loadcase` (.m), in GNU Octave | — | `runpf`, NR (UMFPACK) |
 | PGM via cgmes2pgm | — | upload to a Fuseki sidecar, `CgmesToPgmConverter` | PGM 1.12 NR (generators as fixed P/Q) |
@@ -263,6 +317,15 @@ docker/run_single.sh pypowsybl --cases case300   # one tool, some cases
 
 For development without containers: `./setup.sh` (needs [uv](https://docs.astral.sh/uv/)),
 then `./run_benchmarks.sh [tool ...] [-- --groups smoke]`.
+
+`exapf_gpu` (ExaPF.jl on CUDA) and `gpusim2grid` need an NVIDIA GPU and the
+[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/)
+to run, not to build; a default sweep leaves them out where `nvidia-smi` fails.
+`GRID_BENCH_GPU=<n>` picks the device (default 0). Their results go to
+`results-docker/gpu/`, with CPU baselines run on the same machine, and the
+site shows them in tabs of their own:
+`GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu`, likewise
+`gpusim2grid` and a baseline (`lightsim2grid`).
 
 Published numbers in `results-docker/` come from one full sweep on one
 otherwise idle machine, recorded with its CPU, OS and git commit. CI only

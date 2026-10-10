@@ -14,7 +14,15 @@ while [ $# -gt 0 ]; do
     if [ "$1" = "--" ]; then shift; extra=("$@"); break; fi
     tools+=("$1"); shift
 done
-[ ${#tools[@]} -eq 0 ] && tools=($(ls tool-configs | grep -v '^harness$'))
+if [ ${#tools[@]} -eq 0 ]; then
+    for t in $(ls tool-configs | grep -v '^harness$'); do
+        # A tool that needs an NVIDIA GPU (tool-configs/<tool>/needs-gpu) only where there is one.
+        if [ -f "tool-configs/$t/needs-gpu" ] && ! nvidia-smi -L >/dev/null 2>&1; then
+            echo "no NVIDIA GPU: not running $t"; continue
+        fi
+        tools+=("$t")
+    done
+fi
 
 export HOST_UID="$(id -u)" HOST_GID="$(id -g)"
 export GIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)$(git diff --quiet HEAD -- . ":!results-docker" ":!results" ":!docs" 2>/dev/null || echo -dirty)"
@@ -32,8 +40,8 @@ failed=()
 for t in "${tools[@]}"; do
     echo "=== $t"
     # Every problem the tool has a benchmark for (power flow, state estimation,
-    # OPF, batch power flow, N-1), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
-    for suffix in "" _se _opf _batch _n1; do
+    # OPF, batch power flow, N-1, CIM), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
+    for suffix in "" _se _opf _batch _n1 _cim; do
         if [ -f "benchmarks/${t}${suffix}_benchmark.py" ]; then
             $compose run --rm $(blas_env "$suffix") "$t" pytest "benchmarks/${t}${suffix}_benchmark.py" \
                 "--benchmark-json=/output/$t${suffix/_/-}.json" "${extra[@]}" || failed+=("$t${suffix/_/-}")

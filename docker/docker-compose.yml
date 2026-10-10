@@ -109,6 +109,38 @@ services:
     image: grid-bench/sienna:latest
     command: pytest benchmarks/sienna_benchmark.py --benchmark-json=/output/sienna.json
 
+  exapf:
+    <<: *bench
+    image: grid-bench/exapf:latest
+    command: pytest benchmarks/exapf_benchmark.py --benchmark-json=/output/exapf.json
+
+  # ExaPF on its CUDA backend: one NVIDIA GPU (device GRID_BENCH_GPU, default
+  # 0), through the NVIDIA Container Toolkit. See adapters/exapf_gpu_adapter.py.
+  exapf_gpu:
+    <<: *bench
+    image: grid-bench/exapf_gpu:latest
+    command: pytest benchmarks/exapf_gpu_benchmark.py --benchmark-json=/output/exapf_gpu.json
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${GRID_BENCH_GPU:-0}"]
+              capabilities: [gpu]
+
+  # gpusim2grid (CUDA, cuDSS): one NVIDIA GPU, as exapf_gpu. See adapters/gpusim2grid_adapter.py.
+  gpusim2grid:
+    <<: *bench
+    image: grid-bench/gpusim2grid:latest
+    command: pytest benchmarks/gpusim2grid_benchmark.py --benchmark-json=/output/gpu/gpusim2grid.json
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${GRID_BENCH_GPU:-0}"]
+              capabilities: [gpu]
+
   sparlectra:
     <<: *bench
     image: grid-bench/sparlectra:latest
@@ -129,3 +161,25 @@ services:
     <<: *bench
     image: grid-bench/powermodels:latest
     command: pytest benchmarks/powermodels_opf_benchmark.py --benchmark-json=/output/powermodels-opf.json
+
+  # CIM libraries (import, export, validation only): see adapters/cim_adapter.py.
+  # pypowsybl's CIM benchmark runs in its own service above.
+  cimoxide:
+    <<: *bench
+    image: grid-bench/cimoxide:latest
+    command: pytest benchmarks/cimoxide_cim_benchmark.py --benchmark-json=/output/cimoxide-cim.json
+
+  triplets:
+    <<: *bench
+    image: grid-bench/triplets:latest
+    command: pytest benchmarks/triplets_cim_benchmark.py --benchmark-json=/output/triplets-cim.json
+
+  opencgmes:
+    <<: *bench
+    image: grid-bench/opencgmes:latest
+    command: pytest benchmarks/opencgmes_cim_benchmark.py --benchmark-json=/output/opencgmes-cim.json
+
+  powsybl:
+    <<: *bench
+    image: grid-bench/powsybl:latest
+    command: pytest benchmarks/powsybl_cim_benchmark.py --benchmark-json=/output/powsybl-cim.json

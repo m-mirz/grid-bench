@@ -1,0 +1,20 @@
+# Dependencies of the triplets benchmark image (CIM import, export and
+# validation). The tool is pinned exactly; its extras are the engines it
+# picks by what is installed (polars; SPARQL on rdflib and oxigraph, which
+# the shapes' sh:sparql constraints run on). See adapters/triplets_cim_adapter.py.
+[project]
+name = "grid-bench-triplets"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+    "triplets[polars,sparql,oxigraph]==0.2.0",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"

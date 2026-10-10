@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # One tool, optionally restricted: docker/run_single.sh pandapower --cases case14,case300
+# GRID_BENCH_RESULTS=gpu writes its JSON to results-docker/gpu/ instead: GPU tools,
+# and the CPU baselines run on their machine, reported apart (tools/generate_all.py).
 set -uo pipefail
 cd "$(dirname "$0")/.."
 tool="$1"; shift
 export HOST_UID="$(id -u)" HOST_GID="$(id -g)"
 export GIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)$(git diff --quiet HEAD -- . ":!results-docker" ":!results" ":!docs" 2>/dev/null || echo -dirty)"
-mkdir -p results-docker data/.case-cache
+out="${GRID_BENCH_RESULTS:+$GRID_BENCH_RESULTS/}"
+mkdir -p "results-docker/$out" data/.case-cache
 compose="docker compose -f docker/docker-compose.yml"
 # Batch benchmarks measure a tool's own parallelism: BLAS stays on one thread.
 blas_env() { [[ "$1" = _batch || "$1" = _n1 ]] && echo "-e OPENBLAS_NUM_THREADS=1 -e MKL_NUM_THREADS=1"; }
@@ -20,11 +23,11 @@ else
 fi
 $compose run --rm conversion-check
 # Every problem the tool has a benchmark for (power flow, state estimation,
-# OPF, batch power flow, N-1), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
-for suffix in "" _se _opf _batch _n1; do
+# OPF, batch power flow, N-1, CIM), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
+for suffix in "" _se _opf _batch _n1 _cim; do
     if [ -f "benchmarks/${tool}${suffix}_benchmark.py" ]; then
         $compose run --rm $(blas_env "$suffix") "$tool" pytest "benchmarks/${tool}${suffix}_benchmark.py" \
-            "--benchmark-json=/output/$tool${suffix/_/-}.json" "$@"
+            "--benchmark-json=/output/$out$tool${suffix/_/-}.json" "$@"
     fi
 done
 
