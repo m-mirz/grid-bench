@@ -17,7 +17,8 @@ jobs:
       # build like lightsim2grid's), veragrid, sienna, exapf,
       # sparlectra, powermodels, examodelspower (Julia images of 5 to 10
       # minutes; juliagrid covers the juliacall path), triplets, opencgmes
-      # (cimoxide and powsybl cover CIM and JPype).
+      # (cimoxide and powsybl cover CIM and JPype), rustpower (power flow
+      # only, a PyPI wheel; pandapower covers its input).
       matrix:
         tool: [pandapower, lightsim2grid, pypsa, pgm, pypowsybl, cgmes2pgm, juliagrid, matpower, cimoxide, powsybl]
         # An image whose build takes minutes (juliagrid: about 7, installing and

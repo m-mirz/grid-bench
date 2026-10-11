@@ -19,6 +19,7 @@ ADAPTERS = {
     "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",
     "pypowsybl": "adapters.pypowsybl_adapter:PypowsyblAdapter",
     "gridoxide": "adapters.gridoxide_adapter:GridoxideAdapter",
+    "rustpower": "adapters.rustpower_adapter:RustpowerAdapter",
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
 
