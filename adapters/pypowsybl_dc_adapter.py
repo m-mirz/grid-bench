@@ -30,6 +30,11 @@ by 1.3 MW; case2869pegase 46, 2.5 MW; case9241pegase 292, 13 MW, and the
 same in every outage of their N-1); the cases without Gs (case14, case118,
 case1354pegase, case3120sp, case2848rte with its phase shifters) are exact.
 A modelling choice of the tool, reported and left as it is.
+
+Full DC N-1 (every non-islanding outage): case1354pegase's 1430 in 6.8 s at
+1 thread and 1.0 s at 30; case9241pegase's 14384 do not fit (`too_slow`):
+its security analysis holds every contingency's branch and bus results in
+the Java heap, which ran out at 1 thread and ran past the timeout at 30.
 """
 import numpy as np
 
@@ -90,6 +95,9 @@ class PypowsyblDcN1(DcContingencyAdapter):
     language = PypowsyblAdapter.language
     modules = PypowsyblAdapter.modules + ("pypowsybl.security",)
     mode = "native"
+    too_slow = {"case9241pegase#dcn1-full": "14384 contingencies with every branch and voltage level monitored: "
+                                            "at 1 thread the Java heap ran out (OutOfMemoryError), at 30 threads "
+                                            "it ran past 3600 s at 35 GB (AMD EPYC 7J13, 2026-10-11)"}
     settings = {"api": "security analysis run_dc (OpenLoadFlow)", "distributed_slack": False,
                 "dc_use_transformer_ratio": True, "method": "OpenLoadFlow's DC contingency computation",
                 "threadCount": "the thread count"}

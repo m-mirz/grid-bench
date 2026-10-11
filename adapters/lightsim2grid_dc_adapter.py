@@ -45,7 +45,7 @@ case9241pegase 2 of 2). Its single `dc_pf` handles both.
 """
 import numpy as np
 
-from adapters.batch_adapter import base_case
+from adapters.batch_adapter import base_case, outages
 from adapters.dc_adapter import DcAdapter, DcContingencyAdapter, DcSolution
 from adapters.lightsim2grid_adapter import Lightsim2gridAdapter
 from adapters.lightsim2grid_n1_adapter import contingency_ids
@@ -159,3 +159,53 @@ class Lightsim2gridDcN1(DcContingencyAdapter):
         # side-1 flows only; DC is lossless, so a row whose from end is side 2 carries minus that
         pf = np.where(model["side1"], p[:, model["col"]], -p[:, model["col"]])
         return DcSolution(model["bus_ids"], np.angle(model["v"], deg=True), list(range(pf.shape[1])), pf)
+
+
+class Lightsim2gridDcN1Lodf(DcContingencyAdapter):
+    """lightsim2grid's DC N-1 from sensitivities (`get_lodf`), its own
+    documented alternative to a DC solve per outage, and ToOp's method on
+    the CPU: the base case by `dc_pf`, the LODF matrix by `get_lodf` (which
+    computes the PTDF internally; C++, one thread: the library has no thread
+    setting for it), then every outage's flows as lightsim2grid's docstring
+    gives them, the base flows plus the outaged branch's LODF column times its
+    base flow (numpy). All three are the timed call. Flows only, like ToOp:
+    graded by `oracle.dc`'s flows-only verdict. The base flows come from
+    `dc_pf`, exact on phase shifters, and an outaged shifter's injection
+    travels with its flow, so this path does not share the contingency
+    analysis' phase-shifter loss."""
+    name = "lightsim2grid_lodf"
+    display_name = "lightsim2grid (LODF)"
+    color = "#eb6833"   # tools/palette.py LIGHTSIM2GRID_LODF: lightsim2grid's orange, dotted
+    package = Lightsim2gridAdapter.package
+    language = Lightsim2gridAdapter.language
+    modules = Lightsim2gridAdapter.modules
+    mode = "native"
+    threaded = False
+    settings = {"algorithm": "DC_KLU", "api": "dc_pf, get_lodf", "method": "LODF (flows only)",
+                "threads": "1 (get_lodf has no thread setting)"}
+
+    def load(self, case):
+        from lightsim2grid.algorithm import AlgorithmType
+        from lightsim2grid.network import init_from_matpower
+        base = base_case(case)
+        grid = init_from_matpower(str(mat_path(base)))
+        grid.change_algorithm(AlgorithmType.DC_KLU)
+        col, side1, _ = sides(base, grid)
+        n = len(grid.get_bus_vn_kv())
+        return {"grid": grid, "v_init": np.full(n, grid.get_init_vm_pu(), dtype=complex), "col": col, "side1": side1,
+                "out": col[outages(case)["branch_row"]], "p": None}
+
+    def solve(self, model, threads=1):
+        assert threads == 1, "get_lodf has no thread setting"
+        g = model["grid"]
+        if g.dc_pf(model["v_init"], MAX_ITERATIONS, TOLERANCE_PU).shape[0] == 0:
+            raise DidNotConverge("dc_pf returned an empty voltage vector")
+        lodf = g.get_lodf()
+        p0 = np.r_[g.get_line_res1()[0], g.get_trafo_res1()[0]]
+        out = model["out"]
+        model["p"] = p0[None, :] + lodf[:, out].T * p0[out][:, None]   # outages x (lines, transformers), side 1
+
+    def solution(self, model, case):
+        p = model["p"]
+        pf = np.where(model["side1"], p[:, model["col"]], -p[:, model["col"]])
+        return DcSolution(None, None, list(range(pf.shape[1])), pf)

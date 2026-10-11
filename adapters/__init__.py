@@ -101,6 +101,7 @@ DC = {
 }
 DC_CONTINGENCIES = {
     "lightsim2grid": "adapters.lightsim2grid_dc_adapter:Lightsim2gridDcN1",
+    "lightsim2grid_lodf": "adapters.lightsim2grid_dc_adapter:Lightsim2gridDcN1Lodf",
     "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDcN1",
     "toop": "adapters.toop_dc_adapter:ToopDcN1",
     "matpower": "adapters.matpower_dc_adapter:MatpowerDcN1",
