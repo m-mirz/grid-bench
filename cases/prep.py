@@ -200,6 +200,29 @@ def prepare_n1(key: str) -> None:
     print(f"prepared {key} ({len(rows)} outages, {skipped} skipped: no convergence)", file=sys.stderr)
 
 
+def prepare_n1_full(key: str) -> None:
+    """Every outage that keeps the grid connected (`contingency.candidates`,
+    in its seeded order), after the base case's tool inputs. No power-flow
+    check: a connected DC model always solves."""
+    case = CASES[key]
+    prepare(case["base_case"])
+    stamp = CACHE / f"{key}.key"
+    h = hashlib.sha256()
+    for p in (case["file"], Path(__file__), Path(matpower.__file__), Path(contingency.__file__)):
+        h.update(Path(p).read_bytes())
+    if stamp.exists() and stamp.read_text() == h.hexdigest() and contingency_path(key).exists():
+        return
+    mpc = matpower.parse_m(case["file"])
+    rows = list(contingency.candidates(mpc, key))
+    branch = mpc["branch"]
+    contingency.write({"branch_row": np.array(rows, dtype=np.int64),
+                       "from_bus": branch[rows, matpower.F_BUS].astype(np.int64),
+                       "to_bus": branch[rows, matpower.T_BUS].astype(np.int64), "n_skipped": np.int64(0)},
+                      contingency_path(key))
+    stamp.write_text(h.hexdigest())
+    print(f"prepared {key} ({len(rows)} outages, every one that keeps the grid connected)", file=sys.stderr)
+
+
 def prepare(key: str) -> None:
     case = CASES[key]
     if case["problem"] == "cim":
@@ -216,6 +239,8 @@ def prepare(key: str) -> None:
         return prepare_n1(key)
     if case["problem"] == "dc":
         return prepare(case["base_case"])   # the base case's tool inputs; DC needs nothing else
+    if case["problem"] == "dcn1" and case.get("outages") == "all":
+        return prepare_n1_full(key)
     if case["problem"] == "dcn1":
         return prepare_n1(case["outages_of"])
     stamp = CACHE / f"{key}.key"

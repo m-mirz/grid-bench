@@ -10,8 +10,9 @@
 3. Missing results are failures: an unreported bus or branch. A
    flows-only tool (`bus_ids=None`) is graded on its flows alone, and
    wrong flows still fail.
-4. N-1 (`check_batch` over `cases.contingency.outage`): every outage's own
-   solution passes; the base case's flows reported for an outage, or the
+4. N-1 (`check_outages`): its rank-one updates equal a rebuilt model of
+   every outage (phase shifters and negative reactances included); every
+   outage's own solution passes; the base case's flows reported for an outage, or the
    wrong branch taken out, fail on exactly those outages.
 """
 import numpy as np
@@ -106,7 +107,27 @@ def outages():
 
 
 def _check_n1(mpc, data, ids, rows, va, pf):
-    return dc.check_batch(lambda k: contingency.outage(mpc, data, k), len(data["branch_row"]), ids, va, rows, pf, TOL)
+    return dc.check_outages(mpc, data["branch_row"], ids, va, rows, pf, TOL)
+
+
+@pytest.mark.parametrize("key", ["case14", "case2848rte"])
+def test_outage_models_equal_rebuilt_models(key):
+    """The rank-one updates against a new model of every outage: case14's 19,
+    and on case2848rte its phase shifters, its negative reactances and the
+    first other outages, wherever the grid stays connected."""
+    mpc = parse_m(CASES[key]["file"])
+    cand = list(contingency.candidates(mpc, key))
+    br = mpc["branch"]
+    rows = cand if key == "case14" else \
+        [r for r in cand if br[r, ANGLE] != 0 or br[r, BR_X] < 0][:20] + [r for r in cand if br[r, ANGLE] == 0][:20]
+    assert key == "case14" or (br[rows, ANGLE] != 0).any() and (br[rows, BR_X] < 0).any()
+    for r, (mdl_k, theta, pf) in zip(rows, dc.outage_models(mpc, rows)):
+        out = contingency.outage(mpc, {"branch_row": [r]}, 0)
+        ref = dc.model(out)
+        va, pf_ref = dc.solve(ref, float(out["bus"][ref.ref, VA]))
+        assert np.allclose(pf, pf_ref, atol=1e-7), r
+        assert np.allclose(np.rad2deg(theta), va, atol=1e-9, equal_nan=True), r
+        assert abs(mdl_k.B - ref.B).max() < 1e-9 and np.allclose(mdl_k.P, ref.P), r
 
 
 def test_every_outage_passes(outages):

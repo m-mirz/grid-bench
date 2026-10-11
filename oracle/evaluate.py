@@ -107,7 +107,6 @@ def evaluate_dc(case: str, bus_ids: list[str], va_deg: np.ndarray, branch_rows: 
     N-1 (both outages x ...), against MATPOWER's DC model."""
     mpc = _mpc(case)
     if CASES[case]["problem"] == "dcn1":
-        data = contingency.read(contingency_path(case))
-        return dc.check_batch(lambda k: contingency.outage(mpc, data, k), len(data["branch_row"]), bus_ids, va_deg,
-                              branch_rows, pf_mw, tol_mw=RESIDUAL_OK_MVA)
+        rows = contingency.read(contingency_path(case))["branch_row"]
+        return dc.check_outages(mpc, rows, bus_ids, va_deg, branch_rows, pf_mw, tol_mw=RESIDUAL_OK_MVA)
     return dc.check(mpc, bus_ids, va_deg, branch_rows, pf_mw, tol_mw=RESIDUAL_OK_MVA)
