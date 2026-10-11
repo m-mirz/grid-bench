@@ -22,15 +22,53 @@ temporary directory at load; its preprocessing (`preprocess`,
 artifacts and needs package metadata the image does not install) is part of
 the timed load.
 
+Bus names: `from_mpc` leaves every name empty, and ToOp's station
+extraction (`add_substation_column_to_bus`, run by the backend's
+`get_runtime_asset_topology`) makes station names unique by trying `''`,
+`'_0'`, `'_1'`, ... against a list, which with n equal names is cubic in
+the bus count: 34 s of a 49 s load on case1354pegase, and case9241pegase
+did not finish in 20 minutes. So the buses are named by their MATPOWER
+numbers (names enter no equation); ToOp's own extraction then takes 1.8 s
+on case1354pegase and finds what it found before, one bus per station (no
+switches in a bus-branch case; checked on case14 to case1354pegase).
+Reported: a ToOp import of an unnamed bus-branch grid is impractically slow.
+
 Join: ToOp's branch ids are `<index>%%line` and `<index>%%trafo`,
 pandapower's elements, which `from_mpc` records per branch row
 (`net._from_ppc_lookups["branch"]`); pandapower's bus index is the
 MATPOWER number minus 1 (`from_mpc` renumbers 0-based, asserted). Each
 branch's from node in ToOp is asserted to be one of the row's ends; a
 transformer runs high to low voltage in pandapower, so a row whose from bus
-is ToOp's to node takes the opposite sign. The ends are read from the
-backend (`get_from_nodes`, `get_to_nodes`, `get_node_ids`) by branch id,
-before preprocessing merges nodes it need not keep (`REDUCED_NODE`).
+is ToOp's to node takes the opposite sign. The ends are the backend's
+(`get_from_nodes`, `get_to_nodes`, ppc bus indices) by branch id, read
+before preprocessing merges nodes it need not keep (`REDUCED_NODE`), and
+mapped to buses through pandapower's own lookup (`_pd2ppc_lookups["bus"]`,
+inverted). Not through ToOp's `get_node_ids`: it indexes pandapower's bus
+ids with that lookup instead of its inverse, so where pandapower reorders
+buses (case2848rte) ToOp's node labels are permuted; its model and flows
+are not affected (with the inverse, all 3776 branches of case2848rte have
+the ends of their pandapower element). Reported.
+
+Findings (first runs, A100):
+- `from_mpc` makes some branch rows pandapower impedances (case118 2,
+  case300 66, case2869pegase 26, case2848rte 219, case9241pegase more),
+  which ToOp's pandapower backend models but can neither monitor nor
+  outage (its masks are for lines and transformers only): their flows are
+  not reported, so these cases are rejected for missing branches, and an
+  N-1 case whose outages include one fails (`NotImplementedError`).
+  On the branches it does report, its flows are exact: 1.5e-12 MW on
+  case118, 3e-10 on case2869pegase and case9241pegase, 6e-4 on case2848rte.
+  N-1: case2869pegase has 2 impedances among its 200 outages,
+  case9241pegase 8.
+- `from_mpc` is lossy on case300 and case3120sp (pandapower's own AC run is
+  rejected there): ToOp's DC flows differ from the case's by up to 0.013 MW
+  (47 branches) and 0.036 MW.
+- Exact where neither applies: case14, case1354pegase (DC and DC N-1).
+- Time: about 49 ms per call on every case, case14 to case9241pegase, the
+  base case alone or with 200 outages: a fixed cost of the call (JAX's
+  dispatch of the jitted batch and the copy to the host), not the solve.
+  The load (pandapower's conversion and ToOp's preprocessing, on the CPU)
+  takes 1 s on case14 and 38 s on case9241pegase.
 
 Settings:
 - `jax_enable_x64`: double precision (ToOp's own examples set it; in single
@@ -73,6 +111,7 @@ def _folder(case: str, rows) -> tuple[Path, object]:
     from toop_engine_interfaces.asset_topology.runtime_topology import RuntimeAssetTopology
     from toop_engine_interfaces.folder_structure import NETWORK_MASK_NAMES, PREPROCESSING_PATHS
     net = from_mpc(str(mat_path(case)), f_hz=50)
+    net.bus["name"] = (net.bus.index + 1).astype(str)   # the MATPOWER numbers; from_mpc leaves names empty
     lookup = net._from_ppc_lookups["branch"]
     d = Path(tempfile.mkdtemp(prefix="gb-toop-"))
     pp.to_json(net, str(d / PREPROCESSING_PATHS["grid_file_path_pandapower"]))
@@ -110,24 +149,32 @@ def _load(case: str, rows) -> dict:
     number = mpc["bus"][:, BUS_I].astype(int)
     d, net = _folder(case, rows)
     assert (net.bus.index.to_numpy() == number - 1).all(), "from_mpc numbers buses 0-based, in file order"
+    elements = net._from_ppc_lookups["branch"]
+    impedances = [int(r) for r in rows if elements.at[r, "element_type"] == "impedance"]
+    if impedances:
+        raise NotImplementedError(f"ToOp's pandapower backend cannot outage a pandapower impedance; from_mpc made "
+                                  f"{len(impedances)} of the {len(rows)} outaged branch rows impedances "
+                                  f"(rows {impedances[:5]})")
     backend = PandaPowerBackend(DirFileSystem(str(d)))
     nd = preprocess(backend, parameters=PreprocessParameters())
     si = convert_to_jax(network_data=nd)
     si = replace(si, solver_config=replace(si.solver_config, batch_size_bsdf=1))
     di = si.dynamic_information
-    lookup = net._from_ppc_lookups["branch"]
     branch_index = {b: k for k, b in enumerate(nd.branch_ids)}
-    # orientation from the backend, before preprocessing merges nodes: ppc from and to bus per branch id
-    node_bus = [int(n.split("%%")[0]) + 1 for n in backend.get_node_ids()]   # pandapower bus index + 1: MATPOWER number
-    ends = {b: (node_bus[f], node_bus[t]) for b, f, t in
+    # orientation from the backend, before preprocessing merges nodes: its ppc from and to bus per branch id,
+    # through pandapower's own bus lookup inverted (not ToOp's node ids, see the docstring)
+    lookup = np.asarray(backend.net._pd2ppc_lookups["bus"])
+    bus_of_ppc = {int(lookup[b]): int(b) + 1 for b in backend.net.bus.index}   # pandapower index + 1: MATPOWER number
+    ends = {b: (bus_of_ppc[int(f)], bus_of_ppc[int(t)]) for b, f, t in
             zip(backend.get_branch_ids(), backend.get_from_nodes(), backend.get_to_nodes(), strict=True)}
     monitored = {int(b): j for j, b in enumerate(np.asarray(di.branches_monitored))}
     n = len(mpc["branch"])
     col, sign = np.full(n, -1), np.zeros(n)
     for r in range(n):
-        k = branch_index.get(f"{int(lookup.at[r, 'element'])}%%{lookup.at[r, 'element_type']}")
+        k = branch_index.get(f"{int(elements.at[r, 'element'])}%%{elements.at[r, 'element_type']}")
         if k is None:
-            continue   # out of service: not in ToOp's model
+            assert elements.at[r, "element_type"] == "impedance", f"branch row {r} missing from ToOp's model"
+            continue   # not monitored: ToOp has no mask for impedances (see the docstring)
         f, t = ends[nd.branch_ids[k]]
         assert {f, t} == {int(mpc["branch"][r, F_BUS]), int(mpc["branch"][r, T_BUS])}, f"branch row {r}"
         col[r], sign[r] = monitored[k], 1.0 if f == int(mpc["branch"][r, F_BUS]) else -1.0
@@ -135,7 +182,7 @@ def _load(case: str, rows) -> dict:
     rows_of = {k: i for i, k in enumerate(failed)}
     order = []
     for r in rows:
-        k = branch_index[f"{int(lookup.at[r, 'element'])}%%{lookup.at[r, 'element_type']}"]
+        k = branch_index[f"{int(elements.at[r, 'element'])}%%{elements.at[r, 'element_type']}"]
         order.append(rows_of[k])
     assert len(failed) == len(rows), f"ToOp outages {len(failed)} branches, the case {len(rows)}"
     return {"si": si, "col": col, "sign": sign, "order": np.array(order, dtype=int), "n0": None, "n1": None}
