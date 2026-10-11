@@ -8,7 +8,8 @@ rebuilds Ybus, the specified injections and the voltage setpoints from the
 CGMES files and compares them with the original `.m`. Also records whether a
 slack is defined (any `referencePriority > 0`): a converted case without one
 leaves each tool to pick its own slack bus, which changes the problem.
-Output: `<results_dir>/conversion.json`, read by the report generators.
+Output: `<results_dir>/conversion.json`, a local record (not tracked, no report reads it): the
+check's job is to stop a run whose converters are not exact (docker/run_benchmark.sh).
 """
 import json
 import sys

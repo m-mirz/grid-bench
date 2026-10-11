@@ -32,10 +32,10 @@ RUN mkdir /src/suitesparse && tar -xzf /src/suitesparse.tar.gz -C /src/suitespar
        -DSUITESPARSE_REQUIRE_BLAS=OFF -DBLA_VENDOR=Generic -DSUITESPARSE_DEMOS=OFF -DCMAKE_INSTALL_PREFIX=/opt/suitesparse \
     && cmake --build /src/suitesparse/build && cmake --install /src/suitesparse/build
 
-# nr_klu from the v1.1.0 tag, the release uv.lock installs the Python side of.
-# - P3S_CPP_NATIVE=OFF: a portable build, like every other tool's wheel. The
-#   release's pyproject.toml means to set this but spells it `p3s_CPP_NATIVE`,
-#   which CMake (case-sensitive) ignores, so its default is -march=native.
+# nr_klu from the v1.2.1 tag, the release uv.lock installs the Python side of.
+# - P3S_CPP_NATIVE=OFF: a portable build, like every other tool's wheel (the
+#   release's own pyproject.toml now sets it too; 1.1.0 misspelled it, and
+#   CMake's default is -march=native). Passed here so it never depends on that.
 # - OpenMP on: it parallelises `solve_batch` (many operating points), which
 #   the batch benchmark times at 1..n threads (adapters/p3s_batch_adapter.py);
 #   single solves never use it. Its runtime, libgomp, comes from this same
@@ -43,8 +43,8 @@ RUN mkdir /src/suitesparse && tar -xzf /src/suitesparse.tar.gz -C /src/suitespar
 #   no apt packages.
 # - libstdc++ and libgcc linked statically: the extension then needs only glibc.
 # Upstream's -O3 -funroll-loops -ffast-math stay as the release ships them.
-ADD --checksum=sha256:efbf57ea0fd8ffdb692a339f366751a70e3b940c75e10fc8e3e5655b1c7a2798 \
-    https://github.com/e2nIEE/parallel-pandapower-solver/archive/refs/tags/v1.1.0.tar.gz /src/p3s.tar.gz
+ADD --checksum=sha256:5318b75ea193f6b2d0af2a86aae83fbaa00117c97c0eaa721a6d7b50ee793b12 \
+    https://github.com/e2nIEE/parallel-pandapower-solver/archive/refs/tags/v1.2.1.tar.gz /src/p3s.tar.gz
 RUN mkdir /src/p3s && tar -xzf /src/p3s.tar.gz -C /src/p3s --strip-components=1 \
     && CMAKE_PREFIX_PATH=/opt/suitesparse uv build --wheel --no-build-isolation --python /env/.venv/bin/python -o /wheels /src/p3s/p3s/cpp \
        --config-setting=cmake.define.P3S_CPP_NATIVE=OFF \

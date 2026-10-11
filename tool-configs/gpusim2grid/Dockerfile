@@ -6,7 +6,7 @@
 # the newest when it was added (2026-10-04), taken on purpose at 6 days old
 # like sparlectra and p3s, to add the tool without waiting. It needs
 # lightsim2grid's C++ headers and CMake package (lightsim2grid_core), which
-# the PyPI wheel does not ship, so lightsim2grid is built from its 1.0.0
+# the PyPI wheel does not ship, so lightsim2grid is built from its 1.1.0
 # sdist, the release the lightsim2grid image installs from PyPI, with the
 # wheel's flags (no -march=native, no -O3: `compiled_march_native` and
 # `compiled_o3_optim` are False in that image).
@@ -32,10 +32,10 @@ ADD --checksum=sha256:29716a05c64b28531309afcb7a9dd5044081a43197e72bdd0fbf29e9b4
     https://developer.download.nvidia.com/compute/cudss/redist/libcudss/linux-x86_64/libcudss-linux-x86_64-0.8.0.10_cuda12-archive.tar.xz /src/cudss.tar.xz
 RUN mkdir /opt/cudss && tar -xJf /src/cudss.tar.xz -C /opt/cudss --strip-components=1
 
-# lightsim2grid 1.0.0 from its sdist (SuiteSparse and Eigen included), with
+# lightsim2grid 1.1.0 from its sdist (SuiteSparse and Eigen included), with
 # KLU, installed into the build environment for gpusim2grid to compile against.
-ADD --checksum=sha256:d9bebf42eb753931106fe7206e29a8077a3132b79029e71d473ccdd3b3ddbdc7 \
-    https://files.pythonhosted.org/packages/16/67/d12102b4283d13d33d3ccf63eaf53d22080d0e35e8d2d63ffa5d939bb3d2/lightsim2grid-1.0.0.tar.gz /src/lightsim2grid.tar.gz
+ADD --checksum=sha256:c24dbb9fe15699a84bd993efb4f86ea35fd533b3f18c941298f585e40669e771 \
+    https://files.pythonhosted.org/packages/af/d5/4ce31c6bedc85adbd9a13fe0fd876f18727c3ce1485b20b979880a889762/lightsim2grid-1.1.0.tar.gz /src/lightsim2grid.tar.gz
 RUN mkdir /src/lightsim2grid && tar -xzf /src/lightsim2grid.tar.gz -C /src/lightsim2grid --strip-components=1 \
     && uv build --wheel --no-build-isolation --python /env/.venv/bin/python -o /wheels /src/lightsim2grid \
     && uv pip install --python /env/.venv/bin/python --no-deps /wheels/lightsim2grid-*.whl

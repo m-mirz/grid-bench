@@ -1,6 +1,6 @@
 """gpusim2grid: AC Newton-Raphson on an NVIDIA GPU (CUDA, cuDSS), seeded
 from a lightsim2grid grid. Its own image (tool-configs/gpusim2grid), built
-from a commit of its main branch (no release yet), with lightsim2grid 1.0.0
+from a commit of its main branch (no release yet), with lightsim2grid 1.1.0
 compiled from source next to it; results go to `results-docker/gpu/` (the
 GPU tabs), next to lightsim2grid run on the same machine.
 
@@ -35,7 +35,12 @@ Settings:
   factorization, Newton loop), as gpusim2grid offers no re-solve of an
   existing single session; the time includes that setup and the voltages'
   copy to the host. Its batch and N-1 sessions are reused (the other
-  adapters).
+  adapters). gpusim2grid's own phase times (A100, case9241pegase, 186 ms
+  wall): the cuDSS symbolic analysis 79 ms, session setup about 15 ms,
+  upload 1.2 ms, the 7 Newton steps about 10 ms of GPU time (refactorizing
+  5.8, solving 2.2, the rest under 1), the copy to the host 0.06 ms; the
+  rest is building the session in Python. Setup, not the iteration or the
+  transfers, is the cost of a single solve here.
 - FP64 (its default, the build's precision), its default cuDSS settings
   (reordering, matching, pivoting), no step damping (off on the
   explicit-array path; lightsim2grid's own solve has none by default).

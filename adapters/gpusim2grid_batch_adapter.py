@@ -39,6 +39,17 @@ is rejected: 4 Newton steps from the base case leave 25 of its 100
 scenarios at up to 3.3e-3 MVA, above the oracle's 1e-3 (heavily loaded
 feeders, down to 0.67 p.u.): the fixed step count, reported, not tuned.
 
+Where the time goes (gpusim2grid's own phase times, A100, case9241pegase,
+one timed call of 705 ms): the cuDSS factorizations and triangular solves
+549 ms (78 %), its symbolic analysis 73 ms (10 %), redone on every call
+though the pattern never changes (the session rebuilds its solver in
+`run`), lightsim2grid's base case on the CPU about 57 ms, the voltages'
+copy to the host (100 x 9241) 11 ms, upload and CPU preprocessing 11 ms,
+every other Newton kernel together 3 ms. With a fixed step count there is
+no convergence test, so the host never waits on the device between steps:
+GPU time and wall time agree. Not communication but the sparse LU is the
+cost.
+
 Beyond 100 scenarios (a separate experiment, the same adapter, sweeps of
 1 000 to 50 000 scenarios, every one graded): the time per scenario falls
 3.7 to 4.4x by 1 000 scenarios and then stays (case9241pegase 1.72 ms at

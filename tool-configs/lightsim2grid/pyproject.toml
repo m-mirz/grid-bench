@@ -11,7 +11,7 @@ dependencies = [
     "pytest>=8.3",
     "pytest-benchmark>=5.1",
     "pytest-timeout>=2.3",
-    "lightsim2grid==1.0.0",
+    "lightsim2grid==1.1.0",
 ]
 
 [tool.uv]

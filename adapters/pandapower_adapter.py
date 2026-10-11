@@ -33,6 +33,11 @@ Settings, each the closest match to the common problem definition:
   time lightsim2grid's solver in any environment that has both (measured:
   50 ms instead of 167 ms on case9241pegase). lightsim2grid has its own
   column; this one measures pandapower's solver.
+
+Known loss: on case2848rte@cimoxide the flat start converges (residual
+4e-10 MVA) to a low-voltage root, |V| down to 0.02 p.u., which the oracle
+rejects (`VM_FLOOR_PU`); the oracle that graded the earlier, accepted run
+had no such floor yet.
 """
 import numpy as np
 

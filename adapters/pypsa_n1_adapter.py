@@ -16,6 +16,12 @@ the branch set active again. One thread.
   1, or which has a phase shift, and a line of every other, numbered `T<i>`
   and `L<i>` in file order; the same rule on the prepared case (the input
   PyPSA reads), and every element's buses asserted against its row.
+
+Result: a loop of PyPSA's single solve, so case9241pegase#n1 takes about
+17 minutes per round on a Ryzen 7 250 and about 25 on an AMD EPYC 7J13,
+where its warm-up and timed round exceed the batch timeout (3600 s) and
+its memory measurement the import timeout (1800 s): both recorded as
+timeouts there.
 """
 import numpy as np
 

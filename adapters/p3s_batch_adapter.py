@@ -25,10 +25,13 @@ Settings:
   case's solution: the timed call first solves the base case through the
   power-flow adapter's `solve` from its flat start (setpoints at PV and
   slack buses, 1.0 p.u. and 0 degrees elsewhere) and passes its voltages,
-  as the N-1 adapter does. On case2869pegase, case9241pegase, mvlv1004 and
-  mvlv10616 that base solve does not converge, as p3s's power flow does
-  not from the flat start (and its flat-start batch failed every scenario
-  there), so those sweeps fail at the base case.
+  as the N-1 adapter does. Known loss of that start, reported rather than
+  worked around: on mvlv1004#sweep 40 of the 100 scenarios (60 to 76 % of
+  the base load) do not converge in `MAX_ITERATIONS` from a base case
+  loaded down to 0.67 p.u.; all do with 200 iterations, and from the flat
+  start within 30 (as VeraGrid; the other tools converge from this start).
+  case9241pegase#sweep is rejected with the importer loss the power-flow
+  adapter documents.
 - `n_threads`: the thread count (p3s: 1 is serial; its default 0, every
   core, is never passed, so the count is always the one recorded). The
   image builds the extension with OpenMP (tool-configs/p3s/Dockerfile).

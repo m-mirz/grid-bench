@@ -11,12 +11,15 @@ solver itself takes a start per outage, and here that is the base case's
 solution, as the problem asks. So the driver's steps are done here:
 
 - `load`: the power-flow adapter's net and model (`adapters/p3s_adapter.py`,
-  with its losses: an `impedance` is not in p3s's Ybus), one `outage_group`
+  with its losses), one `outage_group`
   per outage on its element (named so that p3s's sorted group order is the
   outage order, asserted), `ContingencyCaseGenerator(net).build()`, and the
   `nr_klu.Solver` on its pattern, as `solve_contingencies_cpp` builds them.
-  Every outage must be a `line` or `trafo` (the only branches p3s stamps)
-  and leave every bus served with no re-slack (none islands the grid).
+  Every outage must be a `line` or `trafo`, the only tables p3s's
+  `ContingencyCaseGenerator` takes an `outage_group` from (1.2.1 stamps an
+  `impedance` into the Ybus, but cannot take one out), and leave every bus
+  served with no re-slack (none islands the grid). case2869pegase#n1 and
+  case9241pegase#n1 each have an outage on an `impedance` and fail there.
 - `solve` (timed): the base case through the power-flow adapter's
   `calculate` (flat start), then `solve_batch_contingency` with that solution
   as the start of every outage and nothing pinned, `n_threads` = the thread
@@ -52,7 +55,7 @@ class P3sN1(ContingencyAdapter):
             net[table]["outage_group"] = None
         for name, row in zip(names, out["branch_row"]):
             table = lookup.element_type.iat[row]
-            assert table in ("line", "trafo"), f"branch row {row} is a p3s-unstamped {table}"
+            assert table in ("line", "trafo"), f"branch row {row} is an {table}, which p3s cannot take out"
             net[table].at[int(lookup.element.iat[row]), "outage_group"] = name
         gen = ContingencyCaseGenerator(net)
         batch = gen.build()
