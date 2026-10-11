@@ -21,7 +21,8 @@ share a chart only with each other and their CPU baselines (the GPU tabs).
 lightsim2grid's LODF DC N-1 (its sensitivities, a second way of running
 the same library) is its orange, dotted. ToOp, whose DC solver builds its model from pandapower's (on a GPU), is
 pandapower's blue, dash-dotted; it only appears in the DC tabs, where
-pandapower does not. JuliaGrid.jl, like Sparlectra.jl a power-system library written in Julia
+pandapower does not. rustpower, which also builds its model from pandapower nets (in Rust), is
+pandapower's blue, dotted. JuliaGrid.jl, like Sparlectra.jl a power-system library written in Julia
 (power flow and state estimation both), is Sparlectra's teal, dashed.
 Checked all-pairs, as a chart showing every tool at once needs, the palette
 fails: slot 8 red vs slot 2 orange is dE 7.1 even with full colour vision,
@@ -77,8 +78,10 @@ LIGHTSIM2GRID_LODF = "#eb6833"   # slot 2's orange, one unit off the other way: 
 LIGHT_TO_DARK[LIGHTSIM2GRID_LODF] = "#d95925"
 TOOP = "#2a78d5"   # slot 1's blue, two units off: ToOp (JAX DC on a GPU, its model from pandapower's), dash-dotted
 LIGHT_TO_DARK[TOOP] = "#3987e4"
+RUSTPOWER = "#2a78d8"   # slot 1's blue, two units off the other way: rustpower (reads pandapower nets), dotted
+LIGHT_TO_DARK[RUSTPOWER] = "#3987e7"
 DASH = {REFERENCE: "6 4", REFERENCE_DOTTED: "1.5 3.5", P3S: "6 4", EXAPF: "1.5 3.5", EXAPF_GPU: "6 3 1.5 3",
-        GPUSIM2GRID: "6 3 1.5 3", JULIAGRID: "6 4", TOOP: "6 3 1.5 3", LIGHTSIM2GRID_LODF: "1.5 3.5",
+        GPUSIM2GRID: "6 3 1.5 3", JULIAGRID: "6 4", TOOP: "6 3 1.5 3", RUSTPOWER: "1.5 3.5", LIGHTSIM2GRID_LODF: "1.5 3.5",
         **dict.fromkeys((CIMOXIDE, TRIPLETS, OPENCGMES, POWSYBL), "2 3")}
 LIGHT = {"surface": "#fcfcfb", "text": "#0b0b0b", "text2": "#52514e", "grid": "#e4e3df", "axis": "#8a8984"}
 DARK = {"surface": "#1a1a19", "text": "#ffffff", "text2": "#c3c2b7", "grid": "#33332f", "axis": "#6f6e69"}

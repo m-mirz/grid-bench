@@ -6,7 +6,7 @@ tools *read* CGMES grid models, grid-bench compares what the tools are for:
 **solving** them. It does not stop at speed. Every solve is checked by an
 oracle that none of the tools under test takes part in.
 
-v1 covers AC power flow in twelve tool setups:
+v1 covers AC power flow in sixteen tool setups:
 [pandapower](https://github.com/e2nIEE/pandapower) and its
 [parallel solver p3s](https://github.com/e2nIEE/parallel-pandapower-solver) (C++/KLU),
 [lightsim2grid](https://github.com/Grid2op/lightsim2grid),
@@ -20,6 +20,7 @@ an NVIDIA GPU as `exapf_gpu`),
 [gpusim2grid](https://github.com/Grid2op/gpusim2grid) (lightsim2grid's GPU companion, CUDA and cuDSS),
 [Sparlectra.jl](https://github.com/Welthulk/Sparlectra.jl),
 [JuliaGrid.jl](https://github.com/mcosovic/JuliaGrid.jl),
+[rustpower](https://github.com/chengts95/rustpower) (Rust, KLU),
 [MATPOWER](https://matpower.org) on GNU Octave, and power-grid-model on CGMES
 through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
@@ -335,6 +336,7 @@ output is graded but not solved by default.
 | gpusim2grid | lightsim2grid's `init_from_matpower` (.mat) | — | NR on CUDA (cuDSS); batch and N-1 a fixed 4 steps |
 | Sparlectra.jl | `createNetFromMatPowerFile` (.m) via juliacall | `importCGMES` (zip) | rectangular NR (UMFPACK) |
 | JuliaGrid.jl | `powerSystem` (.m, comments dropped) via juliacall | — | polar NR (KLU) |
+| rustpower | `from_mpc` (.mat) via `PowerGrid.from_pandapower`, buses renumbered 0..n-1 | — | NR (KLU), its own Ybus; drops pandapower's `impedance` branches |
 | MATPOWER | `loadcase` (.m), in GNU Octave | — | `runpf`, NR (UMFPACK) |
 | PGM via cgmes2pgm | — | upload to a Fuseki sidecar, `CgmesToPgmConverter` | PGM 1.12 NR (generators as fixed P/Q) |
 

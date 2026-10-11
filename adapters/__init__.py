@@ -16,6 +16,7 @@ ADAPTERS = {
     "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",   # slot 8's second variant (EXAPF_GPU)
     "sparlectra": "adapters.sparlectra_adapter:SparlectraAdapter",
     "juliagrid": "adapters.juliagrid_adapter:JuliagridAdapter",   # slot 9's variant (tools/palette.py JULIAGRID)
+    "rustpower": "adapters.rustpower_adapter:RustpowerAdapter",   # slot 1's third variant (tools/palette.py RUSTPOWER)
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
 

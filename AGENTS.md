@@ -10,7 +10,7 @@ power-grid-model, pypowsybl, VeraGrid, Sienna (PowerFlows.jl), ExaPF.jl (on
 its CPU backend, and on its CUDA backend as `exapf_gpu`, which needs an
 NVIDIA GPU), Sparlectra.jl and JuliaGrid.jl (all Julia, through juliacall), MATPOWER (GNU Octave),
 gpusim2grid (lightsim2grid's GPU companion, CUDA and cuDSS, which needs an
-NVIDIA GPU), and power-grid-model on CGMES through cgmes2pgm, and
+NVIDIA GPU), rustpower (Rust, KLU, reading pandapower nets), and power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
 VeraGrid, Sparlectra.jl and JuliaGrid.jl, and AC optimal power flow for MATPOWER,
 pandapower, VeraGrid, JuliaGrid.jl and PowerModels.jl (both Ipopt; PowerModels' own image, OPF only) on
@@ -183,7 +183,7 @@ internal compose network; the run scripts stop the sidecar afterwards.
    encoding, not another hue, see the palette's docstring (p3s is
    pandapower's blue, dashed: `P3S`; ExaPF.jl is Sienna's red, dotted: `EXAPF`, and on a
    GPU dash-dotted: `EXAPF_GPU`; gpusim2grid lightsim2grid's orange, dash-dotted: `GPUSIM2GRID`; JuliaGrid.jl Sparlectra's teal, dashed:
-   `JULIAGRID`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
+   `JULIAGRID`; rustpower pandapower's blue, dotted: `RUSTPOWER`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
    reference solver, `REFERENCE_DOTTED`; the CIM libraries, which only
    share a chart with pypowsybl, slot hues dotted: `CIMOXIDE` etc.), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,
@@ -342,7 +342,7 @@ the native path), Julia by the official image's digest and Julia packages by
 registry at a commit at least 7 days old (`REGISTRY_COMMIT` in `setup.jl`;
 move it forward deliberately, like `exclude-newer`; the one exception is
 sparlectra, pinned to its newest release on purpose, see its `setup.jl`;
-p3s likewise, through `exclude-newer-package` in its `pyproject.toml`,
+p3s and rustpower likewise, through `exclude-newer-package` in their `pyproject.toml`,
 and gpusim2grid, which has no release, at the newest commit of its main
 branch, see its Dockerfile; ToOp, which has none either, at a commit of its
 main branch at least 7 days old, its tarball by SHA-256),
