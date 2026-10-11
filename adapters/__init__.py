@@ -15,6 +15,7 @@ ADAPTERS = {
     "exapf": "adapters.exapf_adapter:ExapfAdapter",   # slot 8's variant (tools/palette.py EXAPF)
     "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",   # slot 8's second variant (EXAPF_GPU)
     "sparlectra": "adapters.sparlectra_adapter:SparlectraAdapter",
+    "juliagrid": "adapters.juliagrid_adapter:JuliagridAdapter",   # slot 9's variant (tools/palette.py JULIAGRID)
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
 
@@ -25,6 +26,7 @@ ESTIMATORS = {
     "pgm": "adapters.pgm_se_adapter:PgmEstimator",
     "veragrid": "adapters.veragrid_se_adapter:VeragridEstimator",
     "sparlectra": "adapters.sparlectra_se_adapter:SparlectraEstimator",
+    "juliagrid": "adapters.juliagrid_se_adapter:JuliagridEstimator",
 }
 
 
@@ -37,6 +39,7 @@ def _instantiate(path: str):
 OPTIMIZERS = {
     "pandapower": "adapters.pandapower_opf_adapter:PandapowerOptimizer",
     "veragrid": "adapters.veragrid_opf_adapter:VeragridOptimizer",
+    "juliagrid": "adapters.juliagrid_opf_adapter:JuliagridOptimizer",
     "matpower": "adapters.matpower_opf_adapter:MatpowerOptimizer",
     "powermodels": "adapters.powermodels_opf_adapter:PowermodelsOptimizer",
 }
@@ -56,6 +59,7 @@ BATCHES = {
     "exapf": "adapters.exapf_batch_adapter:ExapfBatch",
     "exapf_gpu": "adapters.exapf_gpu_batch_adapter:ExapfGpuBatch",
     "sparlectra": "adapters.sparlectra_batch_adapter:SparlectraBatch",
+    "juliagrid": "adapters.juliagrid_batch_adapter:JuliagridBatch",
     "matpower": "adapters.matpower_batch_adapter:MatpowerBatch",
 }
 
@@ -74,6 +78,7 @@ CONTINGENCIES = {
     "exapf": "adapters.exapf_n1_adapter:ExapfN1",
     "exapf_gpu": "adapters.exapf_gpu_n1_adapter:ExapfGpuN1",
     "sparlectra": "adapters.sparlectra_n1_adapter:SparlectraN1",
+    "juliagrid": "adapters.juliagrid_n1_adapter:JuliagridN1",
     "matpower": "adapters.matpower_n1_adapter:MatpowerN1",
 }
 

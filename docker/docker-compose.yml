@@ -151,6 +151,11 @@ services:
     image: grid-bench/p3s:latest
     command: pytest benchmarks/p3s_benchmark.py --benchmark-json=/output/p3s.json
 
+  juliagrid:
+    <<: *bench
+    image: grid-bench/juliagrid:latest
+    command: pytest benchmarks/juliagrid_benchmark.py --benchmark-json=/output/juliagrid.json
+
   matpower:
     <<: *bench
     image: grid-bench/matpower:latest
