@@ -66,7 +66,7 @@ class MatpowerDcN1(MatpowerAdapter):
     mode = "loop"
     settings = {"solver": "rundcpf per outage", "mode": "loop", "runtime": "GNU Octave"}
     too_slow = {"case9241pegase#dcn1-full": "14384 outages at about 140 ms of rundcpf each (AMD EPYC 7J13) are "
-                                            "about 33 min per call; warm-up and timed round exceed the 3600 s timeout"}
+                                            "about 33 min per call; warm-up and timed round exceed the 30-minute timeout"}
 
     def tags(self):
         return ["powerflow", "dc", "contingency", self.mode, self.language]

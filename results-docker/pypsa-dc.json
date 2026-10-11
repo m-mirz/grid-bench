@@ -1,0 +1,1216 @@
+{
+    "machine_info": {
+        "node": "dc32cc97a28c",
+        "processor": "",
+        "machine": "x86_64",
+        "python_compiler": "Clang 22.1.3 ",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.14",
+        "python_version": "3.13.14",
+        "python_build": [
+            "main",
+            "Jul 18 2026 17:02:37"
+        ],
+        "release": "6.8.0-1046-nvidia",
+        "system": "Linux",
+        "cpu": {
+            "python_version": "3.13.14.final.0 (64 bit)",
+            "cpuinfo_version": [
+                10,
+                1,
+                1
+            ],
+            "cpuinfo_version_string": "10.1.1",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 30,
+            "arch_string_raw": "x86_64",
+            "vendor_id_raw": "AuthenticAMD",
+            "brand_raw": "AMD EPYC 7J13 64-Core Processor",
+            "hz_advertised_friendly": "2.4500 GHz",
+            "hz_actual_friendly": "2.4500 GHz",
+            "hz_advertised": [
+                2449998000,
+                0
+            ],
+            "hz_actual": [
+                2449998000,
+                0
+            ],
+            "stepping": 1,
+            "model": 1,
+            "family": 25,
+            "flags": [
+                "3dnowprefetch",
+                "abm",
+                "adx",
+                "aes",
+                "apic",
+                "arat",
+                "arch_capabilities",
+                "avx",
+                "avx2",
+                "bmi1",
+                "bmi2",
+                "clflush",
+                "clflushopt",
+                "clwb",
+                "clzero",
+                "cmov",
+                "cmp_legacy",
+                "cpuid",
+                "cr8_legacy",
+                "cx16",
+                "cx8",
+                "de",
+                "erms",
+                "extd_apicid",
+                "f16c",
+                "fma",
+                "fpu",
+                "fsgsbase",
+                "fsrm",
+                "fxsr",
+                "fxsr_opt",
+                "hypervisor",
+                "ibpb",
+                "ibrs",
+                "invpcid",
+                "lahf_lm",
+                "lm",
+                "mca",
+                "mce",
+                "misalignsse",
+                "mmx",
+                "mmxext",
+                "movbe",
+                "msr",
+                "mtrr",
+                "nopl",
+                "npt",
+                "nrip_save",
+                "nx",
+                "ospke",
+                "osvw",
+                "osxsave",
+                "pae",
+                "pat",
+                "pcid",
+                "pclmulqdq",
+                "pdpe1gb",
+                "perfctr_core",
+                "pge",
+                "pku",
+                "pni",
+                "popcnt",
+                "pse",
+                "pse36",
+                "rdpid",
+                "rdrand",
+                "rdrnd",
+                "rdseed",
+                "rdtscp",
+                "rep_good",
+                "sep",
+                "sha",
+                "sha_ni",
+                "smap",
+                "smep",
+                "ssbd",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "sse4a",
+                "ssse3",
+                "stibp",
+                "svm",
+                "syscall",
+                "tsc",
+                "tsc_adjust",
+                "tsc_deadline_timer",
+                "tsc_known_freq",
+                "tscdeadline",
+                "umip",
+                "vaes",
+                "vme",
+                "vmmcall",
+                "vpclmulqdq",
+                "wbnoinvd",
+                "x2apic",
+                "xgetbv1",
+                "xsave",
+                "xsavec",
+                "xsaveerptr",
+                "xsaveopt",
+                "xsaves"
+            ],
+            "l3_cache_size": 524288,
+            "l2_cache_size": 15728640,
+            "l1_data_cache_size": "1.9 MiB",
+            "l1_instruction_cache_size": "1.9 MiB",
+            "l2_cache_line_size": 512,
+            "l2_cache_associativity": 8
+        }
+    },
+    "commit_info": {
+        "id": "unknown",
+        "time": null,
+        "author_time": null,
+        "dirty": false,
+        "error": "FileNotFoundError(2, 'No such file or directory')",
+        "project": "bench",
+        "branch": "(unknown)"
+    },
+    "benchmarks": [
+        {
+            "group": "import:case14#dc",
+            "name": "test_import[case14#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_import[case14#dc]",
+            "params": {
+                "case": "case14#dc"
+            },
+            "param": "case14#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case14#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "import",
+                "problem": "dc",
+                "rss_baseline_mb": 247.8828125,
+                "rss_import_mb": 249.7890625,
+                "rss_solve_mb": 251.94921875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.13536886700603645,
+                "max": 0.13598611300403718,
+                "mean": 0.13560182667182138,
+                "stddev": 0.0003352953556072472,
+                "rounds": 3,
+                "median": 0.1354505000053905,
+                "iqr": 0.0004629344985005446,
+                "q1": 0.13538927525587496,
+                "q3": 0.1358522097543755,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.13536886700603645,
+                "hd15iqr": 0.13598611300403718,
+                "ops": 7.374531925887427,
+                "total": 0.4068054800154641,
+                "data": [
+                    0.13598611300403718,
+                    0.13536886700603645,
+                    0.1354505000053905
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case118#dc",
+            "name": "test_import[case118#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_import[case118#dc]",
+            "params": {
+                "case": "case118#dc"
+            },
+            "param": "case118#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case118#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "dc",
+                "rss_baseline_mb": 247.23046875,
+                "rss_import_mb": 249.12890625,
+                "rss_solve_mb": 251.5703125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.1388738699897658,
+                "max": 0.14007135199790355,
+                "mean": 0.13939345032849815,
+                "stddev": 0.0006142393855517288,
+                "rounds": 3,
+                "median": 0.13923512899782509,
+                "iqr": 0.0008981115061033051,
+                "q1": 0.13896418474178063,
+                "q3": 0.13986229624788393,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.1388738699897658,
+                "hd15iqr": 0.14007135199790355,
+                "ops": 7.173938213333371,
+                "total": 0.41818035098549444,
+                "data": [
+                    0.1388738699897658,
+                    0.13923512899782509,
+                    0.14007135199790355
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case300#dc",
+            "name": "test_import[case300#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_import[case300#dc]",
+            "params": {
+                "case": "case300#dc"
+            },
+            "param": "case300#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case300#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling",
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "dc",
+                "rss_baseline_mb": 247.5859375,
+                "rss_import_mb": 249.6796875,
+                "rss_solve_mb": 252.96875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.14473636499315035,
+                "max": 0.14533395299804397,
+                "mean": 0.14511533999757376,
+                "stddev": 0.00032949178310255167,
+                "rounds": 3,
+                "median": 0.14527570200152695,
+                "iqr": 0.00044819100367021747,
+                "q1": 0.1448711992452445,
+                "q3": 0.14531939024891471,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.14473636499315035,
+                "hd15iqr": 0.14533395299804397,
+                "ops": 6.891070234316506,
+                "total": 0.43534601999272127,
+                "data": [
+                    0.14473636499315035,
+                    0.14527570200152695,
+                    0.14533395299804397
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case1354pegase#dc",
+            "name": "test_import[case1354pegase#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_import[case1354pegase#dc]",
+            "params": {
+                "case": "case1354pegase#dc"
+            },
+            "param": "case1354pegase#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case1354pegase#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "dc",
+                "rss_baseline_mb": 247.43359375,
+                "rss_import_mb": 250.70703125,
+                "rss_solve_mb": 287.85546875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.18510421300015878,
+                "max": 0.3448412690049736,
+                "mean": 0.265542259333112,
+                "stddev": 0.07987461936471321,
+                "rounds": 3,
+                "median": 0.26668129599420354,
+                "iqr": 0.1198027920036111,
+                "q1": 0.20549848374866997,
+                "q3": 0.32530127575228107,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.18510421300015878,
+                "hd15iqr": 0.3448412690049736,
+                "ops": 3.7658789320819204,
+                "total": 0.7966267779993359,
+                "data": [
+                    0.18510421300015878,
+                    0.26668129599420354,
+                    0.3448412690049736
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2869pegase#dc",
+            "name": "test_import[case2869pegase#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_import[case2869pegase#dc]",
+            "params": {
+                "case": "case2869pegase#dc"
+            },
+            "param": "case2869pegase#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case2869pegase#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "dc",
+                "rss_baseline_mb": 247.11328125,
+                "rss_import_mb": 253.37109375,
+                "rss_solve_mb": 423.8984375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.24666547399829142,
+                "max": 0.24872496799798682,
+                "mean": 0.24744246733219674,
+                "stddev": 0.0011189424161400325,
+                "rounds": 3,
+                "median": 0.24693696000031196,
+                "iqr": 0.001544620499771554,
+                "q1": 0.24673334549879655,
+                "q3": 0.2482779659985681,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.24666547399829142,
+                "hd15iqr": 0.24872496799798682,
+                "ops": 4.041343471803807,
+                "total": 0.7423274019965902,
+                "data": [
+                    0.24666547399829142,
+                    0.24693696000031196,
+                    0.24872496799798682
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case9241pegase#dc",
+            "name": "test_import[case9241pegase#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_import[case9241pegase#dc]",
+            "params": {
+                "case": "case9241pegase#dc"
+            },
+            "param": "case9241pegase#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case9241pegase#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "dc",
+                "rss_baseline_mb": 247.41015625,
+                "rss_import_mb": 278.0390625,
+                "rss_solve_mb": 2058.6875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.525601197994547,
+                "max": 0.6144660449936055,
+                "mean": 0.5599848006628841,
+                "stddev": 0.04771977219490592,
+                "rounds": 3,
+                "median": 0.5398871590005001,
+                "iqr": 0.06664863524929387,
+                "q1": 0.5291726882460352,
+                "q3": 0.5958213234953291,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.525601197994547,
+                "hd15iqr": 0.6144660449936055,
+                "ops": 1.7857627543037706,
+                "total": 1.6799544019886525,
+                "data": [
+                    0.525601197994547,
+                    0.5398871590005001,
+                    0.6144660449936055
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case3120sp#dc",
+            "name": "test_import[case3120sp#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_import[case3120sp#dc]",
+            "params": {
+                "case": "case3120sp#dc"
+            },
+            "param": "case3120sp#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case3120sp#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "dc",
+                "rss_baseline_mb": 247.41796875,
+                "rss_import_mb": 253.0703125,
+                "rss_solve_mb": 456.55859375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.23545463499613106,
+                "max": 0.2382608390034875,
+                "mean": 0.23654260699792454,
+                "stddev": 0.0015055284743203724,
+                "rounds": 3,
+                "median": 0.2359123469941551,
+                "iqr": 0.0021046530055173207,
+                "q1": 0.23556906299563707,
+                "q3": 0.2376737160011544,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.23545463499613106,
+                "hd15iqr": 0.2382608390034875,
+                "ops": 4.227568186093316,
+                "total": 0.7096278209937736,
+                "data": [
+                    0.23545463499613106,
+                    0.2382608390034875,
+                    0.2359123469941551
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2848rte#dc",
+            "name": "test_import[case2848rte#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_import[case2848rte#dc]",
+            "params": {
+                "case": "case2848rte#dc"
+            },
+            "param": "case2848rte#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case2848rte#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "dc",
+                "rss_baseline_mb": 247.50390625,
+                "rss_import_mb": 252.375,
+                "rss_solve_mb": 421.00390625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.23171955499856267,
+                "max": 0.23208807400078513,
+                "mean": 0.23184591799993845,
+                "stddev": 0.00020977983171556903,
+                "rounds": 3,
+                "median": 0.23173012500046752,
+                "iqr": 0.00027638925166684203,
+                "q1": 0.23172219749903888,
+                "q3": 0.23199858675070573,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.23171955499856267,
+                "hd15iqr": 0.23208807400078513,
+                "ops": 4.313209430757653,
+                "total": 0.6955377539998153,
+                "data": [
+                    0.23208807400078513,
+                    0.23173012500046752,
+                    0.23171955499856267
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case14#dc",
+            "name": "test_solve[case14#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_solve[case14#dc]",
+            "params": {
+                "case": "case14#dc"
+            },
+            "param": "case14#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case14#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "solve",
+                "problem": "dc",
+                "dc_angles": true,
+                "dc_max_balance_mw": 3.219646771412954e-13,
+                "dc_max_dflow_mw": 3.410605131648481e-13,
+                "dc_worst_bus": "4",
+                "dc_worst_branch": 0,
+                "dc_n_buses": 14,
+                "dc_n_reported_buses": 14,
+                "dc_n_branches": 20,
+                "dc_n_reported_branches": 20,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11390761598886456,
+                "max": 0.24090307900041807,
+                "mean": 0.12244509199808817,
+                "stddev": 0.02958640411368277,
+                "rounds": 18,
+                "median": 0.11517113500303822,
+                "iqr": 0.0013511339930118993,
+                "q1": 0.11479150000377558,
+                "q3": 0.11614263399678748,
+                "iqr_outliers": 2,
+                "stddev_outliers": 1,
+                "outliers": "1;2",
+                "ld15iqr": 0.11390761598886456,
+                "hd15iqr": 0.11904053400212433,
+                "ops": 8.166925955804041,
+                "total": 2.204011655965587,
+                "data": [
+                    0.1171651920012664,
+                    0.11904053400212433,
+                    0.11614263399678748,
+                    0.11537763600063045,
+                    0.11525063100270927,
+                    0.11475431799772196,
+                    0.11670920001051854,
+                    0.11489674198674038,
+                    0.11495053299586289,
+                    0.11496888299006969,
+                    0.11479150000377558,
+                    0.11467343500407878,
+                    0.11509163900336716,
+                    0.24090307900041807,
+                    0.1153195029910421,
+                    0.11471258699020837,
+                    0.11535599399940111,
+                    0.11390761598886456
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case118#dc",
+            "name": "test_solve[case118#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_solve[case118#dc]",
+            "params": {
+                "case": "case118#dc"
+            },
+            "param": "case118#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case118#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "dc",
+                "dc_angles": true,
+                "dc_max_balance_mw": 8.548717289613705e-13,
+                "dc_max_dflow_mw": 1.5347723092418164e-12,
+                "dc_worst_bus": "56",
+                "dc_worst_branch": 106,
+                "dc_n_buses": 118,
+                "dc_n_reported_buses": 118,
+                "dc_n_branches": 186,
+                "dc_n_reported_branches": 186,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.15350960100477096,
+                "max": 0.15658275299938396,
+                "mean": 0.15462940115629373,
+                "stddev": 0.0009541462982357156,
+                "rounds": 13,
+                "median": 0.15428517101099715,
+                "iqr": 0.0010059345040644985,
+                "q1": 0.1540213260013843,
+                "q3": 0.1550272605054488,
+                "iqr_outliers": 1,
+                "stddev_outliers": 4,
+                "outliers": "4;1",
+                "ld15iqr": 0.15350960100477096,
+                "hd15iqr": 0.15658275299938396,
+                "ops": 6.467075423704427,
+                "total": 2.0101822150318185,
+                "data": [
+                    0.15445567600545473,
+                    0.1540341840009205,
+                    0.1560232880001422,
+                    0.15428517101099715,
+                    0.15350960100477096,
+                    0.1538257079955656,
+                    0.15398275200277567,
+                    0.15599946600559633,
+                    0.15470319200539961,
+                    0.15425699099432677,
+                    0.1544255049957428,
+                    0.15409792801074218,
+                    0.15658275299938396
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case300#dc",
+            "name": "test_solve[case300#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_solve[case300#dc]",
+            "params": {
+                "case": "case300#dc"
+            },
+            "param": "case300#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case300#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling",
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "dc",
+                "dc_angles": true,
+                "dc_max_balance_mw": 3.863576125695545e-12,
+                "dc_max_dflow_mw": 8.412825991399586e-12,
+                "dc_worst_bus": "137",
+                "dc_worst_branch": 204,
+                "dc_n_buses": 300,
+                "dc_n_reported_buses": 300,
+                "dc_n_branches": 411,
+                "dc_n_reported_branches": 411,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.23013569301110692,
+                "max": 0.23553686600644141,
+                "mean": 0.23180669844926646,
+                "stddev": 0.001732409294233972,
+                "rounds": 9,
+                "median": 0.23136461499962024,
+                "iqr": 0.0017986127531912643,
+                "q1": 0.2305189037542732,
+                "q3": 0.23231751650746446,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.23013569301110692,
+                "hd15iqr": 0.23553686600644141,
+                "ops": 4.313939185924179,
+                "total": 2.086260286043398,
+                "data": [
+                    0.23013569301110692,
+                    0.230628727003932,
+                    0.2319286210113205,
+                    0.23136461499962024,
+                    0.2301894340052968,
+                    0.23348420299589634,
+                    0.23129228300240356,
+                    0.2316998440073803,
+                    0.23553686600644141
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case1354pegase#dc",
+            "name": "test_solve[case1354pegase#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_solve[case1354pegase#dc]",
+            "params": {
+                "case": "case1354pegase#dc"
+            },
+            "param": "case1354pegase#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case1354pegase#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "dc",
+                "dc_angles": true,
+                "dc_max_balance_mw": 1.3926637620897964e-10,
+                "dc_max_dflow_mw": 1.0169287634198554e-10,
+                "dc_worst_bus": "5589",
+                "dc_worst_branch": 107,
+                "dc_n_buses": 1354,
+                "dc_n_reported_buses": 1354,
+                "dc_n_branches": 1991,
+                "dc_n_reported_branches": 1991,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.7501528220018372,
+                "max": 0.773933403994306,
+                "mean": 0.7570890158007387,
+                "stddev": 0.009581682840276195,
+                "rounds": 5,
+                "median": 0.7538231290091062,
+                "iqr": 0.0076764095028920565,
+                "q1": 0.7519984699974884,
+                "q3": 0.7596748795003805,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.7501528220018372,
+                "hd15iqr": 0.773933403994306,
+                "ops": 1.3208486441219138,
+                "total": 3.7854450790036935,
+                "data": [
+                    0.7538231290091062,
+                    0.7501528220018372,
+                    0.773933403994306,
+                    0.7549220380024053,
+                    0.7526136859960388
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case2869pegase#dc",
+            "name": "test_solve[case2869pegase#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_solve[case2869pegase#dc]",
+            "params": {
+                "case": "case2869pegase#dc"
+            },
+            "param": "case2869pegase#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case2869pegase#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "dc",
+                "dc_angles": true,
+                "dc_max_balance_mw": 3.774758283725532e-10,
+                "dc_max_dflow_mw": 1.9167600839864463e-10,
+                "dc_worst_bus": "838",
+                "dc_worst_branch": 4098,
+                "dc_n_buses": 2869,
+                "dc_n_reported_buses": 2869,
+                "dc_n_branches": 4582,
+                "dc_n_reported_branches": 4582,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.7150926549948053,
+                "max": 1.8525632189994212,
+                "mean": 1.7447302407963434,
+                "stddev": 0.060337508256557607,
+                "rounds": 5,
+                "median": 1.7187687830009963,
+                "iqr": 0.03885921775145107,
+                "q1": 1.7154873304934881,
+                "q3": 1.7543465482449392,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.7150926549948053,
+                "hd15iqr": 1.8525632189994212,
+                "ops": 0.5731545064201857,
+                "total": 8.723651203981717,
+                "data": [
+                    1.7150926549948053,
+                    1.715618888993049,
+                    1.8525632189994212,
+                    1.7216076579934452,
+                    1.7187687830009963
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case9241pegase#dc",
+            "name": "test_solve[case9241pegase#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_solve[case9241pegase#dc]",
+            "params": {
+                "case": "case9241pegase#dc"
+            },
+            "param": "case9241pegase#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case9241pegase#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "dc",
+                "dc_angles": true,
+                "dc_max_balance_mw": 6.835865207222014e-10,
+                "dc_max_dflow_mw": 5.165929906070232e-10,
+                "dc_worst_bus": "8336",
+                "dc_worst_branch": 2214,
+                "dc_n_buses": 9241,
+                "dc_n_reported_buses": 9241,
+                "dc_n_branches": 16049,
+                "dc_n_reported_branches": 16049,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 9.163892823009519,
+                "max": 9.338975430000573,
+                "mean": 9.253534922804102,
+                "stddev": 0.06974219867891959,
+                "rounds": 5,
+                "median": 9.279415632001474,
+                "iqr": 0.10391398950741859,
+                "q1": 9.192923060250905,
+                "q3": 9.296837049758324,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 9.163892823009519,
+                "hd15iqr": 9.338975430000573,
+                "ops": 0.10806680996422605,
+                "total": 46.26767461402051,
+                "data": [
+                    9.282790923010907,
+                    9.338975430000573,
+                    9.202599805998034,
+                    9.163892823009519,
+                    9.279415632001474
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case3120sp#dc",
+            "name": "test_solve[case3120sp#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_solve[case3120sp#dc]",
+            "params": {
+                "case": "case3120sp#dc"
+            },
+            "param": "case3120sp#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case3120sp#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "dc",
+                "dc_angles": true,
+                "dc_max_balance_mw": 2.2506441155201173e-10,
+                "dc_max_dflow_mw": 1.418811734765768e-10,
+                "dc_worst_bus": "212",
+                "dc_worst_branch": 3038,
+                "dc_n_buses": 3120,
+                "dc_n_reported_buses": 3120,
+                "dc_n_branches": 3693,
+                "dc_n_reported_branches": 3693,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 2.968540688001667,
+                "max": 3.0866293239960214,
+                "mean": 3.013287097396096,
+                "stddev": 0.06029203000972576,
+                "rounds": 5,
+                "median": 2.9711408659932204,
+                "iqr": 0.10667438224481884,
+                "q1": 2.968605788748391,
+                "q3": 3.07528017099321,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 2.968540688001667,
+                "hd15iqr": 3.0866293239960214,
+                "ops": 0.33186349912165375,
+                "total": 15.066435486980481,
+                "data": [
+                    3.0866293239960214,
+                    2.9711408659932204,
+                    3.071497119992273,
+                    2.9686274889972992,
+                    2.968540688001667
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case2848rte#dc",
+            "name": "test_solve[case2848rte#dc]",
+            "fullname": "benchmarks/pypsa_dc_benchmark.py::test_solve[case2848rte#dc]",
+            "params": {
+                "case": "case2848rte#dc"
+            },
+            "param": "case2848rte#dc",
+            "extra_info": {
+                "tool": "pypsa",
+                "case": "case2848rte#dc",
+                "family": "dc-matpower",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "dc",
+                "dc_angles": true,
+                "dc_max_balance_mw": 2.1329604749098507e-10,
+                "dc_max_dflow_mw": 8.452616384602152e-11,
+                "dc_worst_bus": "74",
+                "dc_worst_branch": 180,
+                "dc_n_buses": 2848,
+                "dc_n_reported_buses": 2848,
+                "dc_n_branches": 3776,
+                "dc_n_reported_branches": 3776,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.5004451440036064,
+                "max": 1.6385605049872538,
+                "mean": 1.5338901035982417,
+                "stddev": 0.058910461290324,
+                "rounds": 5,
+                "median": 1.5138253909972264,
+                "iqr": 0.04492161874077283,
+                "q1": 1.5011472010046418,
+                "q3": 1.5460688197454147,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 1.5004451440036064,
+                "hd15iqr": 1.6385605049872538,
+                "ops": 0.651937187451808,
+                "total": 7.6694505179912085,
+                "data": [
+                    1.501381220004987,
+                    1.5004451440036064,
+                    1.6385605049872538,
+                    1.515238257998135,
+                    1.5138253909972264
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-10-11T10:10:01.833852+00:00",
+    "version": "5.3.0",
+    "grid_bench": {
+        "schema_version": 1,
+        "git_sha": "1982d24e088e8406afeebaff5e5727ab00e6a009",
+        "container_image": "grid-bench/pypsa",
+        "cpus": {
+            "available": 30,
+            "logical": 30,
+            "model": "AMD EPYC 7J13 64-Core Processor"
+        },
+        "tools": {
+            "pypsa": {
+                "display_name": "PyPSA",
+                "color": "#1baf7a",
+                "tags": [
+                    "powerflow",
+                    "dc",
+                    "python"
+                ],
+                "language": "python",
+                "version": "1.2.4",
+                "dependencies": {
+                    "numpy": "2.5.3",
+                    "scipy": "1.18.1",
+                    "pandas": "3.0.5",
+                    "xarray": "2026.7.0",
+                    "netcdf4": "1.7.4",
+                    "linopy": "0.9.1",
+                    "matplotlib": "3.11.1",
+                    "plotly": "7.0.0",
+                    "pydeck": "0.9.3",
+                    "seaborn": "0.13.2",
+                    "geopandas": "1.1.4",
+                    "shapely": "2.1.2",
+                    "networkx": "3.6.1",
+                    "deprecation": "2.1.0",
+                    "validators": "0.35.0",
+                    "highspy": "1.15.1",
+                    "levenshtein": "0.27.4",
+                    "platformdirs": "4.11.8"
+                },
+                "settings": {
+                    "api": "lpf",
+                    "transformer_model": "pi"
+                },
+                "families": [
+                    "dc-matpower"
+                ],
+                "problem": "dc"
+            }
+        }
+    },
+    "failures": []
+}
