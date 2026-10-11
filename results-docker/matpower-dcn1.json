@@ -1,0 +1,974 @@
+{
+    "machine_info": {
+        "node": "55ae5e0c6d56",
+        "processor": "",
+        "machine": "x86_64",
+        "python_compiler": "Clang 22.1.3 ",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.14",
+        "python_version": "3.13.14",
+        "python_build": [
+            "main",
+            "Jul 18 2026 17:02:37"
+        ],
+        "release": "6.8.0-1046-nvidia",
+        "system": "Linux",
+        "cpu": {
+            "python_version": "3.13.14.final.0 (64 bit)",
+            "cpuinfo_version": [
+                10,
+                1,
+                1
+            ],
+            "cpuinfo_version_string": "10.1.1",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 30,
+            "arch_string_raw": "x86_64",
+            "vendor_id_raw": "AuthenticAMD",
+            "brand_raw": "AMD EPYC 7J13 64-Core Processor",
+            "hz_advertised_friendly": "2.4500 GHz",
+            "hz_actual_friendly": "2.4500 GHz",
+            "hz_advertised": [
+                2449998000,
+                0
+            ],
+            "hz_actual": [
+                2449998000,
+                0
+            ],
+            "stepping": 1,
+            "model": 1,
+            "family": 25,
+            "flags": [
+                "3dnowprefetch",
+                "abm",
+                "adx",
+                "aes",
+                "apic",
+                "arat",
+                "arch_capabilities",
+                "avx",
+                "avx2",
+                "bmi1",
+                "bmi2",
+                "clflush",
+                "clflushopt",
+                "clwb",
+                "clzero",
+                "cmov",
+                "cmp_legacy",
+                "cpuid",
+                "cr8_legacy",
+                "cx16",
+                "cx8",
+                "de",
+                "erms",
+                "extd_apicid",
+                "f16c",
+                "fma",
+                "fpu",
+                "fsgsbase",
+                "fsrm",
+                "fxsr",
+                "fxsr_opt",
+                "hypervisor",
+                "ibpb",
+                "ibrs",
+                "invpcid",
+                "lahf_lm",
+                "lm",
+                "mca",
+                "mce",
+                "misalignsse",
+                "mmx",
+                "mmxext",
+                "movbe",
+                "msr",
+                "mtrr",
+                "nopl",
+                "npt",
+                "nrip_save",
+                "nx",
+                "ospke",
+                "osvw",
+                "osxsave",
+                "pae",
+                "pat",
+                "pcid",
+                "pclmulqdq",
+                "pdpe1gb",
+                "perfctr_core",
+                "pge",
+                "pku",
+                "pni",
+                "popcnt",
+                "pse",
+                "pse36",
+                "rdpid",
+                "rdrand",
+                "rdrnd",
+                "rdseed",
+                "rdtscp",
+                "rep_good",
+                "sep",
+                "sha",
+                "sha_ni",
+                "smap",
+                "smep",
+                "ssbd",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "sse4a",
+                "ssse3",
+                "stibp",
+                "svm",
+                "syscall",
+                "tsc",
+                "tsc_adjust",
+                "tsc_deadline_timer",
+                "tsc_known_freq",
+                "tscdeadline",
+                "umip",
+                "vaes",
+                "vme",
+                "vmmcall",
+                "vpclmulqdq",
+                "wbnoinvd",
+                "x2apic",
+                "xgetbv1",
+                "xsave",
+                "xsavec",
+                "xsaveerptr",
+                "xsaveopt",
+                "xsaves"
+            ],
+            "l3_cache_size": 524288,
+            "l2_cache_size": 15728640,
+            "l1_data_cache_size": "1.9 MiB",
+            "l1_instruction_cache_size": "1.9 MiB",
+            "l2_cache_line_size": 512,
+            "l2_cache_associativity": 8
+        }
+    },
+    "commit_info": {
+        "id": "a8af387891b01400cf468e27b6efa7cc0c4a75e2",
+        "time": "2026-10-11T10:19:23Z",
+        "author_time": "2026-10-11T10:19:23Z",
+        "dirty": false,
+        "project": "grid-bench",
+        "branch": "add-exapf-lambda"
+    },
+    "benchmarks": [
+        {
+            "group": "import:case14#dcn1",
+            "name": "test_import[case14#dcn1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_import[case14#dcn1]",
+            "params": {
+                "case": "case14#dcn1"
+            },
+            "param": "case14#dcn1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case14#dcn1",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "import",
+                "problem": "dcn1",
+                "rss_baseline_mb": 158.91015625,
+                "rss_import_mb": 158.96484375,
+                "rss_solve_mb": 160.640625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.03926205634999999,
+                "max": 0.039541006090000004,
+                "mean": 0.03936100006,
+                "stddev": 0.00015614597066320964,
+                "rounds": 3,
+                "median": 0.03927993773999999,
+                "iqr": 0.00020921230500001164,
+                "q1": 0.03926652669749999,
+                "q3": 0.0394757390025,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.03926205634999999,
+                "hd15iqr": 0.039541006090000004,
+                "ops": 25.405858552263627,
+                "total": 0.11808300017999998,
+                "data": [
+                    0.039541006090000004,
+                    0.03927993773999999,
+                    0.03926205634999999
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case1354pegase#dcn1",
+            "name": "test_import[case1354pegase#dcn1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_import[case1354pegase#dcn1]",
+            "params": {
+                "case": "case1354pegase#dcn1"
+            },
+            "param": "case1354pegase#dcn1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case1354pegase#dcn1",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "dcn1",
+                "rss_baseline_mb": 158.73828125,
+                "rss_import_mb": 225.0625,
+                "rss_solve_mb": 225.75
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11578798289999997,
+                "max": 0.11817789080000002,
+                "mean": 0.11669898033333333,
+                "stddev": 0.0012922108391021383,
+                "rounds": 3,
+                "median": 0.1161310673,
+                "iqr": 0.0017924309250000325,
+                "q1": 0.11587375399999998,
+                "q3": 0.11766618492500001,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.11578798289999997,
+                "hd15iqr": 0.11817789080000002,
+                "ops": 8.569055163495417,
+                "total": 0.350096941,
+                "data": [
+                    0.11817789080000002,
+                    0.11578798289999997,
+                    0.1161310673
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2869pegase#dcn1",
+            "name": "test_import[case2869pegase#dcn1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_import[case2869pegase#dcn1]",
+            "params": {
+                "case": "case2869pegase#dcn1"
+            },
+            "param": "case2869pegase#dcn1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case2869pegase#dcn1",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "dcn1",
+                "rss_baseline_mb": 158.56640625,
+                "rss_import_mb": 305.11328125,
+                "rss_solve_mb": 305.80078125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.2103111743999999,
+                "max": 0.2124180793999999,
+                "mean": 0.2112290859333333,
+                "stddev": 0.0010792943206980182,
+                "rounds": 3,
+                "median": 0.2109580040000001,
+                "iqr": 0.0015801787499999942,
+                "q1": 0.21047288179999996,
+                "q3": 0.21205306054999995,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.2103111743999999,
+                "hd15iqr": 0.2124180793999999,
+                "ops": 4.734196503201331,
+                "total": 0.6336872577999999,
+                "data": [
+                    0.2124180793999999,
+                    0.2103111743999999,
+                    0.2109580040000001
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case9241pegase#dcn1",
+            "name": "test_import[case9241pegase#dcn1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_import[case9241pegase#dcn1]",
+            "params": {
+                "case": "case9241pegase#dcn1"
+            },
+            "param": "case9241pegase#dcn1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case9241pegase#dcn1",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "dcn1",
+                "rss_baseline_mb": 158.2265625,
+                "rss_import_mb": 647.65234375,
+                "rss_solve_mb": 647.71875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.6169550418999998,
+                "max": 0.6177141665999999,
+                "mean": 0.6173404057666665,
+                "stddev": 0.0003796953388236994,
+                "rounds": 3,
+                "median": 0.6173520087999997,
+                "iqr": 0.0005693435250000434,
+                "q1": 0.6170542836249998,
+                "q3": 0.6176236271499999,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.6169550418999998,
+                "hd15iqr": 0.6177141665999999,
+                "ops": 1.6198518526551229,
+                "total": 1.8520212172999995,
+                "data": [
+                    0.6177141665999999,
+                    0.6169550418999998,
+                    0.6173520087999997
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case1354pegase#dcn1-full",
+            "name": "test_import[case1354pegase#dcn1-full]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_import[case1354pegase#dcn1-full]",
+            "params": {
+                "case": "case1354pegase#dcn1-full"
+            },
+            "param": "case1354pegase#dcn1-full",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case1354pegase#dcn1-full",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "dcn1",
+                "rss_baseline_mb": 159.05078125,
+                "rss_import_mb": 225.93359375,
+                "rss_solve_mb": 248.33203125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11614298820000002,
+                "max": 0.11802697179999999,
+                "mean": 0.1172349452999999,
+                "stddev": 0.000977147545092031,
+                "rounds": 3,
+                "median": 0.11753487589999967,
+                "iqr": 0.001412987699999979,
+                "q1": 0.11649096012499993,
+                "q3": 0.11790394782499991,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.11614298820000002,
+                "hd15iqr": 0.11802697179999999,
+                "ops": 8.529879870213074,
+                "total": 0.3517048358999997,
+                "data": [
+                    0.11614298820000002,
+                    0.11802697179999999,
+                    0.11753487589999967
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:case2869pegase#dcn1-full",
+            "name": "test_import[case2869pegase#dcn1-full]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_import[case2869pegase#dcn1-full]",
+            "params": {
+                "case": "case2869pegase#dcn1-full"
+            },
+            "param": "case2869pegase#dcn1-full",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case2869pegase#dcn1-full",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "dcn1",
+                "rss_baseline_mb": 158.9921875,
+                "rss_import_mb": 307.18359375,
+                "rss_solve_mb": 524.10546875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.2092409134000004,
+                "max": 0.2106969356999997,
+                "mean": 0.2101309299666667,
+                "stddev": 0.0007802163159097845,
+                "rounds": 3,
+                "median": 0.21045494080000005,
+                "iqr": 0.0010920167249994783,
+                "q1": 0.2095444202500003,
+                "q3": 0.21063643697499979,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.2092409134000004,
+                "hd15iqr": 0.2106969356999997,
+                "ops": 4.7589376783257515,
+                "total": 0.6303927899000001,
+                "data": [
+                    0.21045494080000005,
+                    0.2106969356999997,
+                    0.2092409134000004
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case14#dcn1",
+            "name": "test_solve[case14#dcn1-1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_solve[case14#dcn1-1]",
+            "params": {
+                "case": "case14#dcn1",
+                "threads": 1
+            },
+            "param": "case14#dcn1-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case14#dcn1",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "solve",
+                "problem": "dcn1",
+                "threads": 1,
+                "mode": "loop",
+                "dc_max_balance_mw": 3.622102617839573e-13,
+                "dc_max_dflow_mw": 9.663381206337363e-13,
+                "dc_angles": true,
+                "dc_worst_bus": "5",
+                "dc_worst_branch": 1,
+                "dc_n_buses": 14,
+                "dc_n_reported_buses": 14,
+                "dc_n_branches": 19,
+                "dc_n_reported_branches": 19,
+                "scenarios": 19,
+                "scenarios_failed": 0,
+                "worst_scenario": 11,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 1.2857291699999998,
+                "max": 1.2901868820000004,
+                "mean": 1.2875673769999998,
+                "stddev": 0.0016573452020017317,
+                "rounds": 5,
+                "median": 1.2870559690000007,
+                "iqr": 0.0018246765000000664,
+                "q1": 1.2866514922499994,
+                "q3": 1.2884761687499995,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 1.2857291699999998,
+                "hd15iqr": 1.2901868820000004,
+                "ops": 0.776658385311047,
+                "total": 6.437836884999999,
+                "data": [
+                    1.2869589329999993,
+                    1.2879059309999992,
+                    1.2901868820000004,
+                    1.2870559690000007,
+                    1.2857291699999998
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case1354pegase#dcn1",
+            "name": "test_solve[case1354pegase#dcn1-1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_solve[case1354pegase#dcn1-1]",
+            "params": {
+                "case": "case1354pegase#dcn1",
+                "threads": 1
+            },
+            "param": "case1354pegase#dcn1-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case1354pegase#dcn1",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "dcn1",
+                "threads": 1,
+                "mode": "loop",
+                "dc_max_balance_mw": 2.899014361901209e-10,
+                "dc_max_dflow_mw": 1.2505552149377763e-10,
+                "dc_angles": true,
+                "dc_worst_bus": "2928",
+                "dc_worst_branch": 517,
+                "dc_n_buses": 1354,
+                "dc_n_reported_buses": 1354,
+                "dc_n_branches": 1990,
+                "dc_n_reported_branches": 1990,
+                "scenarios": 200,
+                "scenarios_failed": 0,
+                "worst_scenario": 45,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 14.446592090000003,
+                "max": 14.515336989999994,
+                "mean": 14.470094441999997,
+                "stddev": 0.02801252744892239,
+                "rounds": 5,
+                "median": 14.463360069999993,
+                "iqr": 0.03790629500000087,
+                "q1": 14.448231634999997,
+                "q3": 14.486137929999998,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 14.446592090000003,
+                "hd15iqr": 14.515336989999994,
+                "ops": 0.06910804929492803,
+                "total": 72.35047220999999,
+                "data": [
+                    14.446592090000003,
+                    14.515336989999994,
+                    14.47640491,
+                    14.463360069999993,
+                    14.448778149999995
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case2869pegase#dcn1",
+            "name": "test_solve[case2869pegase#dcn1-1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_solve[case2869pegase#dcn1-1]",
+            "params": {
+                "case": "case2869pegase#dcn1",
+                "threads": 1
+            },
+            "param": "case2869pegase#dcn1-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case2869pegase#dcn1",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "dcn1",
+                "threads": 1,
+                "mode": "loop",
+                "dc_max_balance_mw": 5.456968210637569e-10,
+                "dc_max_dflow_mw": 5.834408511873335e-10,
+                "dc_angles": true,
+                "dc_worst_bus": "243",
+                "dc_worst_branch": 4098,
+                "dc_n_buses": 2869,
+                "dc_n_reported_buses": 2869,
+                "dc_n_branches": 4581,
+                "dc_n_reported_branches": 4581,
+                "scenarios": 200,
+                "scenarios_failed": 0,
+                "worst_scenario": 51,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 16.477209090000002,
+                "max": 16.70725988999999,
+                "mean": 16.55089697799999,
+                "stddev": 0.09475516831938474,
+                "rounds": 5,
+                "median": 16.502408979999984,
+                "iqr": 0.1165624274999999,
+                "q1": 16.490130007499992,
+                "q3": 16.606692434999992,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 16.477209090000002,
+                "hd15iqr": 16.70725988999999,
+                "ops": 0.06041968609491278,
+                "total": 82.75448488999996,
+                "data": [
+                    16.70725988999999,
+                    16.573169949999993,
+                    16.49443697999999,
+                    16.477209090000002,
+                    16.502408979999984
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case9241pegase#dcn1",
+            "name": "test_solve[case9241pegase#dcn1-1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_solve[case9241pegase#dcn1-1]",
+            "params": {
+                "case": "case9241pegase#dcn1",
+                "threads": 1
+            },
+            "param": "case9241pegase#dcn1-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case9241pegase#dcn1",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "dcn1",
+                "threads": 1,
+                "mode": "loop",
+                "dc_max_balance_mw": 1.3461232128975098e-09,
+                "dc_max_dflow_mw": 1.501462065789383e-09,
+                "dc_angles": true,
+                "dc_worst_bus": "8336",
+                "dc_worst_branch": 5853,
+                "dc_n_buses": 9241,
+                "dc_n_reported_buses": 9241,
+                "dc_n_branches": 16048,
+                "dc_n_reported_branches": 16048,
+                "scenarios": 200,
+                "scenarios_failed": 0,
+                "worst_scenario": 191,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 27.69380307,
+                "max": 27.81352996999999,
+                "mean": 27.750240802000008,
+                "stddev": 0.04837455807830545,
+                "rounds": 5,
+                "median": 27.740300890000015,
+                "iqr": 0.07814317999999787,
+                "q1": 27.713183820000012,
+                "q3": 27.79132700000001,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 27.69380307,
+                "hd15iqr": 27.81352996999999,
+                "ops": 0.03603572333426124,
+                "total": 138.75120401000004,
+                "data": [
+                    27.69380307,
+                    27.783926010000016,
+                    27.740300890000015,
+                    27.719644070000015,
+                    27.81352996999999
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case1354pegase#dcn1-full",
+            "name": "test_solve[case1354pegase#dcn1-full-1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_solve[case1354pegase#dcn1-full-1]",
+            "params": {
+                "case": "case1354pegase#dcn1-full",
+                "threads": 1
+            },
+            "param": "case1354pegase#dcn1-full-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case1354pegase#dcn1-full",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "dcn1",
+                "threads": 1,
+                "mode": "loop",
+                "dc_max_balance_mw": 3.183231456205249e-10,
+                "dc_max_dflow_mw": 1.7121237760875374e-10,
+                "dc_angles": true,
+                "dc_worst_bus": "2928",
+                "dc_worst_branch": 517,
+                "dc_n_buses": 1354,
+                "dc_n_reported_buses": 1354,
+                "dc_n_branches": 1990,
+                "dc_n_reported_branches": 1990,
+                "scenarios": 1430,
+                "scenarios_failed": 0,
+                "worst_scenario": 1406,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 103.02998709999997,
+                "max": 103.02998709999997,
+                "mean": 103.02998709999997,
+                "stddev": 0,
+                "rounds": 1,
+                "median": 103.02998709999997,
+                "iqr": 0.0,
+                "q1": 103.02998709999997,
+                "q3": 103.02998709999997,
+                "iqr_outliers": 0,
+                "stddev_outliers": 0,
+                "outliers": "0;0",
+                "ld15iqr": 103.02998709999997,
+                "hd15iqr": 103.02998709999997,
+                "ops": 0.009705912114978808,
+                "total": 103.02998709999997,
+                "data": [
+                    103.02998709999997
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:case2869pegase#dcn1-full",
+            "name": "test_solve[case2869pegase#dcn1-full-1]",
+            "fullname": "benchmarks/matpower_dcn1_benchmark.py::test_solve[case2869pegase#dcn1-full-1]",
+            "params": {
+                "case": "case2869pegase#dcn1-full",
+                "threads": 1
+            },
+            "param": "case2869pegase#dcn1-full-1",
+            "extra_info": {
+                "tool": "matpower",
+                "case": "case2869pegase#dcn1-full",
+                "family": "dcn1-matpower",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "dcn1",
+                "threads": 1,
+                "mode": "loop",
+                "dc_max_balance_mw": 6.821210263296962e-10,
+                "dc_max_dflow_mw": 7.589733286295086e-10,
+                "dc_angles": true,
+                "dc_worst_bus": "4797",
+                "dc_worst_branch": 3441,
+                "dc_n_buses": 2869,
+                "dc_n_reported_buses": 2869,
+                "dc_n_branches": 4581,
+                "dc_n_reported_branches": 4581,
+                "scenarios": 3804,
+                "scenarios_failed": 0,
+                "worst_scenario": 2415,
+                "oracle_ok": true
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "clock",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 315.0148308,
+                "max": 315.0148308,
+                "mean": 315.0148308,
+                "stddev": 0,
+                "rounds": 1,
+                "median": 315.0148308,
+                "iqr": 0.0,
+                "q1": 315.0148308,
+                "q3": 315.0148308,
+                "iqr_outliers": 0,
+                "stddev_outliers": 0,
+                "outliers": "0;0",
+                "ld15iqr": 315.0148308,
+                "hd15iqr": 315.0148308,
+                "ops": 0.0031744537152756805,
+                "total": 315.0148308,
+                "data": [
+                    315.0148308
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-10-11T10:57:18.031452+00:00",
+    "version": "5.3.0",
+    "grid_bench": {
+        "schema_version": 1,
+        "git_sha": "a8af387891b01400cf468e27b6efa7cc0c4a75e2",
+        "container_image": "grid-bench/matpower",
+        "cpus": {
+            "available": 30,
+            "logical": 30,
+            "model": "AMD EPYC 7J13 64-Core Processor"
+        },
+        "tools": {
+            "matpower": {
+                "display_name": "MATPOWER (Octave)",
+                "color": "#52514e",
+                "tags": [
+                    "powerflow",
+                    "dc",
+                    "contingency",
+                    "loop",
+                    "matlab"
+                ],
+                "language": "matlab",
+                "version": "8.1",
+                "dependencies": {
+                    "octave": "11.3.0"
+                },
+                "settings": {
+                    "solver": "rundcpf per outage",
+                    "mode": "loop",
+                    "runtime": "GNU Octave"
+                },
+                "families": [
+                    "dcn1-matpower"
+                ],
+                "problem": "dcn1"
+            }
+        }
+    },
+    "failures": [
+        {
+            "tool": "matpower",
+            "case": "case9241pegase#dcn1-full",
+            "operation": "import",
+            "error": "NotRun: 14384 outages at about 140 ms of rundcpf each (AMD EPYC 7J13) are about 33 min per call; warm-up and timed round exceed the 3600 s timeout"
+        },
+        {
+            "tool": "matpower",
+            "case": "case9241pegase#dcn1-full",
+            "operation": "solve",
+            "error": "NotRun: 14384 outages at about 140 ms of rundcpf each (AMD EPYC 7J13) are about 33 min per call; warm-up and timed round exceed the 3600 s timeout",
+            "threads": 1
+        }
+    ]
+}

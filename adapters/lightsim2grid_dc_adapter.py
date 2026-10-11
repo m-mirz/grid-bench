@@ -30,7 +30,9 @@ Settings:
   fault in `compute`, case14 already, at 2 threads and at 30, with DC_KLU
   and DC_SparseLU alike; its AC algorithms run threaded, see the N-1
   adapter). A crash would take every other case's record with it, so the
-  thread axis is not run. Reported, not worked around.
+  thread axis is not run. Reported, not worked around: running `dc_pf`
+  first, `reuse_base_case = False` and `init_from_n_powerflow = False`
+  crash the same way (case14, 2 threads).
 
 Results (first run, AMD EPYC 7J13): the DC power flow is exact on every
 case, phase shifters included (case9241pegase 0.98 ms). The DC N-1 is exact
@@ -172,7 +174,14 @@ class Lightsim2gridDcN1Lodf(DcContingencyAdapter):
     graded by `oracle.dc`'s flows-only verdict. The base flows come from
     `dc_pf`, exact on phase shifters, and an outaged shifter's injection
     travels with its flow, so this path does not share the contingency
-    analysis' phase-shifter loss."""
+    analysis' phase-shifter loss.
+
+    Results (AMD EPYC 7J13): exact on every DC N-1 case, full ones
+    included (to 8e-10 MW), the one CPU path that is. The time is
+    `get_lodf`, which builds the whole branch x branch matrix whatever the
+    number of outages: case1354pegase 117 ms of 131, case2869pegase 628 of
+    686, case9241pegase 7.9 s of 8.6 (`dc_pf` 13 ms, the flows of 14384
+    outages 0.7 s), so 200 outages cost about as much as all of them."""
     name = "lightsim2grid_lodf"
     display_name = "lightsim2grid (LODF)"
     color = "#eb6833"   # tools/palette.py LIGHTSIM2GRID_LODF: lightsim2grid's orange, dotted

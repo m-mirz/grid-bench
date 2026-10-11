@@ -252,6 +252,10 @@ An outage may be solved anew or from the base case's sensitivities
 - MATPOWER: `rundcpf`, and a loop of it for N-1 (the reference).
 - lightsim2grid: `dc_pf`, and `ContingencyAnalysisCPP` on its DC algorithm.
   The latter runs on one thread, because it crashes on more in 1.1.0.
+- lightsim2grid (LODF): its sensitivity path (`get_lodf`), the same method
+  as ToOp, on one CPU core (it has no thread setting). Exact on every DC N-1
+  case, full ones included; `get_lodf` builds the whole branch × branch
+  matrix, 7.9 s on case9241pegase, whatever the number of outages.
 - pypowsybl: OpenLoadFlow's `run_dc` and its DC security analysis,
   threaded.
 - PyPSA: `lpf`, DC power flow only.

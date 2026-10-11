@@ -37,7 +37,7 @@ def _input(case: str) -> str:
         return f"{c['scenario']} measurements"
     if c["problem"] == "opf":
         return OPF_CONDITION[case.partition("__")[2]]
-    return input_label(case).strip("`")
+    return input_label(case).replace("`", "")
 
 
 def payload(res: Results, kind: str = "pf") -> dict:
