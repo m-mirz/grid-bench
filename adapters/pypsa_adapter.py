@@ -25,6 +25,11 @@ Settings:
   start on every solve rather than seeding from the previous result.
 - PyPSA's AC power flow has no reactive limits or distributed slack to
   disable in this call.
+No N-1 (AC or DC): PyPSA has no AC contingency analysis, and its DC one
+(`lpf_contingency`) returns flows without angles, so both would be loops of
+single solves written here, and those are too slow to run (one AC N-1 call
+took about 25 min on case9241pegase, one `lpf` 9.4 s there). Removed on
+2026-10-11.
 """
 import logging
 

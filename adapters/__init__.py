@@ -70,7 +70,6 @@ CONTINGENCIES = {
     "p3s": "adapters.p3s_n1_adapter:P3sN1",
     "lightsim2grid": "adapters.lightsim2grid_n1_adapter:Lightsim2gridN1",
     "gpusim2grid": "adapters.gpusim2grid_n1_adapter:Gpusim2gridN1",
-    "pypsa": "adapters.pypsa_n1_adapter:PypsaN1",
     "pgm": "adapters.pgm_n1_adapter:PgmN1",
     "pypowsybl": "adapters.pypowsybl_n1_adapter:PypowsyblN1",
     "veragrid": "adapters.veragrid_n1_adapter:VeragridN1",
@@ -92,12 +91,27 @@ CIM = {
     "pypowsybl": "adapters.pypowsybl_cim_adapter:PypowsyblCim",
 }
 
+# DC power flow and DC N-1 (adapters/dc_adapter.py), by the same tool names.
+DC = {
+    "lightsim2grid": "adapters.lightsim2grid_dc_adapter:Lightsim2gridDc",
+    "pypsa": "adapters.pypsa_dc_adapter:PypsaDc",
+    "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDc",
+    "toop": "adapters.toop_dc_adapter:ToopDc",
+    "matpower": "adapters.matpower_dc_adapter:MatpowerDc",
+}
+DC_CONTINGENCIES = {
+    "lightsim2grid": "adapters.lightsim2grid_dc_adapter:Lightsim2gridDcN1",
+    "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDcN1",
+    "toop": "adapters.toop_dc_adapter:ToopDcN1",
+    "matpower": "adapters.matpower_dc_adapter:MatpowerDcN1",
+}
+
 REGISTRIES = {"pf": ADAPTERS, "se": ESTIMATORS, "opf": OPTIMIZERS, "batch": BATCHES,
-              "n1": CONTINGENCIES, "cim": CIM}   # by the registry's `problem`
+              "n1": CONTINGENCIES, "dc": DC, "dcn1": DC_CONTINGENCIES, "cim": CIM}   # by the registry's `problem`
 
 
 def get(name: str, problem: str = "pf"):
-    """The tool's adapter for one problem ("pf", "se", "opf", "batch", "n1", "cim")."""
+    """The tool's adapter for one problem ("pf", "se", "opf", "batch", "n1", "dc", "dcn1", "cim")."""
     return _instantiate(REGISTRIES[problem][name])
 
 

@@ -219,12 +219,43 @@ they have one:
   line-contingency block formulation, one Newton system for every outage;
   also on a GPU, `exapf_gpu`) and gpusim2grid (`ContingencyAnalysisGPU`,
   on a GPU, a fixed 4 Newton steps per outage);
-- as a loop of single solves with the branch taken out: pandapower, PyPSA,
+- as a loop of single solves with the branch taken out: pandapower,
   Sienna (which rebuilds its power-flow data for each outage), Sparlectra.jl,
   JuliaGrid.jl and MATPOWER.
 
+PyPSA is not run: it has no AC contingency analysis, and a loop of its
+single solves took about 25 minutes per call on case9241pegase.
+
 The oracle grades every outage of every thread count with tier 1 against the
 case with that branch out of service.
+
+## DC power flow and DC N-1
+
+The linearised power flow that remedial-action and market tools run in
+bulk, on MATPOWER's DC model (`makeBdc`): branch admittance 1/(x·tap),
+resistance and charging left out, phase shifts as injections, shunt
+conductance as load, the case's reference bus. `<case>#dc` covers every
+default transmission case, and `<case>#dcn1` the N-1 cases' 200 outages.
+A tool reports bus angles and from-end branch flows. The oracle
+(`oracle/dc.py`) checks two things to 1e-3 MW:
+
+- the nodal balance |Bθ − P| with the tool's angles, whatever its
+  reference angle;
+- the flows, against the oracle's own solution of the model.
+
+An outage may be solved anew or from the base case's sensitivities
+(LODF, PTDF): both are exact in DC.
+
+- MATPOWER: `rundcpf`, and a loop of it for N-1 (the reference).
+- lightsim2grid: `dc_pf`, and `ContingencyAnalysisCPP` on its DC algorithm.
+  The latter runs on one thread, because it crashes on more in 1.1.0.
+- pypowsybl: OpenLoadFlow's `run_dc` and its DC security analysis,
+  threaded.
+- PyPSA: `lpf`, DC power flow only.
+- ToOp (Elia Group's topology optimizer): its JAX DC solver on a GPU, from
+  pandapower's model of the case. Flows come from PTDF in the base case and
+  LODF per outage, all outages in one batched call. It computes no angles,
+  so it is graded on its flows alone, marked "(flows)" on the site.
 
 ## CIM import, export and validation
 

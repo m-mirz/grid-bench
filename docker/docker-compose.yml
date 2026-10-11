@@ -141,6 +141,19 @@ services:
               device_ids: ["${GRID_BENCH_GPU:-0}"]
               capabilities: [gpu]
 
+  # ToOp (JAX on CUDA): one NVIDIA GPU, as exapf_gpu; DC only. See adapters/toop_dc_adapter.py.
+  toop:
+    <<: *bench
+    image: grid-bench/toop:latest
+    command: pytest benchmarks/toop_dc_benchmark.py --benchmark-json=/output/toop-dc.json
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${GRID_BENCH_GPU:-0}"]
+              capabilities: [gpu]
+
   sparlectra:
     <<: *bench
     image: grid-bench/sparlectra:latest

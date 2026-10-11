@@ -28,7 +28,7 @@ export HOST_UID="$(id -u)" HOST_GID="$(id -g)"
 export GIT_SHA="$(git rev-parse HEAD 2>/dev/null || echo unknown)$(git diff --quiet HEAD -- . ":!results-docker" ":!results" ":!docs" 2>/dev/null || echo -dirty)"
 compose="docker compose -f docker/docker-compose.yml"
 # Batch benchmarks measure a tool's own parallelism: BLAS stays on one thread.
-blas_env() { [[ "$1" = _batch || "$1" = _n1 ]] && echo "-e OPENBLAS_NUM_THREADS=1 -e MKL_NUM_THREADS=1"; }
+blas_env() { [[ "$1" = _batch || "$1" = _n1 || "$1" = _dcn1 ]] && echo "-e OPENBLAS_NUM_THREADS=1 -e MKL_NUM_THREADS=1"; }
 mkdir -p results-docker data/.case-cache
 
 $compose run --rm prep || { echo "input preparation failed"; exit 1; }
@@ -41,7 +41,7 @@ for t in "${tools[@]}"; do
     echo "=== $t"
     # Every problem the tool has a benchmark for (power flow, state estimation,
     # OPF, batch power flow, N-1, CIM), in the same container, a JSON each: <tool>.json, <tool>-se.json, ...
-    for suffix in "" _se _opf _batch _n1 _cim; do
+    for suffix in "" _se _opf _batch _n1 _dc _dcn1 _cim; do
         if [ -f "benchmarks/${t}${suffix}_benchmark.py" ]; then
             $compose run --rm $(blas_env "$suffix") "$t" pytest "benchmarks/${t}${suffix}_benchmark.py" \
                 "--benchmark-json=/output/$t${suffix/_/-}.json" "${extra[@]}" || failed+=("$t${suffix/_/-}")

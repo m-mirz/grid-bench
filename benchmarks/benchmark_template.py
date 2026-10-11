@@ -6,7 +6,9 @@
 (a state-estimation benchmark file passes `"se"`, an optimal-power-flow one
 `"opf"`: the same tests, on the tool's `EstimatorAdapter` or
 `OptimizerAdapter`, over that problem's cases, graded by `oracle.wls` or
-`oracle.opf`; a batch one `"batch"` and an N-1 one `"n1"`, see below)
+`oracle.opf`; a batch one `"batch"` and an N-1 one `"n1"`, see below; a DC
+power flow `"dc"` and DC N-1 `"dcn1"`, graded by `oracle.dc` on angles and
+branch flows, DC N-1 with the thread axis of N-1)
 
 which injects two tests into that module, each parametrized over every case
 the tool can read (selected by `--groups` / `--cases`, see conftest.py):
@@ -86,7 +88,7 @@ import pytest
 from adapters import get, memory
 from adapters.solver_adapter import NotRun
 from cases.registry import CASES
-from oracle.evaluate import evaluate, evaluate_batch
+from oracle.evaluate import evaluate, evaluate_batch, evaluate_dc
 
 IMPORT_ROUNDS = 3
 SLOW_IMPORT_SECONDS = 30.0
@@ -180,6 +182,41 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
         sol = adapter.solution(model, case)
         benchmark.extra_info.update(evaluate_batch(case, sol.bus_ids, sol.vm, sol.va_deg))
 
+    def test_solve_dc(benchmark, case):
+        _record(benchmark, adapter, case, "solve")
+        _skip_too_slow(adapter, case)
+        model = adapter.load(case)
+        t0 = time.perf_counter()
+        adapter.solve(model)                      # warm-up
+        if time.perf_counter() - t0 > SLOW_SOLVE_SECONDS:
+            rounds = 1
+        else:
+            t0 = time.perf_counter()
+            adapter.solve(model)                  # calibration
+            rounds = min(MAX_ROUNDS, max(MIN_ROUNDS, math.ceil(TARGET_SECONDS / (time.perf_counter() - t0))))
+        benchmark.pedantic(adapter.solve, args=(model,), rounds=rounds, iterations=1)
+        sol = adapter.solution(model, case)
+        benchmark.extra_info.update(evaluate_dc(case, sol.bus_ids, sol.va_deg, sol.branch_rows, sol.pf_mw))
+
+    @pytest.mark.timeout(BATCH_TIMEOUT_SECONDS)
+    def test_solve_dcn1(benchmark, case, threads):
+        _record(benchmark, adapter, case, "solve")
+        benchmark.extra_info.update({"threads": threads, "mode": adapter.mode})
+        _skip_too_slow(adapter, case)
+        model = adapter.load(case)
+        t0 = time.perf_counter()
+        adapter.solve(model, threads)             # warm-up
+        if time.perf_counter() - t0 > SLOW_SOLVE_SECONDS:
+            rounds = 1
+        else:
+            t0 = time.perf_counter()
+            adapter.solve(model, threads)         # calibration
+            rounds = min(MAX_ROUNDS, max(MIN_ROUNDS, math.ceil(TARGET_SECONDS / (time.perf_counter() - t0))))
+        benchmark.pedantic(adapter.solve, args=(model, threads), rounds=rounds, iterations=1)
+        sol = adapter.solution(model, case)
+        benchmark.extra_info.update(evaluate_dc(case, sol.bus_ids, sol.va_deg, sol.branch_rows, sol.pf_mw))
+        benchmark.extra_info["scenarios"] = len(sol.pf_mw)
+
     def test_export(benchmark, case, tmp_path):
         _record(benchmark, adapter, case, "export")
         _skip_too_slow(adapter, case)
@@ -220,4 +257,5 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
         if adapter.validates:
             namespace["test_validate"] = test_validate
     else:
-        namespace["test_solve"] = test_solve_batch if problem in ("batch", "n1") else test_solve
+        namespace["test_solve"] = {"batch": test_solve_batch, "n1": test_solve_batch, "dc": test_solve_dc,
+                                   "dcn1": test_solve_dcn1}.get(problem, test_solve)

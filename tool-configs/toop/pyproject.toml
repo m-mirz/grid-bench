@@ -1,0 +1,58 @@
+# Dependencies of the ToOp benchmark image (Elia Group's topology optimizer,
+# its JAX DC solver on an NVIDIA GPU). ToOp is not on PyPI and has no
+# release: tool-configs/toop/Dockerfile adds the sources of four of its
+# packages (dc_solver, interfaces, grid_helpers, contingency_analysis) from a
+# pinned commit. Their third-party dependencies are listed here, with ToOp's
+# own bounds at that commit, so this lockfile pins every one. See
+# adapters/toop_dc_adapter.py for how the tool is driven.
+[project]
+name = "grid-bench-toop"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "jax[cuda12]>=0.8.3,<0.9.0",   # with NVIDIA's CUDA 12 wheels, so the image needs no CUDA install
+    # toop_engine_dc_solver
+    "numpy>=2.1.0,<2.4.0",
+    "pandas[hdf5]>=2.2.3,<3.0.0",
+    "scipy>=1.11.3,<2.0.0",
+    "h5py>=3.14.0,<4.0.0",
+    "jaxtyping>=0.3.10,<0.4.0",
+    "chex>=0.1.91,<0.2.0",
+    "beartype>=0.22.0,<0.23.0",
+    "equinox>=0.13.8,<0.14.0",
+    "flax>=0.12.6,<0.13.0",
+    "jax-dataclasses>=1.6.3,<2.0.0",
+    "tqdm>=4.66.1,<5.0.0",
+    "numba>=0.60.0,<0.67.0",
+    "overrides>=7.7.0,<8.0.0",
+    "pypowsybl>=1.15.0,<2.0.0",
+    "pydantic>=2.8.2,<3.0.0",
+    "numpydantic>=1.6.4,<2.0.0",
+    "matpowercaseframes>=1.0.8,<2.0.0",
+    "tyro>=0.8.8,<0.9.0",
+    "ray>=2.56.0,<3.0.0",
+    "pandera[polars]>=0.32.0,<0.33.0",
+    "kafka>=1.3.5,<2.0.0",
+    "confluent-kafka>=2.3.0,<3.0.0",
+    "pandapower>=3.4.0,<4.0.0",
+    "lxml>=5.0.0",
+    # toop_engine_interfaces, grid_helpers, contingency_analysis
+    "structlog>=24.4.0,<25.0.0",
+    "polars>=1.33.0",
+    "pyarrow>=21.0.0",
+    "fsspec>=2024.0.0",
+    "protobuf>=5,<8",
+    "mypy-protobuf>=3.7.0",
+    "fonttools>=4.60.2",
+    "orjson>=3.11.3",
+    "networkx>=2.5.0",
+    "shapely>=2.0.0,<3.0.0",
+    # the harness
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"
