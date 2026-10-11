@@ -64,6 +64,14 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   keyed `<case>#n1`, all solved in one timed call from the tool's solution of
   the base case, each graded by tier 1 against the case with that branch out.
   `problem` is "n1". Radial grids have no such outage.
+- `dc-matpower`: DC power flow, MATPOWER's DC model (`oracle/dc.py`). A
+  transmission case in the default groups but the hard ones (those are
+  about AC convergence; a DC power flow always solves), keyed `<case>#dc`,
+  graded on angles (nodal balance) and branch flows. `problem` is "dc".
+- `dcn1-matpower`: DC N-1, the `n1-matpower` cases' outages (the same 200
+  per case, `outages_of`) on the DC model, keyed `<case>#dcn1`, every
+  outage graded as a DC power flow with that branch out. `problem` is
+  "dcn1".
 - `cim-cgmes`: CIM import, export and validation, timed like cim-bench and,
   unlike every other family, not graded (AGENTS.md, rule 1). A CGMES
   fixture read whole, every profile including SV (`cim_files`), keyed
@@ -108,7 +116,7 @@ SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstri
 SCENARIOS = ("exact", "noisy")   # see cases/measurements.py
 FAMILIES = (("matpower", "distribution", "cgmes") + tuple(f"converted-{c}" for c in CONVERTERS)
             + ("se-matpower", "se-distribution", "opf-pglib", "sweep-matpower", "sweep-distribution",
-               "n1-matpower", "cim-cgmes"))
+               "n1-matpower", "dc-matpower", "dcn1-matpower", "cim-cgmes"))
 GRIDS = ("transmission", "distribution", "fixtures")
 
 
@@ -248,6 +256,24 @@ for _base in N1_FROM:
         "source": f"{_base}, N-1 branch outages", "note": CASES[_base]["note"],
     }
 
+# DC power flow: every default transmission MATPOWER case but the hard ones.
+DC_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c["groups"]
+           and c["groups"] != ["robustness"]]
+for _base in DC_FROM:
+    CASES[f"{_base}#dc"] = {
+        "family": "dc-matpower", "grid": CASES[_base]["grid"], "format": "matpower", "problem": "dc",
+        "file": CASES[_base]["file"], "base_case": _base, "groups": CASES[_base]["groups"],
+        "source": f"{_base}, DC power flow", "note": CASES[_base]["note"],
+    }
+
+# DC N-1: the N-1 cases' own outages on the DC model.
+for _base in N1_FROM:
+    CASES[f"{_base}#dcn1"] = {
+        "family": "dcn1-matpower", "grid": CASES[_base]["grid"], "format": "matpower", "problem": "dcn1",
+        "file": CASES[_base]["file"], "base_case": _base, "outages_of": f"{_base}#n1",
+        "groups": CASES[_base]["groups"], "source": f"{_base}, DC N-1 branch outages", "note": CASES[_base]["note"],
+    }
+
 # CIM import/export/validate: the two largest fixtures, Svedala also the smoke case.
 for _base, _groups in (("cgmes_svedala", ["smoke", "scaling"]), ("cgmes_realgrid", ["scaling"])):
     CASES[f"{_base}#cim"] = {
@@ -344,8 +370,9 @@ def sweep_path(key: str) -> Path:
 
 
 def contingency_path(key: str) -> Path:
-    """The outages of a contingency case (`cases.contingency`)."""
-    return CACHE / f"{key}.n1.npz"
+    """The outages of a contingency case (`cases.contingency`); a DC N-1 case
+    has its AC counterpart's (`outages_of`)."""
+    return CACHE / f"{CASES[key].get('outages_of', key)}.n1.npz"
 
 
 def measurements_path(key: str) -> Path:

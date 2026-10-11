@@ -22,6 +22,9 @@ Returns flat fields that go straight into a result record's `extra_info`:
 - sweep-*, n1-*: batch power flow and N-1 contingencies, tier 1 on every
   scenario (`oracle.batch`), through `evaluate_batch`: the solution is one
   voltage set per scenario.
+- dc-*, dcn1-*: DC power flow and DC N-1, against MATPOWER's DC model
+  (`oracle.dc`), through `evaluate_dc`: angles by nodal balance, branch flows
+  against the model's own solution, per outage for DC N-1.
 """
 from functools import lru_cache
 
@@ -31,7 +34,7 @@ from cases import contingency, sweep
 from cases.matpower import ANGLE, parse_m
 from cases.pglib import reference_objective
 from cases.registry import CASES, cgmes_files, cgmes_sv_file, contingency_path, measurements_path, sweep_path
-from oracle import batch, cgmes_model, cgmes_sv, opf, wls
+from oracle import batch, cgmes_model, cgmes_sv, dc, opf, wls
 from oracle.residual import residual
 
 RESIDUAL_OK_MVA = 1e-3   # all tools are asked to converge to 1e-8 p.u. (1e-6 MVA on 100 MVA)
@@ -97,3 +100,14 @@ def evaluate_batch(case: str, bus_ids: list[str], vm: np.ndarray, va_deg: np.nda
         scenario, n = (lambda k: sweep.scenario(mpc, data, k)), len(data["scale"])
     return batch.check(scenario, n, bus_ids, vm, va_deg, tol_mva=RESIDUAL_OK_MVA, tol_pu=SETPOINT_OK_PU,
                        vm_floor=VM_FLOOR_PU)
+
+
+def evaluate_dc(case: str, bus_ids: list[str], va_deg: np.ndarray, branch_rows: list[int], pf_mw: np.ndarray) -> dict:
+    """A DC power flow (`va_deg` per bus, `pf_mw` per branch row) or a DC
+    N-1 (both outages x ...), against MATPOWER's DC model."""
+    mpc = _mpc(case)
+    if CASES[case]["problem"] == "dcn1":
+        data = contingency.read(contingency_path(case))
+        return dc.check_batch(lambda k: contingency.outage(mpc, data, k), len(data["branch_row"]), bus_ids, va_deg,
+                              branch_rows, pf_mw, tol_mw=RESIDUAL_OK_MVA)
+    return dc.check(mpc, bus_ids, va_deg, branch_rows, pf_mw, tol_mw=RESIDUAL_OK_MVA)

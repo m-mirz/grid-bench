@@ -12,7 +12,8 @@ its state-estimation smoke cases (`<case>~<scenario>`) in the same entry,
 read from `<tool>-se.json`, a tool with an OPF its OPF smoke case,
 from `<tool>-opf.json`, and its batch smoke cases (`<case>#sweep`) from
 `<tool>-batch.json`, and its N-1 smoke case (`case14#n1`) from
-`<tool>-n1.json`. A batch or N-1 case has a record per thread count; their
+`<tool>-n1.json`, its DC smoke cases (`case14#dc`, `case14#dcn1`) from
+`<tool>-dc.json` and `<tool>-dcn1.json`. A batch or N-1 case has a record per thread count; their
 outcomes must agree (`inconsistent` otherwise, which no expectation names:
 a thread count that changes the answer is a race). A CIM library's smoke
 case (`<case>#cim`, from `<tool>-cim.json`) is timed, not graded: `done`
@@ -47,7 +48,7 @@ def outcomes(results: dict) -> dict[str, str]:
 
 def main(tool: str, results_dir: str = "results-docker") -> int:
     expected = json.loads((ROOT / "benchmarks" / "smoke_expectations.json").read_text())[tool]
-    paths = [Path(results_dir) / f"{tool}{suffix}.json" for suffix in ("", "-se", "-opf", "-batch", "-n1", "-cim")]
+    paths = [Path(results_dir) / f"{tool}{suffix}.json" for suffix in ("", "-se", "-opf", "-batch", "-n1", "-dc", "-dcn1", "-cim")]
     runs = [json.loads(p.read_text()) for p in paths if p.exists()]
     results = {"benchmarks": [b for r in runs for b in r["benchmarks"]],
                "failures": [f for r in runs for f in r["failures"]]}

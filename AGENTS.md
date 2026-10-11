@@ -20,8 +20,14 @@ threads (power-grid-model, p3s, lightsim2grid) or on one thread (PyPSA,
 VeraGrid, Sienna, ExaPF.jl), or on one GPU (ExaPF.jl's CUDA backend,
 gpusim2grid), or a loop of single solves (pandapower, pypowsybl,
 Sparlectra.jl, JuliaGrid.jl, MATPOWER), and N-1 contingency analysis for the same tools
-(200 branch outages per transmission case, through a native contingency API
-where there is one), and CIM libraries reading, writing and validating CGMES
+but PyPSA (200 branch outages per transmission case, through a native
+contingency API where there is one; PyPSA has none, and a loop of its solves
+is too slow), and DC power flow and DC N-1 on MATPOWER's DC model
+for MATPOWER, lightsim2grid, pypowsybl and ToOp (Elia's topology
+optimizer, its JAX DC solver on an NVIDIA GPU, PTDF and LODF, graded on
+flows only since it computes no angles), and DC power flow for PyPSA
+(angles and flows graded),
+and CIM libraries reading, writing and validating CGMES
 (import, export, validate on the Svedala and RealGrid conformity models) for
 cimoxide, triplets, OpenCGMES, PowSyBl's Java CgmesModel (the last two
 through JPype) and pypowsybl, timed only, as in cim-bench. The
@@ -63,7 +69,13 @@ settings, a tool-independent oracle).
    the same, every outage started from the base-case solution, as
    contingency analysis is done. These two are the exceptions to the flat
    start; a tool that cannot start from the base case says what it does
-   instead. CIM
+   instead. DC (`adapters/dc_adapter.py`): MATPOWER's DC model (`makeBdc`:
+   b = 1/(x·tap), phase shifts as injections, Gs as load, the case's
+   reference bus), angles and from-end flows of every branch row (a tool
+   that computes no angles reports `bus_ids=None` and is graded on its
+   flows alone, `oracle.dc`); DC N-1
+   the N-1 cases' outages on it, solved anew or from the base case's
+   sensitivities (both exact in DC). CIM
    (`adapters/cim_adapter.py`): every profile of the case as published,
    from the uncompressed XML; export warm, into an emptied directory;
    validate from files to report in one call, parsing included; cimoxide
@@ -94,19 +106,21 @@ cases/       registry.py (every case: groups, family, grid, problem), matpower.p
              gridoxide_matpower.py (vendored MATPOWER->PGM converter, gridoxide 0.0.2),
              matpower_to_cgmes.py (cimoxide converter), convert_pypowsybl.py (pypowsybl converter)
 oracle/      ybus.py, residual.py (tier 1), cgmes_sv.py (tier 2), wls.py (state estimation), opf.py (AC-OPF),
-             batch.py (batch power flow, tier 1 per scenario),
+             batch.py (batch power flow, tier 1 per scenario), dc.py (DC power flow and DC N-1),
              evaluate.py (entry point),
              cgmes_model.py (tool-free CGMES reader: TN->bus join, converter fidelity),
              check_conversion.py (writes conversion.json)
 adapters/    solver_adapter.py (the ABCs), <tool>_adapter.py, estimator_adapter.py + <tool>_se_adapter.py
              (state estimation), optimizer_adapter.py + <tool>_opf_adapter.py (AC-OPF),
              batch_adapter.py + <tool>_batch_adapter.py (batch power flow) and <tool>_n1_adapter.py (N-1),
+             dc_adapter.py + <tool>_dc_adapter.py (DC power flow and DC N-1),
              cim_adapter.py + <tool>_cim_adapter.py (CIM import/export/validate), jvm.py (JPype, Java tools),
              cgmes_ids.py, memory.py,
              octave_session.py + matpower_octave/ (MATPOWER's Octave side, timed inside Octave)
 benchmarks/  benchmark_template.py (generates tests), conftest.py (selection, failures, metadata),
              <tool>_benchmark.py, <tool>_se_benchmark.py, <tool>_opf_benchmark.py,
-             <tool>_batch_benchmark.py, <tool>_n1_benchmark.py, <tool>_cim_benchmark.py (3 lines each)
+             <tool>_batch_benchmark.py, <tool>_n1_benchmark.py, <tool>_dc_benchmark.py,
+             <tool>_dcn1_benchmark.py, <tool>_cim_benchmark.py (3 lines each)
 tools/       benchmark_data.py (loader, grids, scoreboard) + generate_{site,all}.py,
              palette.py, check_smoke.py (CI's smoke outcomes)
 tool-configs/<tool>/pyproject.toml   dependencies of each image (tools pinned exactly)
@@ -121,6 +135,8 @@ tool-configs/juliagrid/Dockerfile, julia/   the same for JuliaGrid.jl (GridBench
              estimation, OPF with JuMP and Ipopt, batch and N-1 loops)
 tool-configs/gpusim2grid/Dockerfile   compiles gpusim2grid (CUDA, cuDSS; not on PyPI) and the lightsim2grid
              it is seeded from (with its C++ headers) from pinned sources; needs-gpu, like exapf_gpu
+tool-configs/toop/Dockerfile          ToOp's sources (four of its packages, pure Python) from a pinned commit on
+             this lockfile's JAX with CUDA 12 wheels; needs-gpu, DC only (adapters/toop_dc_adapter.py)
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
 tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources,
              with OpenMP for its batch solver (libgomp from the same pinned gcc image)
@@ -128,12 +144,12 @@ tool-configs/<tool>/pom.xml, jars.sha256   a Java library (opencgmes, powsybl): 
              SHA-256 of every jar they resolve to; built by docker/java-tool.dockerfile
 docker/      base.dockerfile, tool.dockerfile, java-tool.dockerfile, docker-compose.yml, build.sh, run_*.sh
 tests/       the oracle's own tests (test_wls.py: state estimation, test_opf.py: AC-OPF, test_batch.py and
-             test_contingency.py: sweeps and outages), and the converter's
+             test_contingency.py: sweeps and outages, test_dc.py: DC), and the converter's
              (exactness + planted errors)
 data/        submodules: benchmark-grids (MATPOWER, PGLib-OPF), CGMES-Test-Configurations,
              application-profiles-library (ENTSO-E's CGMES RDFS and SHACL)
 results-docker/  published results: <tool>.json, <tool>-se.json, <tool>-opf.json, <tool>-batch.json, <tool>-n1.json,
-             <tool>-cim.json; gpu/: GPU tools and the CPU baselines run on their machine
+             <tool>-dc.json, <tool>-dcn1.json, <tool>-cim.json; gpu/: GPU tools and the CPU baselines run on their machine
              (conversion.json, the conversion check's record, is written there but not tracked)
 docs/index.html  generated site
 ```
@@ -207,7 +223,13 @@ internal compose network; the run scripts stop the sidecar afterwards.
    on `ContingencyAdapter` or `LoopContingencyAdapter`, in `CONTINGENCIES`,
    `create_benchmarks("<tool>", "n1")`, `<tool>-n1.json`; outages are joined
    by branch row (with from and to bus to assert). On `case14#n1` a correct
-   tool passes all 19 outages. A CIM library (most have no power-flow
+   tool passes all 19 outages. DC: `adapters/<tool>_dc_adapter.py` with
+   a `DcAdapter` and a `DcContingencyAdapter` (`adapters/dc_adapter.py`,
+   returning a `DcSolution`: angles per bus number, from-end flows per
+   branch row), in `DC` and `DC_CONTINGENCIES`, `create_benchmarks("<tool>",
+   "dc")` and `"dcn1"`, `<tool>-dc.json` and `<tool>-dcn1.json`. On
+   `case14#dc` a correct tool balances to 1e-13 MW and its flows equal
+   MATPOWER's `rundcpf` (branch 1-2: 147.84 MW). A CIM library (most have no power-flow
    adapter): `adapters/<tool>_cim_adapter.py` on `CimAdapter` (`load`,
    `export`, `counts`, and `validate` with `validates = True` if it has a
    validator), in `CIM`, `create_benchmarks("<tool>", "cim")`,
@@ -241,11 +263,15 @@ keyed `<case>#sweep`, each scenario graded by tier 1 in `oracle.batch`),
 and `n1-matpower` (N-1: a transmission case plus its outages, keyed
 `<case>#n1`, each graded the same way against the case with that branch
 out; radial grids have no outage that keeps them connected), and
+`dc-matpower`, `dcn1-matpower` (DC power flow on the default transmission
+cases, keyed `<case>#dc`, and the N-1 cases' outages on the DC model,
+`<case>#dcn1`, graded by `oracle.dc`: the nodal balance with the tool's
+angles and the flows against the oracle's own solution), and
 `cim-cgmes` (CIM import, export and validation: a CGMES fixture read whole,
 SV included, keyed `<case>#cim`, timed and not graded). A tool declares the families it
 reads in `SolverAdapter.families`. Converted cases are keyed
 `<case>@<converter>`, state-estimation cases `<case>~<scenario>`; a case's
-`problem` ("pf", "se", "opf", "batch", "n1" or "cim") says which adapter solves it. Branch on a case's input
+`problem` ("pf", "se", "opf", "batch", "n1", "dc", "dcn1" or "cim") says which adapter solves it. Branch on a case's input
 format with `is_cgmes(case)` (the `format` field), never on its family.
 
 Only exact conversions are solved: `SOLVED_CONVERTERS` in the registry.
@@ -315,7 +341,8 @@ move it forward deliberately, like `exclude-newer`; the one exception is
 sparlectra, pinned to its newest release on purpose, see its `setup.jl`;
 p3s likewise, through `exclude-newer-package` in its `pyproject.toml`,
 and gpusim2grid, which has no release, at the newest commit of its main
-branch, see its Dockerfile),
+branch, see its Dockerfile; ToOp, which has none either, at a commit of its
+main branch at least 7 days old, its tarball by SHA-256),
 the Fuseki jar by SHA-256 (`docker/fuseki/Dockerfile`), GNU Octave by the
 official image's digest and the MATPOWER release zip by SHA-256
 (`tool-configs/matpower/Dockerfile`), the gcc image by digest and the

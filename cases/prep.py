@@ -214,6 +214,10 @@ def prepare(key: str) -> None:
         return prepare_sweep(key)
     if case["problem"] == "n1":
         return prepare_n1(key)
+    if case["problem"] == "dc":
+        return prepare(case["base_case"])   # the base case's tool inputs; DC needs nothing else
+    if case["problem"] == "dcn1":
+        return prepare_n1(case["outages_of"])
     stamp = CACHE / f"{key}.key"
     digest = _cache_key(case)
     if (stamp.exists() and stamp.read_text() == digest and mat_path(key).exists() and m_path(key).exists()
