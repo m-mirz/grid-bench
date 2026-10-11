@@ -65,6 +65,10 @@ Warm solve is the headline because cold numbers mostly measure one-time
 setup: in gridoxide's bench, a 1.3-1.7x cold gap to lightsim2grid traced
 entirely to symbolic factorization being redone.
 
+A case the adapter lists in `too_slow` (a timeout seen in a measured run)
+is not run: each of its tests fails at once with `NotRun` and the measured
+reason, recorded like any failure, instead of costing the timeout again.
+
 A test that raises (non-convergence, unsupported input, timeout) is recorded
 as a failure with its real exception by conftest.py; it never becomes a
 blank cell.
@@ -80,6 +84,7 @@ from pathlib import Path
 import pytest
 
 from adapters import get, memory
+from adapters.solver_adapter import NotRun
 from cases.registry import CASES
 from oracle.evaluate import evaluate, evaluate_batch
 
@@ -112,6 +117,13 @@ def _dump_solution(tool: str, case: str, sol) -> None:
                                | ({"pg_mw": sol.pg_mw, "qg_mvar": sol.qg_mvar} if sol.pg_mw is not None else {})))
 
 
+def _skip_too_slow(adapter, case: str) -> None:
+    """A case the adapter lists as too slow (`too_slow`) fails at once, with
+    the measured reason, before anything is loaded or measured."""
+    if case in adapter.too_slow:
+        raise NotRun(adapter.too_slow[case])
+
+
 def create_benchmarks(tool: str, problem: str = "pf") -> None:
     adapter = get(tool, problem)
     namespace = inspect.currentframe().f_back.f_globals
@@ -119,6 +131,7 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
 
     def test_import(benchmark, case):
         _record(benchmark, adapter, case, "import")
+        _skip_too_slow(adapter, case)
         benchmark.extra_info.update(memory.measure(tool, case))   # first: see the module docstring
         t0 = time.perf_counter()
         adapter.load(case)                        # warm-up, timed only to choose the round count
@@ -133,6 +146,7 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
 
     def test_solve(benchmark, case):
         _record(benchmark, adapter, case, "solve")
+        _skip_too_slow(adapter, case)
         model = adapter.load(case)
         t0 = time.perf_counter()
         adapter.solve(model)                      # warm-up; raises on non-convergence
@@ -152,6 +166,7 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
     def test_solve_batch(benchmark, case, threads):
         _record(benchmark, adapter, case, "solve")
         benchmark.extra_info.update({"threads": threads, "mode": adapter.mode})
+        _skip_too_slow(adapter, case)
         model = adapter.load(case)
         t0 = time.perf_counter()
         adapter.solve(model, threads)             # warm-up; raises on non-convergence
@@ -167,6 +182,7 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
 
     def test_export(benchmark, case, tmp_path):
         _record(benchmark, adapter, case, "export")
+        _skip_too_slow(adapter, case)
         model = adapter.load(case)
         out = tmp_path / "export"
 
@@ -190,6 +206,7 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
 
     def test_validate(benchmark, case):
         _record(benchmark, adapter, case, "validate")
+        _skip_too_slow(adapter, case)
         t0 = time.perf_counter()
         adapter.validate(case)                    # warm-up
         rounds = 1 if time.perf_counter() - t0 > SLOW_IMPORT_SECONDS else IMPORT_ROUNDS
