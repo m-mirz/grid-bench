@@ -18,6 +18,8 @@ again, dash-dotted, so that its two rows read as one tool. gpusim2grid,
 lightsim2grid's GPU companion (seeded from its grid), is lightsim2grid's
 orange, dash-dotted the same way: dash-dot marks a GPU tool, and GPU tools
 share a chart only with each other and their CPU baselines (the GPU tabs).
+JuliaGrid.jl, like Sparlectra.jl a power-system library written in Julia
+(power flow and state estimation both), is Sparlectra's teal, dashed.
 Checked all-pairs, as a chart showing every tool at once needs, the palette
 fails: slot 8 red vs slot 2 orange is dE 7.1 even with full colour vision,
 and several pairs sit below 4 under colour-vision deficiency. The legend,
@@ -66,8 +68,10 @@ EXAPF_GPU = "#e3494a"   # slot 8's red, two units off: ExaPF on a GPU, dash-dott
 LIGHT_TO_DARK[EXAPF_GPU] = "#e66769"
 GPUSIM2GRID = "#eb6835"   # slot 2's orange, one unit off: lightsim2grid's GPU companion, dash-dotted
 LIGHT_TO_DARK[GPUSIM2GRID] = "#d95927"
+JULIAGRID = "#0f8fa7"   # slot 9's teal, one unit off: drawn as Sparlectra's variant (both pure Julia), dashed
+LIGHT_TO_DARK[JULIAGRID] = "#1b9cb5"
 DASH = {REFERENCE: "6 4", REFERENCE_DOTTED: "1.5 3.5", P3S: "6 4", EXAPF: "1.5 3.5", EXAPF_GPU: "6 3 1.5 3",
-        GPUSIM2GRID: "6 3 1.5 3",
+        GPUSIM2GRID: "6 3 1.5 3", JULIAGRID: "6 4",
         **dict.fromkeys((CIMOXIDE, TRIPLETS, OPENCGMES, POWSYBL), "2 3")}
 LIGHT = {"surface": "#fcfcfb", "text": "#0b0b0b", "text2": "#52514e", "grid": "#e4e3df", "axis": "#8a8984"}
 DARK = {"surface": "#1a1a19", "text": "#ffffff", "text2": "#c3c2b7", "grid": "#33332f", "axis": "#6f6e69"}

@@ -19,6 +19,7 @@ v1 covers AC power flow in twelve tool setups:
 an NVIDIA GPU as `exapf_gpu`),
 [gpusim2grid](https://github.com/Grid2op/gpusim2grid) (lightsim2grid's GPU companion, CUDA and cuDSS),
 [Sparlectra.jl](https://github.com/Welthulk/Sparlectra.jl),
+[JuliaGrid.jl](https://github.com/mcosovic/JuliaGrid.jl),
 [MATPOWER](https://matpower.org) on GNU Octave, and power-grid-model on CGMES
 through [cgmes2pgm](https://github.com/SOPTIM/cgmes2pgm_suite).
 
@@ -134,7 +135,7 @@ docstring justifies each setting and what it deliberately does not do:
 ## State estimation
 
 Weighted least-squares state estimation for pandapower, power-grid-model,
-VeraGrid and Sparlectra.jl, on the same MATPOWER cases. Each case gets a
+VeraGrid, Sparlectra.jl and JuliaGrid.jl, on the same MATPOWER cases. Each case gets a
 measurement set generated from its own power flow, which is solved tool-free
 by `cases/truth.py` and checked by the tier-1 residual. There are two
 scenarios. `~exact` measures |V| and P/Q injections at every bus without
@@ -154,7 +155,7 @@ takes one sigma per measurement class and injections only at generators.
 ## Optimal power flow
 
 AC optimal power flow for MATPOWER (MIPS), pandapower (PIPS), VeraGrid
-(its own interior-point solver) and PowerModels.jl (Ipopt with MUMPS), on
+(its own interior-point solver), JuliaGrid.jl and PowerModels.jl (both Ipopt with MUMPS), on
 PGLib-OPF v23.07: typical conditions
 from 14 to 2,869 buses (case9241 is runnable by name), and the congested (`__api`) and small
 angle-difference (`__sad`) variants of case14, case118 and case300. Every
@@ -190,7 +191,7 @@ scenario's result, so scenarios stay independent. Tools run:
   a GPU as `exapf_gpu`, where the blocks run in parallel), and on a GPU
   gpusim2grid (`InjectionSweepGPU`, a fixed 4 Newton steps per scenario);
 - as a loop of its single solve, where it has no batch power flow:
-  pandapower, pypowsybl, Sparlectra.jl, MATPOWER.
+  pandapower, pypowsybl, Sparlectra.jl, JuliaGrid.jl, MATPOWER.
 
 power-grid-model takes no start voltages, so its scenarios start flat.
 The oracle (`oracle/batch.py`) grades every scenario of every thread count
@@ -219,8 +220,8 @@ they have one:
   also on a GPU, `exapf_gpu`) and gpusim2grid (`ContingencyAnalysisGPU`,
   on a GPU, a fixed 4 Newton steps per outage);
 - as a loop of single solves with the branch taken out: pandapower, PyPSA,
-  Sienna (which rebuilds its power-flow data for each outage), Sparlectra.jl
-  and MATPOWER.
+  Sienna (which rebuilds its power-flow data for each outage), Sparlectra.jl,
+  JuliaGrid.jl and MATPOWER.
 
 The oracle grades every outage of every thread count with tier 1 against the
 case with that branch out of service.
@@ -295,6 +296,7 @@ output is graded but not solved by default.
 | ExaPF.jl (GPU) | the same, CUDA backend | — | polar NR, AD Jacobian (cuDSS) |
 | gpusim2grid | lightsim2grid's `init_from_matpower` (.mat) | — | NR on CUDA (cuDSS); batch and N-1 a fixed 4 steps |
 | Sparlectra.jl | `createNetFromMatPowerFile` (.m) via juliacall | `importCGMES` (zip) | rectangular NR (UMFPACK) |
+| JuliaGrid.jl | `powerSystem` (.m, comments dropped) via juliacall | — | polar NR (KLU) |
 | MATPOWER | `loadcase` (.m), in GNU Octave | — | `runpf`, NR (UMFPACK) |
 | PGM via cgmes2pgm | — | upload to a Fuseki sidecar, `CgmesToPgmConverter` | PGM 1.12 NR (generators as fixed P/Q) |
 

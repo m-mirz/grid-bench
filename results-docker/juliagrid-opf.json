@@ -1,0 +1,1364 @@
+{
+    "machine_info": {
+        "node": "b5a692286f98",
+        "processor": "",
+        "machine": "x86_64",
+        "python_compiler": "Clang 22.1.3 ",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.14",
+        "python_version": "3.13.14",
+        "python_build": [
+            "main",
+            "Jul 18 2026 17:02:37"
+        ],
+        "release": "6.8.0-1046-nvidia",
+        "system": "Linux",
+        "cpu": {
+            "python_version": "3.13.14.final.0 (64 bit)",
+            "cpuinfo_version": [
+                10,
+                1,
+                1
+            ],
+            "cpuinfo_version_string": "10.1.1",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 30,
+            "arch_string_raw": "x86_64",
+            "vendor_id_raw": "AuthenticAMD",
+            "brand_raw": "AMD EPYC 7J13 64-Core Processor",
+            "hz_advertised_friendly": "2.4500 GHz",
+            "hz_actual_friendly": "2.4500 GHz",
+            "hz_advertised": [
+                2449998000,
+                0
+            ],
+            "hz_actual": [
+                2449998000,
+                0
+            ],
+            "stepping": 1,
+            "model": 1,
+            "family": 25,
+            "flags": [
+                "3dnowprefetch",
+                "abm",
+                "adx",
+                "aes",
+                "apic",
+                "arat",
+                "arch_capabilities",
+                "avx",
+                "avx2",
+                "bmi1",
+                "bmi2",
+                "clflush",
+                "clflushopt",
+                "clwb",
+                "clzero",
+                "cmov",
+                "cmp_legacy",
+                "cpuid",
+                "cr8_legacy",
+                "cx16",
+                "cx8",
+                "de",
+                "erms",
+                "extd_apicid",
+                "f16c",
+                "fma",
+                "fpu",
+                "fsgsbase",
+                "fsrm",
+                "fxsr",
+                "fxsr_opt",
+                "hypervisor",
+                "ibpb",
+                "ibrs",
+                "invpcid",
+                "lahf_lm",
+                "lm",
+                "mca",
+                "mce",
+                "misalignsse",
+                "mmx",
+                "mmxext",
+                "movbe",
+                "msr",
+                "mtrr",
+                "nopl",
+                "npt",
+                "nrip_save",
+                "nx",
+                "ospke",
+                "osvw",
+                "osxsave",
+                "pae",
+                "pat",
+                "pcid",
+                "pclmulqdq",
+                "pdpe1gb",
+                "perfctr_core",
+                "pge",
+                "pku",
+                "pni",
+                "popcnt",
+                "pse",
+                "pse36",
+                "rdpid",
+                "rdrand",
+                "rdrnd",
+                "rdseed",
+                "rdtscp",
+                "rep_good",
+                "sep",
+                "sha",
+                "sha_ni",
+                "smap",
+                "smep",
+                "ssbd",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "sse4a",
+                "ssse3",
+                "stibp",
+                "svm",
+                "syscall",
+                "tsc",
+                "tsc_adjust",
+                "tsc_deadline_timer",
+                "tsc_known_freq",
+                "tscdeadline",
+                "umip",
+                "vaes",
+                "vme",
+                "vmmcall",
+                "vpclmulqdq",
+                "wbnoinvd",
+                "x2apic",
+                "xgetbv1",
+                "xsave",
+                "xsavec",
+                "xsaveerptr",
+                "xsaveopt",
+                "xsaves"
+            ],
+            "l3_cache_size": 524288,
+            "l2_cache_size": 15728640,
+            "l1_data_cache_size": "1.9 MiB",
+            "l1_instruction_cache_size": "1.9 MiB",
+            "l2_cache_line_size": 512,
+            "l2_cache_associativity": 8
+        }
+    },
+    "commit_info": {
+        "id": "unknown",
+        "time": null,
+        "author_time": null,
+        "dirty": false,
+        "error": "FileNotFoundError(2, 'No such file or directory')",
+        "project": "bench",
+        "branch": "(unknown)"
+    },
+    "benchmarks": [
+        {
+            "group": "import:pglib_opf_case14_ieee",
+            "name": "test_import[pglib_opf_case14_ieee]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case14_ieee]",
+            "params": {
+                "case": "pglib_opf_case14_ieee"
+            },
+            "param": "pglib_opf_case14_ieee",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case14_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 695.23828125,
+                "rss_import_mb": 722.37890625,
+                "rss_solve_mb": 728.04296875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.005063895005150698,
+                "max": 0.006089591988711618,
+                "mean": 0.005416100999961297,
+                "stddev": 0.0005834651754986137,
+                "rounds": 3,
+                "median": 0.005094816006021574,
+                "iqr": 0.0007692727376706898,
+                "q1": 0.005071625255368417,
+                "q3": 0.005840897993039107,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.005063895005150698,
+                "hd15iqr": 0.006089591988711618,
+                "ops": 184.6346661569173,
+                "total": 0.01624830299988389,
+                "data": [
+                    0.006089591988711618,
+                    0.005094816006021574,
+                    0.005063895005150698
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case118_ieee",
+            "name": "test_import[pglib_opf_case118_ieee]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case118_ieee]",
+            "params": {
+                "case": "pglib_opf_case118_ieee"
+            },
+            "param": "pglib_opf_case118_ieee",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case118_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.2421875,
+                "rss_import_mb": 727.8359375,
+                "rss_solve_mb": 734.09375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.03827853901020717,
+                "max": 0.03916665200085845,
+                "mean": 0.03862702800446035,
+                "stddev": 0.0004739046452869973,
+                "rounds": 3,
+                "median": 0.038435893002315424,
+                "iqr": 0.0006660847429884598,
+                "q1": 0.03831787750823423,
+                "q3": 0.03898396225122269,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.03827853901020717,
+                "hd15iqr": 0.03916665200085845,
+                "ops": 25.888608356939287,
+                "total": 0.11588108401338104,
+                "data": [
+                    0.03916665200085845,
+                    0.038435893002315424,
+                    0.03827853901020717
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case300_ieee",
+            "name": "test_import[pglib_opf_case300_ieee]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case300_ieee]",
+            "params": {
+                "case": "pglib_opf_case300_ieee"
+            },
+            "param": "pglib_opf_case300_ieee",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case300_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.5234375,
+                "rss_import_mb": 728.58203125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.08495741199294571,
+                "max": 0.395191192990751,
+                "mean": 0.19463821566508463,
+                "stddev": 0.17393839046178447,
+                "rounds": 3,
+                "median": 0.10376604201155715,
+                "iqr": 0.23267533574835397,
+                "q1": 0.08965956949759857,
+                "q3": 0.32233490524595254,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.08495741199294571,
+                "hd15iqr": 0.395191192990751,
+                "ops": 5.137737194019016,
+                "total": 0.5839146469952539,
+                "data": [
+                    0.10376604201155715,
+                    0.395191192990751,
+                    0.08495741199294571
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case1354_pegase",
+            "name": "test_import[pglib_opf_case1354_pegase]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case1354_pegase]",
+            "params": {
+                "case": "pglib_opf_case1354_pegase"
+            },
+            "param": "pglib_opf_case1354_pegase",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case1354_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.2265625,
+                "rss_import_mb": 780.47265625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.4097016209998401,
+                "max": 0.8095148579886882,
+                "mean": 0.57390438032841,
+                "stddev": 0.20925332206653408,
+                "rounds": 3,
+                "median": 0.5024966619967017,
+                "iqr": 0.29985992774163606,
+                "q1": 0.4329003812490555,
+                "q3": 0.7327603089906916,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.4097016209998401,
+                "hd15iqr": 0.8095148579886882,
+                "ops": 1.742450544510153,
+                "total": 1.72171314098523,
+                "data": [
+                    0.5024966619967017,
+                    0.4097016209998401,
+                    0.8095148579886882
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case2869_pegase",
+            "name": "test_import[pglib_opf_case2869_pegase]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case2869_pegase]",
+            "params": {
+                "case": "pglib_opf_case2869_pegase"
+            },
+            "param": "pglib_opf_case2869_pegase",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case2869_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.24609375,
+                "rss_import_mb": 832.73828125
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.9461696869984735,
+                "max": 1.3605750630085822,
+                "mean": 1.1572930796683067,
+                "stddev": 0.20731393993584984,
+                "rounds": 3,
+                "median": 1.1651344889978645,
+                "iqr": 0.31080403200758155,
+                "q1": 1.0009108874983212,
+                "q3": 1.3117149195059028,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.9461696869984735,
+                "hd15iqr": 1.3605750630085822,
+                "ops": 0.8640853536310882,
+                "total": 3.4718792390049202,
+                "data": [
+                    1.1651344889978645,
+                    0.9461696869984735,
+                    1.3605750630085822
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case14_ieee__api",
+            "name": "test_import[pglib_opf_case14_ieee__api]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case14_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case14_ieee__api"
+            },
+            "param": "pglib_opf_case14_ieee__api",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case14_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.0234375,
+                "rss_import_mb": 727.73828125,
+                "rss_solve_mb": 733.5859375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.005103425995912403,
+                "max": 0.005187438000575639,
+                "mean": 0.005139146664684328,
+                "stddev": 4.33937839529319e-05,
+                "rounds": 3,
+                "median": 0.005126575997564942,
+                "iqr": 6.300900349742733e-05,
+                "q1": 0.0051092134963255376,
+                "q3": 0.005172222499822965,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.005103425995912403,
+                "hd15iqr": 0.005187438000575639,
+                "ops": 194.5848338736651,
+                "total": 0.015417439994052984,
+                "data": [
+                    0.005103425995912403,
+                    0.005187438000575639,
+                    0.005126575997564942
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case14_ieee__sad",
+            "name": "test_import[pglib_opf_case14_ieee__sad]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case14_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case14_ieee__sad"
+            },
+            "param": "pglib_opf_case14_ieee__sad",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case14_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.59375,
+                "rss_import_mb": 728.08984375,
+                "rss_solve_mb": 733.9140625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.005053285000030883,
+                "max": 0.005174247999093495,
+                "mean": 0.0051028426629879204,
+                "stddev": 6.337193702309728e-05,
+                "rounds": 3,
+                "median": 0.0050809949898393825,
+                "iqr": 9.072224929695949e-05,
+                "q1": 0.005060212497483008,
+                "q3": 0.005150934746779967,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.005053285000030883,
+                "hd15iqr": 0.005174247999093495,
+                "ops": 195.96920109907126,
+                "total": 0.01530852798896376,
+                "data": [
+                    0.005174247999093495,
+                    0.005053285000030883,
+                    0.0050809949898393825
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case118_ieee__api",
+            "name": "test_import[pglib_opf_case118_ieee__api]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case118_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case118_ieee__api"
+            },
+            "param": "pglib_opf_case118_ieee__api",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case118_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.97265625,
+                "rss_import_mb": 728.4921875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.03845410300709773,
+                "max": 0.03866079899307806,
+                "mean": 0.038558072667607725,
+                "stddev": 0.00010335360209789998,
+                "rounds": 3,
+                "median": 0.03855931600264739,
+                "iqr": 0.00015502198948524892,
+                "q1": 0.038480406255985145,
+                "q3": 0.03863542824547039,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.03845410300709773,
+                "hd15iqr": 0.03866079899307806,
+                "ops": 25.934906254795525,
+                "total": 0.11567421800282318,
+                "data": [
+                    0.03855931600264739,
+                    0.03866079899307806,
+                    0.03845410300709773
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case118_ieee__sad",
+            "name": "test_import[pglib_opf_case118_ieee__sad]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case118_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case118_ieee__sad"
+            },
+            "param": "pglib_opf_case118_ieee__sad",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case118_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.41015625,
+                "rss_import_mb": 728.20703125,
+                "rss_solve_mb": 734.6015625
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.03853719700418878,
+                "max": 0.03874286300560925,
+                "mean": 0.03863135600598374,
+                "stddev": 0.00010392468814780166,
+                "rounds": 3,
+                "median": 0.03861400800815318,
+                "iqr": 0.00015424950106535107,
+                "q1": 0.03855639975517988,
+                "q3": 0.03871064925624523,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.03853719700418878,
+                "hd15iqr": 0.03874286300560925,
+                "ops": 25.885707968550385,
+                "total": 0.11589406801795121,
+                "data": [
+                    0.03874286300560925,
+                    0.03861400800815318,
+                    0.03853719700418878
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case300_ieee__api",
+            "name": "test_import[pglib_opf_case300_ieee__api]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case300_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case300_ieee__api"
+            },
+            "param": "pglib_opf_case300_ieee__api",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case300_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.69140625,
+                "rss_import_mb": 728.5859375
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.08381745200313162,
+                "max": 0.08399938700313214,
+                "mean": 0.08389350733583949,
+                "stddev": 9.456322888082291e-05,
+                "rounds": 3,
+                "median": 0.08386368300125469,
+                "iqr": 0.00013645125000039116,
+                "q1": 0.08382900975266239,
+                "q3": 0.08396546100266278,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.08381745200313162,
+                "hd15iqr": 0.08399938700313214,
+                "ops": 11.919873560618175,
+                "total": 0.25168052200751845,
+                "data": [
+                    0.08386368300125469,
+                    0.08381745200313162,
+                    0.08399938700313214
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case300_ieee__sad",
+            "name": "test_import[pglib_opf_case300_ieee__sad]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_import[pglib_opf_case300_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case300_ieee__sad"
+            },
+            "param": "pglib_opf_case300_ieee__sad",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case300_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 694.83984375,
+                "rss_import_mb": 728.921875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.09442427399335429,
+                "max": 0.10505890799686313,
+                "mean": 0.10092498432883683,
+                "stddev": 0.005698694538583641,
+                "rounds": 3,
+                "median": 0.10329177099629305,
+                "iqr": 0.007975975502631627,
+                "q1": 0.09664114824408898,
+                "q3": 0.10461712374672061,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.09442427399335429,
+                "hd15iqr": 0.10505890799686313,
+                "ops": 9.908349321529442,
+                "total": 0.30277495298651047,
+                "data": [
+                    0.09442427399335429,
+                    0.10505890799686313,
+                    0.10329177099629305
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case14_ieee",
+            "name": "test_solve[pglib_opf_case14_ieee]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_solve[pglib_opf_case14_ieee]",
+            "params": {
+                "case": "pglib_opf_case14_ieee"
+            },
+            "param": "pglib_opf_case14_ieee",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case14_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "smoke"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 23,
+                "n_reported": 14,
+                "opf_n_buses": 14,
+                "opf_n_reported_buses": 14,
+                "opf_n_gens": 5,
+                "opf_n_reported_gens": 5,
+                "opf_max_dp_mw": 4.625675842362398e-09,
+                "opf_max_dq_mvar": 4.473842807328765e-08,
+                "opf_max_vm_violation_pu": 1.1976450942086103e-09,
+                "opf_max_pg_violation_mw": 8.570844406843475e-07,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 2178.0804209257603,
+                "opf_reference": 2178.1,
+                "opf_gap": -8.989061218297116e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.01743596399319358,
+                "max": 0.01763583000865765,
+                "mean": 0.01753101866779616,
+                "stddev": 8.597730572777486e-05,
+                "rounds": 6,
+                "median": 0.017513687002065126,
+                "iqr": 0.0001758339931257069,
+                "q1": 0.01745555500383489,
+                "q3": 0.017631388996960595,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 0.01743596399319358,
+                "hd15iqr": 0.01763583000865765,
+                "ops": 57.04175090731969,
+                "total": 0.10518611200677697,
+                "data": [
+                    0.017631388996960595,
+                    0.017530568002257496,
+                    0.017496806001872756,
+                    0.01743596399319358,
+                    0.01745555500383489,
+                    0.01763583000865765
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case118_ieee",
+            "name": "test_solve[pglib_opf_case118_ieee]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_solve[pglib_opf_case118_ieee]",
+            "params": {
+                "case": "pglib_opf_case118_ieee"
+            },
+            "param": "pglib_opf_case118_ieee",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case118_ieee",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 146,
+                "n_reported": 118,
+                "opf_n_buses": 118,
+                "opf_n_reported_buses": 118,
+                "opf_n_gens": 54,
+                "opf_n_reported_gens": 54,
+                "opf_max_dp_mw": 8.216086655465915e-08,
+                "opf_max_dq_mvar": 4.2764030094843974e-07,
+                "opf_max_vm_violation_pu": 4.804168840522038e-09,
+                "opf_max_pg_violation_mw": 5.7842867136059795e-06,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 2.863410912823383e-07,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 97213.60738885232,
+                "opf_reference": 97214.0,
+                "opf_gap": -4.038627642888675e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.7523828150006011,
+                "max": 0.7539986280025914,
+                "mean": 0.7530933631991502,
+                "stddev": 0.0005862809278945044,
+                "rounds": 5,
+                "median": 0.7530900959973224,
+                "iqr": 0.0005942260104347952,
+                "q1": 0.7527487962433952,
+                "q3": 0.75334302225383,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.7523828150006011,
+                "hd15iqr": 0.7539986280025914,
+                "ops": 1.3278566096399884,
+                "total": 3.765466815995751,
+                "data": [
+                    0.7531244870042428,
+                    0.7528707899909932,
+                    0.7539986280025914,
+                    0.7523828150006011,
+                    0.7530900959973224
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case14_ieee__api",
+            "name": "test_solve[pglib_opf_case14_ieee__api]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_solve[pglib_opf_case14_ieee__api]",
+            "params": {
+                "case": "pglib_opf_case14_ieee__api"
+            },
+            "param": "pglib_opf_case14_ieee__api",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case14_ieee__api",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 79,
+                "n_reported": 14,
+                "opf_n_buses": 14,
+                "opf_n_reported_buses": 14,
+                "opf_n_gens": 5,
+                "opf_n_reported_gens": 5,
+                "opf_max_dp_mw": 1.5347723092418164e-12,
+                "opf_max_dq_mvar": 2.2168933355715126e-12,
+                "opf_max_vm_violation_pu": 9.86636328192958e-09,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 3.7923037154996564e-07,
+                "opf_max_flow_violation_mva": 7.082896331667143e-07,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 5999.363092731665,
+                "opf_reference": 5999.4,
+                "opf_gap": -6.15182657170538e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.07448290400498081,
+                "max": 0.07507497900223825,
+                "mean": 0.07471868711258543,
+                "stddev": 0.00014508521111735682,
+                "rounds": 27,
+                "median": 0.07468892799806781,
+                "iqr": 0.00013511950965039432,
+                "q1": 0.07461606199649395,
+                "q3": 0.07475118150614435,
+                "iqr_outliers": 3,
+                "stddev_outliers": 6,
+                "outliers": "6;3",
+                "ld15iqr": 0.07448290400498081,
+                "hd15iqr": 0.07497057699947618,
+                "ops": 13.383532803423181,
+                "total": 2.0174045520398067,
+                "data": [
+                    0.07456739600456785,
+                    0.07471091899788007,
+                    0.07464205801079515,
+                    0.0745988069975283,
+                    0.07448290400498081,
+                    0.0745990650029853,
+                    0.07458484600647353,
+                    0.07461498699558433,
+                    0.07467197799996939,
+                    0.07468650900409557,
+                    0.07467517799523193,
+                    0.07459175599797163,
+                    0.07461928699922282,
+                    0.07464733799861278,
+                    0.07471269099914934,
+                    0.07480923199909739,
+                    0.07473103099619038,
+                    0.07491467500221916,
+                    0.07468892799806781,
+                    0.07471752000856213,
+                    0.0746990900079254,
+                    0.0748382540041348,
+                    0.07474332899437286,
+                    0.07475379901006818,
+                    0.07497057699947618,
+                    0.07507497900223825,
+                    0.07505741900240537
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case14_ieee__sad",
+            "name": "test_solve[pglib_opf_case14_ieee__sad]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_solve[pglib_opf_case14_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case14_ieee__sad"
+            },
+            "param": "pglib_opf_case14_ieee__sad",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case14_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 21,
+                "n_reported": 14,
+                "opf_n_buses": 14,
+                "opf_n_reported_buses": 14,
+                "opf_n_gens": 5,
+                "opf_n_reported_gens": 5,
+                "opf_max_dp_mw": 5.666578317686799e-13,
+                "opf_max_dq_mvar": 3.948841253986757e-12,
+                "opf_max_vm_violation_pu": 1.0433458763614567e-08,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 3.9189204237288777e-07,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 5.69852590004416e-07,
+                "opf_objective": 2776.7876164210156,
+                "opf_reference": 2776.8,
+                "opf_gap": -4.459658234137976e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.01604122799471952,
+                "max": 0.01725146900571417,
+                "mean": 0.016130471139668087,
+                "stddev": 0.00011058280496102167,
+                "rounds": 121,
+                "median": 0.016119990003062412,
+                "iqr": 5.012699693907052e-05,
+                "q1": 0.016096505500172498,
+                "q3": 0.016146632497111568,
+                "iqr_outliers": 4,
+                "stddev_outliers": 4,
+                "outliers": "4;4",
+                "ld15iqr": 0.01604122799471952,
+                "hd15iqr": 0.016242061989032663,
+                "ops": 61.99446943250145,
+                "total": 1.9517870078998385,
+                "data": [
+                    0.016242061989032663,
+                    0.01613547999295406,
+                    0.01610309699026402,
+                    0.01614443901053164,
+                    0.01609607799036894,
+                    0.01617040199926123,
+                    0.0160823479964165,
+                    0.016131698997924104,
+                    0.01607610800419934,
+                    0.016116918995976448,
+                    0.01613615000678692,
+                    0.01609730899508577,
+                    0.016095668004709296,
+                    0.01616580900736153,
+                    0.01609686898882501,
+                    0.01608121801109519,
+                    0.016116918995976448,
+                    0.01604122799471952,
+                    0.01605770699097775,
+                    0.016064217998064123,
+                    0.01609852998808492,
+                    0.016134470992255956,
+                    0.01610360899940133,
+                    0.016112730008899234,
+                    0.016136808990268037,
+                    0.01606585799891036,
+                    0.01605739799560979,
+                    0.01613540000107605,
+                    0.016164881002623588,
+                    0.016132839999045245,
+                    0.016051358004915528,
+                    0.01614654999866616,
+                    0.016109949996462092,
+                    0.01616354999714531,
+                    0.016082739006378688,
+                    0.016062126989709213,
+                    0.01613271000678651,
+                    0.01611283898819238,
+                    0.016092649006168358,
+                    0.016174759992281906,
+                    0.016085107999970205,
+                    0.01610256900312379,
+                    0.016103929010569118,
+                    0.016134088989929296,
+                    0.01607630800572224,
+                    0.01612059900071472,
+                    0.016099499000119977,
+                    0.016165280001587234,
+                    0.01610210898797959,
+                    0.01612590000149794,
+                    0.016085087991086766,
+                    0.016112159995827824,
+                    0.016143670000019483,
+                    0.01612508000107482,
+                    0.016146879992447793,
+                    0.016107639006804675,
+                    0.016166370012797415,
+                    0.016244393002125435,
+                    0.016044486008468084,
+                    0.01610879899817519,
+                    0.016056206994107924,
+                    0.016093148005893454,
+                    0.016106599010527134,
+                    0.01613351999549195,
+                    0.016159409991814755,
+                    0.016245523001998663,
+                    0.016117078994284384,
+                    0.016213112001423724,
+                    0.016142299995408393,
+                    0.01609664800344035,
+                    0.016113089994178154,
+                    0.016133768993313424,
+                    0.016144430002896115,
+                    0.016116697996039875,
+                    0.016091568002593704,
+                    0.01617764100956265,
+                    0.016121449996717274,
+                    0.016109609001432545,
+                    0.016170100003364496,
+                    0.016069767996668816,
+                    0.016126639995491132,
+                    0.01610029800212942,
+                    0.016134429999510758,
+                    0.01610963899292983,
+                    0.016168810994713567,
+                    0.016169359994819388,
+                    0.016178420002688654,
+                    0.01614176899602171,
+                    0.016132189994095825,
+                    0.016145179004524834,
+                    0.01613532900228165,
+                    0.0161630399961723,
+                    0.016151760995853692,
+                    0.01607579800474923,
+                    0.016139589992235415,
+                    0.01725146900571417,
+                    0.01619042099628132,
+                    0.016142940003192052,
+                    0.016166001005331054,
+                    0.016147469999850728,
+                    0.016045128999394365,
+                    0.016110939002828673,
+                    0.016140490988618694,
+                    0.016155359990079887,
+                    0.016061547998106107,
+                    0.016088368007331155,
+                    0.016119990003062412,
+                    0.01615966099780053,
+                    0.01609679899411276,
+                    0.016154370008734986,
+                    0.016053938001277857,
+                    0.016156999990926124,
+                    0.016056788008427247,
+                    0.016151629999512807,
+                    0.01615064000361599,
+                    0.016123868990689516,
+                    0.016103908012155443,
+                    0.016097329003969207,
+                    0.01604929800669197,
+                    0.016108759999042377,
+                    0.01609552899026312
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case118_ieee__sad",
+            "name": "test_solve[pglib_opf_case118_ieee__sad]",
+            "fullname": "benchmarks/juliagrid_opf_benchmark.py::test_solve[pglib_opf_case118_ieee__sad]",
+            "params": {
+                "case": "pglib_opf_case118_ieee__sad"
+            },
+            "param": "pglib_opf_case118_ieee__sad",
+            "extra_info": {
+                "tool": "juliagrid",
+                "case": "pglib_opf_case118_ieee__sad",
+                "family": "opf-pglib",
+                "groups": [
+                    "feature"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 162,
+                "n_reported": 118,
+                "opf_n_buses": 118,
+                "opf_n_reported_buses": 118,
+                "opf_n_gens": 54,
+                "opf_n_reported_gens": 54,
+                "opf_max_dp_mw": 2.7284841053187847e-11,
+                "opf_max_dq_mvar": 1.965307916407255e-10,
+                "opf_max_vm_violation_pu": 1.0484372703345457e-08,
+                "opf_max_pg_violation_mw": 5.8428661304787965e-06,
+                "opf_max_qg_violation_mvar": 2.3950319416599086e-07,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 5.694134657119321e-07,
+                "opf_objective": 105155.04764777962,
+                "opf_reference": 105160.0,
+                "opf_gap": -4.709349772139337e-05,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.8955918190040393,
+                "max": 0.8994563840096816,
+                "mean": 0.8970902858010958,
+                "stddev": 0.001425340882934744,
+                "rounds": 5,
+                "median": 0.896730229986133,
+                "iqr": 0.0011308217581245117,
+                "q1": 0.8964429879997624,
+                "q3": 0.8975738097578869,
+                "iqr_outliers": 1,
+                "stddev_outliers": 2,
+                "outliers": "2;1",
+                "ld15iqr": 0.8955918190040393,
+                "hd15iqr": 0.8994563840096816,
+                "ops": 1.114715002299915,
+                "total": 4.485451429005479,
+                "data": [
+                    0.896730229986133,
+                    0.8994563840096816,
+                    0.8955918190040393,
+                    0.8969462850072887,
+                    0.8967267109983368
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-10-11T07:00:46.487676+00:00",
+    "version": "5.3.0",
+    "grid_bench": {
+        "schema_version": 1,
+        "git_sha": "6d8324843b462704c6cc41582a578eb0851864cf-dirty",
+        "container_image": "grid-bench/juliagrid",
+        "cpus": {
+            "available": 30,
+            "logical": 30,
+            "model": "AMD EPYC 7J13 64-Core Processor"
+        },
+        "tools": {
+            "juliagrid": {
+                "display_name": "JuliaGrid.jl",
+                "color": "#0f8fa7",
+                "tags": [
+                    "opf",
+                    "ac",
+                    "interior-point",
+                    "julia"
+                ],
+                "language": "julia",
+                "version": "0.6.2",
+                "dependencies": {
+                    "JuliaGrid": "0.6.2",
+                    "Ipopt": "1.16.0",
+                    "JuMP": "1.31.2",
+                    "julia": "1.12.7",
+                    "juliacall": "0.9.35"
+                },
+                "settings": {
+                    "formulation": "acOptimalPowerFlow (polar)",
+                    "solver": "Ipopt",
+                    "linear_solver": "mumps",
+                    "init": "flat",
+                    "tol": 1e-06,
+                    "max_iter": 200
+                },
+                "families": [
+                    "opf-pglib"
+                ],
+                "problem": "opf"
+            }
+        }
+    },
+    "failures": [
+        {
+            "tool": "juliagrid",
+            "case": "pglib_opf_case300_ieee",
+            "operation": "solve",
+            "error": "DidNotConverge: Ipopt: not locally solved in 200 iterations"
+        },
+        {
+            "tool": "juliagrid",
+            "case": "pglib_opf_case1354_pegase",
+            "operation": "solve",
+            "error": "DidNotConverge: Ipopt: not locally solved in 200 iterations"
+        },
+        {
+            "tool": "juliagrid",
+            "case": "pglib_opf_case2869_pegase",
+            "operation": "solve",
+            "error": "DidNotConverge: Ipopt: not locally solved in 200 iterations"
+        },
+        {
+            "tool": "juliagrid",
+            "case": "pglib_opf_case118_ieee__api",
+            "operation": "solve",
+            "error": "DidNotConverge: Ipopt: not locally solved in 200 iterations"
+        },
+        {
+            "tool": "juliagrid",
+            "case": "pglib_opf_case300_ieee__api",
+            "operation": "solve",
+            "error": "DidNotConverge: Ipopt: not locally solved in 200 iterations"
+        },
+        {
+            "tool": "juliagrid",
+            "case": "pglib_opf_case300_ieee__sad",
+            "operation": "solve",
+            "error": "DidNotConverge: Ipopt: not locally solved in 200 iterations"
+        }
+    ]
+}
