@@ -30,6 +30,11 @@ class DidNotConverge(Exception):
     """The solver ran but did not converge. Recorded as a result."""
 
 
+class NotRun(Exception):
+    """A case in the adapter's `too_slow`: not run, for the measured reason
+    it states. Recorded as a result, like any failure."""
+
+
 @dataclass
 class Solution:
     """Bus voltages keyed by the case's own identifiers, never by array
@@ -60,6 +65,11 @@ class ToolAdapter(ABC):
     language: str               # implementation language of the solver core
     families: tuple[str, ...]   # case families this tool can read
     settings: dict = {}         # the solver settings, recorded with every result
+    # Cases a measured run showed cannot finish within the test timeout,
+    # case -> that measurement: not run, recorded as a failure with it
+    # (benchmarks/benchmark_template.py), instead of costing the timeout
+    # again. Evidence only (a timeout seen), never to hide a slow result.
+    too_slow: dict[str, str] = {}
     # A tool that runs in a process of its own (MATPOWER in Octave) is timed
     # by that process, not across the bridge to it: `clock` returns seconds
     # measured inside the tool, advanced by each `load` and `solve`, and
