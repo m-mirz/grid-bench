@@ -84,6 +84,12 @@ services:
     image: grid-bench/lightsim2grid:latest
     command: pytest benchmarks/lightsim2grid_benchmark.py --benchmark-json=/output/lightsim2grid.json
 
+  # lightsim2grid's DC N-1 through its LODF (adapters/lightsim2grid_dc_adapter.py), in its image.
+  lightsim2grid_lodf:
+    <<: *bench
+    image: grid-bench/lightsim2grid:latest
+    command: pytest benchmarks/lightsim2grid_lodf_dcn1_benchmark.py --benchmark-json=/output/lightsim2grid_lodf-dcn1.json
+
   pypsa:
     <<: *bench
     image: grid-bench/pypsa:latest

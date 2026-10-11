@@ -45,10 +45,11 @@ also parametrized by `threads`, the adapter's `thread_counts()`. A round is
 one call that solves every scenario of the sweep, timed the same way; every
 thread count's solution is graded, scenario by scenario
 (`oracle.evaluate.evaluate_batch`), since a race between threads would show
-only there. One round is a whole batch, so these tests get
-`BATCH_TIMEOUT_SECONDS` instead of the 30 minutes of pyproject.toml: a loop
-of PyPSA's 5 s solve over 200 outages of case9241pegase takes 17 minutes a
-round, warm-up included twice that.
+only there. One round is a whole batch; like every test it gets the 30
+minutes of pyproject.toml (the longest that passes, MATPOWER's loop over
+case2869pegase's 3804 DC outages, takes about 11 minutes; a case that cannot
+finish gets a `too_slow` entry with its measured time instead of a longer
+limit).
 
 CIM libraries (`"cim"`, `adapters.cim_adapter`) get no `test_solve`. They
 get `test_import`, with what the model holds attached (`counts`), and:
@@ -95,7 +96,6 @@ SLOW_IMPORT_SECONDS = 30.0
 SLOW_SOLVE_SECONDS = 30.0
 TARGET_SECONDS = 2.0
 MIN_ROUNDS, MAX_ROUNDS = 5, 200
-BATCH_TIMEOUT_SECONDS = 3600
 RESULTS = Path(os.environ.get("GRID_BENCH_RESULTS", Path(__file__).resolve().parent.parent / "results"))
 
 
@@ -164,7 +164,6 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
         benchmark.extra_info.update({"iterations": sol.iterations, "n_reported": len(sol.vm)})
         benchmark.extra_info.update(evaluate(case, sol.vm, sol.va_deg, sol.pg_mw, sol.qg_mvar))
 
-    @pytest.mark.timeout(BATCH_TIMEOUT_SECONDS)
     def test_solve_batch(benchmark, case, threads):
         _record(benchmark, adapter, case, "solve")
         benchmark.extra_info.update({"threads": threads, "mode": adapter.mode})
@@ -198,7 +197,6 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
         sol = adapter.solution(model, case)
         benchmark.extra_info.update(evaluate_dc(case, sol.bus_ids, sol.va_deg, sol.branch_rows, sol.pf_mw))
 
-    @pytest.mark.timeout(BATCH_TIMEOUT_SECONDS)
     def test_solve_dcn1(benchmark, case, threads):
         _record(benchmark, adapter, case, "solve")
         benchmark.extra_info.update({"threads": threads, "mode": adapter.mode})

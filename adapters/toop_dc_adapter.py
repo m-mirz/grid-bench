@@ -46,8 +46,11 @@ Settings:
   `fail_on_non_convergence=False`: case2848rte's initial AC load flow does
   not converge (as pypowsybl's AC column shows), which only leaves that
   comparison empty.
-- `jax_enable_x64`: double precision (ToOp's own examples set it; in single
-  precision flows are good to about 1e-4 relative, not to 1e-3 MW).
+- `jax_enable_x64`: double precision (ToOp's own examples set it). Measured
+  in single precision (A100): case1354pegase#dcn1-full is off by 2.6e-3 MW,
+  over the 1e-3 MW tolerance, at 49 against 54 ms per call;
+  case9241pegase#dcn1-full takes 478 against 891 ms. A GeForce card runs
+  double precision at 1/64 of single (the A100 at 1/2).
 - `batch_size_bsdf = 1`: one topology, the unsplit grid
   (`default_topology`), as ToOp's own `run_initial_loadflow` does;
   its default of 16 would solve 16 copies.
