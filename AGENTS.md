@@ -136,7 +136,8 @@ tool-configs/juliagrid/Dockerfile, julia/   the same for JuliaGrid.jl (GridBench
 tool-configs/gpusim2grid/Dockerfile   compiles gpusim2grid (CUDA, cuDSS; not on PyPI) and the lightsim2grid
              it is seeded from (with its C++ headers) from pinned sources; needs-gpu, like exapf_gpu
 tool-configs/toop/Dockerfile          ToOp's sources (four of its packages, pure Python) from a pinned commit on
-             this lockfile's JAX with CUDA 12 wheels; needs-gpu, DC only (adapters/toop_dc_adapter.py)
+             this lockfile's JAX with CUDA 12 wheels; needs-gpu, DC only, through its PowSyBl backend
+             (adapters/toop_dc_adapter.py)
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
 tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources,
              with OpenMP for its batch solver (libgomp from the same pinned gcc image)
@@ -265,8 +266,10 @@ and `n1-matpower` (N-1: a transmission case plus its outages, keyed
 out; radial grids have no outage that keeps them connected), and
 `dc-matpower`, `dcn1-matpower` (DC power flow on the default transmission
 cases, keyed `<case>#dc`, and the N-1 cases' outages on the DC model,
-`<case>#dcn1`, graded by `oracle.dc`: the nodal balance with the tool's
-angles and the flows against the oracle's own solution), and
+`<case>#dcn1`, and every non-islanding outage of them, `<case>#dcn1-full`,
+thousands per case; graded by `oracle.dc`: the nodal balance with the
+tool's angles and the flows against the oracle's own solution, for N-1
+from the base case's factorization and a rank-one update per outage), and
 `cim-cgmes` (CIM import, export and validation: a CGMES fixture read whole,
 SV included, keyed `<case>#cim`, timed and not graded). A tool declares the families it
 reads in `SolverAdapter.families`. Converted cases are keyed

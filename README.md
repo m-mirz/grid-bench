@@ -235,7 +235,10 @@ The linearised power flow that remedial-action and market tools run in
 bulk, on MATPOWER's DC model (`makeBdc`): branch admittance 1/(x·tap),
 resistance and charging left out, phase shifts as injections, shunt
 conductance as load, the case's reference bus. `<case>#dc` covers every
-default transmission case, and `<case>#dcn1` the N-1 cases' 200 outages.
+default transmission case, `<case>#dcn1` the N-1 cases' 200 outages, and
+`<case>#dcn1-full` every outage that keeps the grid connected: 1430 on
+case1354pegase, 3804 on case2869pegase and 14384 on case9241pegase, as a
+full security assessment runs it.
 A tool reports bus angles and from-end branch flows. The oracle
 (`oracle/dc.py`) checks two things to 1e-3 MW:
 
@@ -252,8 +255,8 @@ An outage may be solved anew or from the base case's sensitivities
 - pypowsybl: OpenLoadFlow's `run_dc` and its DC security analysis,
   threaded.
 - PyPSA: `lpf`, DC power flow only.
-- ToOp (Elia Group's topology optimizer): its JAX DC solver on a GPU, from
-  pandapower's model of the case. Flows come from PTDF in the base case and
+- ToOp (Elia Group's topology optimizer): its JAX DC solver on a GPU,
+  reading the case through PowSyBl's MATPOWER importer. Flows come from PTDF in the base case and
   LODF per outage, all outages in one batched call. It computes no angles,
   so it is graded on its flows alone, marked "(flows)" on the site.
 
