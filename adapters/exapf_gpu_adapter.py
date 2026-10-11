@@ -15,6 +15,17 @@ a synchronize per Newton step): 100x the CPU's 0.02 ms on case14, but ahead
 of lightsim2grid from about 3000 buses (case9241pegase 13.6 against
 60.8 ms, mvlv29840 10.0 against 68.1 ms).
 
+Where the time goes (ExaPF's own per-phase times of `nlsolve!`, A100): the
+Newton steps run on the device and no bulk data moves between them, but
+the loop is driven from the host, which reads the mismatch norm back as a
+scalar three times per step (logging, the convergence test) and so waits
+for the device each time, and launches the Jacobian's ForwardDiff kernels
+one by one. Per step on case14: Jacobian and residual 0.28 ms,
+refactorization 0.10, solve 0.09, and 0.30 ms for norms, update and those
+waits: the arithmetic is negligible, the cost is latency. On
+case9241pegase: 1.13, 1.01, 0.32 and the same 0.30 ms, 2.76 ms in all, the
+work now about 90 %.
+
 Input, bus-id mapping, flat start, tolerance, iteration limit and known
 losses: the CPU adapter's, unchanged (its docstring). Here:
 

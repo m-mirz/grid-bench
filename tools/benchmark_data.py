@@ -179,7 +179,7 @@ def load(directory: Path) -> Results:
     each, with that problem's settings."""
     res = Results(se=Results(), opf=Results(), batch=Results(), n1=Results(), cim=Results())
     for path in sorted(Path(directory).glob("*.json")):
-        if path.name == "conversion.json":
+        if path.name == "conversion.json":   # the conversion check's local record, not results
             continue
         data = json.loads(path.read_text())
         if "grid_bench" not in data:

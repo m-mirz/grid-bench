@@ -131,7 +131,8 @@ tests/       the oracle's own tests (test_wls.py: state estimation, test_opf.py:
 data/        submodules: benchmark-grids (MATPOWER, PGLib-OPF), CGMES-Test-Configurations,
              application-profiles-library (ENTSO-E's CGMES RDFS and SHACL)
 results-docker/  published results: <tool>.json, <tool>-se.json, <tool>-opf.json, <tool>-batch.json, <tool>-n1.json,
-             <tool>-cim.json, conversion.json; gpu/: GPU tools and the CPU baselines run on their machine
+             <tool>-cim.json; gpu/: GPU tools and the CPU baselines run on their machine
+             (conversion.json, the conversion check's record, is written there but not tracked)
 docs/index.html  generated site
 ```
 

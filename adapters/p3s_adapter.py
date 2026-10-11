@@ -9,22 +9,22 @@ a single warm solve.
 
 Inputs: the same pandapower nets as the pandapower column (`from_mpc`,
 `from_cim`), so an importer problem shows in both; what differs between the
-two columns is p3s's Ybus and solver. p3s stamps lines, two- and
-three-winding transformers, shunts and wards only: an `impedance` (which
-`from_mpc` creates for some branches), an `xward`, a switch or a `dcline` is
-left out of its Ybus, and bus-bus switches (CGMES) are not fused. Checked
-against pandapower's own Ybus (`net._ppc["internal"]["Ybus"]`) and the
-oracle's: where a net has no `impedance`, p3s's Ybus is pandapower's (case3120sp:
-equal to 4e-12, both off the `.m` on the same 350 transformer rows, the
-`from_mpc` loss the pandapower adapter documents); where it has one, every
-row that differs is an `impedance` bus (case300: 106 rows). So every MATPOWER
-case with an `impedance` does not converge (case18, case118, case300, the
-pegase and RTE cases but case1354pegase, mvlv*), or would be rejected by the
-oracle if it did. p3s takes
-the slack only from `ext_grid`; cim2pp writes the CGMES slack as a `gen`
-with `slack=True` and no `ext_grid`, so on every CGMES input p3s has no
-reference bus and does not converge (checked: `busses["ref"]` is empty on
-cgmes_powerflow and case14@cimoxide).
+two columns is p3s's Ybus and solver. Since 1.2.1 p3s reproduces
+pandapower on every MATPOWER case and cimoxide conversion here: where the
+oracle rejects p3s (case300, case9241pegase, case3120sp, case2848rte and
+their conversions), it rejects pandapower with the same residual at the
+same buses, the `from_mpc`/`from_cim` losses the pandapower adapter
+documents (and on case2848rte@cimoxide the same low-voltage root). 1.2.1
+fixed what made p3s fail before (its tests/test_grid_bench_findings.py):
+`impedance` branches stamped into its Ybus, out-of-service generators no
+longer PV, the CGMES slack taken from `gen.slack`, switches fused,
+transformer ratings and tap tables kept.
+
+Known losses (1.2.1), reported rather than worked around: on the CGMES
+fixtures cgmes_minigrid, cgmes_smallgrid, cgmes_svedala and cgmes_realgrid
+p3s fails building its model ("operands could not be broadcast together
+with shapes (11,) (103,)" on minigrid, likewise on the others), and on
+cgmes_microgrid_be it does not converge.
 
 Bus ids: p3s uses a bus's pandapower index as its Ybus row, so it needs the
 index to be 0..n-1; `from_mpc` sets it to MATPOWER bus number - 1, which has

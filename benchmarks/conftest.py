@@ -7,7 +7,8 @@
 - Every failed test (non-convergence, import error, timeout) is recorded
   with its tool, case, operation and real exception line, and written into
   the pytest-benchmark JSON under `failures`, so a report shows
-  `FAILED (IterationDiverge: ...)` instead of a missing cell.
+  `FAILED (IterationDiverge: ...)` instead of a missing cell; a timeout no
+  longer costs the other cases their records.
 - Tool metadata (version, dependencies, settings, tags, colour), the git
   commit and the cores the run could use (`cpus`, which scaling results
   depend on) are written once per JSON under `grid_bench`, so the report
@@ -72,6 +73,11 @@ def pytest_runtest_makereport(item, call):
             "operation": item.originalname.removeprefix("test_"),
             "error": extract_error(report.longreprtext),
         } | ({"threads": item.callspec.params["threads"]} if "threads" in item.callspec.params else {}))
+        # A test stopped before its first timed round (a timeout) leaves pytest-benchmark a
+        # benchmark without one timing, on which writing the JSON fails and every other
+        # case of the run is lost. Its failure is recorded above; the empty benchmark goes.
+        bs = item.config._benchmarksession
+        bs.benchmarks[:] = [m for m in bs.benchmarks if m.stats]
 
 
 def pytest_benchmark_update_json(config, benchmarks, output_json):

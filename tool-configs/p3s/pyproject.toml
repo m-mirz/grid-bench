@@ -13,7 +13,7 @@ dependencies = [
     "pytest>=8.3",
     "pytest-benchmark>=5.1",
     "pytest-timeout>=2.3",
-    "parallel-pandapower-solver==1.1.0",
+    "parallel-pandapower-solver==1.2.1",
     "pandapower[converter]==3.3.3",   # the same importer (from_mpc, cim2pp) as the pandapower column
     "numba>=0.61",
 ]
@@ -33,6 +33,7 @@ build = [
 [tool.uv]
 package = false
 exclude-newer = "P7D"
-# The one exception: p3s 1.1.0 (uploaded 2026-09-24) was taken at 6 days old,
-# on purpose, to add the tool without waiting; everything else keeps P7D.
-exclude-newer-package = { parallel-pandapower-solver = "2026-09-25T00:00:00Z" }
+# The one exception: p3s 1.2.1 (uploaded 2026-10-09) was taken at 1 day old, on
+# purpose: it fixes the root causes of the p3s failures grid-bench reported
+# (its tests/test_grid_bench_findings.py); everything else keeps P7D.
+exclude-newer-package = { parallel-pandapower-solver = "2026-10-10T00:00:00Z" }

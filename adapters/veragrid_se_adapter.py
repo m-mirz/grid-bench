@@ -41,6 +41,12 @@ Settings:
 Result: a case whose `baseMVA` is not 100 (every distribution feeder) is
 estimated wrongly by every solver (case33bw~exact: J = 8395 where the
 optimum is 0), the parser defect the power-flow adapter documents.
+Whether a case LM gets wrong ends as a ✗ (convergence declared away from
+the optimum) or as not converged in `MAX_ITERATIONS` depends on the
+machine's floating point: six cases (case4_dist both scenarios,
+case1354pegase~exact, case2869pegase both, case9241pegase~noisy) end the
+other way on an AMD EPYC 7J13 than on a Ryzen 7 250, each the same on
+repeated runs of one machine. Neither is the optimum.
 - `tol=SE_TOLERANCE`, `max_iter=MAX_ITERATIONS`.
 """
 import numpy as np

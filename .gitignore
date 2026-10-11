@@ -11,6 +11,9 @@ data/.case-cache/
 # cross-tool table when reports are generated on the measuring machine.
 results/solutions/
 results-docker/solutions/
+# Written by the conversion check (oracle/check_conversion.py), which gates every
+# run; no report reads it, so it stays local.
+results-docker/conversion.json
 
 # Native runs are for development; published numbers come from containers.
 results/

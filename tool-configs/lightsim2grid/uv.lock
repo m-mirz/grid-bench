@@ -30,7 +30,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "lightsim2grid", specifier = "==1.0.0" },
+    { name = "lightsim2grid", specifier = "==1.1.0" },
     { name = "numpy", specifier = ">=2.2" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-benchmark", specifier = ">=5.1" },
@@ -49,18 +49,18 @@ wheels = [
 
 [[package]]
 name = "lightsim2grid"
-version = "1.0.0"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/16/67/d12102b4283d13d33d3ccf63eaf53d22080d0e35e8d2d63ffa5d939bb3d2/lightsim2grid-1.0.0.tar.gz", hash = "sha256:d9bebf42eb753931106fe7206e29a8077a3132b79029e71d473ccdd3b3ddbdc7", size = 3302450, upload-time = "2026-08-29T15:47:24.045Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/d5/4ce31c6bedc85adbd9a13fe0fd876f18727c3ce1485b20b979880a889762/lightsim2grid-1.1.0.tar.gz", hash = "sha256:c24dbb9fe15699a84bd993efb4f86ea35fd533b3f18c941298f585e40669e771", size = 3533680, upload-time = "2026-09-22T15:08:35.498Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fa/df/fe2a2b110fc60c5e22a2d71c38a1063074c5af65f09774252db26642cc19/lightsim2grid-1.0.0-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:0c971995065b1d5439e5c7214934e56e4780d9e4ee59a430ce3a15d580a9208f", size = 5156573, upload-time = "2026-08-29T15:46:56.707Z" },
-    { url = "https://files.pythonhosted.org/packages/73/a6/476be831fb9f8d23dc9c0bbb67f56ecf0070c0f892c72dd1a4debf9ed7ee/lightsim2grid-1.0.0-cp313-cp313-macosx_15_0_x86_64.whl", hash = "sha256:07e7f3d61c6b6f64318be70c6647a8dba870a1fa3c0901acaeec87e7734bb1b2", size = 5269388, upload-time = "2026-08-29T15:46:58.408Z" },
-    { url = "https://files.pythonhosted.org/packages/4a/ac/2958be0530aa0a841923e46fd620667ee55f4968a3d8baec3fef8db3f683/lightsim2grid-1.0.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5405c5cf3c7532013d4c667a0d2cadae3dabffc81463d7dca24863a5ca0e608f", size = 5912884, upload-time = "2026-08-29T15:47:00.54Z" },
-    { url = "https://files.pythonhosted.org/packages/c9/90/e9a20c26eec26cc103966d3ba088bcdcc0297a7c7d68059e80a314395698/lightsim2grid-1.0.0-cp313-cp313-win_amd64.whl", hash = "sha256:4a6112ac3514457fc682bea157deb98d78f61d8346edae8bf0b71f721cc01d5d", size = 5064589, upload-time = "2026-08-29T15:47:02.387Z" },
-    { url = "https://files.pythonhosted.org/packages/83/03/b4c4c982dcd9f7c90dd978f598b9d123c0916f22ed3fb6f8c293f0c5e8b0/lightsim2grid-1.0.0-cp313-cp313-win_arm64.whl", hash = "sha256:9a130034bab80f57637fa5f5e2f66b58fae10a89ea56ded4e5c94b72d0c72c13", size = 5381276, upload-time = "2026-08-29T15:47:04.293Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/2a/a0b4da42445c0e12134a143daa6f09c5f711958450093a9cf8fa77f9f630/lightsim2grid-1.1.0-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:beaba216a9d7f36d93390c9f12457154f7c1a95cc79eedfa25d3b4c2498ebe3b", size = 5720960, upload-time = "2026-09-22T15:08:07.392Z" },
+    { url = "https://files.pythonhosted.org/packages/68/8d/baf1a8c3b6e2342b25d84917beeb775190a2cdedf58c9e5f927bbfd6fcba/lightsim2grid-1.1.0-cp313-cp313-macosx_15_0_x86_64.whl", hash = "sha256:9060e5474ce9ca8f3cc9d345765d31350ec05c2325959294080cd287d3619bda", size = 5854863, upload-time = "2026-09-22T15:08:09.183Z" },
+    { url = "https://files.pythonhosted.org/packages/99/c9/a396581b8a4211363a2987058974aeec788b1509a53b876da1b0838ad904/lightsim2grid-1.1.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:4ecc06442ee98bbdb7f44379b8ecbbaad7c31f6bf7cf42a7732959405ef1b481", size = 6497083, upload-time = "2026-09-22T15:08:11.197Z" },
+    { url = "https://files.pythonhosted.org/packages/6d/45/7d0e658c532859fc58d9591db6dd2498c3e29bf04e3d9a8df0c1dae6bd13/lightsim2grid-1.1.0-cp313-cp313-win_amd64.whl", hash = "sha256:1962f993030c3dbb2bee7c9d890be75ad50a5e4556a9c0fc9dde564630da789a", size = 5569027, upload-time = "2026-09-22T15:08:13.024Z" },
+    { url = "https://files.pythonhosted.org/packages/28/35/a4e2427dc69e15520d63e7e0e14fab008df8646c60e2ead0ff64ce13c97c/lightsim2grid-1.1.0-cp313-cp313-win_arm64.whl", hash = "sha256:f555cf4b0751c5e93670c154ffec774bca8ae9516195944aefe71a413b9ba3f0", size = 5864100, upload-time = "2026-09-22T15:08:14.711Z" },
 ]
 
 [[package]]
