@@ -21,6 +21,11 @@ in-service branches whose outage
   (deterministically, and counted in the file), so every outage provably
   has a solution near the base case.
 
+A full DC N-1 case (`<case>#dcn1-full`) takes every candidate instead, in
+the same order and with no power-flow check (a connected DC model always
+solves): thousands per case (case1354pegase 1430, case2869pegase 3804,
+case9241pegase 14384).
+
 A radial grid has no outage that keeps it connected, so contingency cases
 are transmission cases only.
 

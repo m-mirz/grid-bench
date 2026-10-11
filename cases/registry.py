@@ -274,6 +274,17 @@ for _base in N1_FROM:
         "groups": CASES[_base]["groups"], "source": f"{_base}, DC N-1 branch outages", "note": CASES[_base]["note"],
     }
 
+# Full DC N-1: every outage of an N-1 case that keeps the grid connected
+# (case14's 19 are its #dcn1 already), thousands per case, as a security
+# assessment runs it; graded per outage like #dcn1.
+for _base in N1_FROM[1:]:
+    CASES[f"{_base}#dcn1-full"] = {
+        "family": "dcn1-matpower", "grid": CASES[_base]["grid"], "format": "matpower", "problem": "dcn1",
+        "file": CASES[_base]["file"], "base_case": _base, "outages": "all",
+        "groups": CASES[_base]["groups"], "source": f"{_base}, DC N-1, every non-islanding branch outage",
+        "note": CASES[_base]["note"],
+    }
+
 # CIM import/export/validate: the two largest fixtures, Svedala also the smoke case.
 for _base, _groups in (("cgmes_svedala", ["smoke", "scaling"]), ("cgmes_realgrid", ["scaling"])):
     CASES[f"{_base}#cim"] = {

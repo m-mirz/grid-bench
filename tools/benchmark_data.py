@@ -89,6 +89,8 @@ def input_label(case: str) -> str:
     c = CASES[case]
     if "converter" in c:
         return f"CGMES ({c['converter']})"
+    if c.get("outages") == "all":
+        return "`.m`, all outages"
     return "CGMES" if c["format"] == "cgmes" else "`.m`"
 
 
