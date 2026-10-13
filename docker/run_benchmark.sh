@@ -31,7 +31,16 @@ compose="docker compose -f docker/docker-compose.yml"
 blas_env() { [[ "$1" = _batch || "$1" = _n1 || "$1" = _dcn1 ]] && echo "-e OPENBLAS_NUM_THREADS=1 -e MKL_NUM_THREADS=1"; }
 mkdir -p results-docker data/.case-cache
 
+# The case selection of pytest's arguments (`--groups g` or `--cases a,b`), if
+# any: a case only in an opt-in group (`--groups large`, cases.registry.OPT_IN_GROUPS)
+# is prepared only when a run asks for it.
+selection_of() { while [ $# -gt 0 ]; do case "$1" in --groups|--cases) echo "$1 ${2:-}"; return;;
+    --groups=*|--cases=*) echo "${1%%=*} ${1#*=}"; return;; esac; shift; done; }
 $compose run --rm prep || { echo "input preparation failed"; exit 1; }
+selection="$(selection_of "${extra[@]}")"
+if [ -n "$selection" ]; then
+    $compose run --rm prep python -m cases.prep $selection || { echo "input preparation failed"; exit 1; }
+fi
 $compose run --rm prep-pypowsybl || { echo "pypowsybl conversion failed"; exit 1; }
 $compose run --rm conversion-check || { echo "conversion check failed"; exit 1; }
 $compose run --rm oracle-tests || { echo "oracle tests failed; refusing to benchmark"; exit 1; }

@@ -2,7 +2,8 @@
 no tool involved.
 
 A sweep case (`<case>#sweep`) is a MATPOWER case plus `SWEEP_SIZE`
-operating points on its fixed topology, the workload of a time series or a
+operating points on its fixed topology (a large one, `<case>#sweep-10k`,
+its registry entry's `scenarios`), the workload of a time series or a
 Monte-Carlo study: every tool solves all of them in one timed call, through
 its batch API where it has one (`adapters.batch_adapter`).
 
@@ -46,14 +47,14 @@ def _seed(key: str) -> int:
     return int.from_bytes(hashlib.sha256(key.encode()).digest()[:8], "little")
 
 
-def generate(mpc: dict, key: str) -> dict[str, np.ndarray]:
+def generate(mpc: dict, key: str, n: int = SWEEP_SIZE) -> dict[str, np.ndarray]:
     bus, gen = mpc["bus"], mpc["gen"]
     loaded = (bus[:, BUS_TYPE] != ISOLATED) & ((bus[:, PD] != 0) | (bus[:, QD] != 0))
     online = np.flatnonzero(gen[:, GEN_STATUS] > 0)
-    t = np.arange(SWEEP_SIZE) / SWEEP_SIZE
+    t = np.arange(n) / n
     scale = SCALE_MIN + (SCALE_MAX - SCALE_MIN) * (0.5 - 0.5 * np.cos(2 * np.pi * t))
     factor = scale[:, None] * (1 + SIGMA_BUS * np.random.default_rng(_seed(key)).standard_normal(
-        (SWEEP_SIZE, int(loaded.sum()))))
+        (n, int(loaded.sum()))))
     return {
         "load_bus": bus[loaded, BUS_I].astype(np.int64),
         "pd": bus[loaded, PD][None, :] * factor, "qd": bus[loaded, QD][None, :] * factor,

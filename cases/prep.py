@@ -1,6 +1,6 @@
 """Derives every tool's input file from the case definitions.
 
-    python -m cases.prep [case ...]
+    python -m cases.prep [case ... | --groups g,... | --cases a,... | --family f]
 
 Writes into `data/.case-cache/`:
 
@@ -35,6 +35,11 @@ Writes into `data/.case-cache/`:
   every one solved by `cases.truth` from the base case's solution and
   checked by tier 1.
 
+Cases only in an opt-in group (`OPT_IN_GROUPS`: the large GPU batches,
+hours of checking) are prepared only when named or asked for
+(`--groups large`, or `--cases <case>`, as pytest takes them; the run
+scripts pass theirs on), so a default run and CI never wait on them.
+
 Conversion happens here, not inside a tool's timed import, so a tool's
 import time never includes our own conversion code.
 
@@ -53,8 +58,8 @@ from pathlib import Path
 import numpy as np
 
 from cases import contingency, gridoxide_matpower, matpower, measurements, sweep, truth
-from cases.registry import (CACHE, CASES, FAMILIES, cgmes_files, contingency_path, m_path, mat_path, measurements_path,
-                            pgm_branch_ids_path, pgm_json_path, sweep_path)
+from cases.registry import (CACHE, CASES, FAMILIES, OPT_IN_GROUPS, cgmes_files, contingency_path, m_path, mat_path,
+                            measurements_path, pgm_branch_ids_path, pgm_json_path, sweep_path)
 from oracle import residual, ybus
 
 
@@ -147,7 +152,7 @@ def prepare_sweep(key: str) -> None:
     if stamp.exists() and stamp.read_text() == h.hexdigest() and sweep_path(key).exists():
         return
     mpc = matpower.parse_m(case["file"])
-    data = sweep.generate(mpc, key)
+    data = sweep.generate(mpc, key, case.get("scenarios", sweep.SWEEP_SIZE))
     for k in range(len(data["scale"])):
         mpc_k = sweep.scenario(mpc, data, k)
         ids, v = truth.solve_pf(mpc_k)
@@ -163,8 +168,10 @@ def prepare_sweep(key: str) -> None:
 
 
 def prepare_n1(key: str) -> None:
-    """The outages, after the base case's tool inputs."""
+    """The outages, after the base case's tool inputs: the first
+    `N_OUTAGES` that converge, or every one (`outages` "all")."""
     case = CASES[key]
+    limit = None if case.get("outages") == "all" else contingency.N_OUTAGES
     prepare(case["base_case"])
     stamp = CACHE / f"{key}.key"
     h = hashlib.sha256()
@@ -189,7 +196,7 @@ def prepare_n1(key: str) -> None:
         assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
             f"{key}: outage of branch row {row} solved, but not to the case ({r})"
         rows.append(row)
-        if len(rows) == contingency.N_OUTAGES:
+        if len(rows) == limit:
             break
     branch = mpc["branch"]
     contingency.write({"branch_row": np.array(rows, dtype=np.int64),
@@ -236,7 +243,7 @@ def prepare(key: str) -> None:
     if case["problem"] == "batch":
         return prepare_sweep(key)
     if case["problem"] == "n1":
-        return prepare_n1(key)
+        return prepare_n1(key)   # `#n1` and `#n1-full` alike
     if case["problem"] == "dc":
         return prepare(case["base_case"])   # the base case's tool inputs; DC needs nothing else
     if case["problem"] == "dcn1" and case.get("outages") == "all":
@@ -300,8 +307,14 @@ def main(argv: list[str]) -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
     if argv[:1] == ["--family"]:
         keys = [k for k, c in CASES.items() if c["family"] == argv[1]]
+    elif argv[:1] == ["--groups"]:
+        groups = set(argv[1].split(","))
+        keys = [k for fam in FAMILIES for k, c in CASES.items() if c["family"] == fam and groups & set(c["groups"])]
+    elif argv[:1] == ["--cases"]:
+        keys = [k for k in argv[1].split(",") if k]
     else:
-        keys = argv or [k for fam in FAMILIES for k, c in CASES.items() if c["family"] == fam]
+        keys = argv or [k for fam in FAMILIES for k, c in CASES.items() if c["family"] == fam
+                        and not (c["groups"] and set(c["groups"]) <= set(OPT_IN_GROUPS))]
     for key in keys:
         prepare(key)
 

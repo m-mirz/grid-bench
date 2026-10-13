@@ -168,6 +168,7 @@ docker/lock.sh                                 # re-resolve every uv.lock and Ju
 docker/run_benchmark.sh [tool ...] [-- --groups smoke]   # prep, oracle tests, tools, reports
 docker/run_single.sh pandapower --cases case14,case300   # one tool, quick iteration
 GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu    # into results-docker/gpu/ (GPU tabs); a baseline likewise
+GRID_BENCH_RESULTS=gpu docker/run_single.sh gpusim2grid --groups smoke,scaling,feature,robustness,large   # with the large batches
 docker compose -f docker/docker-compose.yml run --rm reports   # regenerate reports only
 
 ./setup.sh && ./run_benchmarks.sh [tool ...]   # native, one environment, for development
@@ -268,7 +269,11 @@ the `.m` and PGLib's reference objective), and `sweep-matpower`,
 keyed `<case>#sweep`, each scenario graded by tier 1 in `oracle.batch`),
 and `n1-matpower` (N-1: a transmission case plus its outages, keyed
 `<case>#n1`, each graded the same way against the case with that branch
-out; radial grids have no outage that keeps them connected), and
+out; radial grids have no outage that keeps them connected), both also
+large for the GPU tabs (`<case>#sweep-10k`, 10 000 operating points, and
+`<case>#n1-full`, every outage that converges; group `large`, an opt-in
+group, `OPT_IN_GROUPS`: prepared and run only when asked for, published
+like the default groups), and
 `dc-matpower`, `dcn1-matpower` (DC power flow on the default transmission
 cases, keyed `<case>#dc`, and the N-1 cases' outages on the DC model,
 `<case>#dcn1`, and every non-islanding outage of them, `<case>#dcn1-full`,
@@ -325,7 +330,10 @@ change to `tools/`, and commit what it writes. Conventions:
   need not be the machine behind the other tabs, so they are compared only
   with each other. A tool is a GPU tool when its JSON records a device
   (`dependencies.gpu`); every other tool there is a baseline. Run both
-  with `GRID_BENCH_RESULTS=gpu`.
+  with `GRID_BENCH_RESULTS=gpu` and `--groups smoke,scaling,feature,robustness,large`: the
+  large batches (group `large`) are what a GPU needs to fill, and a run
+  writes each tool's JSON whole, so `--groups large` alone would drop the
+  other cases from it.
 
 ## Adding a case
 

@@ -12,7 +12,14 @@ mkdir -p "results-docker/$out" data/.case-cache
 compose="docker compose -f docker/docker-compose.yml"
 # Batch benchmarks measure a tool's own parallelism: BLAS stays on one thread.
 blas_env() { [[ "$1" = _batch || "$1" = _n1 || "$1" = _dcn1 ]] && echo "-e OPENBLAS_NUM_THREADS=1 -e MKL_NUM_THREADS=1"; }
+# The case selection of pytest's arguments (`--groups g` or `--cases a,b`), if
+# any: a case only in an opt-in group (`--groups large`, cases.registry.OPT_IN_GROUPS)
+# is prepared only when a run asks for it.
+selection_of() { while [ $# -gt 0 ]; do case "$1" in --groups|--cases) echo "$1 ${2:-}"; return;;
+    --groups=*|--cases=*) echo "${1%%=*} ${1#*=}"; return;; esac; shift; done; }
 $compose run --rm prep
+selection="$(selection_of "$@")"
+[ -n "$selection" ] && $compose run --rm prep python -m cases.prep $selection
 # pypowsybl's MATPOWER -> CGMES conversion needs its image; without it (CI
 # builds only what the tool under test needs) the converted-pypowsybl cases
 # are not prepared, rather than Compose trying to pull a local-only image.
