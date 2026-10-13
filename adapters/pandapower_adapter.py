@@ -14,7 +14,10 @@ Inputs:
   negative ACLineSegment reactance (converted case300: -48.89 ohm in the
   file, +48.89 ohm in `net.line`); the oracle reports it. It needs a slack
   in the file (`referencePriority`), so it cannot solve pypowsybl's CGMES
-  export, which writes none.
+  export, which writes none. On cgmes_microgrid_be it leaves the five
+  boundary buses (EQBD's Border_* nodes) with `vn_kv` NaN, so the lines
+  starting at one have a NaN per-unit admittance and `runpp` raises a
+  FloatingPointError (issue #20).
 
 Settings, each the closest match to the common problem definition:
 - `algorithm="nr"`: Newton-Raphson, like every other tool here.

@@ -20,11 +20,12 @@ fixed what made p3s fail before (its tests/test_grid_bench_findings.py):
 longer PV, the CGMES slack taken from `gen.slack`, switches fused,
 transformer ratings and tap tables kept.
 
-Known losses (1.2.1), reported rather than worked around: on the CGMES
-fixtures cgmes_minigrid, cgmes_smallgrid, cgmes_svedala and cgmes_realgrid
-p3s fails building its model ("operands could not be broadcast together
-with shapes (11,) (103,)" on minigrid, likewise on the others), and on
-cgmes_microgrid_be it does not converge.
+Known losses (1.2.1), both shared with the pandapower column: on
+cgmes_microgrid_be p3s stops before the first iteration ("reached 0") on a
+non-finite mismatch: `from_cim` leaves the five boundary buses without
+`vn_kv` (NaN), which makes the per-unit admittance of the two lines
+starting at one NaN, the importer's loss (issue #20). On cgmes_realgrid it
+does not converge in `MAX_ITERATIONS`, as pandapower does not.
 
 Bus ids: p3s uses a bus's pandapower index as its Ybus row, so it needs the
 index to be 0..n-1; `from_mpc` sets it to MATPOWER bus number - 1, which has
@@ -32,9 +33,15 @@ gaps on most cases (case18, case300, pegase, RTE, mvlv), and p3s then fails
 with an IndexError. `load` therefore renumbers the buses with pandapower's
 `create_continuous_bus_index`, a relabelling that leaves the power-flow
 equations untouched, and keeps the old index in `net.bus.old_index`: the
-MATPOWER number is `old_index + 1`. Ybus row i is `net.bus.index[i]`
-(asserted). CGMES buses join through `net.bus.cim_topnode`, as in the
-pandapower adapter.
+MATPOWER number is `old_index + 1`. p3s fuses buses joined by closed
+bus-bus switches into one node (its Ybus is per node, so on the CGMES
+fixtures with switches it has fewer rows than `net.bus`), and `calculate`
+maps the node voltages back to one voltage per `net.bus` row, NaN on
+unsupplied buses: voltage row i is `net.bus` row i (asserted). An earlier
+assertion here compared p3s's node lookup with the bus rows, which raised
+on every fixture with switches and was recorded as p3s failing to build its
+model (issue #20). CGMES buses join through `net.bus.cim_topnode`, as in
+the pandapower adapter; unsupplied buses are left out.
 
 Settings, each the closest match to the common problem definition:
 - `load` builds the `NewtonPowerflow` object (Ybus, bus types, injections)
@@ -94,7 +101,6 @@ class P3sAdapter(SolverAdapter):
         create_continuous_bus_index(net, store_old_index=True)
         calculate_trafo_characteristic(net, inplace=True)
         npf = NewtonPowerflow(net)
-        assert (npf._reverse_lookup.values == np.arange(len(net.bus))).all()
         assert (net.bus.index.values == np.arange(len(net.bus))).all()
         v0 = np.array(npf._initial_voltage, dtype=np.complex128)
         v0[npf.busses["pq"]] = 1.0
@@ -111,6 +117,7 @@ class P3sAdapter(SolverAdapter):
 
     def solution(self, model, case):
         net, v = model["net"], model["v"]
+        assert len(v) == len(net.bus)
         vm, va = np.abs(v), np.angle(v, deg=True)
         if not is_cgmes(case):
             ids = [str(int(i) + 1) for i in net.bus.old_index]
