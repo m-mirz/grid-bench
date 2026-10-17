@@ -26,7 +26,8 @@ Returns flat fields that go straight into a result record's `extra_info`:
   (`oracle.dc`), through `evaluate_dc`: angles by nodal balance, branch flows
   against the model's own solution, per outage for DC N-1.
 """
-from functools import lru_cache
+import os
+from functools import lru_cache, partial
 
 import numpy as np
 
@@ -88,18 +89,35 @@ def evaluate(case: str, vm: dict[str, float], va_deg: dict[str, float],
     return out
 
 
+# Batches of at least this many bus voltages (scenarios x buses) are graded
+# in a process per core (`oracle.batch`): case9241pegase#sweep-10k takes
+# about 5 min on one, and the large batches are graded once per thread count.
+# Below it, starting the processes costs more than they save.
+PARALLEL_MIN_VOLTAGES = 1_000_000
+
+
+@lru_cache(maxsize=1)
+def _batch_data(case: str) -> dict:
+    return (contingency.read(contingency_path(case)) if CASES[case]["problem"] == "n1"
+            else sweep.read(sweep_path(case)))
+
+
+def _scenario(case: str, k: int) -> dict:
+    """Scenario k of a batch case; module-level, so a worker process can
+    load the case itself (`partial(_scenario, case)` pickles only the key)."""
+    if CASES[case]["problem"] == "n1":
+        return contingency.outage(_mpc(case), _batch_data(case), k)
+    return sweep.scenario(_mpc(case), _batch_data(case), k)
+
+
 def evaluate_batch(case: str, bus_ids: list[str], vm: np.ndarray, va_deg: np.ndarray) -> dict:
     """A sweep's or a contingency case's solution: scenarios x `bus_ids`,
     graded scenario by scenario."""
-    mpc = _mpc(case)
-    if CASES[case]["problem"] == "n1":
-        data = contingency.read(contingency_path(case))
-        scenario, n = (lambda k: contingency.outage(mpc, data, k)), len(data["branch_row"])
-    else:
-        data = sweep.read(sweep_path(case))
-        scenario, n = (lambda k: sweep.scenario(mpc, data, k)), len(data["scale"])
-    return batch.check(scenario, n, bus_ids, vm, va_deg, tol_mva=RESIDUAL_OK_MVA, tol_pu=SETPOINT_OK_PU,
-                       vm_floor=VM_FLOOR_PU)
+    data = _batch_data(case)
+    n = len(data["branch_row"]) if CASES[case]["problem"] == "n1" else len(data["scale"])
+    workers = os.process_cpu_count() if n * len(bus_ids) >= PARALLEL_MIN_VOLTAGES else 1
+    return batch.check(partial(_scenario, case), n, bus_ids, vm, va_deg, tol_mva=RESIDUAL_OK_MVA,
+                       tol_pu=SETPOINT_OK_PU, vm_floor=VM_FLOOR_PU, workers=workers)
 
 
 def evaluate_dc(case: str, bus_ids: list[str], va_deg: np.ndarray, branch_rows: list[int], pf_mw: np.ndarray) -> dict:

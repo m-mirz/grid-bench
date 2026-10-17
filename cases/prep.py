@@ -36,22 +36,33 @@ Writes into `data/.case-cache/`:
   checked by tier 1.
 
 Cases only in an opt-in group (`OPT_IN_GROUPS`: the large GPU batches,
-hours of checking) are prepared only when named or asked for
+hours of checking on one core) are prepared only when named or asked for
 (`--groups large`, or `--cases <case>`, as pytest takes them; the run
 scripts pass theirs on), so a default run and CI never wait on them.
 
 Conversion happens here, not inside a tool's timed import, so a tool's
 import time never includes our own conversion code.
 
+The power flows behind the sweeps and outages (one `cases.truth` solve and
+tier-1 check per scenario, 0.4 s each on case9241pegase, hours for the
+large batches) run in a process per core (`spawn`). Each worker builds its
+case itself (a sweep's operating points are seeded by the case key, so
+every worker draws the same), and the results are taken in scenario and
+candidate order: the files are the ones a serial run writes.
+
 A cached file is rebuilt when the source `.m`, this module, `matpower.py`, or
 the converter changes: the cache key is a hash of all of them, not
 the file's mere existence.
 """
 import hashlib
+import itertools
 import json
+import multiprocessing
+import os
 import shutil
 import sys
 import zipfile
+from concurrent.futures import ProcessPoolExecutor
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
@@ -153,15 +164,10 @@ def prepare_sweep(key: str) -> None:
         return
     mpc = matpower.parse_m(case["file"])
     data = sweep.generate(mpc, key, case.get("scenarios", sweep.SWEEP_SIZE))
-    for k in range(len(data["scale"])):
-        mpc_k = sweep.scenario(mpc, data, k)
-        ids, v = truth.solve_pf(mpc_k)
-        on = ~np.isnan(v)
-        vm = {str(b): float(abs(x)) for b, x in zip(ids[on], v[on])}
-        va = {str(b): float(np.rad2deg(np.angle(x))) for b, x in zip(ids[on], v[on])}
-        r = residual.residual(mpc_k, vm, va)
-        assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
-            f"{key}: scenario {k} has no solution from flat start ({r})"
+    n, workers = len(data["scale"]), os.process_cpu_count()
+    bounds = np.linspace(0, n, min(n, 8 * workers) + 1).astype(int)
+    with _pool(workers, _init_sweep, key) as pool:
+        list(pool.map(_check_scenarios, zip(bounds[:-1], bounds[1:])))   # raises a worker's AssertionError
     sweep.write(data, sweep_path(key))
     stamp.write_text(h.hexdigest())
     print(f"prepared {key}", file=sys.stderr)
@@ -182,22 +188,20 @@ def prepare_n1(key: str) -> None:
         return
     mpc = matpower.parse_m(case["file"])
     _, v_base = truth.solve_pf(mpc)
-    rows, skipped = [], 0
-    for row in contingency.candidates(mpc, key):
-        mpc_k = contingency.outage(mpc, {"branch_row": [row]}, 0)
-        try:
-            ids, v = truth.solve_pf(mpc_k, v_base)
-        except RuntimeError:
-            skipped += 1
-            continue
-        on = ~np.isnan(v)
-        r = residual.residual(mpc_k, {str(b): float(abs(x)) for b, x in zip(ids[on], v[on])},
-                              {str(b): float(np.rad2deg(np.angle(x))) for b, x in zip(ids[on], v[on])})
-        assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
-            f"{key}: outage of branch row {row} solved, but not to the case ({r})"
-        rows.append(row)
-        if len(rows) == limit:
-            break
+    rows, skipped, workers = [], 0, os.process_cpu_count()
+    candidates = contingency.candidates(mpc, key)
+    # Candidates in ordered slices, so a limited case stops near its limit
+    # and takes exactly the first `limit` that converge, as a serial run does.
+    step = 8 * workers if limit else None
+    with _pool(workers, _init_n1, key, v_base) as pool:
+        while len(rows) != limit and (part := list(itertools.islice(candidates, step))):
+            for row, converged in zip(part, pool.map(_check_outage, part, chunksize=max(1, len(part) // (8 * workers)))):
+                if not converged:
+                    skipped += 1
+                    continue
+                rows.append(row)
+                if len(rows) == limit:
+                    break
     branch = mpc["branch"]
     contingency.write({"branch_row": np.array(rows, dtype=np.int64),
                        "from_bus": branch[rows, matpower.F_BUS].astype(np.int64),
@@ -205,6 +209,54 @@ def prepare_n1(key: str) -> None:
                       contingency_path(key))
     stamp.write_text(h.hexdigest())
     print(f"prepared {key} ({len(rows)} outages, {skipped} skipped: no convergence)", file=sys.stderr)
+
+
+_WORKER: dict = {}   # a worker process's case, set once by its initializer
+
+
+def _pool(workers: int, initializer, *initargs) -> ProcessPoolExecutor:
+    return ProcessPoolExecutor(workers, mp_context=multiprocessing.get_context("spawn"),
+                               initializer=initializer, initargs=initargs)
+
+
+def _init_sweep(key: str) -> None:
+    mpc = matpower.parse_m(CASES[key]["file"])
+    _WORKER.update(key=key, mpc=mpc, data=sweep.generate(mpc, key, CASES[key].get("scenarios", sweep.SWEEP_SIZE)))
+
+
+def _init_n1(key: str, v_base: np.ndarray) -> None:
+    _WORKER.update(key=key, mpc=matpower.parse_m(CASES[key]["file"]), v_base=v_base)
+
+
+def _solves_case(mpc_k: dict, ids: np.ndarray, v: np.ndarray) -> residual.Residual:
+    on = ~np.isnan(v)
+    return residual.residual(mpc_k, {str(b): float(abs(x)) for b, x in zip(ids[on], v[on])},
+                             {str(b): float(np.rad2deg(np.angle(x))) for b, x in zip(ids[on], v[on])})
+
+
+def _check_scenarios(bounds: tuple[int, int]) -> None:
+    """Sweep scenarios a..b-1: each solved from flat start and checked by tier 1."""
+    key, mpc, data = _WORKER["key"], _WORKER["mpc"], _WORKER["data"]
+    for k in range(*bounds):
+        mpc_k = sweep.scenario(mpc, data, k)
+        r = _solves_case(mpc_k, *truth.solve_pf(mpc_k))
+        assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
+            f"{key}: scenario {k} has no solution from flat start ({r})"
+
+
+def _check_outage(row: int) -> bool:
+    """Whether the outage of branch `row` converges from the base case's
+    solution; if it does, its solution is checked by tier 1."""
+    key, mpc = _WORKER["key"], _WORKER["mpc"]
+    mpc_k = contingency.outage(mpc, {"branch_row": [row]}, 0)
+    try:
+        ids, v = truth.solve_pf(mpc_k, _WORKER["v_base"])
+    except RuntimeError:
+        return False
+    r = _solves_case(mpc_k, ids, v)
+    assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
+        f"{key}: outage of branch row {row} solved, but not to the case ({r})"
+    return True
 
 
 def prepare_n1_full(key: str) -> None:
