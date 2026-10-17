@@ -121,6 +121,10 @@ SHACL_DIR = DATA / "application-profiles-library" / "CGMES" / "SHACL"
 DEFAULT_GROUPS = ("smoke", "scaling", "feature", "robustness")
 # Run and prepared only when asked for by name, published like the default ones.
 OPT_IN_GROUPS = ("large",)
+# The GPU tabs' groups (`--groups smoke,scaling,feature,large`): the large
+# batches a GPU needs, and not `robustness`, cases known not to converge from
+# a flat start, which ask which tools converge, not how fast they are.
+GPU_GROUPS = ("smoke", "scaling", "feature", "large")
 CONVERTERS = ("cimoxide", "pypowsybl")
 SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstring
 SCENARIOS = ("exact", "noisy")   # see cases/measurements.py

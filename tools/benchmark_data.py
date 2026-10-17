@@ -176,9 +176,10 @@ def _cim_scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]
     return list(CIM_OPERATIONS), rows
 
 
-def load(directory: Path) -> Results:
-    """Every record of a case in the default or opt-in groups. A case run
-    by name (outside them) stays in its JSON but out of the published reports.
+def load(directory: Path, groups: tuple[str, ...] = DEFAULT_GROUPS + OPT_IN_GROUPS) -> Results:
+    """Every record of a case in `groups` (the default and opt-in ones; the
+    GPU tabs pass `GPU_GROUPS`). A case run by name (outside them) stays in
+    its JSON but out of the published reports.
     Power flow at the top level, state estimation in `.se`, optimal power
     flow in `.opf`, batch power flow in `.batch`, N-1 contingencies in
     `.n1`, DC power flow in `.dc`, DC N-1 in `.dcn1`, CIM import/export/validation in `.cim`: a tool has an entry in
@@ -199,11 +200,11 @@ def load(directory: Path) -> Results:
                               "image": gb.get("container_image"), "machine": data.get("machine_info", {}),
                               "cpus": gb.get("cpus", {})})
         for f in data.get("failures", []):
-            if _published(f["case"]):
+            if _published(f["case"], groups):
                 _part(res, f["case"]).failures.append(f)
         for b in data["benchmarks"]:
             e = b["extra_info"]
-            if not _published(e["case"]):
+            if not _published(e["case"], groups):
                 continue
             _part(res, e["case"]).records.append(Record(e["tool"], e["case"], e["family"], e["operation"],
                                       b["stats"]["median"] * 1e3, b["stats"]["min"] * 1e3, b["stats"]["rounds"], e))
@@ -219,8 +220,8 @@ def _part(res: Results, case: str) -> Results:
     return _problem(res, CASES[case]["problem"])
 
 
-def _published(case: str) -> bool:
-    return bool(set(CASES[case]["groups"]) & set(DEFAULT_GROUPS + OPT_IN_GROUPS))
+def _published(case: str, groups: tuple[str, ...]) -> bool:
+    return bool(set(CASES[case]["groups"]) & set(groups))
 
 
 @lru_cache(maxsize=None)

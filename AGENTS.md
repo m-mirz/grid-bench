@@ -168,7 +168,7 @@ docker/lock.sh                                 # re-resolve every uv.lock and Ju
 docker/run_benchmark.sh [tool ...] [-- --groups smoke]   # prep, oracle tests, tools, reports
 docker/run_single.sh pandapower --cases case14,case300   # one tool, quick iteration
 GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu    # into results-docker/gpu/ (GPU tabs); a baseline likewise
-GRID_BENCH_RESULTS=gpu docker/run_single.sh gpusim2grid --groups smoke,scaling,feature,robustness,large   # with the large batches
+GRID_BENCH_RESULTS=gpu docker/run_single.sh gpusim2grid --groups smoke,scaling,feature,large   # with the large batches
 docker compose -f docker/docker-compose.yml run --rm reports   # regenerate reports only
 
 ./setup.sh                                     # native: oracle and case prep only (tools run in images)
@@ -332,10 +332,11 @@ change to `tools/`, and commit what it writes. Conventions:
   need not be the machine behind the other tabs, so they are compared only
   with each other. A tool is a GPU tool when its JSON records a device
   (`dependencies.gpu`); every other tool there is a baseline. Run both
-  with `GRID_BENCH_RESULTS=gpu` and `--groups smoke,scaling,feature,robustness,large`: the
-  large batches (group `large`) are what a GPU needs to fill, and a run
-  writes each tool's JSON whole, so `--groups large` alone would drop the
-  other cases from it.
+  with `GRID_BENCH_RESULTS=gpu` and `--groups smoke,scaling,feature,large`
+  (`GPU_GROUPS`): the large batches (group `large`) are what a GPU needs to
+  fill, and a run writes each tool's JSON whole, so `--groups large` alone
+  would drop the other cases from it. Robustness cases are left out, and the
+  GPU tabs drop any a JSON has: they ask which tools converge, not how fast.
 
 ## Adding a case
 

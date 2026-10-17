@@ -365,7 +365,7 @@ to run, not to build; a default sweep leaves them out where `nvidia-smi` fails.
 `GRID_BENCH_GPU=<n>` picks the device (default 0). Their results go to
 `results-docker/gpu/`, with CPU baselines run on the same machine, and the
 site shows them in tabs of their own:
-`GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu --groups smoke,scaling,feature,robustness,large`,
+`GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu --groups smoke,scaling,feature,large`,
 likewise `gpusim2grid` and a baseline (`lightsim2grid`). The `large` group
 adds batches sized for a GPU (10 000 operating points, every outage of the
 N-1 cases), which a default run neither prepares nor runs: 100 scenarios
