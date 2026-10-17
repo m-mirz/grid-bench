@@ -51,9 +51,11 @@ Settings:
   info log on every parse is silenced.
 
 What it deliberately does not do: the GPU backend (CUDA, MadNLPGPU and
-cuDSS with the condensed KKT system, what the package is built for) needs a
-GPU image and an OPF GPU tab, neither of which exists yet.
+cuDSS with the condensed KKT system, what the package is built for) is the
+examodelspower_gpu tool (adapters/examodelspower_gpu_opf_adapter.py), the same
+adapter and Julia code on another backend, in the GPU tabs.
 """
+from importlib import import_module
 from importlib.metadata import version
 
 import numpy as np
@@ -64,40 +66,37 @@ from cases.matpower import GEN_BUS, GEN_STATUS, parse_m
 from cases.registry import CASES
 
 
-def _gb():
-    from adapters.examodelspower_julia import GB   # starts Julia on first use
-    return GB
-
-
 class ExamodelspowerOptimizer(OptimizerAdapter):
     name = "examodelspower"
     display_name = "ExaModelsPower.jl (MadNLP)"
     color = "#e3494b"   # tools/palette.py EXAMODELSPOWER: slot 8's red, dashed (ExaPF's makers)
     package = "juliacall"
-    modules = ("adapters.examodelspower_julia",)
+    julia = "adapters.examodelspower_julia"   # the backend: load, solve, versions
+    modules = (julia,)
     language = "julia"
     settings = {"formulation": "polar", "solver": "MadNLP", "linear_solver": "mumps", "backend": "cpu",
                 "init": "flat", "tol": OPF_TOLERANCE, "max_iter": OPF_MAX_ITERATIONS}
+
+    def _jl(self):
+        return import_module(self.julia)   # starts Julia on first use
 
     def version(self):
         return self.dependencies()["ExaModelsPower"]
 
     def dependencies(self):
-        from adapters.examodelspower_julia import JULIA_VERSION
-        return {k: str(v) for k, v in _gb().versions().items()} | {"julia": JULIA_VERSION,
-                                                                    "juliacall": version("juliacall")}
+        return self._jl().versions() | {"juliacall": version("juliacall")}
 
     def load(self, case):
-        return _gb().load(str(CASES[case]["file"]), OPF_TOLERANCE, OPF_MAX_ITERATIONS)
+        return self._jl().load(str(CASES[case]["file"]), OPF_TOLERANCE, OPF_MAX_ITERATIONS)
 
     def solve(self, model):
-        iterations, status = _gb().solve_b(model)   # juliacall spells solve! as solve_b
+        iterations, status = self._jl().solve(model)
         if status != "SOLVE_SUCCEEDED":
             raise DidNotConverge(f"MadNLP: {status} after {iterations} iterations")
         self._iterations = int(iterations)
 
     def solution(self, model, case):
-        buses, vm, va, rows, gen_buses, pg, qg = _gb().solution(model)
+        buses, vm, va, rows, gen_buses, pg, qg = self._jl().GB.solution(model)
         gen = parse_m(CASES[case]["file"])["gen"]
         in_service = np.flatnonzero(gen[:, GEN_STATUS] != 0)   # ExaPowerIO drops status == 0
         assert len(in_service) == len(rows)

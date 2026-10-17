@@ -23,7 +23,9 @@ the same library) is its orange, dotted. ToOp, whose DC solver builds its model 
 pandapower's blue, dash-dotted; it only appears in the DC tabs, where
 pandapower does not. ExaModelsPower.jl (AC-OPF, from ExaPF's makers) is the
 red again, dashed, the one pattern of slot 8 left; it only appears in the OPF tab,
-where neither Sienna nor ExaPF does. JuliaGrid.jl, like Sparlectra.jl a power-system library written in Julia
+where neither Sienna nor ExaPF does; on a GPU it is that red dash-dotted,
+like ExaPF's GPU rows, which it never shares a chart with (the GPU OPF tab has
+no ExaPF). JuliaGrid.jl, like Sparlectra.jl a power-system library written in Julia
 (power flow and state estimation both), is Sparlectra's teal, dashed.
 Checked all-pairs, as a chart showing every tool at once needs, the palette
 fails: slot 8 red vs slot 2 orange is dE 7.1 even with full colour vision,
@@ -81,9 +83,11 @@ TOOP = "#2a78d5"   # slot 1's blue, two units off: ToOp (JAX DC on a GPU, its mo
 LIGHT_TO_DARK[TOOP] = "#3987e4"
 EXAMODELSPOWER = "#e3494b"   # slot 8's red, three units off: ExaModelsPower.jl (OPF only), dashed
 LIGHT_TO_DARK[EXAMODELSPOWER] = "#e6676a"
+EXAMODELSPOWER_GPU = "#e3494c"   # slot 8's red, four units off: ExaModelsPower.jl on a GPU, dash-dotted
+LIGHT_TO_DARK[EXAMODELSPOWER_GPU] = "#e6676b"
 DASH = {REFERENCE: "6 4", REFERENCE_DOTTED: "1.5 3.5", P3S: "6 4", EXAPF: "1.5 3.5", EXAPF_GPU: "6 3 1.5 3",
         GPUSIM2GRID: "6 3 1.5 3", JULIAGRID: "6 4", TOOP: "6 3 1.5 3", LIGHTSIM2GRID_LODF: "1.5 3.5",
-        EXAMODELSPOWER: "6 4",
+        EXAMODELSPOWER: "6 4", EXAMODELSPOWER_GPU: "6 3 1.5 3",
         **dict.fromkeys((CIMOXIDE, TRIPLETS, OPENCGMES, POWSYBL), "2 3")}
 LIGHT = {"surface": "#fcfcfb", "text": "#0b0b0b", "text2": "#52514e", "grid": "#e4e3df", "axis": "#8a8984"}
 DARK = {"surface": "#1a1a19", "text": "#ffffff", "text2": "#c3c2b7", "grid": "#33332f", "axis": "#6f6e69"}

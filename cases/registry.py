@@ -48,7 +48,7 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   `problem` is "opf". Graded by `oracle.opf`: feasibility against the `.m`
   and the objective against PGLib's published reference
   (`cases.pglib.reference_objective`). Typical conditions from 14 to 2,869
-  buses (the timing series; case9241 is registered but in no group, see its
+  buses (the timing series; case9241 only in `large`, the GPU tabs, see its
   note), and the congested (`__api`) and small
   angle-difference (`__sad`) variants of case14, case118 and case300, which
   bind the limits tools model differently.
@@ -93,7 +93,8 @@ Groups say what a case is *for* (a case can be in several):
   equipment, every branch encoded as a transformer). The accuracy headline.
 - `robustness`: known not to converge from a flat start in any tool tested;
   reported separately, never in the timing headline.
-- `large` (`OPT_IN_GROUPS`): batches sized for a GPU, run and prepared only
+- `large` (`OPT_IN_GROUPS`): batches sized for a GPU, and the largest OPF
+  case (pglib_opf_case9241_pegase), run and prepared only
   when asked (`--groups large`; a GPU machine's run, with its CPU
   baselines), published like the default groups: in the GPU tabs, since
   only that run has them.
@@ -244,9 +245,9 @@ CASES |= {
     "pglib_opf_case300_ieee": _pglib("pglib_opf_case300_ieee", ["scaling"]),
     "pglib_opf_case1354_pegase": _pglib("pglib_opf_case1354_pegase", ["scaling"]),
     "pglib_opf_case2869_pegase": _pglib("pglib_opf_case2869_pegase", ["scaling"]),
-    "pglib_opf_case9241_pegase": _pglib("pglib_opf_case9241_pegase", [],
-                                        "in no group: pandapower and VeraGrid fail it after their full iteration "
-                                        "budget, which cost most of an hour per sweep; runnable by name"),
+    "pglib_opf_case9241_pegase": _pglib("pglib_opf_case9241_pegase", ["large"],
+                                        "only in `large` (the GPU tabs): pandapower and VeraGrid fail it after "
+                                        "their full iteration budget, which cost most of an hour per sweep"),
     **{f"pglib_opf_{c}__{v}": _pglib(f"pglib_opf_{c}__{v}", ["feature"], note)
        for c in ("case14_ieee", "case118_ieee", "case300_ieee")
        for v, note in (("api", "congested: branch limits bind"), ("sad", "small angle-difference limits bind"))},

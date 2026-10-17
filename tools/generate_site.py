@@ -72,18 +72,19 @@ def payload(res: Results, kind: str = "pf") -> dict:
 
 def generate(directory: Path, res: Results, gpu: Results | None = None) -> str:
     """`gpu`: the results of `<directory>/gpu/`, GPU tools and the CPU
-    baselines run on their machine, as three more tabs (power flow, batch,
-    N-1) that compare only those."""
+    baselines run on their machine, as four more tabs (power flow, OPF,
+    batch, N-1) that compare only those."""
     part = lambda r, kind: payload(r, kind) if r and (r.records or r.failures) else None
     tabs = {"pf": payload(res), "se": part(res.se, "se"), "opf": part(res.opf, "opf"),
             "batch": part(res.batch, "batch"), "n1": part(res.n1, "n1"), "dc": part(res.dc, "dc"),
             "dcn1": part(res.dcn1, "dcn1"), "cim": part(res.cim, "cim")}
     if gpu:
         gpus, baselines, devices = gpu_run(gpu)
-        names = {t: m["display_name"] for p in (gpu, gpu.batch, gpu.n1) for t, m in p.tools.items()}
+        names = {t: m["display_name"] for p in (gpu, gpu.opf, gpu.batch, gpu.n1) for t, m in p.tools.items()}
         meta = {"gpus": [names[t] for t in gpus], "baselines": [names[t] for t in baselines], "devices": devices}
         tabs |= {f"gpu-{k}": p and p | {"gpu": meta} for k, p in
-                 [("pf", part(gpu, "pf")), ("batch", part(gpu.batch, "batch")), ("n1", part(gpu.n1, "n1"))]}
+                 [("pf", part(gpu, "pf")), ("opf", part(gpu.opf, "opf")), ("batch", part(gpu.batch, "batch")),
+                  ("n1", part(gpu.n1, "n1"))]}
     data = json.dumps(tabs, separators=(",", ":")).replace("</", "<\\/")
     return (TEMPLATE.replace("__DATA__", data).replace("__VM_FLOOR__", repr(VM_FLOOR_PU))
             .replace("__LIGHT__", "".join(f"--{k}:{v};" for k, v in LIGHT.items()))
@@ -196,7 +197,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <li><b>N-1 contingencies</b>: each transmission case with 200 single-branch outages that keep the grid connected (all 19 of case14), solved in one timed call with the base case, each outage started from the tool's own base-case solution (power-grid-model takes no start voltages and starts flat). Contingency APIs that take a thread count run at 1, 2, 4, … threads. Times are per outage. The oracle grades every outage of every thread count against the case with that branch out. The GPU tab adds every outage that keeps the grid connected and converges (input "all outages", up to 14,384 on case9241pegase).</li>
 <li><b>CIM import/export</b>: CIM libraries on the Svedala and RealGrid CGMES 3.0 conformity models, every profile (SV included) read from the published XML. <b>Import</b>: files to the library's model. <b>Export</b>: that model back to CGMES RDF/XML, warm, into an empty directory. <b>Validate</b>: files to violation report in one call, parsing included (cimoxide validates files only); cimoxide runs its own rules, triplets and OpenCGMES (with Jena SHACL) the ENTSO-E CGMES 3.0 SHACL shapes. These are timed, not graded, as in cim-bench: what each tool read and found is shown, but the tools read CGMES into different models and validate against different rules. The Java libraries run in-process through JPype, JVM included in memory.</li>
 <li><b>DC power flow</b> and <b>DC N-1</b>: MATPOWER's DC model (branch admittance 1/(x·tap), resistance and charging left out, phase shifts as injections, shunt conductance as load, one reference bus) on the transmission cases, and on the N-1 cases' own outages. A tool reports bus angles and from-end branch flows; the oracle checks the nodal balance |Bθ − P| with the tool's angles (whatever its reference angle) and the flows against its own solution of the model, both to 1e-3 MW. An outage may be solved anew or from the base case's sensitivities (LODF, PTDF): both are exact in DC. A tool that computes flows without angles (PTDF-based) is graded on its flows alone, marked "(flows)".</li>
-<li><b>GPU tabs</b>: GPU solvers on the same power flow, batch and N-1 problems, cases, settings and oracle, against CPU baselines run on the same machine. That machine is not the one behind the other tabs, so its tools are compared only with each other. A GPU tool's timed call ends with a device synchronize; memory is host RSS only, not device memory.</li>
+<li><b>GPU tabs</b>: GPU solvers on the same power flow, AC-OPF, batch and N-1 problems, cases, settings and oracle, against CPU baselines run on the same machine. That machine is not the one behind the other tabs, so its tools are compared only with each other. A GPU tool's timed call ends with a device synchronize; memory is host RSS only, not device memory.</li>
 <li><b>Memory</b> is the peak RSS of a fresh process loading and solving the case, minus the peak after importing the tool (values below 1 MB are drawn at 1 MB on the log axis). Only the benchmark process counts: cgmes2pgm's Fuseki server is not included.</li>
 </ul>
 <div class="tip" id="tip" hidden></div>
@@ -545,7 +546,7 @@ const SB_DESC = {pf: $("#sb-desc").textContent,
   dcn1: "DC N-1, the N-1 cases' outages on MATPOWER's DC model, at one thread: ✓ / ✗ / FAILED. ✓: every outage's angles and flows match the model with that branch out.",
   cim: "CIM libraries reading, writing and validating CGMES: cases done of all, per operation. Timed, not graded (see How this is measured). ·: the tool has no validator."};
 const PROBLEMS = [["pf", "Power flow"], ["se", "State estimation"], ["opf", "Optimal power flow"], ["batch", "Batch power flow"], ["n1", "N-1 contingencies"], ["dc", "DC power flow"], ["dcn1", "DC N-1"], ["cim", "CIM import/export"],
-  ["gpu-pf", "GPU: power flow"], ["gpu-batch", "GPU: batch"], ["gpu-n1", "GPU: N-1"]];
+  ["gpu-pf", "GPU: power flow"], ["gpu-opf", "GPU: OPF"], ["gpu-batch", "GPU: batch"], ["gpu-n1", "GPU: N-1"]];
 function render() {
   const problems = PROBLEMS.filter(([p]) => ALL[p]);
   $("#problem").hidden = problems.length < 2;

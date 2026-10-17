@@ -40,6 +40,7 @@ OPTIMIZERS = {
     "pandapower": "adapters.pandapower_opf_adapter:PandapowerOptimizer",
     "veragrid": "adapters.veragrid_opf_adapter:VeragridOptimizer",
     "examodelspower": "adapters.examodelspower_opf_adapter:ExamodelspowerOptimizer",   # slot 8's variant (EXAMODELSPOWER)
+    "examodelspower_gpu": "adapters.examodelspower_gpu_opf_adapter:ExamodelspowerGpuOptimizer",   # (EXAMODELSPOWER_GPU)
     "juliagrid": "adapters.juliagrid_opf_adapter:JuliagridOptimizer",
     "matpower": "adapters.matpower_opf_adapter:MatpowerOptimizer",
     "powermodels": "adapters.powermodels_opf_adapter:PowermodelsOptimizer",

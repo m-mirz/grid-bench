@@ -156,9 +156,10 @@ takes one sigma per measurement class and injections only at generators.
 
 AC optimal power flow for MATPOWER (MIPS), pandapower (PIPS), VeraGrid
 (its own interior-point solver), JuliaGrid.jl and PowerModels.jl (both Ipopt with MUMPS) and
-ExaModelsPower.jl (MadNLP with MUMPS, on its CPU backend), on
+ExaModelsPower.jl (MadNLP with MUMPS, on its CPU backend; on a GPU, with
+MadNLPGPU and cuDSS, in the GPU tabs), on
 PGLib-OPF v23.07: typical conditions
-from 14 to 2,869 buses (case9241 is runnable by name), and the congested (`__api`) and small
+from 14 to 2,869 buses (case9241 in the GPU tabs' `large` group, runnable by name), and the congested (`__api`) and small
 angle-difference (`__sad`) variants of case14, case118 and case300. Every
 tool solves MATPOWER's AC-OPF (polynomial cost; voltage, generator, branch
 MVA and angle-difference limits) from a flat start. The oracle

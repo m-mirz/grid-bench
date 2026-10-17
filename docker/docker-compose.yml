@@ -192,6 +192,20 @@ services:
     image: grid-bench/examodelspower:latest
     command: pytest benchmarks/examodelspower_opf_benchmark.py --benchmark-json=/output/examodelspower-opf.json
 
+  # ExaModelsPower.jl on ExaModels' CUDA backend with MadNLPGPU (cuDSS): one
+  # NVIDIA GPU, as exapf_gpu; AC-OPF only. See adapters/examodelspower_gpu_opf_adapter.py.
+  examodelspower_gpu:
+    <<: *bench
+    image: grid-bench/examodelspower_gpu:latest
+    command: pytest benchmarks/examodelspower_gpu_opf_benchmark.py --benchmark-json=/output/gpu/examodelspower_gpu-opf.json
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${GRID_BENCH_GPU:-0}"]
+              capabilities: [gpu]
+
   # CIM libraries (import, export, validation only): see adapters/cim_adapter.py.
   # pypowsybl's CIM benchmark runs in its own service above.
   cimoxide:

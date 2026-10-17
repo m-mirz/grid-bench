@@ -108,9 +108,9 @@ def gpu(meta: dict) -> str | None:
 
 
 def gpu_run(res: Results) -> tuple[list[str], list[str], list[str]]:
-    """Of a GPU results directory (power flow, batch and N-1): the GPU tools,
-    the CPU baselines run next to them, and the devices, in registry order."""
-    parts = [p for p in (res, res.batch, res.n1) if p]
+    """Of a GPU results directory (power flow, OPF, batch and N-1): the GPU
+    tools, the CPU baselines run next to them, and the devices, in registry order."""
+    parts = [p for p in (res, res.opf, res.batch, res.n1) if p]
     tools = {t: m for p in parts for t, m in p.tools.items()}
     order = list(dict.fromkeys(t for p in parts for t in p.tool_order()))
     return ([t for t in order if gpu(tools[t])], [t for t in order if not gpu(tools[t])],

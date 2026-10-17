@@ -14,7 +14,8 @@ NVIDIA GPU), and power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
 VeraGrid, Sparlectra.jl and JuliaGrid.jl, and AC optimal power flow for MATPOWER,
 pandapower, VeraGrid, JuliaGrid.jl and PowerModels.jl (both Ipopt; PowerModels' own image, OPF only)
-and ExaModelsPower.jl (MadNLP, CPU backend; its own image, OPF only) on
+and ExaModelsPower.jl (MadNLP, CPU backend; its own image, OPF only; on its
+CUDA backend as `examodelspower_gpu`, which needs an NVIDIA GPU) on
 PGLib-OPF cases, and batch power flow (a sweep of operating points per case)
 for every tool that reads `.m`: through the tool's own batch API at 1..n
 threads (power-grid-model, p3s, lightsim2grid) or on one thread (PyPSA,
@@ -141,6 +142,9 @@ tool-configs/toop/Dockerfile          ToOp's sources (four of its packages, pure
              (adapters/toop_dc_adapter.py)
 tool-configs/examodelspower/Dockerfile, julia/   the same for ExaModelsPower.jl and MadNLP (GridBenchExaModelsPower:
              AC-OPF only, CPU backend), like powermodels' image
+tool-configs/examodelspower_gpu/Dockerfile, julia/   ExaModelsPower.jl on CUDA: examodelspower's
+             GridBenchExaModelsPower plus MadNLPGPU, CUDA.jl and CUDSS.jl (MadNLP 0.9 holds them at
+             CUDA.jl 5, CUDSS 0.6), the runtime fixed by LocalPreferences.toml; needs-gpu, like exapf_gpu
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
 tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources,
              with OpenMP for its batch solver (libgomp from the same pinned gcc image)
@@ -189,7 +193,8 @@ internal compose network; the run scripts stop the sidecar afterwards.
    encoding, not another hue, see the palette's docstring (p3s is
    pandapower's blue, dashed: `P3S`; ExaPF.jl is Sienna's red, dotted: `EXAPF`, and on a
    GPU dash-dotted: `EXAPF_GPU`; gpusim2grid lightsim2grid's orange, dash-dotted: `GPUSIM2GRID`; JuliaGrid.jl Sparlectra's teal, dashed:
-   `JULIAGRID`; ExaModelsPower.jl, OPF only, slot 8's red, dashed: `EXAMODELSPOWER`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
+   `JULIAGRID`; ExaModelsPower.jl, OPF only, slot 8's red, dashed: `EXAMODELSPOWER`, and on a GPU
+   dash-dotted: `EXAMODELSPOWER_GPU`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
    reference solver, `REFERENCE_DOTTED`; the CIM libraries, which only
    share a chart with pypowsybl, slot hues dotted: `CIMOXIDE` etc.), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,
@@ -330,7 +335,7 @@ change to `tools/`, and commit what it writes. Conventions:
   Memory, the last with its own selector: import, import + export,
   validate, each measured in a fresh process by `adapters/memory.py`); its scoreboard is "done of all" per operation, and in place of
   the accuracy table it shows what each tool read and found, ungraded.
-- GPU tabs (power flow, batch, N-1) read `results-docker/gpu/`, not the
+- GPU tabs (power flow, OPF, batch, N-1) read `results-docker/gpu/`, not the
   top level: GPU tools and the CPU baselines run on the same machine, which
   need not be the machine behind the other tabs, so they are compared only
   with each other. A tool is a GPU tool when its JSON records a device
