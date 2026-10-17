@@ -13,7 +13,7 @@ dependencies = [
     "pytest>=8.3",
     "pytest-benchmark>=5.1",
     "pytest-timeout>=2.3",
-    "lightsim2grid==1.1.0",
+    "lightsim2grid==1.2.0",
 ]
 
 # Only for compiling lightsim2grid from its sdist in the Dockerfile's builder
@@ -31,3 +31,7 @@ build = [
 [tool.uv]
 package = false
 exclude-newer = "P7D"
+# The one exception: lightsim2grid 1.2.0 (uploaded 2026-10-12) was taken at 5
+# days old, on purpose, as the newest release for the large GPU batches it is
+# the CPU baseline of (and gpusim2grid's seed, same sdist); everything else keeps P7D.
+exclude-newer-package = { lightsim2grid = "2026-10-13T00:00:00Z" }

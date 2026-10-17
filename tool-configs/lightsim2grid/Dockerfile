@@ -1,5 +1,5 @@
 # The lightsim2grid image: the shared base plus lightsim2grid compiled from
-# its 1.1.0 sdist with p3s's compiler and flags. Built by docker/build.sh in
+# its 1.2.0 sdist with p3s's compiler and flags. Built by docker/build.sh in
 # place of docker/tool.dockerfile.
 #
 # p3s, the other C++/KLU Newton solver here, is compiled in its image
@@ -21,7 +21,7 @@ COPY tool-configs/lightsim2grid/pyproject.toml tool-configs/lightsim2grid/uv.loc
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --only-group build --python 3.13.14
 ENV PATH="/env/.venv/bin:${PATH}"
 
-# lightsim2grid 1.1.0 from its sdist (SuiteSparse and Eigen included), with KLU.
+# lightsim2grid 1.2.0 from its sdist (SuiteSparse and Eigen included), with KLU.
 # - CMake's Release build type (scikit-build-core's default): -O3 on every
 #   target, KLU included, as SuiteSparse is built in the p3s image.
 # - CXXFLAGS: p3s's -funroll-loops -ffast-math on lightsim2grid's C++ code;
@@ -34,8 +34,8 @@ ENV PATH="/env/.venv/bin:${PATH}"
 #   which takes CMAKE_MODULE_LINKER_FLAGS), and the two exchange C++ objects,
 #   so they must share one libstdc++: bookworm's, from the same gcc 12. (The
 #   flag does not reach p3s's module either; it only affects portability.)
-ADD --checksum=sha256:c24dbb9fe15699a84bd993efb4f86ea35fd533b3f18c941298f585e40669e771 \
-    https://files.pythonhosted.org/packages/af/d5/4ce31c6bedc85adbd9a13fe0fd876f18727c3ce1485b20b979880a889762/lightsim2grid-1.1.0.tar.gz /src/lightsim2grid.tar.gz
+ADD --checksum=sha256:3aeca64a3936f47358b64c5d73ff5b967388f90f3f476cdd8b89ba581f862b29 \
+    https://files.pythonhosted.org/packages/d1/c7/ad93b744b12a1901c514a9ec006593084f9943aec6e023ee3d72cc2a8c6e/lightsim2grid-1.2.0.tar.gz /src/lightsim2grid.tar.gz
 RUN mkdir /src/lightsim2grid && tar -xzf /src/lightsim2grid.tar.gz -C /src/lightsim2grid --strip-components=1 \
     && __O3_OPTIM=1 CXXFLAGS="-funroll-loops -ffast-math" \
        uv build --wheel --no-build-isolation --python /env/.venv/bin/python -o /wheels /src/lightsim2grid
@@ -48,7 +48,7 @@ COPY tool-configs/lightsim2grid/pyproject.toml tool-configs/lightsim2grid/uv.loc
 # in the lockfile's environment).
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --python 3.13.14 --no-install-package lightsim2grid
 RUN --mount=type=bind,from=build,source=/wheels,target=/wheels \
-    uv pip install --python /env/.venv/bin/python --no-deps /wheels/lightsim2grid-1.1.0-*.whl \
+    uv pip install --python /env/.venv/bin/python --no-deps /wheels/lightsim2grid-1.2.0-*.whl \
     && /env/.venv/bin/python -c "from lightsim2grid.algorithm import AlgorithmType; AlgorithmType.NR_KLU"
 ENV PATH="/env/.venv/bin:${PATH}" \
     GRID_BENCH_IMAGE=grid-bench/lightsim2grid
