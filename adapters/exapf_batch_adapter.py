@@ -51,6 +51,15 @@ case2869pegase, 127 ms on case9241pegase.
   colouring). That case peaks at 16 GB, which is why the benchmark template
   never holds two models at once (see its docstring); with the flat start
   its 106 ms per scenario compared with 93 ms for ExaPF's single solve.
+
+Memory check: as in the N-1 adapter, `load` refuses with `MemoryError`,
+before building the blocks, a batch whose duals alone (`dual_bytes`, a lower
+bound, one block per scenario) exceed the memory available to the backend
+(`available_bytes`: `MemAvailable`, or the device's free memory). Without the
+check, a sweep that certainly does not fit (`<case>#sweep-10k`: 10 000 blocks,
+about 51 GB for case1354pegase) would have the kernel or CUDA kill the run,
+taking every other case's record with it. The base model it is computed on is
+built only for the check, outside any timed call.
 """
 import numpy as np
 
@@ -85,6 +94,12 @@ class ExapfBatch(BatchAdapter):
         gen_pos = np.searchsorted(online, sweep["gen_row"])
         assert (online[gen_pos] == sweep["gen_row"]).all()
         jl = self._jl()
+        base_model = jl.GB.load(str(m_path(base)), jl.BACKEND, jl.FACTORIZATION, TOLERANCE_PU, MAX_ITERATIONS)
+        need, available = int(jl.GB.dual_bytes(base_model, len(sweep["scale"]))), jl.available_bytes()
+        del base_model
+        if need > available:
+            raise MemoryError(f"ExaPF's batch needs at least {need / 1e9:.1f} GB "
+                              f"(its Jacobian duals alone), {available / 1e9:.1f} GB available")
         batch = jl.GB.load_batch(str(m_path(base)), jl.BACKEND, jl.FACTORIZATION, TOLERANCE_PU, MAX_ITERATIONS,
                                  sweep["load_bus"].tolist(), sweep["pd"] / base_mva, sweep["qd"] / base_mva,
                                  (gen_pos + 1).tolist(), sweep["gen_bus"].tolist(), sweep["pg"] / base_mva)
