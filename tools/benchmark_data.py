@@ -11,7 +11,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from cases.matpower import ISOLATED, parse_m
-from cases.registry import CASES, DEFAULT_GROUPS, cgmes_sv_file
+from cases.registry import CASES, DEFAULT_GROUPS, OPT_IN_GROUPS, cgmes_sv_file
 from oracle.cgmes_sv import published_voltages
 
 
@@ -91,6 +91,8 @@ def input_label(case: str) -> str:
         return f"CGMES ({c['converter']})"
     if c.get("outages") == "all":
         return "`.m`, all outages"
+    if c.get("scenarios"):
+        return f"`.m`, {c['scenarios']:,} scenarios"
     return "CGMES" if c["format"] == "cgmes" else "`.m`"
 
 
@@ -175,8 +177,8 @@ def _cim_scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]
 
 
 def load(directory: Path) -> Results:
-    """Every record of a case in the default groups. A case run by name
-    (outside them) stays in its JSON but out of the published reports.
+    """Every record of a case in the default or opt-in groups. A case run
+    by name (outside them) stays in its JSON but out of the published reports.
     Power flow at the top level, state estimation in `.se`, optimal power
     flow in `.opf`, batch power flow in `.batch`, N-1 contingencies in
     `.n1`, DC power flow in `.dc`, DC N-1 in `.dcn1`, CIM import/export/validation in `.cim`: a tool has an entry in
@@ -218,7 +220,7 @@ def _part(res: Results, case: str) -> Results:
 
 
 def _published(case: str) -> bool:
-    return bool(set(CASES[case]["groups"]) & set(DEFAULT_GROUPS))
+    return bool(set(CASES[case]["groups"]) & set(DEFAULT_GROUPS + OPT_IN_GROUPS))
 
 
 @lru_cache(maxsize=None)
