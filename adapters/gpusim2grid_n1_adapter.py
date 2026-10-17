@@ -26,8 +26,8 @@ Settings:
   with no convergence test of its own. Not tuned per case: the oracle
   grades every outage, and one that 4 steps do not bring to the tolerance
   shows there.
-- `batch_size=512` (its default): every case here (at most 200 outages) is
-  one chunk on the device.
+- `batch_size=512` (its default): every `#n1` case (at most 200 outages)
+  is one chunk on the device; a full case (`#n1-full`) is several.
 - `handle_disconnected_grid=False` (its default): no outage here islands
   the grid (`cases.contingency`).
 - FP64, default cuDSS settings, no damping, distributed-slack formulation
@@ -43,6 +43,15 @@ different set on every run of the same session. ExaPF.jl's GPU N-1 fails
 the same case the same way (adapters/exapf_gpu_n1_adapter.py); the two
 share no code but cuDSS 0.8.0's batched factorization and solve, which
 points there.
+
+Full N-1 (`case1354pegase#n1-full`, 1 428 outages, three chunks of at most
+512; A100, lightsim2grid 1.2.0): 442 to 467 outages NaN, in every chunk
+(133 to 167 each, the first among them), a different set on every run
+(two runs of one session shared 332), and every finite outage accepted.
+At 200 outages, one chunk, the same case passes whole, so the loss grows
+with the chunk, as on case2869pegase. Not cuDSS's batch size alone:
+ExaPF.jl's GPU N-1 solves the same 1 428 outages in one batch of 1 429
+blocks with every outage accepted (adapters/exapf_gpu_n1_adapter.py).
 """
 import numpy as np
 

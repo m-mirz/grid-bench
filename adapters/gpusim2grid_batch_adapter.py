@@ -24,8 +24,8 @@ Settings:
   with no convergence test of its own. Not tuned per case: the oracle
   grades every scenario, and one that 4 steps do not bring to the
   tolerance shows there.
-- `batch_size=512` (its default): every sweep here (100 scenarios) is one
-  chunk on the device.
+- `batch_size=512` (its default): every `#sweep` (100 scenarios) is one
+  chunk on the device; a large one (`#sweep-10k`) is 20.
 - FP64, default cuDSS settings, no damping, distributed-slack formulation
   with the case's one slack: the power-flow adapter's.
 - Thread count: not a setting (one GPU).
@@ -57,6 +57,9 @@ Beyond 100 scenarios (a separate experiment, the same adapter, sweeps of
 On case1354pegase, clean at 100 scenarios, 21 to 29 % of the scenarios
 come back NaN from 1 000 on, the batch_size=512 chunks hitting the cuDSS
 fault documented in the N-1 adapter; mvlv10616 and case9241pegase stay clean.
+Confirmed in the benchmark itself (`case1354pegase#sweep-10k`, A100,
+lightsim2grid 1.2.0): 2 757 of 10 000 scenarios rejected, 0.23 ms per
+scenario, where lightsim2grid takes 0.13 ms on 30 threads and accepts all.
 """
 import numpy as np
 
