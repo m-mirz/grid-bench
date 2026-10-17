@@ -247,8 +247,10 @@ internal compose network; the run scripts stop the sidecar afterwards.
    `docker/java-tool.dockerfile`, started through `adapters/jvm.py`; run
    `docker/lock.sh` for its `jars.sha256`. On `cgmes_svedala#cim` a library
    reads 90 lines, 39 generators, 73 loads and 56 substations.
-9. Add the tool's smoke outcomes to `benchmarks/smoke_expectations.json` and
-   the tool to the CI matrix (`.github/workflows/smoke.yml`). CI checks each
+9. Add the tool's smoke outcomes to `benchmarks/smoke_expectations.json`.
+   The CI matrix (`.github/workflows/smoke.yml`) is held to ten tools that
+   reach every problem and runtime; add the tool there only if it brings
+   one they do not (and then drop the one it covers). CI checks each
    smoke case against its known outcome (`tools/check_smoke.py`), including
    expected oracle rejections, so a documented finding is not a CI failure
    but a change in any outcome is. Update an entry only when a behaviour
