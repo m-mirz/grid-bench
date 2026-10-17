@@ -38,20 +38,29 @@ Results (A100, 416ae9f, `results-docker/gpu/`): every outage accepted on
 case14, case1354pegase (0.52 ms per outage) and case9241pegase (3.7 ms;
 ExaPF.jl on the same GPU 6.9 ms, lightsim2grid 31 ms on one thread of the
 same machine and 2.1 ms on 30). Known loss, reported rather than worked
-around: case2869pegase#n1 fails, 152 to 166 of its 200 outages NaN, a
+around: case2869pegase#n1 fails, 129 to 166 of its 200 outages NaN, a
 different set on every run of the same session. ExaPF.jl's GPU N-1 fails
 the same case the same way (adapters/exapf_gpu_n1_adapter.py); the two
 share no code but cuDSS 0.8.0's batched factorization and solve, which
 points there.
 
-Full N-1 (`case1354pegase#n1-full`, 1 428 outages, three chunks of at most
-512; A100, lightsim2grid 1.2.0): 442 to 467 outages NaN, in every chunk
-(133 to 167 each, the first among them), a different set on every run
-(two runs of one session shared 332), and every finite outage accepted.
-At 200 outages, one chunk, the same case passes whole, so the loss grows
-with the chunk, as on case2869pegase. Not cuDSS's batch size alone:
-ExaPF.jl's GPU N-1 solves the same 1 428 outages in one batch of 1 429
-blocks with every outage accepted (adapters/exapf_gpu_n1_adapter.py).
+Full N-1 (`#n1-full`, every outage that converges, in chunks of at most
+512; A100, lightsim2grid 1.1.0 and 1.2.0 alike):
+- case1354pegase (1 428 outages, 0.21 ms each): 436 to 467 NaN, in every
+  chunk (133 to 167 each, the first among them), a different set on every
+  run (two runs of one session shared 332), every finite outage accepted.
+  At 200 outages, one chunk, the case passes whole, so the loss grows with
+  the chunk. Not cuDSS's batch size alone: ExaPF.jl's GPU N-1 solves the
+  same 1 428 outages in one batch of 1 429 blocks with every outage
+  accepted (adapters/exapf_gpu_n1_adapter.py).
+- case2869pegase (3 804 outages, 0.50 ms each): 3 324 to 3 380 NaN (87 to
+  89 %), the default case's loss at scale.
+- case9241pegase (14 374 outages, 1.63 ms each): no NaN, but 16 outages
+  finite and wrong (worst: outage 5002, 50 MW off, a bus at 0.29 p.u.):
+  `nb_iter=4` does not bring the hardest outages to the tolerance, which
+  none of the default 200 needed.
+lightsim2grid's contingency engine on 30 threads of the same machine
+accepts every outage of all three: 0.091, 0.27 and 1.26 ms.
 """
 import numpy as np
 

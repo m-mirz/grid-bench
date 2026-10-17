@@ -57,9 +57,21 @@ Beyond 100 scenarios (a separate experiment, the same adapter, sweeps of
 On case1354pegase, clean at 100 scenarios, 21 to 29 % of the scenarios
 come back NaN from 1 000 on, the batch_size=512 chunks hitting the cuDSS
 fault documented in the N-1 adapter; mvlv10616 and case9241pegase stay clean.
-Confirmed in the benchmark itself (`case1354pegase#sweep-10k`, A100,
-lightsim2grid 1.2.0): 2 757 of 10 000 scenarios rejected, 0.23 ms per
-scenario, where lightsim2grid takes 0.13 ms on 30 threads and accepts all.
+
+The large sweeps in the benchmark (`results-docker/gpu/`, A100, lightsim2grid
+1.1.0; ms per scenario, every rejected scenario NaN):
+
+    case            1 000 scenarios          10 000 scenarios
+    case1354pegase  0.21, 290 NaN (29 %)     0.23, 2 808 NaN (28 %)
+    case2869pegase  0.53, 904 NaN (90 %)     0.51, 9 171 NaN (92 %)
+    case9241pegase  1.88, all accepted       1.75, all accepted
+    mvlv10616       1.85, all accepted       1.76, all accepted
+
+case2869pegase, clean at 100 scenarios, loses nearly all of them in chunks
+of 512, as its N-1 loses most of 200 outages in one chunk (see the N-1
+adapter); the counts vary from run to run. lightsim2grid on 30 threads of the same machine
+accepts every scenario: 0.12/0.13, 0.43/0.33, 1.79/1.84 and 0.92/0.90 ms, so
+gpusim2grid is ahead only on case9241pegase#sweep-10k, by 5 %.
 """
 import numpy as np
 
