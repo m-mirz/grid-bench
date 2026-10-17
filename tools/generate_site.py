@@ -19,7 +19,7 @@ KEEP = ("iterations", "oracle_ok", "residual_max_dp_mw", "residual_max_dq_mvar",
         "opf_gap", "opf_objective", "opf_max_dp_mw", "opf_max_dq_mvar", "opf_max_vm_violation_pu",
         "opf_max_pg_violation_mw", "opf_max_qg_violation_mvar", "opf_max_flow_violation_mva",
         "opf_max_angle_violation_deg", "opf_n_buses", "opf_n_reported_buses",
-        "threads", "scenarios", "scenarios_failed", "worst_scenario",
+        "threads", "scenarios", "scenarios_failed", "scenarios_nan", "worst_scenario",
         "dc_angles", "dc_max_balance_mw", "dc_max_dflow_mw", "dc_worst_bus", "dc_worst_branch", "dc_n_buses", "dc_n_reported_buses",
         "dc_n_branches", "dc_n_reported_branches",
         "read", "unit", "lines", "generators", "loads", "substations", "files_written", "bytes_written",
@@ -216,7 +216,7 @@ const opfVerdict = r => r.opf_gap === undefined || r.opf_gap === null
   : `cost ${(r.opf_gap * 100).toFixed(4)}% against the reference · balance ${Math.max(r.opf_max_dp_mw, r.opf_max_dq_mvar).toExponential(1)} MVA · |V| ${r.opf_max_vm_violation_pu.toExponential(1)} p.u. · P/Q ${Math.max(r.opf_max_pg_violation_mw, r.opf_max_qg_violation_mvar).toExponential(1)} · flow ${r.opf_max_flow_violation_mva.toExponential(1)} MVA · angle ${r.opf_max_angle_violation_deg.toExponential(1)}° over its limit`;
 const dcVerdict = r => (r.dc_angles === false ? "flows only (no angles computed, balance not graded)" : `balance ${r.dc_max_balance_mw.toExponential(2)} MW (worst bus ${r.dc_worst_bus})`) + `, flows ${r.dc_max_dflow_mw.toExponential(2)} MW from the DC solution (worst branch row ${r.dc_worst_branch}), ${r.dc_angles === false ? "" : `${r.dc_n_reported_buses}/${r.dc_n_buses} buses and `}${r.dc_n_reported_branches}/${r.dc_n_branches} branches reported`;
 const verdict = r => r.dc_max_dflow_mw !== undefined ? (r.scenarios !== undefined ? `${r.scenarios_failed} of ${r.scenarios} outages fail (worst: outage ${r.worst_scenario}) · ` : "") + dcVerdict(r)
-  : r.scenarios !== undefined ? `${r.scenarios_failed} of ${r.scenarios} scenarios fail (worst: scenario ${r.worst_scenario}) · ` + pfVerdict(r)
+  : r.scenarios !== undefined ? `${r.scenarios_failed} of ${r.scenarios} scenarios fail${r.scenarios_nan ? ` (${r.scenarios_nan} NaN)` : ""} (worst: scenario ${r.worst_scenario}) · ` + pfVerdict(r)
   : r.opf_n_buses !== undefined ? opfVerdict(r) : r.se_J !== undefined
   ? `step to the WLS optimum ${r.se_max_step.toExponential(1)} · J ${r.se_J.toPrecision(4)} (at the truth ${r.se_J_true.toPrecision(4)}) · max |ΔV| from the truth ${r.se_max_dvm_true_pu.toExponential(1)} p.u.`
   : r.se_n_buses !== undefined ? `only ${r.se_n_reported} of ${r.se_n_buses} buses reported`
@@ -431,7 +431,9 @@ function tables() {
       else if (r.se_n_buses !== undefined) a += r.se_J === undefined ? `<td class="bad" data-v="1e96">${r.se_n_reported}/${r.se_n_buses} buses</td>`
         : `<td class="${r.oracle_ok ? "ok" : "bad"}" data-v="${r.se_max_step}" title="${esc(verdict(r))}">${r.se_max_step.toExponential(1)}</td>`;
       else if (mp) { const w = Math.max(r.residual_max_dp_mw, r.residual_max_dq_mvar);
-        a += `<td class="${r.oracle_ok ? "ok" : "bad"}" data-v="${w}">${w.toExponential(1)}</td>`; }
+        // NaN voltages (oracle.batch: the residual fields are then NaN) sort with the failures.
+        a += Number.isNaN(w) ? `<td class="bad" data-v="1e95" title="${esc(verdict(r))}">NaN${r.scenarios_nan ? ` (${r.scenarios_nan}/${r.scenarios})` : ""}</td>`
+          : `<td class="${r.oracle_ok ? "ok" : "bad"}" data-v="${w}">${w.toExponential(1)}</td>`; }
       else a += r.sv_n ? `<td data-v="${r.sv_dv_max}">${(r.sv_dv_median * 100).toFixed(3)}% / ${(r.sv_dv_max * 100).toFixed(2)}% <span class="meta">(${r.sv_n}/${r.sv_n_published})</span></td>` : `<td data-v="1e97">n=0</td>`;
     }
     a += "</tr>";

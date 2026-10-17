@@ -7,8 +7,13 @@
    scenario.
 3. Planted errors a batch API could make are caught, on exactly the
    scenarios they affect: one scenario's result reported for another, the
-   base case's demand left in place of a scenario's, a missing bus.
+   base case's demand left in place of a scenario's, a missing bus, NaN
+   voltages (which must not hide behind the other scenarios' maxima).
+4. Grading in worker processes gives the serial record.
 """
+import math
+from functools import partial
+
 import numpy as np
 import pytest
 
@@ -77,3 +82,28 @@ def test_missing_bus_is_caught(setup):
     _, mpc, data, ids, vm, va = setup
     out = batch.check(lambda k: sweep.scenario(mpc, data, k), len(data["scale"]), ids[1:], vm[:, 1:], va[:, 1:], **TOL)
     assert not out["oracle_ok"] and out["residual_n_checked"] < out["residual_n_buses"]
+
+
+def test_nan_scenarios_are_caught_and_shown(setup):
+    """NaN voltages fail, and the record says so: NaN residuals and the
+    first NaN scenario as the worst, not the other scenarios' maxima."""
+    _, mpc, data, ids, vm, va = setup
+    vm, va = vm.copy(), va.copy()
+    vm[[20, 70]] = np.nan
+    out = batch.check(lambda k: sweep.scenario(mpc, data, k), len(data["scale"]), ids, vm, va, **TOL)
+    assert not out["oracle_ok"] and out["scenarios_failed"] == 2 and out["scenarios_nan"] == 2
+    assert out["worst_scenario"] == 20 and math.isnan(out["residual_max_dp_mw"]) and math.isnan(out["residual_min_vm_pu"])
+    assert sum(out["residual_failing"].values()) > 0
+
+
+def test_workers_give_the_serial_record(setup):
+    _, mpc, data, ids, vm, va = setup
+    vm = vm.copy()
+    vm[45] = np.nan
+    vm[80] *= 1.01
+    scenario = partial(sweep.scenario, mpc, data)
+    serial = batch.check(scenario, len(data["scale"]), ids, vm, va, **TOL)
+    parallel = batch.check(scenario, len(data["scale"]), ids, vm, va, **TOL, workers=3)
+    assert serial.keys() == parallel.keys()
+    for k in serial:
+        assert serial[k] == parallel[k] or (isinstance(serial[k], float) and math.isnan(serial[k]) and math.isnan(parallel[k])), k

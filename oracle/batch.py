@@ -13,12 +13,19 @@ fields are the maxima over all scenarios (`residual_min_vm_pu` the minimum,
 `residual_worst_bus` and `residual_failing` those of the worst scenario), so `oracle_ok` holds only
 if every scenario meets the single-solve tolerances.
 
+A scenario whose residual is NaN (a tool returned NaN voltages: gpusim2grid's
+cuDSS batches, for example) fails, and is counted in `scenarios_nan` too.
+Then the residual fields are NaN and the worst scenario is the first NaN one:
+a finite maximum over the other scenarios would make a batch that lost a
+third of its answers look like a near miss.
+
 With `workers` > 1 the scenarios' residuals are computed in that many
 processes (`spawn`: the caller may hold a Julia runtime, a CUDA context or a
 JVM, which a fork would copy), then reduced here in scenario order, so the
 record is the one a serial check writes. `scenario` must then be picklable
 (a module-level function or a `functools.partial` of one, not a lambda).
 """
+import math
 import multiprocessing
 from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
@@ -54,10 +61,19 @@ def check(scenario: Callable[[int], dict], n: int, bus_ids: list[str], vm: np.nd
         ok = mva <= tol_mva and r.max_dvm_pu <= tol_pu and r.n_checked == r.n_buses and r.min_vm_pu >= vm_floor
         failed += not ok
         n_checked = r.n_checked if n_checked is None else min(n_checked, r.n_checked)
+    nan = [k for k, r in enumerate(results) if _is_nan(r)]
+    if nan:
+        worst, min_vm = dict.fromkeys(worst, math.nan), math.nan
+        worst_k, worst_r = nan[0], results[nan[0]]
     return {**{f"residual_{f}": v for f, v in worst.items()},
             "residual_min_vm_pu": min_vm, "residual_n_checked": n_checked, "residual_n_buses": worst_r.n_buses,
             "residual_worst_bus": worst_r.worst_bus, "residual_failing": worst_r.failing,
-            "scenarios": n, "scenarios_failed": failed, "worst_scenario": worst_k, "oracle_ok": failed == 0}
+            "scenarios": n, "scenarios_failed": failed, "scenarios_nan": len(nan), "worst_scenario": worst_k,
+            "oracle_ok": failed == 0}
+
+
+def _is_nan(r: Residual) -> bool:
+    return any(math.isnan(x) for x in (r.max_dp_mw, r.max_dq_mvar, r.max_dvm_pu, r.min_vm_pu))
 
 
 def _residuals(args) -> list[Residual]:
