@@ -322,7 +322,10 @@ change to `tools/`, and commit what it writes. Conventions:
   count, with a thread-scaling plot (small multiples, one per case) for
   APIs that take a thread count.
   Scaling numbers depend on the machine: `grid_bench.cpus` in each JSON
-  records the cores the run had.
+  records the cores the run had. Large batches (group `large`) are timed
+  at one thread and every core only (`case_thread_counts`): the counts
+  between would cost a CPU baseline hours, and the plot has them from the
+  default cases.
 - CIM has operations instead of a solve (Import, Export, Validate,
   Memory, the last with its own selector: import, import + export,
   validate, each measured in a fresh process by `adapters/memory.py`); its scoreboard is "done of all" per operation, and in place of
