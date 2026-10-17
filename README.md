@@ -356,8 +356,8 @@ docker/run_benchmark.sh                          # everything: prep, oracle test
 docker/run_single.sh pypowsybl --cases case300   # one tool, some cases
 ```
 
-For development without containers: `./setup.sh` (needs [uv](https://docs.astral.sh/uv/)),
-then `./run_benchmarks.sh [tool ...] [-- --groups smoke]`.
+Without containers, `./setup.sh` (needs [uv](https://docs.astral.sh/uv/)) sets up
+the oracle and case preparation for development; the tools run only in their images.
 
 `exapf_gpu` (ExaPF.jl on CUDA) and `gpusim2grid` need an NVIDIA GPU and the
 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/)
