@@ -112,6 +112,9 @@
   "powermodels": {
     "pglib_opf_case14_ieee": "ok"
   },
+  "examodelspower": {
+    "pglib_opf_case14_ieee": "ok"
+  },
   "cimoxide": {
     "cgmes_svedala#cim": "done"
   },

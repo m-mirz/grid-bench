@@ -13,7 +13,8 @@ gpusim2grid (lightsim2grid's GPU companion, CUDA and cuDSS, which needs an
 NVIDIA GPU), and power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
 VeraGrid, Sparlectra.jl and JuliaGrid.jl, and AC optimal power flow for MATPOWER,
-pandapower, VeraGrid, JuliaGrid.jl and PowerModels.jl (both Ipopt; PowerModels' own image, OPF only) on
+pandapower, VeraGrid, JuliaGrid.jl and PowerModels.jl (both Ipopt; PowerModels' own image, OPF only)
+and ExaModelsPower.jl (MadNLP, CPU backend; its own image, OPF only) on
 PGLib-OPF cases, and batch power flow (a sweep of operating points per case)
 for every tool that reads `.m`: through the tool's own batch API at 1..n
 threads (power-grid-model, p3s, lightsim2grid) or on one thread (PyPSA,
@@ -138,6 +139,8 @@ tool-configs/gpusim2grid/Dockerfile   compiles gpusim2grid (CUDA, cuDSS; not on 
 tool-configs/toop/Dockerfile          ToOp's sources (four of its packages, pure Python) from a pinned commit on
              this lockfile's JAX with CUDA 12 wheels; needs-gpu, DC only, through its PowSyBl backend
              (adapters/toop_dc_adapter.py)
+tool-configs/examodelspower/Dockerfile, julia/   the same for ExaModelsPower.jl and MadNLP (GridBenchExaModelsPower:
+             AC-OPF only, CPU backend), like powermodels' image
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
 tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources,
              with OpenMP for its batch solver (libgomp from the same pinned gcc image)
@@ -185,7 +188,7 @@ internal compose network; the run scripts stop the sidecar afterwards.
    encoding, not another hue, see the palette's docstring (p3s is
    pandapower's blue, dashed: `P3S`; ExaPF.jl is Sienna's red, dotted: `EXAPF`, and on a
    GPU dash-dotted: `EXAPF_GPU`; gpusim2grid lightsim2grid's orange, dash-dotted: `GPUSIM2GRID`; JuliaGrid.jl Sparlectra's teal, dashed:
-   `JULIAGRID`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
+   `JULIAGRID`; ExaModelsPower.jl, OPF only, slot 8's red, dashed: `EXAMODELSPOWER`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
    reference solver, `REFERENCE_DOTTED`; the CIM libraries, which only
    share a chart with pypowsybl, slot hues dotted: `CIMOXIDE` etc.), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,

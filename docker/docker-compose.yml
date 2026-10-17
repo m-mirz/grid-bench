@@ -186,6 +186,12 @@ services:
     image: grid-bench/powermodels:latest
     command: pytest benchmarks/powermodels_opf_benchmark.py --benchmark-json=/output/powermodels-opf.json
 
+  # AC-OPF only (no power-flow benchmark): see adapters/examodelspower_opf_adapter.py.
+  examodelspower:
+    <<: *bench
+    image: grid-bench/examodelspower:latest
+    command: pytest benchmarks/examodelspower_opf_benchmark.py --benchmark-json=/output/examodelspower-opf.json
+
   # CIM libraries (import, export, validation only): see adapters/cim_adapter.py.
   # pypowsybl's CIM benchmark runs in its own service above.
   cimoxide:

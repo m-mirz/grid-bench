@@ -1,0 +1,11 @@
+name = "GridBenchExaModelsPower"
+uuid = "8df4befa-3bf1-4ba7-93bc-054535a02e76"
+version = "0.1.0"
+
+[deps]
+ExaModels = "1037b233-b668-4ce9-9b63-f9f681f55dd2"
+ExaModelsPower = "2fff4b78-0b6c-428d-bac8-85ccea8c4bdf"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+MadNLP = "2621e9c9-9eb4-46b1-8089-e8c72242dfb6"
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
