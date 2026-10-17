@@ -59,8 +59,8 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   `problem` is "batch". The cases are the smoke and scaling cases a loop
   over single solves still finishes in minutes; mvlv29840 is left out
   (PyPSA's 29 s per solve would make one sweep over an hour).
-  `<case>#sweep-10k` (group `large`): the same with `LARGE_SWEEP`
-  operating points, for the GPU tabs.
+  `<case>#sweep-1k` and `<case>#sweep-10k` (group `large`): the same with
+  1 000 and 10 000 operating points (`LARGE_SWEEPS`), for the GPU tabs.
 - `n1-matpower`: N-1 contingency analysis. A transmission case plus 200
   single-branch outages that keep the grid connected (`cases/contingency.py`),
   keyed `<case>#n1`, all solved in one timed call from the tool's solution of
@@ -301,16 +301,20 @@ for _base in N1_FROM[1:]:
 
 # Large batches for the GPU tabs: 100 scenarios or 200 outages leave a GPU
 # mostly idle (gpusim2grid's time per scenario falls about 4x up to 1 000,
-# adapters/gpusim2grid_batch_adapter.py). 10 000 operating points on the
-# sweep's larger cases, and every outage of the N-1 cases that keeps the
-# grid connected and converges (`cases.contingency`). Run with the GPU
+# adapters/gpusim2grid_batch_adapter.py). 1 000 and 10 000 operating points
+# on the sweep's larger cases, and every outage of the N-1 cases that keeps
+# the grid connected and converges (`cases.contingency`). 1 000 is where
+# gpusim2grid's time per scenario stops falling, and what ExaPF.jl's block
+# formulation can hold on a 40 GB GPU for the smaller cases (10 000 blocks of
+# case1354pegase need at least 50.9 GB, adapters/exapf_batch_adapter.py). Run with the GPU
 # tools' CPU baselines, never in a default run, where the loop tools would
 # take hours. case6515rte, an RTE case such batches are often run on, is not
 # among them: like case6495rte it does not converge from flat start (rule 3).
-LARGE_SWEEP = 10_000
+LARGE_SWEEPS = {"1k": 1_000, "10k": 10_000}
 for _base in ("case1354pegase", "case2869pegase", "case9241pegase", "mvlv10616"):
-    CASES[f"{_base}#sweep-10k"] = CASES[f"{_base}#sweep"] | {
-        "scenarios": LARGE_SWEEP, "groups": ["large"], "source": f"{_base}, {LARGE_SWEEP} operating points"}
+    for _size, _n in LARGE_SWEEPS.items():
+        CASES[f"{_base}#sweep-{_size}"] = CASES[f"{_base}#sweep"] | {
+            "scenarios": _n, "groups": ["large"], "source": f"{_base}, {_n:,} operating points"}
 for _base in N1_FROM[1:]:
     CASES[f"{_base}#n1-full"] = CASES[f"{_base}#n1"] | {
         "outages": "all", "groups": ["large"], "source": f"{_base}, N-1, every non-islanding branch outage"}

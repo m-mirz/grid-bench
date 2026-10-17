@@ -272,7 +272,7 @@ keyed `<case>#sweep`, each scenario graded by tier 1 in `oracle.batch`),
 and `n1-matpower` (N-1: a transmission case plus its outages, keyed
 `<case>#n1`, each graded the same way against the case with that branch
 out; radial grids have no outage that keeps them connected), both also
-large for the GPU tabs (`<case>#sweep-10k`, 10 000 operating points, and
+large for the GPU tabs (`<case>#sweep-1k` and `-10k`, 1 000 and 10 000 operating points, and
 `<case>#n1-full`, every outage that converges; group `large`, an opt-in
 group, `OPT_IN_GROUPS`: prepared and run only when asked for, published
 like the default groups), and

@@ -2,7 +2,7 @@
 no tool involved.
 
 A sweep case (`<case>#sweep`) is a MATPOWER case plus `SWEEP_SIZE`
-operating points on its fixed topology (a large one, `<case>#sweep-10k`,
+operating points on its fixed topology (a large one, `<case>#sweep-1k` or `-10k`,
 its registry entry's `scenarios`), the workload of a time series or a
 Monte-Carlo study: every tool solves all of them in one timed call, through
 its batch API where it has one (`adapters.batch_adapter`).
