@@ -12,6 +12,8 @@ from pathlib import Path
 
 from cases.matpower import ISOLATED, parse_m
 from cases.registry import CASES, DEFAULT_GROUPS, OPT_IN_GROUPS, cgmes_sv_file
+from cases.contingency import N_OUTAGES
+from cases.sweep import SWEEP_SIZE
 from oracle.cgmes_sv import published_voltages
 
 
@@ -62,11 +64,14 @@ class Results:
 
     def grid_cases(self, grid: str, robustness: bool = False) -> list[str]:
         """Cases with results on one grid, by size, each conversion right
-        after the case it was converted from. Robustness-only cases (expected
-        to fail everywhere) are kept out of headline tables unless asked for."""
+        after the case it was converted from, and a case's larger batches
+        after it (100, 1 000, 10 000 scenarios; 200 outages, then all).
+        Robustness-only cases (expected to fail everywhere) are kept out of
+        headline tables unless asked for."""
         def key(c):
-            base = CASES[c].get("source_case", c)
-            return case_size(c), base, CASES[c].get("converter", "")
+            k = CASES[c]
+            base = k.get("source_case", k.get("base_case", c))
+            return case_size(c), base, k.get("converter", ""), k.get("scenarios", 0), k.get("outages") == "all", c
         return sorted((c for c in self._seen() if CASES[c]["grid"] == grid
                        and (CASES[c]["groups"] == ["robustness"]) == robustness), key=key)
 
@@ -91,8 +96,10 @@ def input_label(case: str) -> str:
         return f"CGMES ({c['converter']})"
     if c.get("outages") == "all":
         return "`.m`, all outages"
-    if c.get("scenarios"):
-        return f"`.m`, {c['scenarios']:,} scenarios"
+    if c["problem"] in ("n1", "dcn1"):   # case14 has only 19; the site's text says so
+        return f"`.m`, {N_OUTAGES} outages"
+    if c["problem"] == "batch":   # the count on every sweep, the default's too, as the GPU tab has three
+        return f"`.m`, {c.get('scenarios', SWEEP_SIZE):,} scenarios"
     return "CGMES" if c["format"] == "cgmes" else "`.m`"
 
 
