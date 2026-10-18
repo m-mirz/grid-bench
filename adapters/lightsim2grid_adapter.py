@@ -46,7 +46,7 @@ def tolerance(grid) -> float:
 class Lightsim2gridAdapter(SolverAdapter):
     name = "lightsim2grid"
     display_name = "lightsim2grid (KLU)"
-    color = "#eb6834"
+    color = "#eda100"   # tools/palette.py: C++ yellow, base
     package = "lightsim2grid"
     modules = ("lightsim2grid", "lightsim2grid.network", "lightsim2grid.algorithm")
     language = "c++"

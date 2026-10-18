@@ -1,0 +1,9 @@
+# The CUDA runtime the image carries. CUDA_Runtime_jll otherwise picks it
+# from the driver when it is first loaded, and the image is built without
+# one: with the version fixed, precompilation (setup.jl install) downloads
+# this runtime, and cuDSS and the compiler for it, into the image, and a
+# container (no network) never needs another. CUDA 12 runs on any driver
+# from R525 on (minor-version compatibility) and supports compute capability
+# 5.0 to 12.x; change it deliberately, like any pin, and rebuild.
+[CUDA_Runtime_jll]
+version = "12.9"

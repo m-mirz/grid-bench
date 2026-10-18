@@ -490,7 +490,7 @@
         "tools": {
             "powsybl": {
                 "display_name": "PowSyBl (CgmesModel)",
-                "color": "#0f8fa9",
+                "color": "#026802",
                 "tags": [
                     "cim",
                     "cgmes",

@@ -48,7 +48,7 @@ from cases.registry import CIM_SHAPES, cim_files
 class TripletsCim(CimAdapter):
     name = "triplets"
     display_name = "triplets"
-    color = "#008301"   # tools/palette.py TRIPLETS: slot 6 green, dotted
+    color = "#2a78d8"   # tools/palette.py: Python blue, base, dashed
     package = "triplets"
     modules = ("polars", "triplets", "triplets.export", "triplets.export_schema", "triplets.validation")
     language = "python"

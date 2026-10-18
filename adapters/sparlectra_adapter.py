@@ -137,7 +137,7 @@ def _gb():
 class SparlectraAdapter(SolverAdapter):
     name = "sparlectra"
     display_name = "Sparlectra.jl"
-    color = "#0f8fa8"
+    color = "#e87ba4"   # tools/palette.py: Julia magenta, base
     package = "juliacall"
     modules = ("adapters.sparlectra_julia",)
     language = "julia"

@@ -10,15 +10,55 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
+      # Ten tools that between them reach every problem (power flow, CGMES,
+      # estimation, OPF, batch, N-1, DC, CIM) and every runtime (Python, C++,
+      # Julia, Octave, Java, the Fuseki sidecar), most with short builds.
+      # Left out, but with smoke expectations to run locally: p3s (a C++
+      # build like lightsim2grid's), veragrid, sienna, exapf,
+      # sparlectra, powermodels, examodelspower (Julia images of 5 to 10
+      # minutes; juliagrid covers the juliacall path), triplets, opencgmes
+      # (cimoxide and powsybl cover CIM and JPype).
       matrix:
-        tool: [pandapower, p3s, lightsim2grid, pypsa, pgm, pypowsybl, veragrid, cgmes2pgm, sienna, exapf, sparlectra, juliagrid, matpower, powermodels, examodelspower,
-               cimoxide, triplets, opencgmes, powsybl]
+        tool: [pandapower, lightsim2grid, pypsa, pgm, pypowsybl, cgmes2pgm, juliagrid, matpower, cimoxide, powsybl]
+        # An image whose build takes minutes (juliagrid: about 7, installing and
+        # precompiling Julia packages; lightsim2grid: about 4, compiling its
+        # C++ extension) is cached whole between runs, keyed by
+        # everything it is built from: docker/base.dockerfile and its
+        # tool-configs/ directory, where every pin lives. A change to either
+        # builds it anew. BuildKit's own GitHub cache cannot do this: it
+        # builds in a separate container, which cannot see the local
+        # grid-bench/base image these Dockerfiles start from.
+        include:
+          - tool: juliagrid
+            cache-image: true
+          - tool: lightsim2grid
+            cache-image: true
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
         with:
           submodules: true
+      - name: Restore the cached tool image
+        if: matrix.cache-image
+        id: image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ runner.temp }}/image.tar
+          key: image-${{ matrix.tool }}-${{ hashFiles('docker/base.dockerfile', format('tool-configs/{0}/**', matrix.tool)) }}
+      - name: Load the cached tool image
+        if: steps.image.outputs.cache-hit == 'true'
+        run: docker load -i "$RUNNER_TEMP/image.tar" && rm "$RUNNER_TEMP/image.tar"
       - name: Build images
-        run: ./docker/build.sh harness ${{ matrix.tool }}
+        run: ./docker/build.sh harness ${{ steps.image.outputs.cache-hit != 'true' && matrix.tool || '' }}
+      # Saved right after the build, so a failing smoke case does not cost the next run the build.
+      - name: Save the tool image
+        if: matrix.cache-image && steps.image.outputs.cache-hit != 'true'
+        run: docker save -o "$RUNNER_TEMP/image.tar" grid-bench/${{ matrix.tool }}:latest
+      - name: Cache the tool image
+        if: matrix.cache-image && steps.image.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ runner.temp }}/image.tar
+          key: ${{ steps.image.outputs.cache-primary-key }}
       - name: Oracle tests
         run: docker compose -f docker/docker-compose.yml run --rm oracle-tests
       - name: Smoke benchmark

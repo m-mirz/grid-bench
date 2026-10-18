@@ -11,7 +11,9 @@ from functools import lru_cache
 from pathlib import Path
 
 from cases.matpower import ISOLATED, parse_m
-from cases.registry import CASES, DEFAULT_GROUPS, cgmes_sv_file
+from cases.registry import CASES, DEFAULT_GROUPS, OPT_IN_GROUPS, cgmes_sv_file
+from cases.contingency import N_OUTAGES
+from cases.sweep import SWEEP_SIZE
 from oracle.cgmes_sv import published_voltages
 
 
@@ -60,21 +62,24 @@ class Results:
         seen = {CASES[c]["grid"] for c in self._seen()}
         return [g for g in GRIDS if g in seen]
 
-    def grid_cases(self, grid: str, robustness: bool = False) -> list[str]:
+    def grid_cases(self, grid: str) -> list[str]:
         """Cases with results on one grid, by size, each conversion right
-        after the case it was converted from. Robustness-only cases (expected
-        to fail everywhere) are kept out of headline tables unless asked for."""
+        after the case it was converted from, and a case's larger batches
+        after it (100, 1 000, 10 000 scenarios; 200 outages, then all)."""
         def key(c):
-            base = CASES[c].get("source_case", c)
-            return case_size(c), base, CASES[c].get("converter", "")
-        return sorted((c for c in self._seen() if CASES[c]["grid"] == grid
-                       and (CASES[c]["groups"] == ["robustness"]) == robustness), key=key)
+            k = CASES[c]
+            base = k.get("source_case", k.get("base_case", c))
+            return case_size(c), base, k.get("converter", ""), k.get("scenarios", 0), k.get("outages") == "all", c
+        return sorted((c for c in self._seen() if CASES[c]["grid"] == grid), key=key)
 
     def tool_order(self) -> list[str]:
-        """Registry order, i.e. colour-slot order; never re-ranked."""
+        """Registry order, grouped by language (in the order languages first
+        appear in it), as tools/palette.py colours them; never re-ranked. A tool
+        only in a later registry (ExaModelsPower.jl, ToOp) joins its language."""
         from adapters import REGISTRIES  # name lists only; importing them loads no tool
-        order = dict.fromkeys(t for registry in REGISTRIES.values() for t in registry)
-        return [t for t in order if t in self.tools]
+        order = [t for t in dict.fromkeys(t for registry in REGISTRIES.values() for t in registry) if t in self.tools]
+        languages = list(dict.fromkeys(self.tools[t]["language"] for t in order))
+        return sorted(order, key=lambda t: languages.index(self.tools[t]["language"]))
 
 
 GRID_TITLES = {
@@ -91,6 +96,10 @@ def input_label(case: str) -> str:
         return f"CGMES ({c['converter']})"
     if c.get("outages") == "all":
         return "`.m`, all outages"
+    if c["problem"] in ("n1", "dcn1"):   # case14 has only 19; the site's text says so
+        return f"`.m`, {N_OUTAGES} outages"
+    if c["problem"] == "batch":   # the count on every sweep, the default's too, as the GPU tab has three
+        return f"`.m`, {c.get('scenarios', SWEEP_SIZE):,} scenarios"
     return "CGMES" if c["format"] == "cgmes" else "`.m`"
 
 
@@ -106,9 +115,9 @@ def gpu(meta: dict) -> str | None:
 
 
 def gpu_run(res: Results) -> tuple[list[str], list[str], list[str]]:
-    """Of a GPU results directory (power flow, batch and N-1): the GPU tools,
-    the CPU baselines run next to them, and the devices, in registry order."""
-    parts = [p for p in (res, res.batch, res.n1) if p]
+    """Of a GPU results directory (power flow, OPF, batch and N-1): the GPU
+    tools, the CPU baselines run next to them, and the devices, in registry order."""
+    parts = [p for p in (res, res.opf, res.batch, res.n1) if p]
     tools = {t: m for p in parts for t, m in p.tools.items()}
     order = list(dict.fromkeys(t for p in parts for t in p.tool_order()))
     return ([t for t in order if gpu(tools[t])], [t for t in order if not gpu(tools[t])],
@@ -121,9 +130,8 @@ def reads(res: Results, tool: str, case: str) -> bool:
 
 def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
     """Per tool, one cell per grid and input: "✓ / ✗ / FAILED" counts of the
-    solves, or "solved of all" where there is no verdict (fixtures); then the
-    robustness cases, where failing is the expected outcome. `·` where the
-    tool reads none of them. Returns the column labels and (tool, cells) rows.
+    solves, or "solved of all" where there is no verdict (fixtures). `·`
+    where the tool reads none of them. Returns the column labels and (tool, cells) rows.
     CIM libraries have no solve: one column per operation instead."""
     if any(CASES[c]["problem"] == "cim" for c in res._seen()):
         return _cim_scoreboard(res)
@@ -133,9 +141,6 @@ def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
         for label in dict.fromkeys(input_label(c) for c in cases):
             sub = [c for c in cases if input_label(c) == label]
             columns.append((f"{grid} {label}" if all(graded(c) for c in sub) else GRID_TITLES[grid], sub))
-    robust = [c for g in res.grids() for c in res.grid_cases(g, robustness=True)]
-    if robust:
-        columns.append(("hard transmission cases", robust))
     rows = []
     for t in res.tool_order():
         cells = []
@@ -174,9 +179,10 @@ def _cim_scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]
     return list(CIM_OPERATIONS), rows
 
 
-def load(directory: Path) -> Results:
-    """Every record of a case in the default groups. A case run by name
-    (outside them) stays in its JSON but out of the published reports.
+def load(directory: Path, groups: tuple[str, ...] = DEFAULT_GROUPS + OPT_IN_GROUPS) -> Results:
+    """Every record of a case in `groups` (the default and opt-in ones; the
+    GPU tabs pass `GPU_GROUPS`). A case run by name (outside them) stays in
+    its JSON but out of the published reports.
     Power flow at the top level, state estimation in `.se`, optimal power
     flow in `.opf`, batch power flow in `.batch`, N-1 contingencies in
     `.n1`, DC power flow in `.dc`, DC N-1 in `.dcn1`, CIM import/export/validation in `.cim`: a tool has an entry in
@@ -197,11 +203,11 @@ def load(directory: Path) -> Results:
                               "image": gb.get("container_image"), "machine": data.get("machine_info", {}),
                               "cpus": gb.get("cpus", {})})
         for f in data.get("failures", []):
-            if _published(f["case"]):
+            if _published(f["case"], groups):
                 _part(res, f["case"]).failures.append(f)
         for b in data["benchmarks"]:
             e = b["extra_info"]
-            if not _published(e["case"]):
+            if not _published(e["case"], groups):
                 continue
             _part(res, e["case"]).records.append(Record(e["tool"], e["case"], e["family"], e["operation"],
                                       b["stats"]["median"] * 1e3, b["stats"]["min"] * 1e3, b["stats"]["rounds"], e))
@@ -217,8 +223,10 @@ def _part(res: Results, case: str) -> Results:
     return _problem(res, CASES[case]["problem"])
 
 
-def _published(case: str) -> bool:
-    return bool(set(CASES[case]["groups"]) & set(DEFAULT_GROUPS))
+def _published(case: str, groups: tuple[str, ...]) -> bool:
+    """A case the registry no longer has (a conversion or variant of a case
+    taken out of the groups, whose old records a JSON still holds) is not."""
+    return case in CASES and bool(set(CASES[case]["groups"]) & set(groups))
 
 
 @lru_cache(maxsize=None)

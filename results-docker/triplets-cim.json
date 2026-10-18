@@ -627,7 +627,7 @@
         "tools": {
             "triplets": {
                 "display_name": "triplets",
-                "color": "#008301",
+                "color": "#2a78d8",
                 "tags": [
                     "cim",
                     "cgmes",

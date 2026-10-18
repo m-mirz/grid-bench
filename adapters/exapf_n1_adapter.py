@@ -31,7 +31,10 @@ duals alone) before building anything, and raises `MemoryError` if it
 exceeds the memory the kernel reports available (`MemAvailable`;
 `available_bytes` of the backend's Julia module, see the GPU adapter): a
 system that certainly does not fit would otherwise have the kernel kill
-the run, and with it every other case's record. This refuses
+the run, and with it every other case's record. As in the batch adapter,
+the check runs on a case's first load in a process only (`_fits`), as
+the GPU's `available_bytes` collects garbage first and would otherwise be
+timed as import. This refuses
 case9241pegase#n1 on a 28 GB machine (at least 26.4 GB; the batch measured
 15.3 GB live for 100 blocks); a machine with enough memory runs it
 unchanged.
@@ -47,6 +50,8 @@ from adapters.batch_adapter import BatchSolution, ContingencyAdapter, base_case,
 from adapters.exapf_adapter import ExapfAdapter
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge
 from cases.registry import m_path
+
+_fits: set[str] = set()   # cases whose memory check passed in this process
 
 
 class ExapfN1(ContingencyAdapter):
@@ -70,10 +75,12 @@ class ExapfN1(ContingencyAdapter):
         path = str(m_path(base_case(case)))
         jl = self._jl()
         base = jl.GB.load(path, jl.BACKEND, jl.FACTORIZATION, TOLERANCE_PU, MAX_ITERATIONS)
-        need, available = int(jl.GB.dual_bytes(base, len(out["branch_row"]) + 1)), jl.available_bytes()
-        if need > available:
-            raise MemoryError(f"ExaPF's contingency system needs at least {need / 1e9:.1f} GB "
-                              f"(its Jacobian duals alone), {available / 1e9:.1f} GB available")
+        if case not in _fits:
+            need, available = int(jl.GB.dual_bytes(base, len(out["branch_row"]) + 1)), jl.available_bytes()
+            if need > available:
+                raise MemoryError(f"ExaPF's contingency system needs at least {need / 1e9:.1f} GB "
+                                  f"(its Jacobian duals alone), {available / 1e9:.1f} GB available")
+            _fits.add(case)
         n1 = jl.GB.load_n1(base, out["branch_row"].tolist(), out["from_bus"].tolist(), out["to_bus"].tolist())
         return {"n1": n1, "n": len(out["branch_row"])}
 

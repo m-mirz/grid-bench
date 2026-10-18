@@ -2043,7 +2043,7 @@
         "tools": {
             "pypsa": {
                 "display_name": "PyPSA",
-                "color": "#1baf7a",
+                "color": "#4996f6",
                 "tags": [
                     "powerflow",
                     "ac",

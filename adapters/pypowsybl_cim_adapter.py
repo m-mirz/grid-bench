@@ -24,7 +24,7 @@ from cases.registry import CASES
 class PypowsyblCim(CimAdapter):
     name = "pypowsybl"
     display_name = "pypowsybl"
-    color = "#e87ba4"   # pypowsybl's slot (5, magenta), as in every other problem
+    color = "#008300"   # tools/palette.py: Java green, base, as in every other problem
     package = "pypowsybl"
     modules = ("pypowsybl", "pypowsybl.network")
     language = "java"

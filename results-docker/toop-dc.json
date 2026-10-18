@@ -1417,7 +1417,7 @@
         "tools": {
             "toop": {
                 "display_name": "ToOp (JAX, GPU)",
-                "color": "#2a78d5",
+                "color": "#2a78d7",
                 "tags": [
                     "powerflow",
                     "dc",

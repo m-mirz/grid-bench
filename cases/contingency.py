@@ -24,7 +24,8 @@ in-service branches whose outage
 A full DC N-1 case (`<case>#dcn1-full`) takes every candidate instead, in
 the same order and with no power-flow check (a connected DC model always
 solves): thousands per case (case1354pegase 1430, case2869pegase 3804,
-case9241pegase 14384).
+case9241pegase 14384). A full AC N-1 case (`<case>#n1-full`, for the GPU
+tabs) takes every candidate whose power flow converges, the check above.
 
 A radial grid has no outage that keeps it connected, so contingency cases
 are transmission cases only.

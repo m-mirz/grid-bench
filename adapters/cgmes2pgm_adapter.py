@@ -57,7 +57,7 @@ CIM100 = "http://iec.ch/TC57/CIM100#"
 class Cgmes2pgmAdapter(SolverAdapter):
     name = "cgmes2pgm"
     display_name = "PGM via cgmes2pgm"
-    color = "#4a3aa7"
+    color = "#825600"   # tools/palette.py: C++ yellow, step 3, long-dashed
     package = "cgmes2pgm_converter"
     modules = ("cgmes2pgm_converter", "cgmes2pgm_converter.common", "cgmes2pgm_suite.rdf_store",
                "power_grid_model", "power_grid_model.errors")

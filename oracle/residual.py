@@ -130,7 +130,7 @@ def residual(mpc: dict, vm_pu: dict[str, float], va_deg: dict[str, float],
     dq = np.where(q_mask, np.abs(ds.imag), 0.0)
     dvm = np.where(v_mask, np.abs(vm - np.nan_to_num(vset)), 0.0)
     worst = int(np.argmax(np.maximum(dp, dq)))
-    over = (np.maximum(dp, dq) > tol_mva) | (dvm > tol_pu)
+    over = ~(np.maximum(dp, dq) <= tol_mva) | ~(dvm <= tol_pu)   # a NaN bus is over too
     labels, counts = np.unique(classify(mpc, ids, vset)[over], return_counts=True)
     return Residual(
         max_dp_mw=float(dp.max(initial=0.0)),

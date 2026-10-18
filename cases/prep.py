@@ -1,6 +1,6 @@
 """Derives every tool's input file from the case definitions.
 
-    python -m cases.prep [case ...]
+    python -m cases.prep [--family f] [case ... | --groups g,... | --cases a,...]
 
 Writes into `data/.case-cache/`:
 
@@ -35,26 +35,42 @@ Writes into `data/.case-cache/`:
   every one solved by `cases.truth` from the base case's solution and
   checked by tier 1.
 
+Cases only in an opt-in group (`OPT_IN_GROUPS`: the large GPU batches,
+hours of checking on one core) are prepared only when named or asked for
+(`--groups large`, or `--cases <case>`, as pytest takes them; the run
+scripts pass theirs on), so a default run and CI never wait on them.
+
 Conversion happens here, not inside a tool's timed import, so a tool's
 import time never includes our own conversion code.
+
+The power flows behind the sweeps and outages (one `cases.truth` solve and
+tier-1 check per scenario, 0.4 s each on case9241pegase, hours for the
+large batches) run in a process per core (`spawn`). Each worker builds its
+case itself (a sweep's operating points are seeded by the case key, so
+every worker draws the same), and the results are taken in scenario and
+candidate order: the files are the ones a serial run writes.
 
 A cached file is rebuilt when the source `.m`, this module, `matpower.py`, or
 the converter changes: the cache key is a hash of all of them, not
 the file's mere existence.
 """
 import hashlib
+import itertools
 import json
+import multiprocessing
+import os
 import shutil
 import sys
 import zipfile
+from concurrent.futures import ProcessPoolExecutor
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 import numpy as np
 
 from cases import contingency, gridoxide_matpower, matpower, measurements, sweep, truth
-from cases.registry import (CACHE, CASES, FAMILIES, cgmes_files, contingency_path, m_path, mat_path, measurements_path,
-                            pgm_branch_ids_path, pgm_json_path, sweep_path)
+from cases.registry import (CACHE, CASES, FAMILIES, OPT_IN_GROUPS, cgmes_files, contingency_path, m_path, mat_path,
+                            measurements_path, pgm_branch_ids_path, pgm_json_path, sweep_path)
 from oracle import residual, ybus
 
 
@@ -147,24 +163,21 @@ def prepare_sweep(key: str) -> None:
     if stamp.exists() and stamp.read_text() == h.hexdigest() and sweep_path(key).exists():
         return
     mpc = matpower.parse_m(case["file"])
-    data = sweep.generate(mpc, key)
-    for k in range(len(data["scale"])):
-        mpc_k = sweep.scenario(mpc, data, k)
-        ids, v = truth.solve_pf(mpc_k)
-        on = ~np.isnan(v)
-        vm = {str(b): float(abs(x)) for b, x in zip(ids[on], v[on])}
-        va = {str(b): float(np.rad2deg(np.angle(x))) for b, x in zip(ids[on], v[on])}
-        r = residual.residual(mpc_k, vm, va)
-        assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
-            f"{key}: scenario {k} has no solution from flat start ({r})"
+    data = sweep.generate(mpc, key, case.get("scenarios", sweep.SWEEP_SIZE))
+    n, workers = len(data["scale"]), os.process_cpu_count()
+    bounds = np.linspace(0, n, min(n, 8 * workers) + 1).astype(int)
+    with _pool(workers, _init_sweep, key) as pool:
+        list(pool.map(_check_scenarios, zip(bounds[:-1], bounds[1:])))   # raises a worker's AssertionError
     sweep.write(data, sweep_path(key))
     stamp.write_text(h.hexdigest())
     print(f"prepared {key}", file=sys.stderr)
 
 
 def prepare_n1(key: str) -> None:
-    """The outages, after the base case's tool inputs."""
+    """The outages, after the base case's tool inputs: the first
+    `N_OUTAGES` that converge, or every one (`outages` "all")."""
     case = CASES[key]
+    limit = None if case.get("outages") == "all" else contingency.N_OUTAGES
     prepare(case["base_case"])
     stamp = CACHE / f"{key}.key"
     h = hashlib.sha256()
@@ -175,22 +188,21 @@ def prepare_n1(key: str) -> None:
         return
     mpc = matpower.parse_m(case["file"])
     _, v_base = truth.solve_pf(mpc)
-    rows, skipped = [], 0
-    for row in contingency.candidates(mpc, key):
-        mpc_k = contingency.outage(mpc, {"branch_row": [row]}, 0)
-        try:
-            ids, v = truth.solve_pf(mpc_k, v_base)
-        except RuntimeError:
-            skipped += 1
-            continue
-        on = ~np.isnan(v)
-        r = residual.residual(mpc_k, {str(b): float(abs(x)) for b, x in zip(ids[on], v[on])},
-                              {str(b): float(np.rad2deg(np.angle(x))) for b, x in zip(ids[on], v[on])})
-        assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
-            f"{key}: outage of branch row {row} solved, but not to the case ({r})"
-        rows.append(row)
-        if len(rows) == contingency.N_OUTAGES:
-            break
+    rows, skipped, workers = [], 0, os.process_cpu_count()
+    candidates = contingency.candidates(mpc, key)
+    # Candidates in ordered slices, never more than the limit still needs, so
+    # a limited case checks no outage a serial run would not have, and takes
+    # exactly the first `limit` that converge.
+    with _pool(workers, _init_n1, key, v_base) as pool:
+        while len(rows) != limit and (part := list(itertools.islice(
+                candidates, min(8 * workers, limit - len(rows)) if limit else None))):
+            for row, converged in zip(part, pool.map(_check_outage, part, chunksize=max(1, len(part) // (8 * workers)))):
+                if not converged:
+                    skipped += 1
+                    continue
+                rows.append(row)
+                if len(rows) == limit:
+                    break
     branch = mpc["branch"]
     contingency.write({"branch_row": np.array(rows, dtype=np.int64),
                        "from_bus": branch[rows, matpower.F_BUS].astype(np.int64),
@@ -198,6 +210,54 @@ def prepare_n1(key: str) -> None:
                       contingency_path(key))
     stamp.write_text(h.hexdigest())
     print(f"prepared {key} ({len(rows)} outages, {skipped} skipped: no convergence)", file=sys.stderr)
+
+
+_WORKER: dict = {}   # a worker process's case, set once by its initializer
+
+
+def _pool(workers: int, initializer, *initargs) -> ProcessPoolExecutor:
+    return ProcessPoolExecutor(workers, mp_context=multiprocessing.get_context("spawn"),
+                               initializer=initializer, initargs=initargs)
+
+
+def _init_sweep(key: str) -> None:
+    mpc = matpower.parse_m(CASES[key]["file"])
+    _WORKER.update(key=key, mpc=mpc, data=sweep.generate(mpc, key, CASES[key].get("scenarios", sweep.SWEEP_SIZE)))
+
+
+def _init_n1(key: str, v_base: np.ndarray) -> None:
+    _WORKER.update(key=key, mpc=matpower.parse_m(CASES[key]["file"]), v_base=v_base)
+
+
+def _solves_case(mpc_k: dict, ids: np.ndarray, v: np.ndarray) -> residual.Residual:
+    on = ~np.isnan(v)
+    return residual.residual(mpc_k, {str(b): float(abs(x)) for b, x in zip(ids[on], v[on])},
+                             {str(b): float(np.rad2deg(np.angle(x))) for b, x in zip(ids[on], v[on])})
+
+
+def _check_scenarios(bounds: tuple[int, int]) -> None:
+    """Sweep scenarios a..b-1: each solved from flat start and checked by tier 1."""
+    key, mpc, data = _WORKER["key"], _WORKER["mpc"], _WORKER["data"]
+    for k in range(*bounds):
+        mpc_k = sweep.scenario(mpc, data, k)
+        r = _solves_case(mpc_k, *truth.solve_pf(mpc_k))
+        assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
+            f"{key}: scenario {k} has no solution from flat start ({r})"
+
+
+def _check_outage(row: int) -> bool:
+    """Whether the outage of branch `row` converges from the base case's
+    solution; if it does, its solution is checked by tier 1."""
+    key, mpc = _WORKER["key"], _WORKER["mpc"]
+    mpc_k = contingency.outage(mpc, {"branch_row": [row]}, 0)
+    try:
+        ids, v = truth.solve_pf(mpc_k, _WORKER["v_base"])
+    except RuntimeError:
+        return False
+    r = _solves_case(mpc_k, ids, v)
+    assert max(r.max_dp_mw, r.max_dq_mvar) < 1e-6 and r.max_dvm_pu < 1e-9 and r.n_checked == r.n_buses, \
+        f"{key}: outage of branch row {row} solved, but not to the case ({r})"
+    return True
 
 
 def prepare_n1_full(key: str) -> None:
@@ -236,7 +296,7 @@ def prepare(key: str) -> None:
     if case["problem"] == "batch":
         return prepare_sweep(key)
     if case["problem"] == "n1":
-        return prepare_n1(key)
+        return prepare_n1(key)   # `#n1` and `#n1-full` alike
     if case["problem"] == "dc":
         return prepare(case["base_case"])   # the base case's tool inputs; DC needs nothing else
     if case["problem"] == "dcn1" and case.get("outages") == "all":
@@ -298,10 +358,24 @@ def _ideal_source(path: Path, mpc: dict) -> None:
 
 def main(argv: list[str]) -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
-    if argv[:1] == ["--family"]:
-        keys = [k for k, c in CASES.items() if c["family"] == argv[1]]
+    family = None
+    if argv[:1] == ["--family"]:   # alone, or narrowing a selection that follows
+        family, argv = argv[1], argv[2:]
+    if argv[:1] == ["--groups"]:
+        groups = set(argv[1].split(","))
+        keys = [k for fam in FAMILIES for k, c in CASES.items() if c["family"] == fam and groups & set(c["groups"])]
+    elif argv[:1] == ["--cases"]:
+        keys = [k for k in argv[1].split(",") if k]
+    elif family:
+        keys = list(CASES)
     else:
-        keys = argv or [k for fam in FAMILIES for k, c in CASES.items() if c["family"] == fam]
+        keys = argv or [k for fam in FAMILIES for k, c in CASES.items() if c["family"] == fam
+                        and not (c["groups"] and set(c["groups"]) <= set(OPT_IN_GROUPS))]
+    if family:
+        # pypowsybl's conversions are in no group: a selection takes the
+        # family's cases it names and those converted from the cases it names.
+        selected = set(keys)
+        keys = [k for k, c in CASES.items() if c["family"] == family and {k, c.get("source_case")} & selected]
     for key in keys:
         prepare(key)
 

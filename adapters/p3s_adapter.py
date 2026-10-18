@@ -78,7 +78,7 @@ from oracle.cgmes_sv import mrid
 class P3sAdapter(SolverAdapter):
     name = "p3s"
     display_name = "pandapower (p3s)"
-    color = "#2a78d7"   # tools/palette.py P3S: pandapower's blue, dashed
+    color = "#c78600"   # tools/palette.py: C++ yellow, step 1, dashed
     package = "parallel-pandapower-solver"
     modules = ("pandapower", "pandapower.converter.matpower.from_mpc", "pandapower.converter.cim.cim2pp.from_cim",
                "pandapower.toolbox", "p3s.NewtonPowerflowCpp", "p3s.calculateTrafoTapTable")

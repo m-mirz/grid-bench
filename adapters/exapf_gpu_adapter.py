@@ -69,7 +69,7 @@ GPU_SETTINGS = {"backend": "cuda", "linear_solver": "cudss"}
 class ExapfGpuAdapter(ExapfAdapter):
     name = "exapf_gpu"
     display_name = "ExaPF.jl (GPU)"
-    color = "#e3494a"   # tools/palette.py EXAPF_GPU: Sienna's red, dash-dotted
+    color = "#e87ba5"   # tools/palette.py: Julia magenta, base, dash-dotted (GPU)
     julia = "adapters.exapf_gpu_julia"
     modules = (julia,)
     settings = ExapfAdapter.settings | GPU_SETTINGS

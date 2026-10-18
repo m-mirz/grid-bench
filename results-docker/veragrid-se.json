@@ -2927,7 +2927,7 @@
         "tools": {
             "veragrid": {
                 "display_name": "VeraGrid",
-                "color": "#008300",
+                "color": "#035eb9",
                 "tags": [
                     "state-estimation",
                     "wls",

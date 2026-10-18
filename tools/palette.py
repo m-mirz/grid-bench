@@ -1,89 +1,74 @@
-"""Colours for reports and the site. Each tool keeps one categorical slot for
-life (colour follows the tool, never its rank). The eight slots below are
-the dataviz reference palette in its validated order; checked with its
-validator in both modes (worst adjacent CVD dE 9.1 light / 8.4 dark,
-normal-vision 19.6 / 19.3). Slot 9 (teal, Sparlectra) was added on purpose
-past the validated eight, accepted as imperfect: in the adjacent order the
-nine still pass both modes, but all-pairs teal sits close to slot 1 blue
-(normal-vision dE 10.8 light / 10.4 dark) and slot 3 aqua (13.5 / 10.9),
-and under protanopia next to slot 5 magenta (2.9 light). A tenth tool needs a
-different encoding (small multiples, "other"), never another hue. p3s (the
-parallel pandapower solver, from pandapower's makers) is drawn as a variant
-of slot 1: pandapower's blue, dashed, keyed one unit off like
-REFERENCE_DOTTED; the dash and its label tell the two apart. ExaPF.jl, the
-tenth tool, is drawn the same way as a variant of slot 8: Sienna's red,
-dotted (both Julia), which is the encoding rule above, not a new hue.
-ExaPF.jl on its GPU backend is the same tool on other hardware: ExaPF's red
-again, dash-dotted, so that its two rows read as one tool. gpusim2grid,
-lightsim2grid's GPU companion (seeded from its grid), is lightsim2grid's
-orange, dash-dotted the same way: dash-dot marks a GPU tool, and GPU tools
-share a chart only with each other and their CPU baselines (the GPU tabs).
-lightsim2grid's LODF DC N-1 (its sensitivities, a second way of running
-the same library) is its orange, dotted. ToOp, whose DC solver builds its model from pandapower's (on a GPU), is
-pandapower's blue, dash-dotted; it only appears in the DC tabs, where
-pandapower does not. ExaModelsPower.jl (AC-OPF, from ExaPF's makers) is the
-red again, dashed, the one pattern of slot 8 left; it only appears in the OPF tab,
-where neither Sienna nor ExaPF does. JuliaGrid.jl, like Sparlectra.jl a power-system library written in Julia
-(power flow and state estimation both), is Sparlectra's teal, dashed.
-Checked all-pairs, as a chart showing every tool at once needs, the palette
-fails: slot 8 red vs slot 2 orange is dE 7.1 even with full colour vision,
-and several pairs sit below 4 under colour-vision deficiency. The legend,
-the site's hover and tool toggles carry identity; small
-multiples would fix it properly. Three light-mode slots sit below 3:1 contrast on
-the surface, so every chart carries direct labels and a table view.
+"""Colours for reports and the site. Hue says the language a tool's solver
+is written in; within a language, a lighter or darker step of that hue and
+the line pattern tell the tools apart. Colour follows the tool, never its
+rank: a filter never repaints the survivors.
 
-The CIM libraries (cimoxide, triplets, OpenCGMES, PowSyBl's CgmesModel) are
-four more tools, but they only ever share a chart with each other and
-pypowsybl (the CIM tab). They take slot hues, one unit off and dotted: hue
-and pattern together are their identity. Of the 70 ways to pick four of the
-eight hues next to pypowsybl's magenta, yellow, green, violet and teal is
-the only one that passes the normal-vision floor in both modes (all pairs,
-worst 19.5 light / 15.3 dark). Among the four dotted ones, CVD passes in
-light (worst 16.2) and sits in the 6-8 band in dark (green-yellow 6.9),
-legal with the labels and table view; magenta against teal is 2.9 under
-protanopia in light, but solid against dotted.
+Languages (the adapter's `language`) and their hues, from the dataviz
+reference palette: Python blue, C++ yellow, Julia magenta (near Julia's
+purple), Java green, and Rust a rust brown (light #8b3200, dark #e4a063),
+added off the palette because no slot passes next to blue and magenta in
+both modes. Of the 70 ways to give four slots to the four languages that
+share the busiest chart (power flow: Python, C++, Julia, Java), blue,
+yellow, magenta and green is the best (dataviz validator, all pairs, worst
+normal-vision dE 19.6 light / 19.3 dark). Julia takes magenta and Java green
+and not the other way round: under red-green colour blindness yellow and
+green collapse, and Java has one tool on that chart where Julia has four.
+
+Steps: each language's base and three OKLCH lightness steps of its hue
+(light mode L 0.45 to 0.76, dark 0.50 to 0.83), at least about 0.08 apart.
+Measured on every chart with the tools it shows, both modes:
+- across languages, worst normal-vision dE 15.6 (cgmes2pgm against ExaPF.jl,
+  power flow, light): two languages never read as one;
+- two tools that also share a line pattern stay at CVD dE 6.9 or more
+  (lightsim2grid against pypowsybl, dark), the band that is legal with
+  direct labels, which every chart has; pairs below it (pypowsybl against
+  p3s, 0.6 under protanopia) differ in pattern;
+- within a language, steps are dE 7 to 9 apart (normal vision): the pattern,
+  the direct label and the hover highlight carry identity there.
+lightsim2grid's yellow base is 2.1:1 on the light surface (it was
+power-grid-model's before): solid, labelled and in the tables, as the
+relief rule requires. Dotted lines take steps of at least 3:1.
+
+Patterns: solid, dashed, dotted, long-dashed for a language's first four
+tools; dash-dot marks a GPU tool, which shares a chart only with other GPU
+tools and its CPU baselines. A reference implementation is no language:
+neutral ink, MATPOWER dashed, PowerModels.jl (PGLib-OPF's reference) dotted.
+
+The site keys a line's pattern and its dark step on the light hex, so two
+tools on one step differ in the last digit (one unit off): lightsim2grid,
+gpusim2grid and its LODF DC N-1; pandapower, ToOp and triplets; Sparlectra,
+ExaPF.jl on a GPU and ExaModelsPower.jl; ExaPF.jl and ExaModelsPower.jl on a GPU.
 """
-LIGHT_TO_DARK = {
-    "#2a78d6": "#3987e5",   # 1 blue    pandapower
-    "#eb6834": "#d95926",   # 2 orange  lightsim2grid
-    "#1baf7a": "#199e70",   # 3 aqua    PyPSA
-    "#eda100": "#c98500",   # 4 yellow  power-grid-model
-    "#e87ba4": "#d55181",   # 5 magenta pypowsybl
-    "#008300": "#008300",   # 6 green   VeraGrid
-    "#4a3aa7": "#9085e9",   # 7 violet  PGM via cgmes2pgm
-    "#e34948": "#e66767",   # 8 red     Sienna (PowerFlows.jl)
-    "#0f8fa8": "#1b9cb6",   # 9 teal    Sparlectra.jl (past the validated eight, see above)
+SOLID, DASHED, DOTTED, LONG, DASHDOT = None, "6 4", "1.5 3.5", "12 4", "6 3 1.5 3"
+
+# light hex: (dark hex, pattern); comments name the tool, the language and the step.
+STYLES = {
+    "#2a78d6": ("#3987e5", SOLID),     # pandapower       python  base
+    "#4996f6": ("#5aa3ff", DASHED),    # PyPSA            python  1
+    "#035eb9": ("#176ac6", DOTTED),    # VeraGrid         python  2
+    "#2a78d7": ("#3987e6", DASHDOT),   # ToOp (GPU)       python  base
+    "#2a78d8": ("#3987e7", DASHED),    # triplets         python  base
+    "#eda100": ("#c98500", SOLID),     # lightsim2grid    c++     base
+    "#c78600": ("#a97004", DASHED),    # p3s              c++     1
+    "#a36e04": ("#e7a137", DOTTED),    # power-grid-model c++     2
+    "#825600": ("#ffb851", LONG),      # cgmes2pgm        c++     3
+    "#eda101": ("#c98501", DASHDOT),   # gpusim2grid      c++     base
+    "#eda102": ("#c98502", DOTTED),    # lightsim2grid LODF DC N-1, c++, base
+    "#e87ba4": ("#d55181", SOLID),     # Sparlectra.jl    julia   base
+    "#ca608a": ("#f46d9b", DASHED),    # JuliaGrid.jl     julia   1
+    "#af4872": ("#b53266", DOTTED),    # Sienna           julia   2
+    "#95305b": ("#ff9bb9", LONG),      # ExaPF.jl         julia   3
+    "#e87ba5": ("#d55182", DASHDOT),   # ExaPF.jl (GPU)   julia   base
+    "#e87ba6": ("#d55183", DOTTED),    # ExaModelsPower.jl julia  base
+    "#95305c": ("#ff9bba", DASHDOT),   # ExaModelsPower.jl (GPU) julia 3
+    "#008300": ("#008300", SOLID),     # pypowsybl        java    base
+    "#33a02e": ("#33a02e", DASHED),    # OpenCGMES        java    1
+    "#026802": ("#71da6a", DOTTED),    # PowSyBl CgmesModel java  3
+    "#8b3200": ("#e4a063", SOLID),     # cimoxide         rust    base
+    "#52514e": ("#c3c2b7", DASHED),    # MATPOWER         reference
+    "#52514f": ("#c3c2b8", DOTTED),    # PowerModels.jl   reference
 }
-# A reference implementation is not another hue: neutral ink, so it reads as
-# a reference line in both modes and without colour vision. MATPOWER (the
-# case format's) is dashed; PowerModels.jl (whose results with Ipopt are
-# PGLib-OPF's published references) is dotted, in the same ink, the pattern
-# telling the two apart. `DASH` maps a colour to its line pattern.
-REFERENCE = "#52514e"
-REFERENCE_DOTTED = "#52514f"   # the same ink, one unit off: a distinct key for its pattern
-LIGHT_TO_DARK[REFERENCE] = "#c3c2b7"
-LIGHT_TO_DARK[REFERENCE_DOTTED] = "#c3c2b8"
-P3S = "#2a78d7"   # slot 1's blue, one unit off: pandapower's variant, dashed
-LIGHT_TO_DARK[P3S] = "#3987e6"
-CIMOXIDE, TRIPLETS, OPENCGMES, POWSYBL = "#eda101", "#008301", "#4a3aa8", "#0f8fa9"   # slots 4, 6, 7, 9, dotted
-LIGHT_TO_DARK |= {CIMOXIDE: "#c98501", TRIPLETS: "#008301", OPENCGMES: "#9085ea", POWSYBL: "#1b9cb7"}
-EXAPF = "#e34949"   # slot 8's red, one unit off: drawn as Sienna's variant, dotted
-LIGHT_TO_DARK[EXAPF] = "#e66768"
-EXAPF_GPU = "#e3494a"   # slot 8's red, two units off: ExaPF on a GPU, dash-dotted
-LIGHT_TO_DARK[EXAPF_GPU] = "#e66769"
-GPUSIM2GRID = "#eb6835"   # slot 2's orange, one unit off: lightsim2grid's GPU companion, dash-dotted
-LIGHT_TO_DARK[GPUSIM2GRID] = "#d95927"
-JULIAGRID = "#0f8fa7"   # slot 9's teal, one unit off: drawn as Sparlectra's variant (both pure Julia), dashed
-LIGHT_TO_DARK[JULIAGRID] = "#1b9cb5"
-LIGHTSIM2GRID_LODF = "#eb6833"   # slot 2's orange, one unit off the other way: lightsim2grid's LODF DC N-1, dotted
-LIGHT_TO_DARK[LIGHTSIM2GRID_LODF] = "#d95925"
-TOOP = "#2a78d5"   # slot 1's blue, two units off: ToOp (JAX DC on a GPU, its model from pandapower's), dash-dotted
-LIGHT_TO_DARK[TOOP] = "#3987e4"
-EXAMODELSPOWER = "#e3494b"   # slot 8's red, three units off: ExaModelsPower.jl (OPF only), dashed
-LIGHT_TO_DARK[EXAMODELSPOWER] = "#e6676a"
-DASH = {REFERENCE: "6 4", REFERENCE_DOTTED: "1.5 3.5", P3S: "6 4", EXAPF: "1.5 3.5", EXAPF_GPU: "6 3 1.5 3",
-        GPUSIM2GRID: "6 3 1.5 3", JULIAGRID: "6 4", TOOP: "6 3 1.5 3", LIGHTSIM2GRID_LODF: "1.5 3.5",
-        EXAMODELSPOWER: "6 4",
-        **dict.fromkeys((CIMOXIDE, TRIPLETS, OPENCGMES, POWSYBL), "2 3")}
+LIGHT_TO_DARK = {light: dark for light, (dark, _) in STYLES.items()}
+DASH = {light: dash for light, (_, dash) in STYLES.items() if dash}
 LIGHT = {"surface": "#fcfcfb", "text": "#0b0b0b", "text2": "#52514e", "grid": "#e4e3df", "axis": "#8a8984"}
 DARK = {"surface": "#1a1a19", "text": "#ffffff", "text2": "#c3c2b7", "grid": "#33332f", "axis": "#6f6e69"}

@@ -111,7 +111,7 @@ def join(case: str, system) -> list[str]:
 class JuliagridAdapter(SolverAdapter):
     name = "juliagrid"
     display_name = "JuliaGrid.jl"
-    color = "#0f8fa7"   # tools/palette.py JULIAGRID: Sparlectra's teal, dashed
+    color = "#ca608a"   # tools/palette.py: Julia magenta, step 1, dashed
     package = "juliacall"
     modules = ("adapters.juliagrid_julia",)
     language = "julia"

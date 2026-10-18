@@ -24,8 +24,10 @@ Settings:
   with no convergence test of its own. Not tuned per case: the oracle
   grades every scenario, and one that 4 steps do not bring to the
   tolerance shows there.
-- `batch_size=512` (its default): every sweep here (100 scenarios) is one
-  chunk on the device.
+- `batch_size=2048`, not its default of 512: the chunk at which an A100
+  is full (below, issue #19). Every `#sweep` and `#sweep-1k` is one chunk on
+  the device, a `#sweep-10k` five. It is the setting for a 40 GB device:
+  case9241pegase's peaks at 20 GB, and 8192 runs out of memory.
 - FP64, default cuDSS settings, no damping, distributed-slack formulation
   with the case's one slack: the power-flow adapter's.
 - Thread count: not a setting (one GPU).
@@ -50,13 +52,48 @@ no convergence test, so the host never waits on the device between steps:
 GPU time and wall time agree. Not communication but the sparse LU is the
 cost.
 
-Beyond 100 scenarios (a separate experiment, the same adapter, sweeps of
-1 000 to 50 000 scenarios, every one graded): the time per scenario falls
-3.7 to 4.4x by 1 000 scenarios and then stays (case9241pegase 1.72 ms at
-50 000; lightsim2grid on 30 threads 2.0 ms from the base case at 10 000).
-On case1354pegase, clean at 100 scenarios, 21 to 29 % of the scenarios
-come back NaN from 1 000 on, the batch_size=512 chunks hitting the cuDSS
-fault documented in the N-1 adapter; mvlv10616 and case9241pegase stay clean.
+Batch size (issue #19: at its default of 512 an A100 is far from full).
+A separate experiment, the same adapter with only `batch_size` changed, a
+process per point, every scenario graded, peak device memory from
+nvidia-smi; seconds per call of 10 000 scenarios (14 374 outages for
+case9241pegase#n1-full), NaN scenarios in parentheses:
+
+    batch_size              512          1024         2048     4096     8192
+    case9241pegase#sweep    17.5         12.3         9.6      9.9      out of memory
+    mvlv10616#sweep         17.8         12.5         9.7      9.8      out of memory
+    case2869pegase#sweep    5.1          3.6          2.8      2.9      2.9 (6)
+    case1354pegase#sweep    2.3 (2 907)  1.6 (5 060)  1.3      1.3      1.3 (1 259)
+    case9241pegase#n1-full  23.5         16.0         12.4     12.6     out of memory
+
+Each doubling to 2048 saves about 30 %, and nothing after: the device is
+full there, at 20 GB for the 9241- and 10616-bus sweeps (30 GB at 4096;
+8192 runs out of the 40 GB, as cudaErrorMemoryAllocation or cuDSS's
+factorize status 2). The NaN loss depends on the chunk, not on the run:
+three repeats of case1354pegase#sweep-10k gave 2 775 to 2 938 NaN at 512
+and none at 2048, every time; but not monotonically (it is back at 8192,
+and at 2 900 with all 10 000 in one chunk), so 2048 avoids it on that
+sweep without the cause being known. The rest of the loss is in the N-1
+adapter's docstring.
+
+The large sweeps in the benchmark (`results-docker/gpu/`, A100, lightsim2grid
+1.1.0, batch_size 2048; ms per scenario, lightsim2grid on 30 threads of the
+same machine in parentheses):
+
+    case            1 000 scenarios              10 000 scenarios
+    case1354pegase  0.15, 593 NaN (0.12)         0.13, all accepted (0.13)
+    case2869pegase  0.37, all accepted (0.43)    0.28, all accepted (0.33)
+    case9241pegase  1.37, all accepted (1.79)    0.96, all accepted (1.84)
+    mvlv10616       1.32, all accepted (0.92)    0.97, all accepted (0.90)
+
+So among the accepted sweeps gpusim2grid is ahead of 30 cores on
+case2869pegase (1.2x at both sizes) and case9241pegase (1.3x, and 1.9x at
+10 000), level on case1354pegase#sweep-10k (0.128 against 0.130 ms), and
+behind on the feeder. case1354pegase#sweep-1k, one chunk of 1 000, loses 59 % of
+its scenarios to NaN. With batch_size 512 the 10 000-scenario sweeps took
+1.8x as long, and case2869pegase's lost 92 % of its scenarios in that
+earlier run (as did its 1 000), where every run today kept them all
+at both sizes, cause unknown (the same pins; possibly the host's driver,
+CUDA 13.3 now).
 """
 import numpy as np
 
@@ -66,7 +103,7 @@ from adapters.lightsim2grid_batch_adapter import injections
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge
 
 NB_ITER = 4
-BATCH_SIZE = 512
+BATCH_SIZE = 2048
 
 
 class Gpusim2gridBatch(BatchAdapter):

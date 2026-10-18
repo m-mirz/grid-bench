@@ -3,7 +3,8 @@
 - `--groups smoke,scaling` / `--cases case14,case300` select cases
   (default: every case in `cases.registry.DEFAULT_GROUPS`); a batch
   benchmark's solve test also runs once per thread count
-  (`BatchAdapter.thread_counts`, or `--threads 1,4`).
+  (`BatchAdapter.thread_counts`, or `--threads 1,4`; a large batch at the
+  ends only, `adapters.batch_adapter.case_thread_counts`).
 - Every failed test (non-convergence, import error, timeout) is recorded
   with its tool, case, operation and real exception line, and written into
   the pytest-benchmark JSON under `failures`, so a report shows
@@ -21,6 +22,7 @@ from pathlib import Path
 
 import pytest
 
+from adapters.batch_adapter import case_thread_counts
 from cases.registry import DEFAULT_GROUPS, select
 
 SCHEMA_VERSION = 1
@@ -43,10 +45,13 @@ def pytest_generate_tests(metafunc):
     groups = metafunc.config.getoption("groups").split(",")
     names = [c for c in metafunc.config.getoption("cases").split(",") if c]
     cases = [c for fam in adapter.families for c in select(fam, groups, names)]
-    metafunc.parametrize("case", cases)
-    if "threads" in metafunc.fixturenames:
-        given = [int(t) for t in metafunc.config.getoption("threads").split(",") if t]
-        metafunc.parametrize("threads", [t for t in adapter.thread_counts() if not given or t in given])
+    if "threads" not in metafunc.fixturenames:
+        metafunc.parametrize("case", cases)
+        return
+    given = [int(t) for t in metafunc.config.getoption("threads").split(",") if t]
+    counts = tuple(t for t in adapter.thread_counts() if not given or t in given)
+    pairs = [(c, t) for c in cases for t in (case_thread_counts(c, counts) if counts else ())]
+    metafunc.parametrize(("case", "threads"), pairs, ids=[f"{c}-{t}" for c, t in pairs])
 
 
 def extract_error(text: str) -> str:

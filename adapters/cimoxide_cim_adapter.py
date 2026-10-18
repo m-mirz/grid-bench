@@ -28,7 +28,7 @@ from cases.registry import cim_files, cim_profiles
 class CimoxideCim(CimAdapter):
     name = "cimoxide"
     display_name = "cimoxide"
-    color = "#eda101"   # tools/palette.py CIMOXIDE: slot 4 yellow, dotted
+    color = "#8b3200"   # tools/palette.py: Rust brown
     package = "cimoxide"
     modules = ("cimoxide",)
     language = "rust"

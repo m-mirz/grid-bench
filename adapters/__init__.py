@@ -1,21 +1,23 @@
 """Tool registry. Imported lazily: each container installs only its own tool."""
 from importlib import import_module
 
+# Order: by language, as tools/palette.py colours them (Python, C++, Julia,
+# Java, then the reference); within one, the palette's step order.
 ADAPTERS = {
     "pandapower": "adapters.pandapower_adapter:PandapowerAdapter",
-    "p3s": "adapters.p3s_adapter:P3sAdapter",   # slot 1's variant (tools/palette.py P3S)
-    "lightsim2grid": "adapters.lightsim2grid_adapter:Lightsim2gridAdapter",
-    "gpusim2grid": "adapters.gpusim2grid_adapter:Gpusim2gridAdapter",   # slot 2's variant (GPUSIM2GRID)
     "pypsa": "adapters.pypsa_adapter:PypsaAdapter",
-    "pgm": "adapters.pgm_adapter:PgmAdapter",
-    "pypowsybl": "adapters.pypowsybl_adapter:PypowsyblAdapter",
     "veragrid": "adapters.veragrid_adapter:VeragridAdapter",
+    "lightsim2grid": "adapters.lightsim2grid_adapter:Lightsim2gridAdapter",
+    "p3s": "adapters.p3s_adapter:P3sAdapter",
+    "pgm": "adapters.pgm_adapter:PgmAdapter",
     "cgmes2pgm": "adapters.cgmes2pgm_adapter:Cgmes2pgmAdapter",
-    "sienna": "adapters.sienna_adapter:SiennaAdapter",
-    "exapf": "adapters.exapf_adapter:ExapfAdapter",   # slot 8's variant (tools/palette.py EXAPF)
-    "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",   # slot 8's second variant (EXAPF_GPU)
+    "gpusim2grid": "adapters.gpusim2grid_adapter:Gpusim2gridAdapter",
     "sparlectra": "adapters.sparlectra_adapter:SparlectraAdapter",
-    "juliagrid": "adapters.juliagrid_adapter:JuliagridAdapter",   # slot 9's variant (tools/palette.py JULIAGRID)
+    "juliagrid": "adapters.juliagrid_adapter:JuliagridAdapter",
+    "sienna": "adapters.sienna_adapter:SiennaAdapter",
+    "exapf": "adapters.exapf_adapter:ExapfAdapter",
+    "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",
+    "pypowsybl": "adapters.pypowsybl_adapter:PypowsyblAdapter",
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
 
@@ -23,8 +25,8 @@ ADAPTERS = {
 # its power-flow adapter's). Order: ADAPTERS order.
 ESTIMATORS = {
     "pandapower": "adapters.pandapower_se_adapter:PandapowerEstimator",
-    "pgm": "adapters.pgm_se_adapter:PgmEstimator",
     "veragrid": "adapters.veragrid_se_adapter:VeragridEstimator",
+    "pgm": "adapters.pgm_se_adapter:PgmEstimator",
     "sparlectra": "adapters.sparlectra_se_adapter:SparlectraEstimator",
     "juliagrid": "adapters.juliagrid_se_adapter:JuliagridEstimator",
 }
@@ -39,7 +41,8 @@ def _instantiate(path: str):
 OPTIMIZERS = {
     "pandapower": "adapters.pandapower_opf_adapter:PandapowerOptimizer",
     "veragrid": "adapters.veragrid_opf_adapter:VeragridOptimizer",
-    "examodelspower": "adapters.examodelspower_opf_adapter:ExamodelspowerOptimizer",   # slot 8's variant (EXAMODELSPOWER)
+    "examodelspower": "adapters.examodelspower_opf_adapter:ExamodelspowerOptimizer",
+    "examodelspower_gpu": "adapters.examodelspower_gpu_opf_adapter:ExamodelspowerGpuOptimizer",
     "juliagrid": "adapters.juliagrid_opf_adapter:JuliagridOptimizer",
     "matpower": "adapters.matpower_opf_adapter:MatpowerOptimizer",
     "powermodels": "adapters.powermodels_opf_adapter:PowermodelsOptimizer",

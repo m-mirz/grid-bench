@@ -14,7 +14,8 @@ NVIDIA GPU), and power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
 VeraGrid, Sparlectra.jl and JuliaGrid.jl, and AC optimal power flow for MATPOWER,
 pandapower, VeraGrid, JuliaGrid.jl and PowerModels.jl (both Ipopt; PowerModels' own image, OPF only)
-and ExaModelsPower.jl (MadNLP, CPU backend; its own image, OPF only) on
+and ExaModelsPower.jl (MadNLP, CPU backend; its own image, OPF only; on its
+CUDA backend as `examodelspower_gpu`, which needs an NVIDIA GPU) on
 PGLib-OPF cases, and batch power flow (a sweep of operating points per case)
 for every tool that reads `.m`: through the tool's own batch API at 1..n
 threads (power-grid-model, p3s, lightsim2grid) or on one thread (PyPSA,
@@ -141,6 +142,9 @@ tool-configs/toop/Dockerfile          ToOp's sources (four of its packages, pure
              (adapters/toop_dc_adapter.py)
 tool-configs/examodelspower/Dockerfile, julia/   the same for ExaModelsPower.jl and MadNLP (GridBenchExaModelsPower:
              AC-OPF only, CPU backend), like powermodels' image
+tool-configs/examodelspower_gpu/Dockerfile, julia/   ExaModelsPower.jl on CUDA: examodelspower's
+             GridBenchExaModelsPower plus MadNLPGPU, CUDA.jl and CUDSS.jl (MadNLP 0.9 holds them at
+             CUDA.jl 5, CUDSS 0.6), the runtime fixed by LocalPreferences.toml; needs-gpu, like exapf_gpu
 tool-configs/sparlectra/Dockerfile, julia/   the same for Sparlectra.jl (GridBenchSparlectra, se.jl: estimation)
 tool-configs/p3s/Dockerfile           compiles p3s's C++/KLU extension (not on PyPI) from pinned sources,
              with OpenMP for its batch solver (libgomp from the same pinned gcc image)
@@ -168,9 +172,10 @@ docker/lock.sh                                 # re-resolve every uv.lock and Ju
 docker/run_benchmark.sh [tool ...] [-- --groups smoke]   # prep, oracle tests, tools, reports
 docker/run_single.sh pandapower --cases case14,case300   # one tool, quick iteration
 GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu    # into results-docker/gpu/ (GPU tabs); a baseline likewise
+GRID_BENCH_RESULTS=gpu docker/run_single.sh gpusim2grid --groups smoke,scaling,feature,large   # with the large batches
 docker compose -f docker/docker-compose.yml run --rm reports   # regenerate reports only
 
-./setup.sh && ./run_benchmarks.sh [tool ...]   # native, one environment, for development
+./setup.sh                                     # native: oracle and case prep only (tools run in images)
 uv run pytest tests                            # oracle tests
 uv run python -m cases.prep [case ...]         # tool inputs into data/.case-cache/
 ```
@@ -183,18 +188,16 @@ internal compose network; the run scripts stop the sidecar afterwards.
 ## Adding a tool
 
 1. `adapters/<tool>_adapter.py`: subclass `SolverAdapter`. Set `name`,
-   `display_name`, `color` (the next unused slot in `tools/palette.py`, kept
-   for life; all nine slots are taken, and a tenth tool needs a different
-   encoding, not another hue, see the palette's docstring (p3s is
-   pandapower's blue, dashed: `P3S`; ExaPF.jl is Sienna's red, dotted: `EXAPF`, and on a
-   GPU dash-dotted: `EXAPF_GPU`; gpusim2grid lightsim2grid's orange, dash-dotted: `GPUSIM2GRID`; JuliaGrid.jl Sparlectra's teal, dashed:
-   `JULIAGRID`; ExaModelsPower.jl, OPF only, slot 8's red, dashed: `EXAMODELSPOWER`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
-   reference solver, `REFERENCE_DOTTED`; the CIM libraries, which only
-   share a chart with pypowsybl, slot hues dotted: `CIMOXIDE` etc.), `package`, `modules`
+   `display_name`, `color` (its language's hue in `tools/palette.py`: Python
+   blue, C++ yellow, Julia magenta, Java green, Rust brown; the next free step
+   and line pattern of that language, dash-dot for a GPU tool, added to
+   `STYLES` and checked with the dataviz validator against every chart the
+   tool will share, see the palette's docstring; a reference implementation
+   is neutral ink, MATPOWER dashed and PowerModels.jl dotted), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,
    `families`, `settings`. Implement `load`, `solve`, `solution`. Docstring:
    input path, bus-id mapping, and every setting with its justification.
-2. Register it in `adapters/__init__.py` (order = colour-slot order).
+2. Register it in `adapters/__init__.py` (order: by language, as the palette colours them).
 3. `benchmarks/<tool>_benchmark.py`: three lines, copy another.
 4. `tool-configs/<tool>/pyproject.toml`: copy another, pin the tool exactly
    (a release at least 7 days old; `exclude-newer = "P7D"` enforces it).
@@ -246,8 +249,10 @@ internal compose network; the run scripts stop the sidecar afterwards.
    `docker/java-tool.dockerfile`, started through `adapters/jvm.py`; run
    `docker/lock.sh` for its `jars.sha256`. On `cgmes_svedala#cim` a library
    reads 90 lines, 39 generators, 73 loads and 56 substations.
-9. Add the tool's smoke outcomes to `benchmarks/smoke_expectations.json` and
-   the tool to the CI matrix (`.github/workflows/smoke.yml`). CI checks each
+9. Add the tool's smoke outcomes to `benchmarks/smoke_expectations.json`.
+   The CI matrix (`.github/workflows/smoke.yml`) is held to ten tools that
+   reach every problem and runtime; add the tool there only if it brings
+   one they do not (and then drop the one it covers). CI checks each
    smoke case against its known outcome (`tools/check_smoke.py`), including
    expected oracle rejections, so a documented finding is not a CI failure
    but a change in any outcome is. Update an entry only when a behaviour
@@ -268,7 +273,11 @@ the `.m` and PGLib's reference objective), and `sweep-matpower`,
 keyed `<case>#sweep`, each scenario graded by tier 1 in `oracle.batch`),
 and `n1-matpower` (N-1: a transmission case plus its outages, keyed
 `<case>#n1`, each graded the same way against the case with that branch
-out; radial grids have no outage that keeps them connected), and
+out; radial grids have no outage that keeps them connected), both also
+large for the GPU tabs (`<case>#sweep-1k` and `-10k`, 1 000 and 10 000 operating points, and
+`<case>#n1-full`, every outage that converges; group `large`, an opt-in
+group, `OPT_IN_GROUPS`: prepared and run only when asked for, published
+like the default groups), and
 `dc-matpower`, `dcn1-matpower` (DC power flow on the default transmission
 cases, keyed `<case>#dc`, and the N-1 cases' outages on the DC model,
 `<case>#dcn1`, and every non-islanding outage of them, `<case>#dcn1-full`,
@@ -300,13 +309,12 @@ are drawn in the browser from the data embedded in it) from the JSON in a
 results directory; run it (or the `reports` compose service) after any
 change to `tools/`, and commit what it writes. Conventions:
 
-- Only cases in the default groups are published (`benchmark_data.load`);
-  a case run by name stays in its JSON.
+- Only cases in the default and opt-in groups (`DEFAULT_GROUPS`,
+  `OPT_IN_GROUPS`) are published (`benchmark_data.load`); a case run by
+  name stays in its JSON.
 - Tables are split by `grid` (transmission, distribution, fixtures), not by
   family: a converted case is a row under the case it came from, with an
   input column, so what the input route changes is one row apart.
-- The scoreboard (`benchmark_data.scoreboard`) shows the `robustness`
-  group as "hard transmission cases".
 - The chart shows one input at a time (one line per tool needs one
   input); for state estimation, the input is the measurement scenario, for
   OPF the operating condition (typical, congested, small angle difference).
@@ -315,17 +323,27 @@ change to `tools/`, and commit what it writes. Conventions:
   count, with a thread-scaling plot (small multiples, one per case) for
   APIs that take a thread count.
   Scaling numbers depend on the machine: `grid_bench.cpus` in each JSON
-  records the cores the run had.
+  records the cores the run had. Large batches (group `large`) are timed
+  at one thread and every core only (`case_thread_counts`): the counts
+  between would cost a CPU baseline hours, and the plot has them from the
+  default cases.
 - CIM has operations instead of a solve (Import, Export, Validate,
   Memory, the last with its own selector: import, import + export,
   validate, each measured in a fresh process by `adapters/memory.py`); its scoreboard is "done of all" per operation, and in place of
   the accuracy table it shows what each tool read and found, ungraded.
-- GPU tabs (power flow, batch, N-1) read `results-docker/gpu/`, not the
+- A problem's method is shown with its results (a `data-kind` paragraph of
+  the template's `methods`); "How every problem is measured" keeps only what
+  all share.
+- GPU tabs (power flow, OPF, batch, N-1; on the page, the "GPU machine"
+  choice next to the problem) read `results-docker/gpu/`, not the
   top level: GPU tools and the CPU baselines run on the same machine, which
   need not be the machine behind the other tabs, so they are compared only
   with each other. A tool is a GPU tool when its JSON records a device
   (`dependencies.gpu`); every other tool there is a baseline. Run both
-  with `GRID_BENCH_RESULTS=gpu`.
+  with `GRID_BENCH_RESULTS=gpu` and `--groups smoke,scaling,feature,large`
+  (`GPU_GROUPS`): the large batches (group `large`) are what a GPU needs to
+  fill, and a run writes each tool's JSON whole, so `--groups large` alone
+  would drop the other cases from it.
 
 ## Adding a case
 

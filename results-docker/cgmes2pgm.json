@@ -2726,7 +2726,7 @@
         "tools": {
             "cgmes2pgm": {
                 "display_name": "PGM via cgmes2pgm",
-                "color": "#4a3aa7",
+                "color": "#825600",
                 "tags": [
                     "powerflow",
                     "ac",

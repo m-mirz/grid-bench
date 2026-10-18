@@ -3942,7 +3942,7 @@
         "tools": {
             "exapf": {
                 "display_name": "ExaPF.jl",
-                "color": "#e34949",
+                "color": "#95305b",
                 "tags": [
                     "powerflow",
                     "ac",

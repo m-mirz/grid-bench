@@ -640,7 +640,7 @@
         "tools": {
             "cimoxide": {
                 "display_name": "cimoxide",
-                "color": "#eda101",
+                "color": "#8b3200",
                 "tags": [
                     "cim",
                     "cgmes",

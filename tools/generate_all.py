@@ -4,11 +4,12 @@
 
 Writes `docs/index.html`. GPU results live in `<dir>/gpu/`, with the CPU
 baselines run on the same machine, and are shown apart from the rest (which
-may come from another machine).
+may come from another machine), on `GPU_GROUPS`: the default groups and the large batches.
 """
 import sys
 from pathlib import Path
 
+from cases.registry import GPU_GROUPS
 from tools import generate_site
 from tools.benchmark_data import load
 
@@ -21,7 +22,7 @@ def main(directory: str) -> None:
     if not res.records and not res.failures:
         sys.exit(f"no grid-bench results in {directory}")
     DOCS.mkdir(exist_ok=True)
-    gpu = load(directory / "gpu") if (directory / "gpu").is_dir() else None
+    gpu = load(directory / "gpu", GPU_GROUPS) if (directory / "gpu").is_dir() else None
     (DOCS / "index.html").write_text(generate_site.generate(directory, res, gpu))
     print(f"wrote {DOCS / 'index.html'}")
 

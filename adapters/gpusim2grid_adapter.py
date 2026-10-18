@@ -102,7 +102,7 @@ def bus_ids(case: str, grid) -> list[str]:
 class Gpusim2gridAdapter(SolverAdapter):
     name = "gpusim2grid"
     display_name = "gpusim2grid (GPU)"
-    color = "#eb6835"   # tools/palette.py GPUSIM2GRID: lightsim2grid's orange, dash-dotted
+    color = "#eda101"   # tools/palette.py: C++ yellow, base, dash-dotted (GPU)
     package = "gpusim2grid"
     modules = ("gpusim2grid", "lightsim2grid", "lightsim2grid.network", "lightsim2grid.algorithm")
     language = "c++"

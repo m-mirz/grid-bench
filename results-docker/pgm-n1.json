@@ -3351,7 +3351,7 @@
         "tools": {
             "pgm": {
                 "display_name": "power-grid-model",
-                "color": "#eda100",
+                "color": "#a36e04",
                 "tags": [
                     "powerflow",
                     "ac",

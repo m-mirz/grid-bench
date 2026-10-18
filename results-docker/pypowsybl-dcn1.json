@@ -1786,7 +1786,7 @@
         "tools": {
             "pypowsybl": {
                 "display_name": "pypowsybl (OpenLoadFlow)",
-                "color": "#e87ba4",
+                "color": "#008300",
                 "tags": [
                     "powerflow",
                     "dc",

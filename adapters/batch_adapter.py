@@ -79,6 +79,15 @@ def thread_counts() -> tuple[int, ...]:
     return tuple(sorted({2 ** i for i in range(n.bit_length()) if 2 ** i <= n} | {n}))
 
 
+def case_thread_counts(case: str, counts: tuple[int, ...]) -> tuple[int, ...]:
+    """The thread counts a case is timed at: all of `counts`, or for a large
+    batch (group `large`) only the ends, one thread and every core. Those
+    are what the GPU tabs compare against, and every count between costs a
+    CPU baseline about an hour on the 10 000-scenario sweeps; the scaling
+    plot keeps its full axis on the default cases."""
+    return (counts[0], counts[-1]) if "large" in CASES[case]["groups"] and len(counts) > 2 else counts
+
+
 def base_case(case: str) -> str:
     return CASES[case]["base_case"]
 

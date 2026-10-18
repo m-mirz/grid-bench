@@ -641,7 +641,7 @@
         "tools": {
             "opencgmes": {
                 "display_name": "OpenCGMES",
-                "color": "#4a3aa8",
+                "color": "#33a02e",
                 "tags": [
                     "cim",
                     "cgmes",
