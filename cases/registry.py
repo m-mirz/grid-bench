@@ -93,8 +93,8 @@ Groups say what a case is *for* (a case can be in several):
   equipment, every branch encoded as a transformer). The accuracy headline.
 - `robustness`: known not to converge from a flat start in any tool tested;
   reported separately, never in the timing headline.
-- `large` (`OPT_IN_GROUPS`): batches sized for a GPU, and the largest OPF
-  case (pglib_opf_case9241_pegase), run and prepared only
+- `large` (`OPT_IN_GROUPS`): batches sized for a GPU, and the OPF cases
+  from 9 241 to 30 000 buses (PEGASE and the GO Competition's), run and prepared only
   when asked (`--groups large`; a GPU machine's run, with its CPU
   baselines), published like the default groups: in the GPU tabs, since
   only that run has them.
@@ -248,6 +248,11 @@ CASES |= {
     "pglib_opf_case9241_pegase": _pglib("pglib_opf_case9241_pegase", ["large"],
                                         "only in `large` (the GPU tabs): pandapower and VeraGrid fail it after "
                                         "their full iteration budget, which cost most of an hour per sweep"),
+    # Larger still, for the GPU tabs' OPF: a GPU only pulls ahead from a few
+    # thousand buses, and the GO Competition's synthetic grids are not PEGASE.
+    **{f"pglib_opf_{c}": _pglib(f"pglib_opf_{c}", ["large"])
+       for c in ("case10000_goc", "case10480_goc", "case13659_pegase", "case19402_goc", "case24464_goc",
+                 "case30000_goc")},
     **{f"pglib_opf_{c}__{v}": _pglib(f"pglib_opf_{c}__{v}", ["feature"], note)
        for c in ("case14_ieee", "case118_ieee", "case300_ieee")
        for v, note in (("api", "congested: branch limits bind"), ("sad", "small angle-difference limits bind"))},

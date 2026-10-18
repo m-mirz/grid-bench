@@ -55,7 +55,11 @@ objective comes out up to 1.9e-4 below PGLib's reference (the CPU's within
 every case to 1e-6 MW and better. Per solve the GPU is 15 to 16x slower on
 case14 (79 against 5 ms), behind up to case300, and ahead from
 case1354pegase on: 2.8x there, 5.1x on case2869pegase, 10.7x on
-case9241pegase (1.74 against 18.6 s). Reported, not tuned: a smaller `tol`
+case9241pegase (1.74 against 18.6 s). On the larger PGLib cases (group
+`large`) the lead grows with the grid, from 11x on case13659pegase to 23x
+on case30000_goc (4.1 against 94 s; case10000_goc 15x, case10480_goc 15x,
+case19402_goc 17x, case24464_goc 20x), every one rejected the same way,
+3.0e-3 to 9.4e-3 MW, and every CPU solve accepted. Reported, not tuned: a smaller `tol`
 for the GPU alone would be a different problem from every other tool's.
 """
 from adapters.examodelspower_opf_adapter import ExamodelspowerOptimizer
