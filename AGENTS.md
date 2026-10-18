@@ -336,7 +336,11 @@ change to `tools/`, and commit what it writes. Conventions:
   Memory, the last with its own selector: import, import + export,
   validate, each measured in a fresh process by `adapters/memory.py`); its scoreboard is "done of all" per operation, and in place of
   the accuracy table it shows what each tool read and found, ungraded.
-- GPU tabs (power flow, OPF, batch, N-1) read `results-docker/gpu/`, not the
+- A problem's method is shown with its results (a `data-kind` paragraph of
+  the template's `methods`); "How every problem is measured" keeps only what
+  all share.
+- GPU tabs (power flow, OPF, batch, N-1; on the page, the "GPU machine"
+  choice next to the problem) read `results-docker/gpu/`, not the
   top level: GPU tools and the CPU baselines run on the same machine, which
   need not be the machine behind the other tabs, so they are compared only
   with each other. A tool is a GPU tool when its JSON records a device
