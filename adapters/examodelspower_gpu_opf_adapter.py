@@ -52,10 +52,10 @@ case1354pegase and case2869pegase, 9.4e-3 on case9241pegase, against its
 1e-3 MVA (voltage, generator, flow and angle limits within theirs). The
 objective comes out up to 1.9e-4 below PGLib's reference (the CPU's within
 5e-5 of it), as the relaxed problem allows. ExaModelsPower on the CPU of the same machine balances
-every case to 1e-6 MW and better. Per solve the GPU is 15 to 16x slower on
-case14 (79 against 5 ms), behind up to case300, and ahead from
-case1354pegase on: 2.8x there, 5.1x on case2869pegase, 10.7x on
-case9241pegase (1.74 against 18.6 s). On the larger PGLib cases (group
+every case to 1e-6 MW and better. Per solve (the published run) the GPU is 15 to 18x
+slower on case14 and its variants (80 against 5 ms), behind up to case300,
+and ahead from case1354pegase on: 2.7x there, 5.3x on case2869pegase, 9.1x
+on case9241pegase (1.77 against 16.2 s). On the larger PGLib cases (group
 `large`) the lead grows with the grid, from 11x on case13659pegase to 23x
 on case30000_goc (4.1 against 94 s; case10000_goc 15x, case10480_goc 15x,
 case19402_goc 17x, case24464_goc 20x), every one rejected the same way,
