@@ -133,6 +133,7 @@ td.bad{color:var(--bad)}td.bad::after{content:" ✗"}
 td.fail{color:var(--bad);font-size:12px}
 td.na{color:var(--axis)}
 td.best{font-weight:700}
+#chart [data-s]{transition:opacity .12s}#chart .dim{opacity:.12}
 .seg[hidden]{display:none}
 .legend-note{font-size:13px;color:var(--text2);margin:8px 0 0}
 .method{border-left:3px solid var(--border);padding-left:14px}.method p{margin:6px 0}
@@ -288,6 +289,8 @@ const swatch = t => `<i style="${t.dash ? `width:16px;height:3px;border-radius:0
 function chips() {
   $("#toolchips").innerHTML = D.tools.map(t => `<button class="chip" data-t="${t.name}" aria-pressed="${!state.off.has(t.name)}">${swatch(t)}${esc(t.display)}</button>`).join("");
 }
+$("#toolchips").onmouseover = e => focus(e.target.closest(".chip")?.dataset.t);
+$("#toolchips").onmouseleave = () => focus();
 $("#toolchips").onclick = e => { const b = e.target.closest(".chip"); if (!b) return;
   state.off.has(b.dataset.t) ? state.off.delete(b.dataset.t) : state.off.add(b.dataset.t); render(); };
 
@@ -318,19 +321,23 @@ function chart() {
   const labels = [];
   for (const {t, pts} of series) {
     const c = color(t);
-    s += `<polyline fill="none" stroke="${c}" stroke-width="2"${t.dash ? ` stroke-dasharray="${t.dash}"` : ""} stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p => `${X(p.x)},${Y(p.y)}`).join(" ")}"/>`;
+    const line = pts.map(p => `${X(p.x)},${Y(p.y)}`).join(" ");
+    s += `<g data-s="${t.name}"><polyline fill="none" stroke="${c}" stroke-width="2"${t.dash ? ` stroke-dasharray="${t.dash}"` : ""} stroke-linejoin="round" stroke-linecap="round" points="${line}"/>`;
     for (const p of pts) s += `<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="4.5" fill="${p.ok ? c : css("--surface")}" stroke="${c}" stroke-width="2"/>`;
-    const last = pts[pts.length - 1]; labels.push({y: Y(last.y), name: t.display});
+    // A wide invisible stroke, so the line itself can be pointed at, not only its points.
+    s += `<polyline fill="none" stroke="transparent" stroke-width="12" points="${line}" data-line="${t.name}"/></g>`;
+    const last = pts[pts.length - 1]; labels.push({y: Y(last.y), name: t.display, t: t.name});
   }
   labels.sort((a, b) => a.y - b.y);
   for (let i = 1; i < labels.length; i++) labels[i].y = Math.max(labels[i].y, labels[i - 1].y + 16);
-  for (const l of labels) s += `<text x="${W - m.r + 10}" y="${l.y + 4}" font-size="12" fill="${css("--text")}">${esc(l.name)}</text>`;
+  for (const l of labels) s += `<text x="${W - m.r + 10}" y="${l.y + 4}" font-size="12" fill="${css("--text")}" data-s="${l.t}" data-line="${l.t}">${esc(l.name)}</text>`;
   const hits = series.flatMap(({t, pts}) => pts.map(p => ({t, p, cx: X(p.x), cy: Y(p.y)})));
   s += hits.map((h, i) => `<circle cx="${h.cx}" cy="${h.cy}" r="12" fill="transparent" data-i="${i}"/>`).join("");
   svg.innerHTML = s;
   svg.onmousemove = e => { const i = e.target.dataset?.i; const tip = $("#tip");
-    if (i === undefined) { tip.hidden = true; return; }
+    if (i === undefined) { tip.hidden = true; focus(e.target.dataset?.line); return; }
     const {t, p} = hits[+i], r = p.r;
+    focus(t.name);
     let acc = "";
     if (r.op === "solve" && r.oracle_ok !== undefined) acc = (r.oracle_ok ? "oracle: verified · " : "oracle: FAILED · ") + verdict(r);
     else if (r.sv_n) acc = `vs published SV: median ${(r.sv_dv_median * 100).toFixed(3)}%, max ${(r.sv_dv_max * 100).toFixed(2)}%`;
@@ -341,7 +348,13 @@ function chart() {
       : `median ${fmt(r.median)} ms (min ${fmt(r.min)}, ${r.rounds} rounds)${r.iterations ? ` · ${r.iterations} iterations` : ""}`;
     tip.innerHTML = `<b>${esc(t.display)} · ${esc(p.c)}</b><span>${p.x.toLocaleString()} ${D.cases[p.c].graded ? "buses" : "nodes"} · ${what}<br>${state.op === "memory" ? "" : acc}</span>`;
     tip.hidden = false; tip.style.left = Math.min(e.clientX + 14, innerWidth - 330) + "px"; tip.style.top = (e.clientY + 14) + "px"; };
-  svg.onmouseleave = () => { $("#tip").hidden = true; };
+  svg.onmouseleave = () => { $("#tip").hidden = true; focus(); };
+}
+
+// One tool's line in front, the others dimmed: on its line, a point, its label or its chip.
+function focus(name) {
+  const els = [...$("#chart").querySelectorAll("[data-s]")], drawn = els.some(e => e.dataset.s === name);
+  for (const e of els) e.classList.toggle("dim", drawn && e.dataset.s !== name);
 }
 
 function sortable(table) {
