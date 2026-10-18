@@ -4,7 +4,7 @@
 
 Writes `docs/index.html`. GPU results live in `<dir>/gpu/`, with the CPU
 baselines run on the same machine, and are shown apart from the rest (which
-may come from another machine), on `GPU_GROUPS`: no robustness cases.
+may come from another machine), on `GPU_GROUPS`: the default groups and the large batches.
 """
 import sys
 from pathlib import Path

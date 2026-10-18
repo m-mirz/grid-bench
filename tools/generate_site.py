@@ -49,7 +49,7 @@ def payload(res: Results, kind: str = "pf") -> dict:
               "language": m["language"], "families": m["families"], "settings": m["settings"]}
              for t in res.tool_order() for m in [res.tools[t]]]
     # `order`: the report's row order (by size, each conversion under its source case).
-    ordered = [c for g in res.grids() for rob in (False, True) for c in res.grid_cases(g, rob)]
+    ordered = [c for g in res.grids() for c in res.grid_cases(g)]
     cases = {c: {"family": CASES[c]["family"], "grid": CASES[c]["grid"], "input": _input(c),
                  "base": CASES[c].get("source_case", CASES[c].get("base_case", c.partition("__")[0])),
                  "graded": graded(c), "order": i, "size": case_size(c),
@@ -551,7 +551,7 @@ function legendNote() {
 }
 
 const SB_DESC = {
-  pf: "AC power flow on the default cases, per grid and input. CGMES fixtures have no verdict (their reference is someone else's solution): cases solved of all. Hard transmission cases: cases that are not expected to converge from a flat start, so FAILED is the normal outcome and a ✓ stands out; they are in the Transmission tables, below the others.",
+  pf: "AC power flow on the default cases, per grid and input. CGMES fixtures have no verdict (their reference is someone else's solution): cases solved of all.",
   opf: "AC optimal power flow on PGLib-OPF cases, per grid. ✓: feasible for the case and at most 0.01% above PGLib's reference cost.",
   se: "Weighted least-squares state estimation on the default cases, both measurement scenarios, per grid. ✓: the estimate is the optimum of its measurement set.",
   batch: "Batch power flow at one thread, per grid and number of operating points. ✓: every scenario's solution satisfies the case with that scenario's demand.",

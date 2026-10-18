@@ -90,16 +90,17 @@ Groups say what a case is *for* (a case can be in several):
   Python call overhead rather than the solver.
 - `feature`: exercises modelling details that separate importers (transformer
   line charging, negative reactance, PV buses without generators, offline
-  equipment, every branch encoded as a transformer). The accuracy headline.
-- `robustness`: known not to converge from a flat start in any tool tested;
-  reported separately, never in the timing headline.
+  equipment). The accuracy headline.
 - `large` (`OPT_IN_GROUPS`): batches sized for a GPU, and the OPF cases
   from 9 241 to 30 000 buses (PEGASE and the GO Competition's), run and prepared only
   when asked (`--groups large`; a GPU machine's run, with its CPU
   baselines), published like the default groups: in the GPU tabs, since
   only that run has them.
 
-A case with no group stays available by name but is not run by default.
+A case with no group stays available by name but is not run by default:
+case6515rte, and the RTE cases no tool tested solves from a flat start
+(case1888rte, case2848rte, case6495rte: they diverge, or reach a
+low-voltage root the oracle rejects), which would only add failures.
 
 Reports are organised by `grid`, the physical grid a case describes:
 `transmission` (the `matpower` family and its conversions, which are the
@@ -119,13 +120,12 @@ PGLIB_DIR = DATA / "benchmark-grids" / "pglib"
 CGMES_DIR = DATA / "CGMES-Test-Configurations" / "v3.0"
 SHACL_DIR = DATA / "application-profiles-library" / "CGMES" / "SHACL"
 
-DEFAULT_GROUPS = ("smoke", "scaling", "feature", "robustness")
+DEFAULT_GROUPS = ("smoke", "scaling", "feature")
 # Run and prepared only when asked for by name, published like the default ones.
 OPT_IN_GROUPS = ("large",)
-# The GPU tabs' groups (`--groups smoke,scaling,feature,large`): the large
-# batches a GPU needs, and not `robustness`, cases known not to converge from
-# a flat start, which ask which tools converge, not how fast they are.
-GPU_GROUPS = ("smoke", "scaling", "feature", "large")
+# The GPU tabs' groups (`--groups smoke,scaling,feature,large`): with the
+# large batches a GPU needs.
+GPU_GROUPS = DEFAULT_GROUPS + OPT_IN_GROUPS
 CONVERTERS = ("cimoxide", "pypowsybl")
 SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstring
 SCENARIOS = ("exact", "noisy")   # see cases/measurements.py
@@ -164,12 +164,12 @@ CASES: dict[str, dict] = {
     "case9241pegase": _mp("case9241pegase.m", ["scaling"], "PEGASE", "66 phase shifters, 16 negative reactances"),
     "case3120sp": _mp("case3120sp.m", ["feature"], "Polish summer peak",
                       "101 PV buses with no online generator, 207 offline generators"),
-    "case2848rte": _mp("case2848rte.m", ["feature"], "RTE",
-                       "every branch encoded as a transformer; the one RTE case that converges from flat start, "
-                       "but to a low-voltage root (8 buses below 0.5 p.u.; the operating point, near the case's "
-                       "own VM/VA, is another root)"),
-    "case1888rte": _mp("case1888rte.m", ["robustness"], "RTE"),
-    "case6495rte": _mp("case6495rte.m", ["robustness"], "RTE"),
+    "case2848rte": _mp("case2848rte.m", [], "RTE",
+                       "every branch encoded as a transformer; converges from flat start in most tools, but to a "
+                       "low-voltage root the oracle rejects (8 buses below 0.5 p.u.; the operating point, near the "
+                       "case's own VM/VA, is another root)"),
+    "case1888rte": _mp("case1888rte.m", [], "RTE", "no tool tested solves it from a flat start"),
+    "case6495rte": _mp("case6495rte.m", [], "RTE", "no tool tested solves it from a flat start"),
     "case6515rte": _mp("case6515rte.m", [], "RTE", "same grid and structure as case6495rte, another snapshot"),
 
     "case4_dist": _dist("case4_dist", ["feature"], "MATPOWER", "a PV generator and a tap-changing transformer",
@@ -205,9 +205,8 @@ CASES: dict[str, dict] = {
 }
 
 
-# The headline MATPOWER cases (not robustness), each converted by every converter.
-CONVERTED_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c["groups"]
-                  and c["groups"] != ["robustness"]]
+# The headline MATPOWER cases, each converted by every converter.
+CONVERTED_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c["groups"]]
 for _base in CONVERTED_FROM:
     for _conv in CONVERTERS:
         CASES[f"{_base}@{_conv}"] = {
@@ -222,8 +221,7 @@ for _base in CONVERTED_FROM:
 # State estimation: every headline MATPOWER and distribution case, with each
 # measurement scenario. The family says the case is read with its
 # measurements; grid and groups are the base case's. Only `exact` is smoke.
-SE_FROM = [k for k, c in CASES.items() if c["family"] in ("matpower", "distribution") and c["groups"]
-           and c["groups"] != ["robustness"]]
+SE_FROM = [k for k, c in CASES.items() if c["family"] in ("matpower", "distribution") and c["groups"]]
 for _base in SE_FROM:
     for _scen in SCENARIOS:
         CASES[f"{_base}~{_scen}"] = {
@@ -276,9 +274,8 @@ for _base in N1_FROM:
         "source": f"{_base}, N-1 branch outages", "note": CASES[_base]["note"],
     }
 
-# DC power flow: every default transmission MATPOWER case but the hard ones.
-DC_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c["groups"]
-           and c["groups"] != ["robustness"]]
+# DC power flow: every default transmission MATPOWER case.
+DC_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c["groups"]]
 for _base in DC_FROM:
     CASES[f"{_base}#dc"] = {
         "family": "dc-matpower", "grid": CASES[_base]["grid"], "format": "matpower", "problem": "dc",

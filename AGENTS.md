@@ -318,8 +318,6 @@ change to `tools/`, and commit what it writes. Conventions:
 - Tables are split by `grid` (transmission, distribution, fixtures), not by
   family: a converted case is a row under the case it came from, with an
   input column, so what the input route changes is one row apart.
-- The scoreboard (`benchmark_data.scoreboard`) shows the `robustness`
-  group as "hard transmission cases".
 - The chart shows one input at a time (one line per tool needs one
   input); for state estimation, the input is the measurement scenario, for
   OPF the operating condition (typical, congested, small angle difference).
@@ -348,8 +346,7 @@ change to `tools/`, and commit what it writes. Conventions:
   with `GRID_BENCH_RESULTS=gpu` and `--groups smoke,scaling,feature,large`
   (`GPU_GROUPS`): the large batches (group `large`) are what a GPU needs to
   fill, and a run writes each tool's JSON whole, so `--groups large` alone
-  would drop the other cases from it. Robustness cases are left out, and the
-  GPU tabs drop any a JSON has: they ask which tools converge, not how fast.
+  would drop the other cases from it.
 
 ## Adding a case
 

@@ -48,24 +48,21 @@ is traced to its cause in the tool's adapter docstring (`adapters/`).
     lightsim2grid and VeraGrid make online generators on PQ-typed buses
     regulate.
   - pandapower's `from_mpc` rewrites branches into physical units and loses
-    fidelity on 4 of 8 transmission cases.
+    fidelity on 3 of 7 transmission cases.
   - VeraGrid solves a case whose `baseMVA` is not 100 wrongly; PyPSA imports
     open tie switches as closed.
   - Sienna builds Ybus in single precision (residuals of 1e-5 to 1e-3 MW
     where others reach 1e-9), and cannot parse pure phase shifters.
   - ExaPF.jl also makes online generators on PQ-typed buses regulate
-    (case2848rte); its parser requires `gencost`, so it gets the `.m` with
+    (found on case2848rte, now run by name only); its parser requires `gencost`, so it gets the `.m` with
     a zero cost appended where a case has none.
 - **Read as CGMES, some of those problems disappear.** pypowsybl solves every
-  cimoxide-converted case exactly (except case2848rte, which it cannot solve
-  from the `.m` either), including the three its MATPOWER importer gets
+  cimoxide-converted case exactly, including the three its MATPOWER importer gets
   wrong. The CGMES importers have their own losses: pandapower drops the
   sign of negative reactances, VeraGrid drops phase shifts.
 - **power-grid-model's** experimental voltage regulation either diverges or
   holds the slack off its setpoint, on every MATPOWER case.
-- **Sparlectra.jl's model is exact** (every MATPOWER case it converges on passes), and
-  it is the only tool to solve a hard case (case1888rte). Its rectangular
-  Newton-Raphson diverges from the common flat start on case9241pegase.
+- **Sparlectra.jl's model is exact** (every MATPOWER case it converges on passes).
 - **cgmes2pgm is built for state estimation:** generators become fixed P/Q
   injections and the slack sits at nominal voltage, so its power flow misses
   the case by design.
@@ -300,8 +297,11 @@ Chosen for what they exercise, not just their size (`cases/registry.py`):
 |---|---|---|
 | smoke | case14, case33bw, CGMES PowerFlow | pipeline check; timing is call overhead |
 | scaling | case118, case300, PEGASE 1354 / 2869 / 9241, generated MV/LV grids mvlv1004 / 10616 / 29840, CGMES SmallGrid / Svedala / RealGrid | the timing headline |
-| feature | case300, case3120sp, case2848rte, feeders case4_dist / case18 / case33bw, CGMES MicroGrid-BE / MiniGrid | the accuracy headline: line charging, negative reactances, PV buses without generators, offline equipment; radial feeders with high R/X and heavy loading |
-| robustness | case1888rte, case6495rte | "hard transmission cases": not expected to converge from a flat start, reported separately |
+| feature | case300, case3120sp, feeders case4_dist / case18 / case33bw, CGMES MicroGrid-BE / MiniGrid | the accuracy headline: line charging, negative reactances, PV buses without generators, offline equipment; radial feeders with high R/X and heavy loading |
+
+case1888rte, case2848rte and case6495rte are in no group: no tool tested
+solves them from a flat start (they diverge, or reach a low-voltage root
+the oracle rejects). They stay runnable by name (`--cases case2848rte`).
 
 Reports group the cases by grid: meshed **transmission** grids, radial
 **distribution** grids (literature feeders, and power-grid-model's generated

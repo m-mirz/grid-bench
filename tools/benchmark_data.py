@@ -62,18 +62,15 @@ class Results:
         seen = {CASES[c]["grid"] for c in self._seen()}
         return [g for g in GRIDS if g in seen]
 
-    def grid_cases(self, grid: str, robustness: bool = False) -> list[str]:
+    def grid_cases(self, grid: str) -> list[str]:
         """Cases with results on one grid, by size, each conversion right
         after the case it was converted from, and a case's larger batches
-        after it (100, 1 000, 10 000 scenarios; 200 outages, then all).
-        Robustness-only cases (expected to fail everywhere) are kept out of
-        headline tables unless asked for."""
+        after it (100, 1 000, 10 000 scenarios; 200 outages, then all)."""
         def key(c):
             k = CASES[c]
             base = k.get("source_case", k.get("base_case", c))
             return case_size(c), base, k.get("converter", ""), k.get("scenarios", 0), k.get("outages") == "all", c
-        return sorted((c for c in self._seen() if CASES[c]["grid"] == grid
-                       and (CASES[c]["groups"] == ["robustness"]) == robustness), key=key)
+        return sorted((c for c in self._seen() if CASES[c]["grid"] == grid), key=key)
 
     def tool_order(self) -> list[str]:
         """Registry order, i.e. colour-slot order; never re-ranked."""
@@ -130,9 +127,8 @@ def reads(res: Results, tool: str, case: str) -> bool:
 
 def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
     """Per tool, one cell per grid and input: "✓ / ✗ / FAILED" counts of the
-    solves, or "solved of all" where there is no verdict (fixtures); then the
-    robustness cases, where failing is the expected outcome. `·` where the
-    tool reads none of them. Returns the column labels and (tool, cells) rows.
+    solves, or "solved of all" where there is no verdict (fixtures). `·`
+    where the tool reads none of them. Returns the column labels and (tool, cells) rows.
     CIM libraries have no solve: one column per operation instead."""
     if any(CASES[c]["problem"] == "cim" for c in res._seen()):
         return _cim_scoreboard(res)
@@ -142,9 +138,6 @@ def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
         for label in dict.fromkeys(input_label(c) for c in cases):
             sub = [c for c in cases if input_label(c) == label]
             columns.append((f"{grid} {label}" if all(graded(c) for c in sub) else GRID_TITLES[grid], sub))
-    robust = [c for g in res.grids() for c in res.grid_cases(g, robustness=True)]
-    if robust:
-        columns.append(("hard transmission cases", robust))
     rows = []
     for t in res.tool_order():
         cells = []
@@ -228,7 +221,9 @@ def _part(res: Results, case: str) -> Results:
 
 
 def _published(case: str, groups: tuple[str, ...]) -> bool:
-    return bool(set(CASES[case]["groups"]) & set(groups))
+    """A case the registry no longer has (a conversion or variant of a case
+    taken out of the groups, whose old records a JSON still holds) is not."""
+    return case in CASES and bool(set(CASES[case]["groups"]) & set(groups))
 
 
 @lru_cache(maxsize=None)
