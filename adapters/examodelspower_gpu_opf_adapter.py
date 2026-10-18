@@ -27,8 +27,10 @@ solve, statuses: the CPU adapter's, unchanged (its docstring). Here:
   fixed variable is widened by e, with e = `bound_relax_factor` x max(1,
   |bound|), in the model's units (p.u. for the balances), before scaling.
 - `bound_relax_factor = 1e-8`: MadNLP's default, the one the CPU adapter
-  runs with, so both solve the same relaxed problem; not MadNLPGPU's
-  default for this system, which ties it to `tol` (1e-6). The balance
+  runs with, so the bounds are widened alike; the equalities are not, as
+  the CPU keeps MadNLP's `EnforceEquality` (balances to 1e-7 to 1e-10 MW
+  there, 1e-5 to 7e-5 MW here, both well inside the oracle's 1e-3 MVA).
+  Not MadNLPGPU's default for this system, which ties it to `tol` (1e-6). The balance
   mismatch is that band, scaled one to one with the factor (about 12x it in
   p.u., several relaxed rows adding up at a bus): at 1e-6 every case was
   rejected by the oracle, 1.2e-3 to 9.4e-3 MW against its 1e-3 MVA.

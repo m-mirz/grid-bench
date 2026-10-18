@@ -85,9 +85,10 @@ same machine in parentheses):
     case9241pegase  1.37, all accepted (1.79)    0.96, all accepted (1.84)
     mvlv10616       1.32, all accepted (0.92)    0.97, all accepted (0.90)
 
-So gpusim2grid is ahead of 30 cores on the large transmission sweeps, 1.9x
-on case9241pegase#sweep-10k, even on case1354pegase#sweep-10k, and behind
-on the feeder. case1354pegase#sweep-1k, one chunk of 1 000, loses 59 % of
+So among the accepted sweeps gpusim2grid is ahead of 30 cores on
+case2869pegase (1.2x at both sizes) and case9241pegase (1.3x, and 1.9x at
+10 000), level on case1354pegase#sweep-10k (0.128 against 0.130 ms), and
+behind on the feeder. case1354pegase#sweep-1k, one chunk of 1 000, loses 59 % of
 its scenarios to NaN. With batch_size 512 the 10 000-scenario sweeps took
 1.8x as long, and case2869pegase's lost 92 % of its scenarios in that
 earlier run (as did its 1 000), where every run today kept them all

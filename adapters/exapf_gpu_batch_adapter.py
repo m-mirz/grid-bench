@@ -27,8 +27,8 @@ the blocks running together.
 Large sweeps (A100, 40 GB): 1 000 scenarios of case1354pegase and
 case2869pegase fit, every scenario accepted, 0.22 and 0.55 ms per scenario
 (4x the 100-scenario batch per scenario; lightsim2grid on 30 threads 0.12
-and 0.43 ms, gpusim2grid 0.21 and 0.53 ms with 29 and 90 % of its
-scenarios NaN). The memory check refuses the rest before building:
+and 0.43 ms, gpusim2grid 0.15 ms with 593 scenarios NaN and 0.37 ms with
+every scenario accepted). The memory check refuses the rest before building:
 case9241pegase and mvlv10616 at 1 000 (at least 131.5 and 49.7 GB of
 duals) and every case at 10 000 (50.9 GB for case1354pegase).
 """

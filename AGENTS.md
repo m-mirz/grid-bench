@@ -312,8 +312,9 @@ are drawn in the browser from the data embedded in it) from the JSON in a
 results directory; run it (or the `reports` compose service) after any
 change to `tools/`, and commit what it writes. Conventions:
 
-- Only cases in the default groups are published (`benchmark_data.load`);
-  a case run by name stays in its JSON.
+- Only cases in the default and opt-in groups (`DEFAULT_GROUPS`,
+  `OPT_IN_GROUPS`) are published (`benchmark_data.load`); a case run by
+  name stays in its JSON.
 - Tables are split by `grid` (transmission, distribution, fixtures), not by
   family: a converted case is a row under the case it came from, with an
   input column, so what the input route changes is one row apart.

@@ -32,7 +32,7 @@ case1354pegase and 6.9 ms for case9241pegase, 5.5x and 4.5x lightsim2grid's
 contingency engine on one thread of the same machine, 2.3x and 3.3x behind
 it on 30 threads (0.23, 2.1 ms). The full N-1 of case1354pegase (1 428
 outages, one batch of 1 429 blocks) fits: every outage accepted, 0.24 ms
-each (lightsim2grid on 30 threads 0.091 ms; gpusim2grid 0.21 ms with 436
+each (lightsim2grid on 30 threads 0.091 ms; gpusim2grid 0.11 ms with 128
 outages NaN). Those of case2869pegase and case9241pegase are refused before
 building (at least 59.1 and 1 890 GB of duals).
 """
