@@ -18,12 +18,15 @@ GB = _jl.GridBenchExaModelsPower
 GB.quiet()
 JULIA_VERSION = str(_jl.VERSION)
 
-# MadNLPGPU's own choices for a model on the device, set explicitly so that a
-# version bump cannot change them silently (the adapter's docstring).
+# MadNLPGPU's own choices for a model on the device (MadNLPGPUCUDAExt's
+# MadNLPOptions, and MadNLP's defaults for the condensed system), set
+# explicitly so that a version bump cannot change them silently (the
+# adapter's docstring).
 _load = _jl.seval("""(path, tol, max_iterations) -> GridBenchExaModelsPower.load(path, tol, max_iterations;
     backend = CUDA.CUDABackend(),
     options = (linear_solver = MadNLPGPU.CUDSSSolver, kkt_system = MadNLP.SparseCondensedKKTSystem,
-               equality_treatment = MadNLP.RelaxEquality, fixed_variable_treatment = MadNLP.RelaxBounds))""")
+               equality_treatment = MadNLP.RelaxEquality, fixed_variable_treatment = MadNLP.RelaxBound,
+               bound_relax_factor = tol))""")
 # Kernels run asynchronously: the timed solve ends when the device is done.
 _solve = _jl.seval("m -> (r = GridBenchExaModelsPower.solve!(m); CUDA.synchronize(); r)")
 
