@@ -1,6 +1,6 @@
 """Derives every tool's input file from the case definitions.
 
-    python -m cases.prep [case ... | --groups g,... | --cases a,... | --family f]
+    python -m cases.prep [--family f] [case ... | --groups g,... | --cases a,...]
 
 Writes into `data/.case-cache/`:
 
@@ -190,11 +190,12 @@ def prepare_n1(key: str) -> None:
     _, v_base = truth.solve_pf(mpc)
     rows, skipped, workers = [], 0, os.process_cpu_count()
     candidates = contingency.candidates(mpc, key)
-    # Candidates in ordered slices, so a limited case stops near its limit
-    # and takes exactly the first `limit` that converge, as a serial run does.
-    step = 8 * workers if limit else None
+    # Candidates in ordered slices, never more than the limit still needs, so
+    # a limited case checks no outage a serial run would not have, and takes
+    # exactly the first `limit` that converge.
     with _pool(workers, _init_n1, key, v_base) as pool:
-        while len(rows) != limit and (part := list(itertools.islice(candidates, step))):
+        while len(rows) != limit and (part := list(itertools.islice(
+                candidates, min(8 * workers, limit - len(rows)) if limit else None))):
             for row, converged in zip(part, pool.map(_check_outage, part, chunksize=max(1, len(part) // (8 * workers)))):
                 if not converged:
                     skipped += 1
@@ -357,16 +358,24 @@ def _ideal_source(path: Path, mpc: dict) -> None:
 
 def main(argv: list[str]) -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
-    if argv[:1] == ["--family"]:
-        keys = [k for k, c in CASES.items() if c["family"] == argv[1]]
-    elif argv[:1] == ["--groups"]:
+    family = None
+    if argv[:1] == ["--family"]:   # alone, or narrowing a selection that follows
+        family, argv = argv[1], argv[2:]
+    if argv[:1] == ["--groups"]:
         groups = set(argv[1].split(","))
         keys = [k for fam in FAMILIES for k, c in CASES.items() if c["family"] == fam and groups & set(c["groups"])]
     elif argv[:1] == ["--cases"]:
         keys = [k for k in argv[1].split(",") if k]
+    elif family:
+        keys = list(CASES)
     else:
         keys = argv or [k for fam in FAMILIES for k, c in CASES.items() if c["family"] == fam
                         and not (c["groups"] and set(c["groups"]) <= set(OPT_IN_GROUPS))]
+    if family:
+        # pypowsybl's conversions are in no group: a selection takes the
+        # family's cases it names and those converted from the cases it names.
+        selected = set(keys)
+        keys = [k for k, c in CASES.items() if c["family"] == family and {k, c.get("source_case")} & selected]
     for key in keys:
         prepare(key)
 

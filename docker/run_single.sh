@@ -25,8 +25,9 @@ $compose run --rm prep ${selection:+python -m cases.prep $selection}
 # builds only what the tool under test needs) the converted-pypowsybl cases
 # are not prepared, rather than Compose trying to pull a local-only image.
 if docker image inspect grid-bench/pypowsybl:latest >/dev/null 2>&1; then
-    # Cases it cannot convert are skipped there, and the rest are cached already.
-    $compose run --rm prep-pypowsybl ${selection:+python -m cases.prep $selection}
+    # Only its own family, converted from the selection if there is one:
+    # everything else is prepared in `prep`, never in this image.
+    $compose run --rm prep-pypowsybl ${selection:+python -m cases.prep --family converted-pypowsybl $selection}
 else
     echo "no grid-bench/pypowsybl image: pypowsybl conversions not prepared"
 fi
