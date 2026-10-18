@@ -23,13 +23,38 @@ solve, statuses: the CPU adapter's, unchanged (its docstring). Here:
   slacks condensed out, so the system cuDSS factorizes is positive definite
   near the solution); `equality_treatment = RelaxEquality` and
   `fixed_variable_treatment = RelaxBound`, which the condensed system needs:
-  each equality h(x) = 0 becomes -tol <= h(x) <= tol, fixed variables a
-  band of that width, the width `bound_relax_factor = tol` (MadNLPGPU's
-  default for this system; MadNLP's own is 1e-8, the CPU's). So the GPU
-  solves the problem with its equalities
-  relaxed by MadNLP's tolerance (scaled, 1e-6), where the CPU solves them
-  exactly; the oracle grades both against the raw `.m`, and a relaxation
-  that shows above its 1e-3 MVA balance limit is a finding, reported.
+  every equality h(x) = 0 becomes a band -e <= h(x) <= e, every bound and
+  fixed variable is widened by e, with e = `bound_relax_factor` x max(1,
+  |bound|), in the model's units (p.u. for the balances), before scaling.
+- `bound_relax_factor = 1e-8`: MadNLP's default, the one the CPU adapter
+  runs with, so both solve the same relaxed problem; not MadNLPGPU's
+  default for this system, which ties it to `tol` (1e-6). The balance
+  mismatch is that band, scaled one to one with the factor (about 12x it in
+  p.u., several relaxed rows adding up at a bus): at 1e-6 every case was
+  rejected by the oracle, 1.2e-3 to 9.4e-3 MW against its 1e-3 MVA.
+  Measured on an A100 (one process, the factor set per model; median of 3
+  solves after a warm-up, in seconds, and max P
+  mismatch in MW, "stall" = MAXIMUM_ITERATIONS_EXCEEDED at 200):
+
+      bound_relax_factor     1e-6               1e-7              1e-8              1e-10
+      case14                 0.078, 1.2e-3      0.067, 1.2e-4     0.074, 1.1e-5     0.084, 1.7e-8
+      case1354pegase         0.421, 3.6e-3      0.356, 3.5e-4     0.394, 3.0e-5     0.407, 3.1e-8
+      case2869pegase         0.589, 3.6e-3      0.562, 3.5e-4     0.542, 2.9e-5     0.599, 4.7e-8
+      case9241pegase         1.887, 9.4e-3      stall             stall             stall
+      case30000_goc          4.285, 3.0e-3      stall             stall             stall
+
+  Up to case2869pegase every factor below 1e-6 is accepted at the same
+  speed; case9241pegase and case30000_goc stall at every one of them, and
+  still at 1000 iterations (1e-8), so the condensed system's GPU speed on
+  those two exists only at a relaxation the oracle rejects. Not a matter of
+  size: the four GOC cases between them in size converge at 1e-8 (Results).
+  Not tuned past MadNLP's default: the factor is the CPU's, and the
+  iteration limit everyone's. No exact-equality
+  alternative runs on the device in this stack: `SparseKKTSystem` with
+  `EnforceEquality` fails with `MakeParameter` (its multipliers need
+  `jtprod!`, which ExaModelsPower's model is not built for, `prod=true`)
+  and with `RelaxBound` (MadNLPGPU implements it for the condensed system
+  only).
 - Timing: each timed solve ends with a device synchronize, as kernels run
   asynchronously; MadNLP reads its convergence test back to the host every
   iteration anyway. `solution` (untimed) copies the result to the host.
@@ -44,29 +69,22 @@ solve, statuses: the CPU adapter's, unchanged (its docstring). Here:
   measured.
 - Julia single-threaded, ExaPowerIO's log off: as on the CPU.
 
-Results (A100, PGLib cases, results-docker/gpu/): every case converges
-(MadNLP's SOLVE_SUCCEEDED, about as many iterations as on the CPU) and every
-case is rejected by the oracle on its nodal balance alone, the relaxation
-above: 1.2e-3 MW on case14, 2.6e-3 on case118 and case300, 3.6e-3 on
-case1354pegase and case2869pegase, 9.4e-3 on case9241pegase, against its
-1e-3 MVA (voltage, generator, flow and angle limits within theirs). The
-objective comes out up to 1.9e-4 below PGLib's reference (the CPU's within
-5e-5 of it), as the relaxed problem allows. ExaModelsPower on the CPU of the same machine balances
-every case to 1e-6 MW and better. Per solve (the published run) the GPU is 15 to 18x
-slower on case14 and its variants (80 against 5 ms), behind up to case300,
-and ahead from case1354pegase on: 2.7x there, 5.3x on case2869pegase, 9.1x
-on case9241pegase (1.77 against 16.2 s). On the larger PGLib cases (group
-`large`) the lead grows with the grid, from 11x on case13659pegase to 23x
-on case30000_goc (4.1 against 94 s; case10000_goc 15x, case10480_goc 15x,
-case19402_goc 17x, case24464_goc 20x), every one rejected the same way,
-3.0e-3 to 9.4e-3 MW, and every CPU solve accepted. Reported, not tuned: a smaller `tol`
-for the GPU alone would be a different problem from every other tool's.
+Results (A100, PGLib cases, results-docker/gpu/, against ExaModelsPower on
+the same machine's CPU, which passes every case): 16 of 18 cases accepted,
+balanced to 1e-5 to 7e-5 MW (the 1e-8 band), objectives within 5e-5 of
+PGLib's reference, about as many iterations as on the CPU.
+case9241pegase and case30000_goc fail: MAXIMUM_ITERATIONS_EXCEEDED (above).
+Per solve the GPU is 15 to 18x slower on case14 and its variants (81
+against 5 ms), behind up to case300, and ahead from case1354pegase on:
+3.0x there, 5.8x on case2869pegase, and on the large cases 12x on
+case13659pegase, 15x on case10000_goc and case10480_goc, 16x on
+case19402_goc, 17x on case24464_goc (3.8 against 65 s).
 """
 from adapters.examodelspower_opf_adapter import ExamodelspowerOptimizer
 
 GPU_SETTINGS = {"backend": "cuda", "linear_solver": "cudss", "kkt_system": "sparse condensed",
-                "equality_treatment": "relaxed by tol", "fixed_variable_treatment": "relaxed bounds",
-                "bound_relax_factor": "tol"}
+                "equality_treatment": "relaxed", "fixed_variable_treatment": "relaxed bounds",
+                "bound_relax_factor": 1e-8}
 
 
 class ExamodelspowerGpuOptimizer(ExamodelspowerOptimizer):
