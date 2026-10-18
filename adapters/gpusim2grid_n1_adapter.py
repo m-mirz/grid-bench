@@ -26,8 +26,10 @@ Settings:
   with no convergence test of its own. Not tuned per case: the oracle
   grades every outage, and one that 4 steps do not bring to the tolerance
   shows there.
-- `batch_size=512` (its default): every `#n1` case (at most 200 outages)
-  is one chunk on the device; a full case (`#n1-full`) is several.
+- `batch_size=2048`, the batch adapter's (its docstring: the chunk at
+  which an A100 is full): every `#n1` case (at most 200 outages) is one
+  chunk on the device, case1354pegase#n1-full one, case2869pegase's two,
+  case9241pegase's eight.
 - `handle_disconnected_grid=False` (its default): no outage here islands
   the grid (`cases.contingency`).
 - FP64, default cuDSS settings, no damping, distributed-slack formulation
@@ -44,23 +46,25 @@ the same case the same way (adapters/exapf_gpu_n1_adapter.py); the two
 share no code but cuDSS 0.8.0's batched factorization and solve, which
 points there.
 
-Full N-1 (`#n1-full`, every outage that converges, in chunks of at most
-512; A100, lightsim2grid 1.1.0 and 1.2.0 alike):
-- case1354pegase (1 428 outages, 0.21 ms each): 436 to 467 NaN, in every
-  chunk (133 to 167 each, the first among them), a different set on every
-  run (two runs of one session shared 332), every finite outage accepted.
-  At 200 outages, one chunk, the case passes whole, so the loss grows with
-  the chunk. Not cuDSS's batch size alone: ExaPF.jl's GPU N-1 solves the
-  same 1 428 outages in one batch of 1 429 blocks with every outage
-  accepted (adapters/exapf_gpu_n1_adapter.py).
-- case2869pegase (3 804 outages, 0.50 ms each): 3 324 to 3 380 NaN (87 to
-  89 %), the default case's loss at scale.
-- case9241pegase (14 374 outages, 1.63 ms each): no NaN, but 16 outages
-  finite and wrong (worst: outage 5002, 50 MW off, a bus at 0.29 p.u.):
-  `nb_iter=4` does not bring the hardest outages to the tolerance, which
-  none of the default 200 needed.
-lightsim2grid's contingency engine on 30 threads of the same machine
-accepts every outage of all three: 0.091, 0.27 and 1.26 ms.
+Full N-1 (`#n1-full`, every outage that converges; A100, batch_size 2048,
+the batch adapter's experiment for the choice; lightsim2grid on 30 threads
+of the same machine, which accepts every outage of all three, in
+parentheses):
+- case1354pegase (1 428 outages, one chunk, 0.11 ms each (0.091)): 128
+  NaN, every finite outage but one accepted; 144 to 232 NaN over five runs
+  of the experiment at one chunk, against 436 to 494 at 512 (chunks of
+  512). Not cuDSS's batch size alone: ExaPF.jl's GPU N-1 solves the same
+  1 428 outages in one batch of 1 429 blocks with every outage accepted
+  (adapters/exapf_gpu_n1_adapter.py).
+- case2869pegase (3 804 outages, 0.26 ms each (0.27)): no NaN, 1 outage
+  finite and rejected. At batch_size 512, 0.50 ms each, an earlier run lost
+  3 324 to 3 380 (87 to 89 %); every run today kept them all at every size,
+  cause unknown (see the batch adapter), while case2869pegase#n1 above
+  still loses 154 of its 200.
+- case9241pegase (14 374 outages, 0.87 ms each (1.26), 1.6 ms at 512): no
+  NaN, but 16 outages finite and wrong at every batch size (worst: outage
+  5002, 50 MW off, a bus at 0.29 p.u.): `nb_iter=4` does not bring the
+  hardest outages to the tolerance, which none of the default 200 needed.
 """
 import numpy as np
 
