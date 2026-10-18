@@ -73,10 +73,13 @@ class Results:
         return sorted((c for c in self._seen() if CASES[c]["grid"] == grid), key=key)
 
     def tool_order(self) -> list[str]:
-        """Registry order, i.e. colour-slot order; never re-ranked."""
+        """Registry order, grouped by language (in the order languages first
+        appear in it), as tools/palette.py colours them; never re-ranked. A tool
+        only in a later registry (ExaModelsPower.jl, ToOp) joins its language."""
         from adapters import REGISTRIES  # name lists only; importing them loads no tool
-        order = dict.fromkeys(t for registry in REGISTRIES.values() for t in registry)
-        return [t for t in order if t in self.tools]
+        order = [t for t in dict.fromkeys(t for registry in REGISTRIES.values() for t in registry) if t in self.tools]
+        languages = list(dict.fromkeys(self.tools[t]["language"] for t in order))
+        return sorted(order, key=lambda t: languages.index(self.tools[t]["language"]))
 
 
 GRID_TITLES = {

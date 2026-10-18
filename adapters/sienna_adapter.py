@@ -66,7 +66,7 @@ def _gb():
 class SiennaAdapter(SolverAdapter):
     name = "sienna"
     display_name = "Sienna (PowerFlows.jl)"
-    color = "#e34948"
+    color = "#af4872"   # tools/palette.py: Julia magenta, step 2, dotted
     package = "juliacall"
     modules = ("adapters.sienna_julia",)
     language = "julia"

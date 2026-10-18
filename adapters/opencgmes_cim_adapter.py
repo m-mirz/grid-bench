@@ -43,7 +43,7 @@ RDFS = [p for p in sorted((DATA / "application-profiles-library" / "CGMES" / "RD
 class OpencgmesCim(CimAdapter):
     name = "opencgmes"
     display_name = "OpenCGMES"
-    color = "#4a3aa8"   # tools/palette.py OPENCGMES: slot 7 violet, dotted
+    color = "#33a02e"   # tools/palette.py: Java green, step 1, dashed
     package = "cimxml"
     modules = ("jpype", "jpype.imports")
     language = "java"

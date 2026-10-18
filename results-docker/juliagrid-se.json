@@ -5996,7 +5996,7 @@
         "tools": {
             "juliagrid": {
                 "display_name": "JuliaGrid.jl",
-                "color": "#0f8fa7",
+                "color": "#ca608a",
                 "tags": [
                     "state-estimation",
                     "wls",

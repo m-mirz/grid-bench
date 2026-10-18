@@ -52,7 +52,7 @@ from oracle.cgmes_sv import mrid
 class PandapowerAdapter(SolverAdapter):
     name = "pandapower"
     display_name = "pandapower"
-    color = "#2a78d6"
+    color = "#2a78d6"   # tools/palette.py: Python blue, base
     package = "pandapower"
     modules = ("pandapower", "pandapower.converter.matpower.from_mpc", "pandapower.converter.cim.cim2pp.from_cim")
     language = "python"

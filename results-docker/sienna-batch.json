@@ -979,7 +979,7 @@
         "tools": {
             "sienna": {
                 "display_name": "Sienna (PowerFlows.jl)",
-                "color": "#e34948",
+                "color": "#af4872",
                 "tags": [
                     "powerflow",
                     "ac",

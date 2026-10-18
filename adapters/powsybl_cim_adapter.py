@@ -25,7 +25,7 @@ from cases.registry import CASES
 class PowsyblCim(CimAdapter):
     name = "powsybl"
     display_name = "PowSyBl (CgmesModel)"
-    color = "#0f8fa9"   # tools/palette.py POWSYBL: slot 9 teal, dotted
+    color = "#026802"   # tools/palette.py: Java green, step 3, dotted
     package = "powsybl-cgmes-model"
     modules = ("jpype", "jpype.imports")
     language = "java"

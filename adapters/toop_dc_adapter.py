@@ -171,7 +171,7 @@ def _from_end(flows: np.ndarray, col: np.ndarray) -> np.ndarray:
 class _Toop:
     name = "toop"
     display_name = "ToOp (JAX, GPU)"
-    color = "#2a78d5"   # tools/palette.py TOOP: pandapower's blue, dash-dotted (GPU)
+    color = "#2a78d7"   # tools/palette.py: Python blue, base, dash-dotted (GPU)
     package = "toop_engine_dc_solver"
     language = "python"
     modules = ("jax", "pypowsybl", "pypowsybl.network", "toop_engine_dc_solver.jax.compute_batch",

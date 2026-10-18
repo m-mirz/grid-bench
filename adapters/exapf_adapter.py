@@ -71,7 +71,7 @@ from cases.registry import m_path
 class ExapfAdapter(SolverAdapter):
     name = "exapf"
     display_name = "ExaPF.jl"
-    color = "#e34949"   # tools/palette.py EXAPF: Sienna's red, dotted
+    color = "#95305b"   # tools/palette.py: Julia magenta, step 3, long-dashed
     package = "juliacall"
     julia = "adapters.exapf_julia"   # the backend: GB, BACKEND, FACTORIZATION, versions, available_bytes
     modules = (julia,)

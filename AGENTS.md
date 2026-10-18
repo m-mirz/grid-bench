@@ -188,19 +188,16 @@ internal compose network; the run scripts stop the sidecar afterwards.
 ## Adding a tool
 
 1. `adapters/<tool>_adapter.py`: subclass `SolverAdapter`. Set `name`,
-   `display_name`, `color` (the next unused slot in `tools/palette.py`, kept
-   for life; all nine slots are taken, and a tenth tool needs a different
-   encoding, not another hue, see the palette's docstring (p3s is
-   pandapower's blue, dashed: `P3S`; ExaPF.jl is Sienna's red, dotted: `EXAPF`, and on a
-   GPU dash-dotted: `EXAPF_GPU`; gpusim2grid lightsim2grid's orange, dash-dotted: `GPUSIM2GRID`; JuliaGrid.jl Sparlectra's teal, dashed:
-   `JULIAGRID`; ExaModelsPower.jl, OPF only, slot 8's red, dashed: `EXAMODELSPOWER`, and on a GPU
-   dash-dotted: `EXAMODELSPOWER_GPU`); a reference implementation uses `REFERENCE`, drawn dashed; PowerModels.jl, PGLib-OPF's
-   reference solver, `REFERENCE_DOTTED`; the CIM libraries, which only
-   share a chart with pypowsybl, slot hues dotted: `CIMOXIDE` etc.), `package`, `modules`
+   `display_name`, `color` (its language's hue in `tools/palette.py`: Python
+   blue, C++ yellow, Julia magenta, Java green, Rust brown; the next free step
+   and line pattern of that language, dash-dot for a GPU tool, added to
+   `STYLES` and checked with the dataviz validator against every chart the
+   tool will share, see the palette's docstring; a reference implementation
+   is neutral ink, MATPOWER dashed and PowerModels.jl dotted), `package`, `modules`
    (everything `load` and `solve` import, for the memory baseline), `language`,
    `families`, `settings`. Implement `load`, `solve`, `solution`. Docstring:
    input path, bus-id mapping, and every setting with its justification.
-2. Register it in `adapters/__init__.py` (order = colour-slot order).
+2. Register it in `adapters/__init__.py` (order: by language, as the palette colours them).
 3. `benchmarks/<tool>_benchmark.py`: three lines, copy another.
 4. `tool-configs/<tool>/pyproject.toml`: copy another, pin the tool exactly
    (a release at least 7 days old; `exclude-newer = "P7D"` enforces it).

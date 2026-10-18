@@ -1207,7 +1207,7 @@
         "tools": {
             "gpusim2grid": {
                 "display_name": "gpusim2grid (GPU)",
-                "color": "#eb6835",
+                "color": "#eda101",
                 "tags": [
                     "powerflow",
                     "ac",

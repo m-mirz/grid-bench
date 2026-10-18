@@ -1306,7 +1306,7 @@
         "tools": {
             "lightsim2grid": {
                 "display_name": "lightsim2grid (KLU)",
-                "color": "#eb6834",
+                "color": "#eda100",
                 "tags": [
                     "powerflow",
                     "dc",

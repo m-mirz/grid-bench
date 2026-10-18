@@ -1297,7 +1297,7 @@
         "tools": {
             "lightsim2grid_lodf": {
                 "display_name": "lightsim2grid (LODF)",
-                "color": "#eb6833",
+                "color": "#eda102",
                 "tags": [
                     "powerflow",
                     "dc",

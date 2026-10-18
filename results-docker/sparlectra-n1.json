@@ -873,7 +873,7 @@
         "tools": {
             "sparlectra": {
                 "display_name": "Sparlectra.jl",
-                "color": "#0f8fa8",
+                "color": "#e87ba4",
                 "tags": [
                     "powerflow",
                     "ac",

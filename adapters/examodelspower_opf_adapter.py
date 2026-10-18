@@ -69,7 +69,7 @@ from cases.registry import CASES
 class ExamodelspowerOptimizer(OptimizerAdapter):
     name = "examodelspower"
     display_name = "ExaModelsPower.jl (MadNLP)"
-    color = "#e3494b"   # tools/palette.py EXAMODELSPOWER: slot 8's red, dashed (ExaPF's makers)
+    color = "#e87ba6"   # tools/palette.py: Julia magenta, base, dotted
     package = "juliacall"
     julia = "adapters.examodelspower_julia"   # the backend: load, solve, versions
     modules = (julia,)

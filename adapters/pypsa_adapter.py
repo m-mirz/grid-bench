@@ -42,7 +42,7 @@ from cases.registry import mat_path
 class PypsaAdapter(SolverAdapter):
     name = "pypsa"
     display_name = "PyPSA"
-    color = "#1baf7a"
+    color = "#4996f6"   # tools/palette.py: Python blue, step 1, dashed
     package = "pypsa"
     modules = ("pypsa", "scipy.io")
     language = "python"

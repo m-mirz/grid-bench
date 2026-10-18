@@ -45,7 +45,7 @@ from cases.registry import CASES, cgmes_files, is_cgmes
 class VeragridAdapter(SolverAdapter):
     name = "veragrid"
     display_name = "VeraGrid"
-    color = "#008300"
+    color = "#035eb9"   # tools/palette.py: Python blue, step 2, dotted
     package = "VeraGridEngine"
     modules = ("VeraGridEngine", "VeraGridEngine.IO.file_open")
     language = "python"

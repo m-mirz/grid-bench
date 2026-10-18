@@ -92,7 +92,7 @@ GPU_SETTINGS = {"backend": "cuda", "linear_solver": "cudss", "kkt_system": "spar
 class ExamodelspowerGpuOptimizer(ExamodelspowerOptimizer):
     name = "examodelspower_gpu"
     display_name = "ExaModelsPower.jl (MadNLP, GPU)"
-    color = "#e3494c"   # tools/palette.py EXAMODELSPOWER_GPU: ExaModelsPower's red, dash-dotted
+    color = "#95305c"   # tools/palette.py: Julia magenta, step 3, dash-dotted (GPU)
     julia = "adapters.examodelspower_gpu_julia"
     modules = (julia,)
     settings = ExamodelspowerOptimizer.settings | GPU_SETTINGS

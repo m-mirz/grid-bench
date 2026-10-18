@@ -2463,7 +2463,7 @@
         "tools": {
             "p3s": {
                 "display_name": "pandapower (p3s)",
-                "color": "#2a78d7",
+                "color": "#c78600",
                 "tags": [
                     "powerflow",
                     "ac",

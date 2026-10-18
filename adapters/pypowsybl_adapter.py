@@ -52,7 +52,7 @@ SIDES = {"ONE": "1", "TWO": "2", "THREE": "3"}
 class PypowsyblAdapter(SolverAdapter):
     name = "pypowsybl"
     display_name = "pypowsybl (OpenLoadFlow)"
-    color = "#e87ba4"
+    color = "#008300"   # tools/palette.py: Java green, base
     package = "pypowsybl"
     modules = ("pypowsybl", "pypowsybl.network", "pypowsybl.loadflow")
     language = "java"

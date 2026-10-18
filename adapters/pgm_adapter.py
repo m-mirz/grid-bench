@@ -49,7 +49,7 @@ from cases.registry import pgm_json_path
 class PgmAdapter(SolverAdapter):
     name = "pgm"
     display_name = "power-grid-model"
-    color = "#eda100"
+    color = "#a36e04"   # tools/palette.py: C++ yellow, step 2, dotted
     package = "power-grid-model"
     modules = ("power_grid_model", "power_grid_model.utils", "power_grid_model.errors")
     language = "c++"

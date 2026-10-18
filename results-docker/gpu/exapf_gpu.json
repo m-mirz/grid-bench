@@ -4535,7 +4535,7 @@
         "tools": {
             "exapf_gpu": {
                 "display_name": "ExaPF.jl (GPU)",
-                "color": "#e3494a",
+                "color": "#e87ba5",
                 "tags": [
                     "powerflow",
                     "ac",

@@ -184,7 +184,7 @@ class Lightsim2gridDcN1Lodf(DcContingencyAdapter):
     outages 0.7 s), so 200 outages cost about as much as all of them."""
     name = "lightsim2grid_lodf"
     display_name = "lightsim2grid (LODF)"
-    color = "#eb6833"   # tools/palette.py LIGHTSIM2GRID_LODF: lightsim2grid's orange, dotted
+    color = "#eda102"   # tools/palette.py: C++ yellow, base, dotted (lightsim2grid's LODF)
     package = Lightsim2gridAdapter.package
     language = Lightsim2gridAdapter.language
     modules = Lightsim2gridAdapter.modules

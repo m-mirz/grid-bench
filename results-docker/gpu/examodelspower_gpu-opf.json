@@ -2407,7 +2407,7 @@
         "tools": {
             "examodelspower_gpu": {
                 "display_name": "ExaModelsPower.jl (MadNLP, GPU)",
-                "color": "#e3494c",
+                "color": "#95305c",
                 "tags": [
                     "opf",
                     "ac",

@@ -2265,7 +2265,7 @@
         "tools": {
             "examodelspower": {
                 "display_name": "ExaModelsPower.jl (MadNLP)",
-                "color": "#e3494b",
+                "color": "#e87ba6",
                 "tags": [
                     "opf",
                     "ac",
