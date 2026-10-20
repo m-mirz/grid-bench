@@ -38,8 +38,6 @@ power flow did not converge).
 import hashlib
 
 import numpy as np
-import scipy.sparse as sp
-from scipy.sparse.csgraph import connected_components
 
 from cases.matpower import BR_STATUS, BUS_I, BUS_TYPE, F_BUS, ISOLATED, REF, T_BUS
 
@@ -60,13 +58,53 @@ def candidates(mpc: dict, key: str):
     f = np.array([pos[int(b)] for b in branch[live, F_BUS]])
     t = np.array([pos[int(b)] for b in branch[live, T_BUS]])
     slack = int(np.flatnonzero(bus[:, BUS_TYPE] == REF)[0])
+    critical, reached = _critical_edges(len(bus), f, t, slack, energized)
+    if not reached[energized].all():
+        return
     for j in np.random.default_rng(_seed(key)).permutation(len(live)):
-        keep = np.ones(len(live), bool)
-        keep[j] = False
-        g = sp.coo_matrix((np.ones(keep.sum()), (f[keep], t[keep])), shape=(len(bus), len(bus)))
-        _, label = connected_components(g, directed=False)
-        if (label[energized] == label[slack]).all():
+        if not critical[j]:
             yield int(live[j])
+
+
+def _critical_edges(n, f, t, slack, energized):
+    """One iterative low-link traversal: bridges cutting off energized buses.
+
+    Edge identities, rather than parent vertices, distinguish parallel lines.
+    A bridge to a subtree containing only isolated buses is not critical:
+    removing it leaves every energized bus connected to the reference.
+    """
+    adjacent = [[] for _ in range(n)]
+    for e, (a, b) in enumerate(zip(f, t)):
+        adjacent[a].append((b, e))
+        adjacent[b].append((a, e))
+    entered = np.full(n, -1, dtype=int)
+    low = np.zeros(n, dtype=int)
+    active = energized.astype(int).copy()
+    critical = np.zeros(len(f), dtype=bool)
+    entered[slack] = low[slack] = 0
+    clock = 1
+    # Frames retain adjacency position so path depth cannot exhaust Python recursion.
+    stack = [(slack, -1, -1, iter(adjacent[slack]))]
+    while stack:
+        v, parent, parent_edge, neighbours = stack[-1]
+        nxt = next(neighbours, None)
+        if nxt is None:
+            stack.pop()
+            if parent_edge >= 0:
+                critical[parent_edge] = low[v] > entered[parent] and active[v] > 0
+                low[parent] = min(low[parent], low[v])
+                active[parent] += active[v]
+            continue
+        w, e = nxt
+        if e == parent_edge:
+            continue
+        if entered[w] < 0:
+            entered[w] = low[w] = clock
+            clock += 1
+            stack.append((w, v, e, iter(adjacent[w])))
+        else:
+            low[v] = min(low[v], entered[w])
+    return critical, entered >= 0
 
 
 def outage(mpc: dict, data: dict, k: int) -> dict:
