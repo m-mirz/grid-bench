@@ -49,7 +49,7 @@ import numpy as np
 
 from adapters.batch_adapter import base_case, outages
 from adapters.dc_adapter import DcAdapter, DcContingencyAdapter, DcSolution
-from adapters.lightsim2grid_adapter import Lightsim2gridAdapter
+from adapters.lightsim2grid_adapter import Lightsim2gridAdapter, flat_start
 from adapters.lightsim2grid_n1_adapter import contingency_ids
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge
 from cases.matpower import ANGLE, BUS_I, F_BUS, RATIO, T_BUS, parse_m
@@ -96,8 +96,7 @@ class Lightsim2gridDc(DcAdapter):
         grid = init_from_matpower(str(mat_path(base)))
         grid.change_algorithm(AlgorithmType.DC_KLU)
         col, side1, ids = sides(base, grid)
-        n = len(grid.get_bus_vn_kv())
-        return {"grid": grid, "v_init": np.full(n, grid.get_init_vm_pu(), dtype=complex), "col": col,
+        return {"grid": grid, "v_init": flat_start(grid), "col": col,
                 "side1": side1, "ids": ids, "v": None}
 
     def solve(self, model):
@@ -139,8 +138,7 @@ class Lightsim2gridDcN1(DcContingencyAdapter):
         computer.add_multiple_n1([int(i) for i in ids])
         order = [int(d[0]) for d in computer.my_defaults()]
         row_of = {d: j for j, d in enumerate(order)}
-        n = len(grid.get_bus_vn_kv())
-        return {"computer": computer, "v_init": np.full(n, grid.get_init_vm_pu(), dtype=complex),
+        return {"computer": computer, "v_init": flat_start(grid),
                 "rows": np.array([row_of[int(i)] for i in ids]), "col": col, "side1": side1, "bus_ids": bus_ids,
                 "n": len(ids), "v": None, "p": None}
 
@@ -200,8 +198,7 @@ class Lightsim2gridDcN1Lodf(DcContingencyAdapter):
         grid = init_from_matpower(str(mat_path(base)))
         grid.change_algorithm(AlgorithmType.DC_KLU)
         col, side1, _ = sides(base, grid)
-        n = len(grid.get_bus_vn_kv())
-        return {"grid": grid, "v_init": np.full(n, grid.get_init_vm_pu(), dtype=complex), "col": col, "side1": side1,
+        return {"grid": grid, "v_init": flat_start(grid), "col": col, "side1": side1,
                 "out": col[outages(case)["branch_row"]], "p": None}
 
     def solve(self, model, threads=1):

@@ -59,6 +59,7 @@ import os
 
 import numpy as np
 
+from adapters.lightsim2grid_adapter import flat_start
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge, Solution, SolverAdapter
 from cases.matpower import BUS_I, parse_m
 from cases.registry import CASES, mat_path
@@ -86,7 +87,7 @@ def solved_grid(case: str):
     from lightsim2grid.network import init_from_matpower
     grid = init_from_matpower(str(mat_path(case)))
     grid.change_algorithm(AlgorithmType.NR_KLU)
-    v_flat = np.full(len(grid.get_bus_vn_kv()), grid.get_init_vm_pu(), dtype=complex)
+    v_flat = flat_start(grid)
     if grid.ac_pf(v_flat.copy(), MAX_ITERATIONS, TOLERANCE_PU).shape[0] == 0:
         raise DidNotConverge("lightsim2grid's base case did not converge")
     return grid, v_flat
