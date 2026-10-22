@@ -2,7 +2,7 @@
 from importlib import import_module
 
 # Order: by language, as tools/palette.py colours them (Python, C++, Julia,
-# Java, then the reference); within one, the palette's step order.
+# Java, Rust, then the reference); within one, the palette's step order.
 ADAPTERS = {
     "pandapower": "adapters.pandapower_adapter:PandapowerAdapter",
     "pypsa": "adapters.pypsa_adapter:PypsaAdapter",
@@ -18,6 +18,7 @@ ADAPTERS = {
     "exapf": "adapters.exapf_adapter:ExapfAdapter",
     "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",
     "pypowsybl": "adapters.pypowsybl_adapter:PypowsyblAdapter",
+    "gridoxide": "adapters.gridoxide_adapter:GridoxideAdapter",
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
 

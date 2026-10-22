@@ -90,6 +90,11 @@ services:
     image: grid-bench/lightsim2grid:latest
     command: pytest benchmarks/lightsim2grid_lodf_dcn1_benchmark.py --benchmark-json=/output/lightsim2grid_lodf-dcn1.json
 
+  gridoxide:
+    <<: *bench
+    image: grid-bench/gridoxide:latest
+    command: pytest benchmarks/gridoxide_benchmark.py --benchmark-json=/output/gridoxide.json
+
   pypsa:
     <<: *bench
     image: grid-bench/pypsa:latest

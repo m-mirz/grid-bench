@@ -19,5 +19,18 @@ for t in "${targets[@]}"; do
     dockerfile=docker/tool.dockerfile
     [ -f "tool-configs/$t/pom.xml" ] && dockerfile=docker/java-tool.dockerfile
     [ -f "tool-configs/$t/Dockerfile" ] && dockerfile="tool-configs/$t/Dockerfile"
-    docker build -f "$dockerfile" --build-arg TOOL="$t" -t "grid-bench/$t:latest" .
+    extra=()
+    # gridoxide is compiled from a commit, not a release (tool-configs/gridoxide/
+    # Dockerfile): GRIDOXIDE_REPO is a gridoxide checkout, GRIDOXIDE_COMMIT the
+    # commit to build (default HEAD). `git archive` exports exactly that commit,
+    # never uncommitted work, into the `gridoxide` build context.
+    if [ "$t" = gridoxide ]; then
+        : "${GRIDOXIDE_REPO:?set GRIDOXIDE_REPO to a gridoxide checkout}"
+        commit=$(git -C "$GRIDOXIDE_REPO" rev-parse "${GRIDOXIDE_COMMIT:-HEAD}")
+        src=$(mktemp -d)
+        trap 'rm -rf "$src"' EXIT
+        git -C "$GRIDOXIDE_REPO" archive "$commit" | tar -x -C "$src"
+        extra=(--build-context "gridoxide=$src" --build-arg "GRIDOXIDE_COMMIT=$commit")
+    fi
+    docker build -f "$dockerfile" --build-arg TOOL="$t" "${extra[@]}" -t "grid-bench/$t:latest" .
 done
