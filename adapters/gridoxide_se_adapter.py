@@ -50,26 +50,27 @@ end-node shunts, phase shifts rounded (see the power-flow and PGM adapters).
 Iterations are not reported: the Python model does not expose them for a
 single solve.
 
-Results (first run, on the host rather than in the container; gridoxide
-branch `se-node-injection`, uncommitted): J equals JuliaGrid's on every case
-but the PEGASE ones and case300~noisy (884 against 881), which are the
-converter's losses above; the oracle passes on all the others, `~noisy`
-included. Not estimated: case3120sp~noisy and case9241pegase~noisy (no
-convergence in 30 steps, as power-grid-model; JuliaGrid converges on both).
-Solve time: within about 1.5x of JuliaGrid's either way on most cases
-(case9241pegase~exact 0.50 s against 0.77 s), slower on mvlv10616~noisy
-(122 ms against 88 ms). With the zero-injection constraints on, gridoxide
-factors `[HᵀWH Cᵀ; C 0]`, which KLU orders badly: case9241pegase~exact took
-2.9 s. With the source as power-grid-model models it (`sk` lowered to 1e10
-VA to be estimable at all), case3120sp~exact reported a singular gain
-matrix; as an ideal source it estimates exactly.
+Results (containers, gridoxide be00a3c on branch se-node-injection,
+results-docker/local-gridoxide-se-2, not published): every case estimates.
+J equals JuliaGrid's on every case but those the converter changes: the
+PEGASE ones (phase shifts) and case300~noisy and case3120sp~noisy
+(transformer charging moved to shunts; 884 against 881, 7.74e3 against
+7.70e3); the oracle passes on all the others, `~noisy` included. Solve time
+is JuliaGrid's within about 1.5x either way (case9241pegase~exact 0.52 s
+against 0.76 s, mvlv10616~noisy 201 ms against 175 ms); power-grid-model,
+solving its constrained problem, is 2-7x faster than both on the large
+cases. With the zero-injection constraints on, gridoxide factors
+`[HᵀWH Cᵀ; C 0]`, which KLU orders badly: case9241pegase~exact took 2.9 s.
 
 Fixed in gridoxide on the way: a node-injection sensor counted the bus's
 shunt as injected (power-grid-model counts it as network); the power
 derivative's leading-factor term was added once per coefficient on the
 measured bus; the linear start, built from the document's power-flow
-schedule, began case118~noisy at |V| = 0.67 p.u. and diverged (now the flat
-state is a candidate too); `zero_injection` and `ideal_sources` are new.
+schedule, began case118~noisy at |V| = 0.67 p.u. and diverged; the start
+applied measured magnitudes where only generators are metered, and ranked a
+collapsed linear profile best, so case3120sp~noisy and case9241pegase~noisy
+diverged (now four candidate starts, plausible ones only); `zero_injection`
+and `ideal_sources` are new.
 """
 import hashlib
 import json
