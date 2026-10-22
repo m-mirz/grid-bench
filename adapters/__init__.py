@@ -30,6 +30,7 @@ ESTIMATORS = {
     "pgm": "adapters.pgm_se_adapter:PgmEstimator",
     "sparlectra": "adapters.sparlectra_se_adapter:SparlectraEstimator",
     "juliagrid": "adapters.juliagrid_se_adapter:JuliagridEstimator",
+    "gridoxide": "adapters.gridoxide_se_adapter:GridoxideEstimator",
 }
 
 
