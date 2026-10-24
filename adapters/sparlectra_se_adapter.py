@@ -20,6 +20,9 @@ file can change them):
   elimination (the default removes up to 3 rows) and no down-weighting.
 - `update_shunts = false`, `update_taps = false`: no parameter estimation.
 - `topology_precheck = false`: advisory only, it would log per run.
+- `zero_injection = :off` (`:on` by default): no zero-injection rows at
+  passive buses. In 0.50.0 they are only added when a measurement table or
+  CSV is read, not to measurements passed in, but off keeps it that way.
 - `tol = SE_TOLERANCE`, `max_iter = MAX_ITERATIONS`. Sparlectra builds its
   Jacobian by forward finite differences (`jac_eps = 1e-6`, its default)
   and raises any tolerance below that step to it, with a log line: the

@@ -46,6 +46,7 @@ function load_se(path::AbstractString, kinds, buses, rows, froms, tos, values, s
         robust_mode = :off,
         max_eliminations = 0,
         topology_precheck = false,
+        zero_injection = :off,
     )
     return SEModel(m, meas, cfg, Ref{Any}(nothing))
 end
