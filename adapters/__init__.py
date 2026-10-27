@@ -46,6 +46,7 @@ OPTIMIZERS = {
     "examodelspower": "adapters.examodelspower_opf_adapter:ExamodelspowerOptimizer",
     "examodelspower_gpu": "adapters.examodelspower_gpu_opf_adapter:ExamodelspowerGpuOptimizer",
     "juliagrid": "adapters.juliagrid_opf_adapter:JuliagridOptimizer",
+    "gridoxide": "adapters.gridoxide_opf_adapter:GridoxideOptimizer",
     "matpower": "adapters.matpower_opf_adapter:MatpowerOptimizer",
     "powermodels": "adapters.powermodels_opf_adapter:PowermodelsOptimizer",
 }
