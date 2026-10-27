@@ -25,16 +25,16 @@ Settings:
   `opf-ipopt` feature. gridoxide supplies the exact Jacobian and Hessian.
   `tol = OPF_TOLERANCE`, `max_iter = OPF_MAX_ITERATIONS`, silent.
 - The model is built once in `load` (timed as import) and solved by `solve`.
-- Start (not settable from Python), on every `solve()`: |V| = 1 p.u. and
-  zero angle on every bus, every generator's P spread over its range in
-  proportion to cover the load plus 5% (gridoxide's choice; at the middle of
-  their ranges, PGLib's generators fall about 23% short of load), Q at the
-  middle of its range. Not the flat start of the other adapters.
+- Flat start, `solve(init="flat")` on every solve: |V| = 1 p.u. (clamped
+  into its limits, a no-op on these cases) and zero angle on every bus, every
+  generator's P and Q at the middle of its range. gridoxide's default instead
+  spreads the load over the generators' P ranges; IPOPT needs it on none of
+  these cases, gridoxide's own solver does.
 - A solve IPOPT does not report as solved (or solved to an acceptable
   level) fails.
 
 Result: the optimum on every default case, within the reference's rounding
-and with PowerModels' gaps, in 14 to 51 Ipopt iterations (PowerModels: 14
+and with PowerModels' gaps, in 14 to 49 Ipopt iterations (PowerModels: 14
 to 45); first run in the commit message that added this adapter.
 
 gridoxide's own interior point (`solver="nlp"`) is not benchmarked: it
@@ -64,7 +64,7 @@ class GridoxideOptimizer(OptimizerAdapter):
     language = GridoxideAdapter.language
     modules = GridoxideAdapter.modules
     settings = {"formulation": "polar, from_matpower (.m)", "solver": "Ipopt 3.14.19", "linear_solver": "mumps",
-                "init": "flat voltages, P in proportion to load (hardcoded)", "tol": OPF_TOLERANCE,
+                "init": "flat", "tol": OPF_TOLERANCE,
                 "max_iter": OPF_MAX_ITERATIONS, "commit": os.environ.get("GRIDOXIDE_COMMIT", "unknown")}
 
     def load(self, case):
@@ -75,7 +75,7 @@ class GridoxideOptimizer(OptimizerAdapter):
 
     def solve(self, model):
         try:
-            model["model"].solve()
+            model["model"].solve(init="flat")
         except RuntimeError as e:
             raise DidNotConverge(str(e)) from e
 
