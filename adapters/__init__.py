@@ -67,6 +67,7 @@ BATCHES = {
     "exapf_gpu": "adapters.exapf_gpu_batch_adapter:ExapfGpuBatch",
     "sparlectra": "adapters.sparlectra_batch_adapter:SparlectraBatch",
     "juliagrid": "adapters.juliagrid_batch_adapter:JuliagridBatch",
+    "gridoxide": "adapters.gridoxide_batch_adapter:GridoxideBatch",
     "matpower": "adapters.matpower_batch_adapter:MatpowerBatch",
 }
 
