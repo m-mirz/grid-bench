@@ -18,13 +18,15 @@ Settings:
   power-flow adapter) and then `solve_contingencies(..., start="last")`:
   every outage starts from that solution, the problem's base-case start.
 - `threads`: the thread count. gridoxide hands outages to its workers one at
-  a time from a shared counter. An outage that keeps the network connected
-  takes it out of the Y-bus with its structural entries kept, so the
-  worker's symbolic factorization carries over; none here islands the grid
-  (`cases.contingency`). Results do not depend on the thread count, which
-  the oracle checks per thread count.
-- `solve_contingencies` builds its rayon pool and its workers' solvers on
-  every call, unlike `solve_batch`, which keeps them: that cost is timed.
+  a time from a shared counter. Each worker takes an outage's branches off
+  its copy of the intact Y-bus in place, updates only the Jacobian entries
+  they touch, solves, and restores both, so its symbolic factorization and
+  Jacobian pattern carry across the sweep; none of these outages islands the
+  grid (`cases.contingency`). The pool and each worker's solver are kept
+  between calls, as for `solve_batch`. Results do not depend on the thread
+  count, which the oracle checks per thread count.
+- `solve_contingencies` returns one result object per outage holding its
+  status and voltages in Rust; `solution` reads them into arrays, untimed.
 - A batch with an outage that did not converge fails, with the count.
 """
 import numpy as np
