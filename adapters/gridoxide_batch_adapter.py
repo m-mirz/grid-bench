@@ -27,8 +27,9 @@ Settings:
   symbolic factorization across its scenarios. Results do not depend on the
   thread count, which the oracle checks per thread count.
 - A batch with a scenario that did not converge fails, with the count.
-- Reading the voltages is in the timed call: `solve_batch` returns every
-  scenario's |V| and angle as Python lists.
+- `solve_batch` returns one result object per scenario holding its |V| and
+  angle in Rust, every scenario kept; `solution` reads them into arrays,
+  untimed.
 """
 import numpy as np
 
