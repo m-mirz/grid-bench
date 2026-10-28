@@ -106,6 +106,7 @@ DC = {
     "pypsa": "adapters.pypsa_dc_adapter:PypsaDc",
     "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDc",
     "toop": "adapters.toop_dc_adapter:ToopDc",
+    "gridoxide": "adapters.gridoxide_dc_adapter:GridoxideDc",
     "matpower": "adapters.matpower_dc_adapter:MatpowerDc",
 }
 DC_CONTINGENCIES = {
@@ -113,6 +114,7 @@ DC_CONTINGENCIES = {
     "lightsim2grid_lodf": "adapters.lightsim2grid_dc_adapter:Lightsim2gridDcN1Lodf",
     "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDcN1",
     "toop": "adapters.toop_dc_adapter:ToopDcN1",
+    "gridoxide": "adapters.gridoxide_dc_adapter:GridoxideDcN1",
     "matpower": "adapters.matpower_dc_adapter:MatpowerDcN1",
 }
 
