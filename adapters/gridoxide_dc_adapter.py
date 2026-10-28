@@ -12,7 +12,9 @@ lines, then transformers), both asserted against the case.
 
 Settings:
 - DC power flow: `solve()` on a model built with `method="dc"`: one
-  factorization of the reduced susceptance matrix per island and one solve.
+  factorization of the reduced susceptance matrix per island, built on the
+  first solve (the warm-up round) and kept by the model, as its AC
+  factorization is, then one right-hand side and two triangular solves.
   Angles from `voltage_ang()`, from-end flows from `branch_flow_p()` (per unit
   on the case's `baseMVA`, reported in MW).
 - DC N-1 (`native`, flows only): the base case's DC solve, then
@@ -32,9 +34,12 @@ Settings:
 
 Results (first run, Docker, AMD Ryzen 7 250): exact on every DC and DC N-1
 case, full ones included, to 1e-9 MW, phase shifters and shunt conductance
-included. The DC power flow is 15 to 25x lightsim2grid's time
-(case9241pegase 10.3 against 0.43 ms): gridoxide partitions the network and
-factors the susceptance matrix on every solve. DC N-1 on 200 outages is
+included. The DC power flow, with gridoxide 8b60fc8 keeping its
+factorization between solves (`DcSolver`), is 1.2 to 1.6x faster than
+lightsim2grid's `dc_pf` (case9241pegase 0.34 against 0.44 ms); before it,
+building the factorization on every solve made it 15 to 25x slower. The
+DC N-1 adapter calls `reset()` before every round, so it still builds the
+factorization in the timed call. DC N-1 on 200 outages is
 within 25% of lightsim2grid's solve per outage (which fails the oracle on
 every PEGASE case, see its adapter) and faster on case9241pegase; on the
 full cases lightsim2grid's whole-matrix LODF is 2.3 to 3x faster.
