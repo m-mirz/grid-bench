@@ -86,6 +86,7 @@ CONTINGENCIES = {
     "exapf_gpu": "adapters.exapf_gpu_n1_adapter:ExapfGpuN1",
     "sparlectra": "adapters.sparlectra_n1_adapter:SparlectraN1",
     "juliagrid": "adapters.juliagrid_n1_adapter:JuliagridN1",
+    "gridoxide": "adapters.gridoxide_n1_adapter:GridoxideN1",
     "matpower": "adapters.matpower_n1_adapter:MatpowerN1",
 }
 
