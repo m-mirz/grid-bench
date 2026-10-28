@@ -34,7 +34,7 @@ Settings:
 
 Results (first run, Docker, AMD Ryzen 7 250): exact on every DC and DC N-1
 case, full ones included, to 1e-9 MW, phase shifters and shunt conductance
-included. The DC power flow, with gridoxide 8b60fc8 keeping its
+included. The DC power flow, with gridoxide#28 keeping its
 factorization between solves (`DcSolver`), is 1.2 to 1.6x faster than
 lightsim2grid's `dc_pf` (case9241pegase 0.34 against 0.44 ms); before it,
 building the factorization on every solve made it 15 to 25x slower. The
