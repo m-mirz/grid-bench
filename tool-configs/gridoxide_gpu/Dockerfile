@@ -32,9 +32,11 @@ ADD --checksum=sha256:b8c882c3ebc8b319886f5a06e74311c5eea09846925ba5a19892de4921
     https://developer.download.nvidia.com/compute/cudss/redist/libcudss/linux-x86_64/libcudss-linux-x86_64-1.0.0.35_cuda12-archive.tar.xz /src/cudss.tar.xz
 RUN mkdir /opt/cudss && tar -xJf /src/cudss.tar.xz -C /opt/cudss --strip-components=1
 
-# gridoxide at commit d105bf4 (gpu-batch, 2026-10-30).
-ADD --checksum=sha256:6f8c411ef81fc2a14744b6e6ee22d6daee479978816c89b68d65b737640dbfcc \
-    https://github.com/m-mirz/gridoxide/archive/d105bf4fdcb4cf0e84799af4e43488b359b5dbcd.tar.gz /src/gridoxide.tar.gz
+# gridoxide at commit 5d14426 (gpu-batch, 2026-10-30): the AC batch of d105bf4,
+# on which results-docker/gpu/gridoxide_gpu-batch.json and -n1.json were
+# measured, plus GpuDcSolver (DC N-1).
+ADD --checksum=sha256:80fbdc9908257834672938d14927aaf4dc5fd6f5b646a25891f86a5528288314 \
+    https://github.com/m-mirz/gridoxide/archive/5d144268df5f4cb39769b2fa63b1634cee2b3a71.tar.gz /src/gridoxide.tar.gz
 RUN mkdir /src/gridoxide && tar -xzf /src/gridoxide.tar.gz -C /src/gridoxide --strip-components=1
 
 # The extension, `--features python,gpu`:
