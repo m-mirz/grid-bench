@@ -1276,7 +1276,7 @@
         "tools": {
             "gridoxide_gpu": {
                 "display_name": "gridoxide (GPU)",
-                "color": "#8b3201",
+                "color": "#8b3202",
                 "tags": [
                     "powerflow",
                     "ac",

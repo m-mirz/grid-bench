@@ -50,7 +50,7 @@ def session(case: str):
 class GridoxideGpu:
     name = "gridoxide_gpu"
     display_name = "gridoxide (GPU)"
-    color = "#8b3201"   # tools/palette.py: Rust brown, base, dash-dotted (GPU)
+    color = "#8b3202"   # tools/palette.py: Rust brown, base, dash-dotted (GPU); #8b3201 is gridoxide's CPU tool
     package = "gridoxide"
     language = "rust"
     modules = ("gridoxide",)
