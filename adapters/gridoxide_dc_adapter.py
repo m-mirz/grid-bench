@@ -1,5 +1,5 @@
 """gridoxide: DC power flow (`method="dc"`) and DC N-1 from line outage
-distribution factors (`outage_flows`), in Rust, driven through its Python
+distribution factors (`dc_contingencies`), in Rust, driven through its Python
 bindings.
 
 Input: the base case's `.m` through `PowerFlowModel.from_matpower`, as in the
@@ -17,20 +17,21 @@ Settings:
   factorization is, then one right-hand side and two triangular solves.
   Angles from `voltage_ang()`, from-end flows from `branch_flow_p()` (per unit
   on the case's `baseMVA`, reported in MW).
-- DC N-1 (`native`, flows only): the base case's DC solve, then
-  `outage_flows(branch)` for every outage, the base flows plus the outaged
-  branch's LODF column times its base flow; the factorization behind the
-  LODF columns is built on first use in each timed call (`reset()` before
-  it, so no round reuses another's) and shared by every outage. All of it is
-  the timed call. gridoxide computes no angles this way, so the oracle grades
-  the flows only (`oracle.dc`'s flows-only verdict), as for
-  `lightsim2grid_lodf` and ToOp. One thread: `outage_flows` takes one
-  branch at a time and has no thread setting.
-- Each outage's flows go straight into one numpy array (outages x branches),
-  in the timed call: as Python lists, case9241pegase#dcn1-full's 14384
-  outages x 16049 branches would take several gigabytes.
-- An outage `outage_flows` declares radial (no LODF exists) fails the case;
-  none of these outages islands the grid (`cases.contingency`).
+- DC N-1 (`native`, angles and flows, threaded): the base case's DC solve,
+  then `dc_contingencies(outages, threads)`, every outage in one call: per
+  outage one triangular solve for the angle response to a unit transfer
+  across the branch, and from it the angles and the flows after the outage
+  (the base plus the transfer the removed branch would carry, which is the
+  LODF column times its base flow for the flows), the outages in parallel on
+  `threads` workers. The factorization behind them is built on first use in
+  each timed call (`reset()` before it, so no round reuses another's) and
+  shared by every outage. All of it is the timed call, the readout included:
+  the two arrays come back as read-only float64 buffers that numpy views
+  without a copy (case9241pegase#dcn1-full's are 2.9 GB). The oracle grades
+  angles and flows.
+- An outage `dc_contingencies` reports unsolved (a radial branch: no
+  post-outage state) fails the case; none of these outages islands the grid
+  (`cases.contingency`).
 
 Results (first run, Docker, AMD Ryzen 7 250): exact on every DC and DC N-1
 case, full ones included, to 1e-9 MW, phase shifters and shunt conductance
@@ -39,10 +40,7 @@ factorization between solves (`DcSolver`), is 1.2 to 1.6x faster than
 lightsim2grid's `dc_pf` (case9241pegase 0.34 against 0.44 ms); before it,
 building the factorization on every solve made it 15 to 25x slower. The
 DC N-1 adapter calls `reset()` before every round, so it still builds the
-factorization in the timed call. DC N-1 on 200 outages is
-within 25% of lightsim2grid's solve per outage (which fails the oracle on
-every PEGASE case, see its adapter) and faster on case9241pegase; on the
-full cases lightsim2grid's whole-matrix LODF is 2.3 to 3x faster.
+factorization in the timed call.
 """
 import numpy as np
 
@@ -102,36 +100,34 @@ class GridoxideDcN1(DcContingencyAdapter):
     language = GridoxideAdapter.language
     modules = GridoxideAdapter.modules
     mode = "native"
-    threaded = False
-    settings = {"method": "LODF (flows only)", "api": "solve, outage_flows", "reader": "from_matpower (.m)",
-                "threads": "1 (outage_flows has no thread setting)", "commit": GridoxideAdapter.settings["commit"]}
+    threaded = True
+    settings = {"method": "LODF, angles and flows", "api": "solve, dc_contingencies", "reader": "from_matpower (.m)",
+                "commit": GridoxideAdapter.settings["commit"]}
 
     def load(self, case):
-        model, _, rows, base, mpc = _load(case)
+        model, bus_ids, rows, base, mpc = _load(case)
         flat = {row: k for k, row in enumerate(rows)}
         out = outages(case)
         branch = mpc["branch"]
         for row, f, t in zip(out["branch_row"], out["from_bus"], out["to_bus"]):
             assert (int(branch[row, F_BUS]), int(branch[row, T_BUS])) == (int(f), int(t)), f"row {row}"
-        return {"model": model, "rows": rows, "base": base,
-                "outages": [flat[int(row)] for row in out["branch_row"]], "pf": None}
+        return {"model": model, "bus_ids": bus_ids, "rows": rows, "base": base,
+                "outages": [flat[int(row)] for row in out["branch_row"]], "va": None, "pf": None}
 
     def solve(self, model, threads=1):
-        assert threads == 1, "outage_flows takes one branch at a time"
         m = model["model"]
         m.reset()
         try:
             m.solve()
         except RuntimeError as e:
             raise DidNotConverge(f"base case: {e}") from e
-        pf = np.empty((len(model["outages"]), len(model["rows"])))
-        for k, b in enumerate(model["outages"]):
-            flows = m.outage_flows(b)
-            if flows is None:
-                raise DidNotConverge(f"outage {k} (branch {b}) is radial: no LODF")
-            pf[k] = flows
-        model["pf"] = pf
+        angles, flows, solved = m.dc_contingencies(model["outages"], threads=threads)
+        if not all(solved):
+            k = solved.index(False)
+            raise DidNotConverge(f"outage {k} (branch {model['outages'][k]}) is radial: no post-outage state")
+        n = len(model["outages"])
+        model["va"] = np.frombuffer(angles).reshape(n, len(model["bus_ids"]))
+        model["pf"] = np.frombuffer(flows).reshape(n, len(model["rows"]))
 
     def solution(self, model, case):
-        pf = model["pf"] * model["base"]
-        return DcSolution(None, None, model["rows"], pf)
+        return DcSolution(model["bus_ids"], np.rad2deg(model["va"]), model["rows"], model["pf"] * model["base"])
