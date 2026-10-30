@@ -80,6 +80,8 @@ function load_cgmes(path)   # a file, zip or directory, or a vector of them
         machine_control = false,
         multi_slack = false,
         hvdc_mode = :injections,
+        equivalent_injection_as_source = false,
+        read_dynamics = false,
     )
     net = result.net
     # Explicit join: the importer names each bus after its TopologicalNode
@@ -124,6 +126,7 @@ function runpf!(net::SP.Net, tol::Float64, max_iterations::Int, flatstart::Bool)
         trust_region_enabled = false,
         opt_flatstart = flatstart,
         start_projection = false,
+        start_rotate_behind_pst = false,
         start_current_iteration_enabled = false,
         apslf_start_enabled = false,
         qlimits_enabled = false,

@@ -3,7 +3,7 @@
 Julia inside the benchmark process: a call costs microseconds, so the timing
 is Julia's.
 
-Version: 0.30.3, the newest release when it was last updated (2026-10-05), chosen
+Version: 1.0.0, the newest release when it was last updated (2026-10-30), chosen
 deliberately over the 7-day rule every other pin follows (the package
 releases almost daily); tool-configs/sparlectra/julia/setup.jl says so too.
 
@@ -34,6 +34,10 @@ Import settings (CGMES):
 - `multi_slack=false`: a single slack, chosen by the importer from
   `referencePriority`, else the largest machine.
 - `require_boundary=true`, `hvdc_mode=:injections` (defaults).
+- `equivalent_injection_as_source=false`, `read_dynamics=false` (defaults,
+  passed so a change of default cannot change the problem): an
+  EquivalentInjection stays an injection, not a voltage source, and no DY
+  profile is read (none is given).
 
 Solve settings (`runpf_rectangular!`):
 - `damp=1.0`: a full Newton step. The keyword form defaults to 0.2, a damped
@@ -53,7 +57,9 @@ Solve settings (`runpf_rectangular!`):
   (cgmes_smallgrid: 5 steps on the first solve, divergence on every later
   one). Restoring undoes the side effect; the problem is unchanged.
 - `start_projection`, `start_current_iteration_enabled`,
-  `apslf_start_enabled` off: none of Sparlectra's start-value improvers.
+  `apslf_start_enabled`, `start_rotate_behind_pst` off: none of Sparlectra's
+  start-value improvers (the last starts buses behind a phase shifter at
+  the shifted angle, which is not the flat start).
 - `qlimits_enabled=false`, `enable_pq_gen_controllers=false` (import): no
   reactive limits and no P(U)/Q(U) controllers on PQ generators (with them,
   each generator is clamped to its limits).
@@ -94,12 +100,6 @@ Known losses, reported by the oracle rather than hidden:
   without SV) instead: a different problem wherever a case regulates
   remotely. cgmes_microgrid_be: 2.6% median deviation from SV (pypowsybl,
   which regulates remotely: 0.48%; pypowsybl with it off measured 2.5%).
-- Tabular phase tap changer (cgmes_powerflow): 2e-5 p.u. and 0.003 deg from
-  SV where pypowsybl and pandapower reach 1e-6. The importer moves the tap to
-  the other winding as 1/ratio at -angle; solving the 2-bus fixture by hand,
-  the SV is reproduced to 1.4e-6 with the series impedance on end 1 and
-  moved to 2.1e-5 when it is referred to the wrong side of the tap, so the
-  impedance is probably not re-referred (not confirmed in the source).
 
 Robustness (not a loss: the model is exact):
 - The polar update decides which hard cases converge from the common flat
@@ -108,19 +108,18 @@ Robustness (not a loss: the model is exact):
   MATPOWER, lightsim2grid, PyPSA and VeraGrid, where the rectangular update
   diverged (mismatch 530, 1.1e4, 1.4e6 p.u. after two steps); case1888rte
   and cgmes_minigrid, which the rectangular update solved in 12 and 7 steps,
-  now diverge, as they do for every polar Newton-Raphson in the benchmark
-  (case1888rte) and for pypowsybl and VeraGrid (cgmes_minigrid; pandapower
-  and p3s fail it before any iteration, a numba typing error in the solve
-  and an import error). Measured on 0.30.1 with both updates; power mode
-  makes no difference to either. case1888rte is no lost operating state:
-  the rectangular result is a low-voltage root (min Vm 0.060 p.u., 1396.9 MW
-  of losses, against 0.843 p.u. and 980.7 MW at the case's own VM/VA), which
+  then diverged, as case1888rte does for every polar Newton-Raphson in the
+  benchmark. Measured on 0.30.1 with both updates; power mode makes no
+  difference to either. case1888rte is no lost operating state: the
+  rectangular result is a low-voltage root (min Vm 0.060 p.u., 1396.9 MW of
+  losses, against 0.843 p.u. and 980.7 MW at the case's own VM/VA), which
   satisfies the equations, so the tier-1 oracle accepted it. cgmes_minigrid
-  is, by ENTSO-E's documentation (ch. 2), a short-circuit test set "not for
-  load flow"; the rectangular update reproduced its SV (4e-7 p.u.), the
-  polar update diverges at the 110 kV star windings of T3/T4 (Sparlectra's
-  maintainer; not reproduced here). case6495rte and cgmes_realgrid diverge
-  with the polar update and diverged with the rectangular one in 0.17.3.
+  (by ENTSO-E's documentation, ch. 2, a short-circuit test set "not for load
+  flow") diverged at the 110 kV star windings of T3/T4; since 0.50.0, whose
+  0.41.0 and 0.42.0 corrected the import of three-winding transformers, it
+  solves in 4 polar steps to its SV (4e-7 p.u.). case6495rte and cgmes_realgrid
+  diverge with the polar update and diverged with the rectangular one in
+  0.17.3.
 """
 from importlib.metadata import version
 

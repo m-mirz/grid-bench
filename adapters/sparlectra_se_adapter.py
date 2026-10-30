@@ -16,10 +16,23 @@ file can change them):
 - `flatstart = true`, and every node reset to 1 p.u., 0 degrees before each
   estimate: the flat start takes the slack's magnitude from its node, which
   `update_net` overwrote with the previous estimate.
+- `start_ladder = false` (on by default): no second try from the voltages
+  stored in the net when the flat start does not converge; a divergence
+  from the flat start is a result. `start_mode.rotate_behind_pst = false`:
+  the flat start is not turned behind phase shifters.
 - `max_eliminations = 0`, `robust_mode = :off`, `robust = false`: no bad-data
-  elimination (the default removes up to 3 rows) and no down-weighting.
-- `update_shunts = false`, `update_taps = false`: no parameter estimation.
+  elimination (the default removes up to 5 rows) and no down-weighting.
+- Called as `_runse_configured!`, not `runse!`: since 1.0.0 `runse!` first
+  range-checks the voltage measurements and replaces an implausible one by
+  the imported voltage with a wider sigma, which is bad-data handling.
+- `update_shunts = false`, `update_taps = false`, `tap_estimation.enabled =
+  false` (on by default since 1.0.0): no parameter estimation, no tap
+  states (1.0.0 releases only declared tap changers, which a `.m` has
+  none of, but off keeps it that way).
 - `topology_precheck = false`: advisory only, it would log per run.
+- `zero_injection = :off` (`:on` by default): no zero-injection rows at
+  passive buses. In 1.0.0 they are only added when a measurement table or
+  CSV is read, not to measurements passed in, but off keeps it that way.
 - `tol = SE_TOLERANCE`, `max_iter = MAX_ITERATIONS`. Sparlectra builds its
   Jacobian by forward finite differences (`jac_eps = 1e-6`, its default)
   and raises any tolerance below that step to it, with a log line: the

@@ -5,14 +5,14 @@
 #
 # Both resolve against one snapshot of the General registry. Unlike every
 # other pin (sienna's snapshot, `exclude-newer = "P7D"`), this one is NOT 7
-# days old: it is the commit that registered Sparlectra 0.30.3, taken on
-# 2026-10-05 by deliberate choice, to benchmark the newest release of a
+# days old: it is the commit that registered Sparlectra 1.0.0, taken on
+# 2026-10-30 by deliberate choice, to benchmark the newest release of a
 # package that releases almost daily. Everything it resolves may therefore be
 # up to that fresh. Packages are still fetched by the content hash
 # (git-tree-sha1) recorded in Manifest.toml and verified on download.
 using Pkg
 
-const REGISTRY_COMMIT = "b3f84eca477c058e6ed166422e89970891b88c87"   # General, 2026-10-03T18:43Z: registers Sparlectra 0.30.3
+const REGISTRY_COMMIT = "dc2fa1b5a608fe9ecc35ad29e924e4fe31990608"   # General, 2026-10-25T14:03Z: registers Sparlectra 1.0.0
 
 function install_registry_snapshot()
     target = joinpath(first(DEPOT_PATH), "registries", "General")

@@ -39,6 +39,8 @@ function load_se(path::AbstractString, kinds, buses, rows, froms, tos, values, s
         tol = tol,
         max_iter = max_iterations,
         flatstart = true,
+        start_ladder = false,
+        start_mode = SP.SEStartModeConfig(rotate_behind_pst = false),
         update_net = true,
         update_shunts = false,
         update_taps = false,
@@ -46,6 +48,8 @@ function load_se(path::AbstractString, kinds, buses, rows, froms, tos, values, s
         robust_mode = :off,
         max_eliminations = 0,
         topology_precheck = false,
+        zero_injection = :off,
+        tap_estimation = SP.TapEstimationConfig(enabled = false),
     )
     return SEModel(m, meas, cfg, Ref{Any}(nothing))
 end
