@@ -118,6 +118,7 @@ DC_CONTINGENCIES = {
     "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDcN1",
     "toop": "adapters.toop_dc_adapter:ToopDcN1",
     "gridoxide": "adapters.gridoxide_dc_adapter:GridoxideDcN1",
+    "gridoxide_gpu": "adapters.gridoxide_gpu_dc_adapter:GridoxideGpuDcN1",
     "matpower": "adapters.matpower_dc_adapter:MatpowerDcN1",
 }
 
