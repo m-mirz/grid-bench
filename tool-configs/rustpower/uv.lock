@@ -6,9 +6,6 @@ requires-python = "==3.13.*"
 exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P7D"
 
-[options.exclude-newer-package]
-rustpower = "2026-10-08T00:00:00Z"
-
 [[package]]
 name = "annotated-types"
 version = "0.8.0"
@@ -71,7 +68,7 @@ requires-dist = [
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-benchmark", specifier = ">=5.1" },
     { name = "pytest-timeout", specifier = ">=2.3" },
-    { name = "rustpower", specifier = "==0.5.2" },
+    { name = "rustpower", specifier = "==0.5.4" },
     { name = "scipy", specifier = ">=1.15" },
 ]
 
@@ -391,12 +388,12 @@ wheels = [
 
 [[package]]
 name = "rustpower"
-version = "0.5.2"
+version = "0.5.4"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/48/03/b205edfc40135bf93c48fe6f2ff5548fc8dc7d6de87d5a97a116d7cc2410/rustpower-0.5.2-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:026d437ff2d15e121413e42b53cd6ec87db0f742118cd7a62735dc9e004a07a9", size = 5765030, upload-time = "2026-10-07T00:50:26.367Z" },
-    { url = "https://files.pythonhosted.org/packages/0a/72/41af9ec62c06e7feb0070a2e6887cc7b4324ac9c8e8577ec208feac450c6/rustpower-0.5.2-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:1f454ffc33ed7c1ee9b8d71f1e9ecf666f348fae6c5f324b10db37df78c0c427", size = 6962673, upload-time = "2026-10-07T00:50:28.476Z" },
-    { url = "https://files.pythonhosted.org/packages/26/ca/12f3edaac43064a4d55147cf2cbf8d5333ebbee1779cac5b84cd684c11fc/rustpower-0.5.2-cp310-abi3-win_amd64.whl", hash = "sha256:47e991d1d0fdea16f133da2f1f06c2380668b217a13a2a413720b2e3e3a06003", size = 5565836, upload-time = "2026-10-07T00:50:30.143Z" },
+    { url = "https://files.pythonhosted.org/packages/13/d2/174a0adbd64ffadee51bd8b74b9f126ae0a38277015a0a2880fc7a78cbf3/rustpower-0.5.4-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:8b677b0bfdf0193893932ca02c953dc8e497aa4b6b5c94498c97325c29526753", size = 5983376, upload-time = "2026-10-18T02:51:12.142Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/8f/98f789f9dd3025dcfe5a5cc592df059807d3b790ae1030715fd742a34b2f/rustpower-0.5.4-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:9ebb6f33aef7a623027b02d0e78c8387c251e10463ddbc0c58315f055ddfc71f", size = 7162926, upload-time = "2026-10-18T02:51:14.096Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/fe/9b695c2ce81016b0010406fcc4a28482bf91f895fd5abda45c4892af12bf/rustpower-0.5.4-cp310-abi3-win_amd64.whl", hash = "sha256:10cf0697bb3f26dbc4808d6e2aad3e8edc47910235e2095c4c02ad03379c6b45", size = 5757657, upload-time = "2026-10-18T02:51:15.716Z" },
 ]
 
 [[package]]

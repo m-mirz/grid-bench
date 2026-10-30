@@ -11,7 +11,7 @@ dependencies = [
     "pytest>=8.3",
     "pytest-benchmark>=5.1",
     "pytest-timeout>=2.3",
-    "rustpower==0.5.2",   # the PyPI wheel, built with KLU
+    "rustpower==0.5.4",   # the PyPI wheel, built with KLU
     "pandapower[converter]==3.3.3",   # the same importer (from_mpc) as the pandapower column
     "pandas",   # rustpower reads the net's tables through pandas (declared by pandapower too)
 ]
@@ -19,8 +19,3 @@ dependencies = [
 [tool.uv]
 package = false
 exclude-newer = "P7D"
-# The one exception: rustpower 0.5.2 (uploaded 2026-10-07) was taken at 4 days
-# old, on purpose: it is the release whose README times itself against
-# lightsim2grid, and its Python API (PowerGrid.solve with v_init, tol, max_iter)
-# is what the adapter drives; everything else keeps P7D.
-exclude-newer-package = { rustpower = "2026-10-08T00:00:00Z" }

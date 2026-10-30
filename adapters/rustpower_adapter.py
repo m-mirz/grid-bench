@@ -6,31 +6,37 @@ an importer problem in `from_mpc` shows in both columns. rustpower reads
 the net's tables into its own model and builds its own Ybus; it reads bus,
 line, trafo, load, gen, ext_grid, shunt, sgen and switch, and nothing else.
 
-Known losses (0.5.2), reported rather than worked around (both traced by
-comparing rustpower's `y_bus` with pandapower's on the same net):
+Known losses (0.5.4), reported rather than worked around (both traced by
+comparing rustpower's `y_bus` with pandapower's on the same net, on 0.5.2;
+0.5.3 and 0.5.4 changed neither):
 - rustpower does not read pandapower's `impedance` table. `from_mpc` writes
   a MATPOWER branch as an `impedance` when it joins buses of different base
   voltage without a tap ratio (case118: 67-115 and 85-86), so those
   branches are missing from rustpower's Ybus. Where that leaves a bus
-  isolated, the first factorization fails and `solve` reports no
-  convergence after 0 iterations (case118, case300, case1888rte,
-  case2848rte, case2869pegase, case6495rte, case9241pegase); where it does
-  not, Newton runs to the iteration limit (case18, mvlv1004, mvlv10616,
-  mvlv29840, each with 1 to 4 such branches).
+  isolated, the solve fails at once: case118 and case300 panic ("Ybus is
+  missing a structural diagonal entry"; 0.5.2 reported no convergence
+  instead), and case2869pegase and case9241pegase report no convergence
+  after 0 iterations, as on 0.5.2 (so did case1888rte, case2848rte and
+  case6495rte on 0.5.2; not rerun on 0.5.4). Where it does not, Newton
+  runs to the iteration limit (case18, mvlv1004, mvlv10616, mvlv29840,
+  each with 1 to 4 such branches).
 - A transformer's series reactance is `sqrt(vk² - vkr²)` (elements/trans.rs),
   which drops the sign of a negative `vk_percent`; pandapower keeps it.
   case3120sp has 10 branches with negative reactance (MATPOWER x < 0, read
   as transformers), so rustpower converges to a different problem and the
   oracle rejects it (923 MW, 10059 Mvar).
 
-Bus ids: rustpower indexes buses by their pandapower index and requires it
-to be 0..n-1: `from_mpc` sets it to MATPOWER bus number - 1, which has gaps
-on most cases (case300, pegase, RTE, mvlv), and `from_pandapower` then
-panics in nalgebra-sparse ("assertion failed: i < self.nrows"). `load`
-therefore renumbers the buses with pandapower's `create_continuous_bus_index`,
-a relabelling that leaves the power-flow equations untouched, and keeps the
-old index in `net.bus.old_index`: the MATPOWER number is `old_index + 1`.
-`PowerGrid.v` is in bus-id order (asserted against `n_bus`).
+Bus ids: `from_mpc` sets a bus's index to its MATPOWER number - 1, which has
+gaps on most cases (case300, pegase, RTE, mvlv). rustpower 0.5.3 and later
+take them (0.5.2 panicked, and this adapter renumbered the buses), and
+`PowerGrid.v` is in the net's bus order (asserted against `n_bus`), so the
+MATPOWER number is `index + 1`.
+
+A Rust panic reaches Python as pyo3's `PanicException`, a `BaseException`:
+it would escape `except Exception` (the memory measurement's worker process
+dies, and its parent waits out the timeout). `solve` raises it as
+DidNotConverge. A grid that panicked is unusable afterwards ("The schedule
+with the label Main was not found"), so every later solve fails the same way.
 
 Settings, each the closest match to the common problem definition:
 - The wheel from PyPI, built with its `klu` feature (SuiteSparse KLU, as
@@ -61,29 +67,32 @@ class RustpowerAdapter(SolverAdapter):
     display_name = "rustpower (KLU)"
     color = "#a94d25"   # tools/palette.py: Rust brown, step 1, dashed
     package = "rustpower"
-    modules = ("rustpower", "pandapower", "pandapower.converter.matpower.from_mpc", "pandapower.toolbox")
+    modules = ("rustpower", "pandapower", "pandapower.converter.matpower.from_mpc")
     language = "rust"
     families = ("matpower", "distribution")
     settings = {"linear_solver": "KLU", "init": "flat", "tolerance_pu": TOLERANCE_PU,
                 "max_iteration": MAX_ITERATIONS, "cache": True, "dcpf_init": False, "iwamoto": False,
-                "qlim": False, "continuous_bus_index": True}
+                "qlim": False}
 
     def load(self, case):
         import rustpower
         from pandapower.converter.matpower.from_mpc import from_mpc
-        from pandapower.toolbox import create_continuous_bus_index
         assert "klu" in rustpower.features(), rustpower.features()
         net = from_mpc(str(mat_path(case)), f_hz=50)
-        create_continuous_bus_index(net, store_old_index=True)
         grid = rustpower.PowerGrid.from_pandapower(net)
         grid.enable_cache(True)
         n = len(net.bus)
         assert grid.n_bus == n, (grid.n_bus, n)
-        return {"grid": grid, "ids": [str(int(i) + 1) for i in net.bus.old_index],
+        return {"grid": grid, "ids": [str(int(i) + 1) for i in net.bus.index],
                 "v_init": np.ones(n, dtype=complex), "report": None}
 
     def solve(self, model):
-        report = model["grid"].solve(v_init=model["v_init"], max_iter=MAX_ITERATIONS, tol=TOLERANCE_PU)
+        try:
+            report = model["grid"].solve(v_init=model["v_init"], max_iter=MAX_ITERATIONS, tol=TOLERANCE_PU)
+        except BaseException as e:
+            if type(e).__name__ != "PanicException":
+                raise
+            raise DidNotConverge(f"rustpower panicked: {e}") from None
         model["report"] = report
         if not report.converged:
             raise DidNotConverge(f"rustpower did not converge after {report.iterations} iterations")
