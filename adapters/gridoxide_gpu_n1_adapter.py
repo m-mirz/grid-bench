@@ -34,9 +34,11 @@ only GPU tool here of which that holds.
     case9241pegase#n1-full   2.24       0.86, 16 failed   out of memory        (1.26)
 
 gpusim2grid and ExaPF.jl both run cuDSS 0.8.0, and both fail
-case2869pegase#n1, which gridoxide on 1.0.0 solves whole. Where gpusim2grid
-is accepted it is 1.1-2.6x faster, for the batch adapter's reasons; 30 CPU
-threads are faster than gridoxide on every N-1 case (1.8-5.4x).
+case2869pegase#n1, which gridoxide on 1.0.0 solves whole. gpusim2grid is
+accepted only on case1354pegase#n1 and case9241pegase#n1, 1.1-1.3x faster
+there, for the batch adapter's reasons (e35773e's message said 1.1-2.6x,
+counting the `#n1-full` cases, which gpusim2grid fails); 30 CPU threads are
+faster than gridoxide on every N-1 case (1.8-5.4x).
 """
 import numpy as np
 
