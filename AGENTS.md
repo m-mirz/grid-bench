@@ -10,7 +10,7 @@ power-grid-model, pypowsybl, VeraGrid, Sienna (PowerFlows.jl), ExaPF.jl (on
 its CPU backend, and on its CUDA backend as `exapf_gpu`, which needs an
 NVIDIA GPU), Sparlectra.jl and JuliaGrid.jl (all Julia, through juliacall), MATPOWER (GNU Octave),
 gpusim2grid (lightsim2grid's GPU companion, CUDA and cuDSS, which needs an
-NVIDIA GPU), and power-grid-model on CGMES through cgmes2pgm, and
+NVIDIA GPU), rustpower (Rust, KLU, reading pandapower nets), and power-grid-model on CGMES through cgmes2pgm, and
 weighted least-squares state estimation for pandapower, power-grid-model,
 VeraGrid, Sparlectra.jl and JuliaGrid.jl, and AC optimal power flow for MATPOWER,
 pandapower, VeraGrid, JuliaGrid.jl and PowerModels.jl (both Ipopt; PowerModels' own image, OPF only)

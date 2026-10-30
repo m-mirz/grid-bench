@@ -1,0 +1,21 @@
+# Dependencies of the rustpower benchmark image. The tool is pinned exactly: a
+# version change is a deliberate, recorded event, never a side effect of a
+# rebuild. See adapters/rustpower_adapter.py for how the tool is driven.
+[project]
+name = "grid-bench-rustpower"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2,<2.4",   # the same bound as the pandapower image, whose importer rustpower reads nets from
+    "scipy>=1.15",
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+    "rustpower==0.5.4",   # the PyPI wheel, built with KLU
+    "pandapower[converter]==3.3.3",   # the same importer (from_mpc) as the pandapower column
+    "pandas",   # rustpower reads the net's tables through pandas (declared by pandapower too)
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"

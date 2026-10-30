@@ -66,6 +66,7 @@ STYLES = {
     "#026802": ("#71da6a", DOTTED),    # PowSyBl CgmesModel java  3
     "#8b3200": ("#e4a063", SOLID),     # cimoxide         rust    base
     "#8b3201": ("#e4a064", SOLID),     # gridoxide        rust    base
+    "#a94d25": ("#c68447", DASHED),    # rustpower        rust    1
     "#52514e": ("#c3c2b7", DASHED),    # MATPOWER         reference
     "#52514f": ("#c3c2b8", DOTTED),    # PowerModels.jl   reference
 }

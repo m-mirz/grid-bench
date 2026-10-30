@@ -175,6 +175,11 @@ services:
     image: grid-bench/p3s:latest
     command: pytest benchmarks/p3s_benchmark.py --benchmark-json=/output/p3s.json
 
+  rustpower:
+    <<: *bench
+    image: grid-bench/rustpower:latest
+    command: pytest benchmarks/rustpower_benchmark.py --benchmark-json=/output/rustpower.json
+
   juliagrid:
     <<: *bench
     image: grid-bench/juliagrid:latest
