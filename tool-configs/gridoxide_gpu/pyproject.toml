@@ -1,0 +1,30 @@
+# Dependencies of the gridoxide_gpu benchmark image. gridoxide's GPU path (its
+# `gpu` feature: CUDA kernels and cuDSS) is not in the PyPI wheel:
+# tool-configs/gridoxide_gpu/Dockerfile compiles it from a pinned commit and
+# installs the wheel on top of this lockfile's environment. See
+# adapters/gridoxide_gpu_adapter.py for how the tool is driven.
+[project]
+name = "grid-bench-gridoxide-gpu"
+version = "0.1.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "numpy>=2.2",
+    "scipy>=1.15",   # the oracle's (oracle/), which runs in every tool's container
+    "pytest>=8.3",
+    "pytest-benchmark>=5.1",
+    "pytest-timeout>=2.3",
+]
+
+# Only for the Dockerfile's builder stage (`uv sync --only-group build`):
+# maturin builds the extension, and libclang (its wheel ships the shared
+# library) is what bindgen reads cuDSS's and CUDA's headers with, in place of
+# an apt package.
+[dependency-groups]
+build = [
+    "maturin>=1.9,<2.0",
+    "libclang>=18.1",
+]
+
+[tool.uv]
+package = false
+exclude-newer = "P7D"

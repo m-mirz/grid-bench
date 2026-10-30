@@ -37,7 +37,13 @@ neutral ink, MATPOWER dashed, PowerModels.jl (PGLib-OPF's reference) dotted.
 The site keys a line's pattern and its dark step on the light hex, so two
 tools on one step differ in the last digit (one unit off): lightsim2grid,
 gpusim2grid and its LODF DC N-1; pandapower, ToOp and triplets; Sparlectra,
-ExaPF.jl on a GPU and ExaModelsPower.jl; ExaPF.jl and ExaModelsPower.jl on a GPU.
+ExaPF.jl on a GPU and ExaModelsPower.jl; ExaPF.jl and ExaModelsPower.jl on a GPU;
+cimoxide and gridoxide on a GPU. gridoxide's dark step is its own: cimoxide's
+(#e4a063) is 9.8 from the C++ yellow (#c98500) under normal vision, below the
+floor of 15, and the GPU tabs put the two side by side, which no CIM chart
+does. #9e5220 against the yellow and ExaPF.jl's GPU magenta, all pairs, dark
+surface: normal vision 15.8, CVD 12.8 (deutan), contrast 3:1 or more; the
+light step against the same, 19.8 and 16.4.
 """
 SOLID, DASHED, DOTTED, LONG, DASHDOT = None, "6 4", "1.5 3.5", "12 4", "6 3 1.5 3"
 
@@ -67,6 +73,7 @@ STYLES = {
     "#8b3200": ("#e4a063", SOLID),     # cimoxide         rust    base
     "#8b3201": ("#e4a064", SOLID),     # gridoxide        rust    base
     "#a94d25": ("#c68447", DASHED),    # rustpower        rust    1
+    "#8b3201": ("#9e5220", DASHDOT),   # gridoxide (GPU)  rust    base, own dark step (below)
     "#52514e": ("#c3c2b7", DASHED),    # MATPOWER         reference
     "#52514f": ("#c3c2b8", DOTTED),    # PowerModels.jl   reference
 }
