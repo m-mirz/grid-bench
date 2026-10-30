@@ -152,6 +152,20 @@ services:
               device_ids: ["${GRID_BENCH_GPU:-0}"]
               capabilities: [gpu]
 
+  # gridoxide's GPU batch (CUDA, cuDSS 1.0): one NVIDIA GPU, as exapf_gpu; batch
+  # and N-1 only. See adapters/gridoxide_gpu_adapter.py.
+  gridoxide_gpu:
+    <<: *bench
+    image: grid-bench/gridoxide_gpu:latest
+    command: pytest benchmarks/gridoxide_gpu_batch_benchmark.py --benchmark-json=/output/gpu/gridoxide_gpu-batch.json
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${GRID_BENCH_GPU:-0}"]
+              capabilities: [gpu]
+
   # ToOp (JAX on CUDA): one NVIDIA GPU, as exapf_gpu; DC only. See adapters/toop_dc_adapter.py.
   toop:
     <<: *bench

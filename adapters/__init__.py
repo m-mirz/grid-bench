@@ -69,6 +69,7 @@ BATCHES = {
     "sparlectra": "adapters.sparlectra_batch_adapter:SparlectraBatch",
     "juliagrid": "adapters.juliagrid_batch_adapter:JuliagridBatch",
     "gridoxide": "adapters.gridoxide_batch_adapter:GridoxideBatch",
+    "gridoxide_gpu": "adapters.gridoxide_gpu_batch_adapter:GridoxideGpuBatch",
     "matpower": "adapters.matpower_batch_adapter:MatpowerBatch",
 }
 
@@ -88,6 +89,7 @@ CONTINGENCIES = {
     "sparlectra": "adapters.sparlectra_n1_adapter:SparlectraN1",
     "juliagrid": "adapters.juliagrid_n1_adapter:JuliagridN1",
     "gridoxide": "adapters.gridoxide_n1_adapter:GridoxideN1",
+    "gridoxide_gpu": "adapters.gridoxide_gpu_n1_adapter:GridoxideGpuN1",
     "matpower": "adapters.matpower_n1_adapter:MatpowerN1",
 }
 
@@ -116,6 +118,7 @@ DC_CONTINGENCIES = {
     "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDcN1",
     "toop": "adapters.toop_dc_adapter:ToopDcN1",
     "gridoxide": "adapters.gridoxide_dc_adapter:GridoxideDcN1",
+    "gridoxide_gpu": "adapters.gridoxide_gpu_dc_adapter:GridoxideGpuDcN1",
     "matpower": "adapters.matpower_dc_adapter:MatpowerDcN1",
 }
 
