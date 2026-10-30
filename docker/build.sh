@@ -19,5 +19,31 @@ for t in "${targets[@]}"; do
     dockerfile=docker/tool.dockerfile
     [ -f "tool-configs/$t/pom.xml" ] && dockerfile=docker/java-tool.dockerfile
     [ -f "tool-configs/$t/Dockerfile" ] && dockerfile="tool-configs/$t/Dockerfile"
-    docker build -f "$dockerfile" --build-arg TOOL="$t" -t "grid-bench/$t:latest" .
+    extra=()
+    # gridoxide is compiled from source (tool-configs/gridoxide/Dockerfile), as
+    # its published wheel has neither KLU nor IPOPT. By default the source is
+    # the pinned release's tarball from GitHub, checked against its sha256.
+    # To benchmark unreleased work instead, set GRIDOXIDE_REPO to a gridoxide
+    # checkout and GRIDOXIDE_COMMIT to the commit to build (default HEAD);
+    # `git archive` exports exactly that commit, never uncommitted work. Either
+    # way the tree becomes the `gridoxide` build context.
+    if [ "$t" = gridoxide ]; then
+        src=$(mktemp -d)
+        trap 'rm -rf "$src"' EXIT
+        if [ -n "${GRIDOXIDE_REPO:-}" ]; then
+            commit=$(git -C "$GRIDOXIDE_REPO" rev-parse "${GRIDOXIDE_COMMIT:-HEAD}")
+            git -C "$GRIDOXIDE_REPO" archive "$commit" | tar -x -C "$src"
+        else
+            version=0.3.0
+            commit=e85f8082bcb15d494c9c3f4ce92647da079dac0b
+            sha256=8e7456120a0929b4fe36c31df770d087b4acfd6a6f00e570d8cb19eeca18c804
+            curl -sSfL -o "$src/gridoxide.tar.gz" \
+                "https://github.com/m-mirz/gridoxide/archive/refs/tags/v$version.tar.gz"
+            echo "$sha256  $src/gridoxide.tar.gz" | sha256sum -c --quiet
+            tar -xzf "$src/gridoxide.tar.gz" -C "$src" --strip-components=1
+            rm "$src/gridoxide.tar.gz"
+        fi
+        extra=(--build-context "gridoxide=$src" --build-arg "GRIDOXIDE_COMMIT=$commit")
+    fi
+    docker build -f "$dockerfile" --build-arg TOOL="$t" "${extra[@]}" -t "grid-bench/$t:latest" .
 done

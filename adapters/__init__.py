@@ -2,7 +2,7 @@
 from importlib import import_module
 
 # Order: by language, as tools/palette.py colours them (Python, C++, Julia,
-# Java, then the reference); within one, the palette's step order.
+# Java, Rust, then the reference); within one, the palette's step order.
 ADAPTERS = {
     "pandapower": "adapters.pandapower_adapter:PandapowerAdapter",
     "pypsa": "adapters.pypsa_adapter:PypsaAdapter",
@@ -18,6 +18,7 @@ ADAPTERS = {
     "exapf": "adapters.exapf_adapter:ExapfAdapter",
     "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",
     "pypowsybl": "adapters.pypowsybl_adapter:PypowsyblAdapter",
+    "gridoxide": "adapters.gridoxide_adapter:GridoxideAdapter",
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
 
@@ -29,6 +30,7 @@ ESTIMATORS = {
     "pgm": "adapters.pgm_se_adapter:PgmEstimator",
     "sparlectra": "adapters.sparlectra_se_adapter:SparlectraEstimator",
     "juliagrid": "adapters.juliagrid_se_adapter:JuliagridEstimator",
+    "gridoxide": "adapters.gridoxide_se_adapter:GridoxideEstimator",
 }
 
 
@@ -44,6 +46,7 @@ OPTIMIZERS = {
     "examodelspower": "adapters.examodelspower_opf_adapter:ExamodelspowerOptimizer",
     "examodelspower_gpu": "adapters.examodelspower_gpu_opf_adapter:ExamodelspowerGpuOptimizer",
     "juliagrid": "adapters.juliagrid_opf_adapter:JuliagridOptimizer",
+    "gridoxide": "adapters.gridoxide_opf_adapter:GridoxideOptimizer",
     "matpower": "adapters.matpower_opf_adapter:MatpowerOptimizer",
     "powermodels": "adapters.powermodels_opf_adapter:PowermodelsOptimizer",
 }
@@ -64,6 +67,7 @@ BATCHES = {
     "exapf_gpu": "adapters.exapf_gpu_batch_adapter:ExapfGpuBatch",
     "sparlectra": "adapters.sparlectra_batch_adapter:SparlectraBatch",
     "juliagrid": "adapters.juliagrid_batch_adapter:JuliagridBatch",
+    "gridoxide": "adapters.gridoxide_batch_adapter:GridoxideBatch",
     "matpower": "adapters.matpower_batch_adapter:MatpowerBatch",
 }
 
@@ -82,6 +86,7 @@ CONTINGENCIES = {
     "exapf_gpu": "adapters.exapf_gpu_n1_adapter:ExapfGpuN1",
     "sparlectra": "adapters.sparlectra_n1_adapter:SparlectraN1",
     "juliagrid": "adapters.juliagrid_n1_adapter:JuliagridN1",
+    "gridoxide": "adapters.gridoxide_n1_adapter:GridoxideN1",
     "matpower": "adapters.matpower_n1_adapter:MatpowerN1",
 }
 
@@ -101,6 +106,7 @@ DC = {
     "pypsa": "adapters.pypsa_dc_adapter:PypsaDc",
     "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDc",
     "toop": "adapters.toop_dc_adapter:ToopDc",
+    "gridoxide": "adapters.gridoxide_dc_adapter:GridoxideDc",
     "matpower": "adapters.matpower_dc_adapter:MatpowerDc",
 }
 DC_CONTINGENCIES = {
@@ -108,6 +114,7 @@ DC_CONTINGENCIES = {
     "lightsim2grid_lodf": "adapters.lightsim2grid_dc_adapter:Lightsim2gridDcN1Lodf",
     "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDcN1",
     "toop": "adapters.toop_dc_adapter:ToopDcN1",
+    "gridoxide": "adapters.gridoxide_dc_adapter:GridoxideDcN1",
     "matpower": "adapters.matpower_dc_adapter:MatpowerDcN1",
 }
 
