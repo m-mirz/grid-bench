@@ -2,9 +2,9 @@
 # built with its `gpu` feature (gridoxide-gpu: CUDA kernels and cuDSS's
 # uniform batch). Built by docker/build.sh in place of docker/tool.dockerfile.
 #
-# gridoxide's GPU path has no release: it is built from a commit of its
-# gpu-batch branch, GitHub's tarball of it by SHA-256, as gpusim2grid's image
-# takes its source.
+# gridoxide is built from its v0.3.0 release, the first with the GPU path:
+# GitHub's tarball of the tag by SHA-256, the same source as the gridoxide
+# image's (docker/build.sh). The published wheel has no `gpu` feature.
 #
 # Pinned like everything else, no apt packages: NVIDIA's CUDA 12.9 devel image
 # by digest (nvcc; Ubuntu 22.04, whose glibc 2.35 is older than the base
@@ -32,11 +32,12 @@ ADD --checksum=sha256:b8c882c3ebc8b319886f5a06e74311c5eea09846925ba5a19892de4921
     https://developer.download.nvidia.com/compute/cudss/redist/libcudss/linux-x86_64/libcudss-linux-x86_64-1.0.0.35_cuda12-archive.tar.xz /src/cudss.tar.xz
 RUN mkdir /opt/cudss && tar -xJf /src/cudss.tar.xz -C /opt/cudss --strip-components=1
 
-# gridoxide at commit 5d14426 (gpu-batch, 2026-10-30): the AC batch of d105bf4,
-# on which results-docker/gpu/gridoxide_gpu-batch.json and -n1.json were
-# measured, plus GpuDcSolver (DC N-1).
-ADD --checksum=sha256:80fbdc9908257834672938d14927aaf4dc5fd6f5b646a25891f86a5528288314 \
-    https://github.com/m-mirz/gridoxide/archive/5d144268df5f4cb39769b2fa63b1634cee2b3a71.tar.gz /src/gridoxide.tar.gz
+# gridoxide v0.3.0 (commit e85f808). Its GPU code is that of gpu-batch's
+# d105bf4 (the AC batch, on which results-docker/gpu/gridoxide_gpu-batch.json
+# and -n1.json were measured) and 5d14426 (GpuDcSolver, DC N-1), squash-merged
+# as gridoxide PR #29.
+ADD --checksum=sha256:8e7456120a0929b4fe36c31df770d087b4acfd6a6f00e570d8cb19eeca18c804 \
+    https://github.com/m-mirz/gridoxide/archive/refs/tags/v0.3.0.tar.gz /src/gridoxide.tar.gz
 RUN mkdir /src/gridoxide && tar -xzf /src/gridoxide.tar.gz -C /src/gridoxide --strip-components=1
 
 # The extension, `--features python,gpu`:
