@@ -2,10 +2,10 @@
 # with its SuiteSparse KLU backend. Built by docker/build.sh in place of
 # docker/tool.dockerfile.
 #
-# The source is a named build context, `gridoxide`: a tree of the commit
-# under test, which docker/build.sh takes from GRIDOXIDE_SRC (see there).
-# Its commit is recorded in the image (GRIDOXIDE_COMMIT) and with every
-# result (adapters/gridoxide_adapter.py).
+# The source is a named build context, `gridoxide`: the source tree of the
+# pinned release (v0.3.0), or of a local commit under test, which
+# docker/build.sh puts there (see there). Its commit is recorded in the image
+# (GRIDOXIDE_COMMIT) and with every result (adapters/gridoxide_adapter.py).
 #
 # Pinned like the other compiled tools: the Rust image by digest (Debian
 # bookworm, the base image's Debian, so the extension needs no newer glibc),
