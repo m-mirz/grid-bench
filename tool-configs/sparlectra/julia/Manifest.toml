@@ -2,13 +2,13 @@
 
 julia_version = "1.12.7"
 manifest_format = "2.0"
-project_hash = "ae3f10b1fea758c64b63a47e0f1503865c3297de"
+project_hash = "ddfd9b11355becb50f42fa4c9bffd4b849dbb7c5"
 
 [[deps.AnalyticLoadFlow]]
 deps = ["LinearAlgebra", "Logging", "PrecompileTools", "Printf", "SparseArrays"]
-git-tree-sha1 = "22bb0bd2553ed05ed8ac6593ba2e07dbfa3ee638"
+git-tree-sha1 = "974ce3c59583855fda49e496371c5c127ac9cb17"
 uuid = "19ecf91d-4042-490c-adc1-7fb0fdb392c0"
-version = "0.10.1"
+version = "0.10.3"
 
 [[deps.ArgCheck]]
 git-tree-sha1 = "f9e9a66c9b7be1ad7372bbd9b062d9230c30c5ce"
@@ -110,9 +110,9 @@ version = "1.8.0"
 
 [[deps.JSON]]
 deps = ["Dates", "Logging", "Parsers", "PrecompileTools", "StructUtils", "UUIDs", "Unicode"]
-git-tree-sha1 = "9939eb6f799a963b3392ac4a1d49d3fc0646eb80"
+git-tree-sha1 = "ef46833ad806dc03d95dbe86db3d113965c461cd"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
-version = "1.11.0"
+version = "1.12.2"
 
     [deps.JSON.extensions]
     JSONArrowExt = ["ArrowTypes"]
@@ -295,10 +295,10 @@ uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 version = "1.11.0"
 
 [[deps.Sparlectra]]
-deps = ["AnalyticLoadFlow", "Dates", "DelimitedFiles", "Downloads", "EzXML", "LinearAlgebra", "Logging", "Markdown", "PrecompileTools", "Printf", "Random", "SHA", "Serialization", "Sockets", "SparseArrays", "TOML", "UUIDs", "ZipArchives"]
-git-tree-sha1 = "f5088a6864b57e97bd98ba8dd5f588195cdc9b3c"
+deps = ["AnalyticLoadFlow", "Dates", "DelimitedFiles", "Downloads", "EzXML", "LinearAlgebra", "Logging", "Markdown", "PrecompileTools", "Printf", "Random", "SHA", "Sockets", "SparseArrays", "TOML", "UUIDs", "ZipArchives"]
+git-tree-sha1 = "85e27309a9766fc904c2138a899476bf5a732e7b"
 uuid = "31ce9bba-fd9d-44a1-b005-f5f509afda38"
-version = "0.50.0"
+version = "1.0.0"
 
     [deps.Sparlectra.extensions]
     SparlectraBenchmarkToolsExt = "BenchmarkTools"
@@ -315,9 +315,9 @@ version = "1.12.0"
 
 [[deps.StructUtils]]
 deps = ["Dates", "UUIDs"]
-git-tree-sha1 = "ad435e30854ed0f50f4b7f67edd71664afecc5d8"
+git-tree-sha1 = "044ed182312a8ad0f28437f048f3e1eae9093a80"
 uuid = "ec057cc2-7a8d-4b58-b3b3-92acb9f63b42"
-version = "2.10.0"
+version = "2.11.1"
 
     [deps.StructUtils.extensions]
     StructUtilsDataFramesExt = ["DataFrames"]

@@ -15,4 +15,4 @@ GridBenchSparlectra = {path = "GridBenchSparlectra"}   # the adapter's Julia hal
 julia = "=1.12.7"
 KLU = "=0.6.0"            # loaded for Sparlectra's KLU extension: the LU of a power-mode solve
 PythonCall = "=0.9.35"    # exactly the version juliacall 0.9.35 requires
-Sparlectra = "=0.50.0"
+Sparlectra = "=1.0.0"

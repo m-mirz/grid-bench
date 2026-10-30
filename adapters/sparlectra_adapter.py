@@ -3,7 +3,7 @@
 Julia inside the benchmark process: a call costs microseconds, so the timing
 is Julia's.
 
-Version: 0.50.0, the newest release when it was last updated (2026-10-24), chosen
+Version: 1.0.0, the newest release when it was last updated (2026-10-30), chosen
 deliberately over the 7-day rule every other pin follows (the package
 releases almost daily); tool-configs/sparlectra/julia/setup.jl says so too.
 
@@ -34,6 +34,10 @@ Import settings (CGMES):
 - `multi_slack=false`: a single slack, chosen by the importer from
   `referencePriority`, else the largest machine.
 - `require_boundary=true`, `hvdc_mode=:injections` (defaults).
+- `equivalent_injection_as_source=false`, `read_dynamics=false` (defaults,
+  passed so a change of default cannot change the problem): an
+  EquivalentInjection stays an injection, not a voltage source, and no DY
+  profile is read (none is given).
 
 Solve settings (`runpf_rectangular!`):
 - `damp=1.0`: a full Newton step. The keyword form defaults to 0.2, a damped
@@ -53,7 +57,9 @@ Solve settings (`runpf_rectangular!`):
   (cgmes_smallgrid: 5 steps on the first solve, divergence on every later
   one). Restoring undoes the side effect; the problem is unchanged.
 - `start_projection`, `start_current_iteration_enabled`,
-  `apslf_start_enabled` off: none of Sparlectra's start-value improvers.
+  `apslf_start_enabled`, `start_rotate_behind_pst` off: none of Sparlectra's
+  start-value improvers (the last starts buses behind a phase shifter at
+  the shifted angle, which is not the flat start).
 - `qlimits_enabled=false`, `enable_pq_gen_controllers=false` (import): no
   reactive limits and no P(U)/Q(U) controllers on PQ generators (with them,
   each generator is clamped to its limits).
@@ -109,7 +115,7 @@ Robustness (not a loss: the model is exact):
   losses, against 0.843 p.u. and 980.7 MW at the case's own VM/VA), which
   satisfies the equations, so the tier-1 oracle accepted it. cgmes_minigrid
   (by ENTSO-E's documentation, ch. 2, a short-circuit test set "not for load
-  flow") diverged at the 110 kV star windings of T3/T4; on 0.50.0, whose
+  flow") diverged at the 110 kV star windings of T3/T4; since 0.50.0, whose
   0.41.0 and 0.42.0 corrected the import of three-winding transformers, it
   solves in 4 polar steps to its SV (4e-7 p.u.). case6495rte and cgmes_realgrid
   diverge with the polar update and diverged with the rectangular one in
