@@ -39,7 +39,7 @@ Settings:
 import numpy as np
 
 from adapters.batch_adapter import BatchAdapter, BatchSolution, base_case, columns, scenarios
-from adapters.lightsim2grid_adapter import Lightsim2gridAdapter, tolerance
+from adapters.lightsim2grid_adapter import Lightsim2gridAdapter, flat_start, tolerance
 from adapters.solver_adapter import MAX_ITERATIONS, DidNotConverge
 from cases.matpower import BUS_I, GEN_BUS, PD, parse_m
 from cases.registry import CASES, mat_path
@@ -95,7 +95,7 @@ class Lightsim2gridBatch(BatchAdapter):
         computer.modify_sgen_p(np.zeros((n, 0)))
         computer.modify_load_p(load_p)
         computer.modify_load_q(load_q)
-        v_init = np.full(len(grid.get_bus_vn_kv()), grid.get_init_vm_pu(), dtype=complex)
+        v_init = flat_start(grid)
         return {"computer": computer, "grid": grid, "v_init": v_init, "tol": tolerance(grid), "n": n,
                 "bus_ids": [str(b) for b in number], "v": None}
 

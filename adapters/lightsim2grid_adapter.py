@@ -16,8 +16,13 @@ Settings:
   which carries the slack's share as an extra unknown even with one slack
   bus; not used, as it solves a larger system than the problem needs.
 - `ac_pf(v_init, MAX_ITERATIONS, tolerance(grid))` with `v_init` all 1.0 p.u.
-  and zero angle: a flat start on every solve. lightsim2grid applies PV/slack
-  setpoints itself. An empty returned vector means divergence.
+  and zero angle (`flat_start`): a flat start on every solve. lightsim2grid
+  applies PV/slack setpoints itself. An empty returned vector means
+  divergence. Not `grid.get_init_vm_pu()`, which this adapter used before:
+  that is lightsim2grid's own default of 1.04 p.u., on every case, so every
+  PQ bus started 0.04 above the common start. It saved lightsim2grid a
+  Newton step on case3120sp and case9241pegase and cost it one on case33bw
+  (measured: from 1.0 it takes 6, 6 and 3 steps, from 1.04 5, 5 and 4).
 - `tolerance(grid)` = `TOLERANCE_PU * sn_mva`: `ac_pf` compares the infinity
   norm of its mismatch with `tol` in MVA, not per unit (measured: the
   smallest `tol` at which Newton stops after k iterations equals the
@@ -35,6 +40,13 @@ import numpy as np
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge, Solution, SolverAdapter
 from cases.matpower import BUS_I, parse_m
 from cases.registry import CASES, mat_path
+
+
+def flat_start(grid) -> np.ndarray:
+    """1 p.u. and zero angle at every bus: the common flat start, which
+    `ac_pf` turns into the setpoints at PV and slack buses itself. Shared by
+    every lightsim2grid and gpusim2grid adapter."""
+    return np.ones(len(grid.get_bus_vn_kv()), dtype=complex)
 
 
 def tolerance(grid) -> float:
@@ -59,8 +71,7 @@ class Lightsim2gridAdapter(SolverAdapter):
         from lightsim2grid.network import init_from_matpower
         grid = init_from_matpower(str(mat_path(case)))
         grid.change_algorithm(AlgorithmType.NRSing_KLU)
-        n = len(grid.get_bus_vn_kv())
-        return {"grid": grid, "v_init": np.full(n, grid.get_init_vm_pu(), dtype=complex), "tol": tolerance(grid), "v": None}
+        return {"grid": grid, "v_init": flat_start(grid), "tol": tolerance(grid), "v": None}
 
     def solve(self, model):
         v = model["grid"].ac_pf(model["v_init"], MAX_ITERATIONS, model["tol"])
