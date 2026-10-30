@@ -2,7 +2,8 @@
 (`oracle.batch` over `cases.contingency.outage`), tested before any tool.
 
 1. Outages are in-service branches, never island the grid, and come in the
-   same order every time.
+   same order every time; on small grids, exactly the branches (and order)
+   that labelling the components of every outage finds.
 2. Every outage's own power flow (`cases.truth`, from the base case's
    solution) passes.
 3. Planted errors a contingency API could make are caught on exactly the
@@ -17,7 +18,7 @@ import scipy.sparse as sp
 from scipy.sparse.csgraph import connected_components
 
 from cases import contingency
-from cases.matpower import BR_STATUS, BUS_I, F_BUS, T_BUS, parse_m
+from cases.matpower import BR_STATUS, BUS_I, BUS_TYPE, F_BUS, ISOLATED, REF, T_BUS, parse_m
 from cases.registry import CASES
 from cases.truth import solve_pf
 from oracle import batch
@@ -75,3 +76,70 @@ def test_wrong_branch_is_caught(setup):
     wrong = {"branch_row": np.roll(data["branch_row"], 1)}
     out = _check(mpc, wrong, ids, vm, va)
     assert out["scenarios_failed"] == N
+
+
+def _grid(n, edges, isolated=(), offline=()):
+    """n buses, bus 0 the slack, numbered apart from their positions."""
+    bus = np.zeros((n, 13))
+    bus[:, BUS_I] = np.arange(n) * 3 + 10
+    bus[:, BUS_TYPE] = 1
+    bus[0, BUS_TYPE] = REF
+    bus[list(isolated), BUS_TYPE] = ISOLATED
+    branch = np.zeros((len(edges), 13))
+    branch[:, BR_STATUS] = 1
+    branch[:, [F_BUS, T_BUS]] = bus[np.array(edges, dtype=int).reshape(-1, 2), BUS_I]
+    branch[list(offline), BR_STATUS] = 0
+    return {"bus": bus, "branch": branch}
+
+
+def _labelled(mpc, key):
+    """The definition, one outage at a time: every energized bus still in the slack's component."""
+    bus, branch = mpc["bus"], mpc["branch"]
+    pos = {int(b): i for i, b in enumerate(bus[:, BUS_I])}
+    live = np.flatnonzero(branch[:, BR_STATUS] > 0)
+    f = np.array([pos[int(b)] for b in branch[live, F_BUS]], dtype=int)
+    t = np.array([pos[int(b)] for b in branch[live, T_BUS]], dtype=int)
+    energized = bus[:, BUS_TYPE] != ISOLATED
+    slack = np.flatnonzero(bus[:, BUS_TYPE] == REF)[0]
+    rows = []
+    for j in np.random.default_rng(contingency._seed(key)).permutation(len(live)):
+        keep = np.arange(len(live)) != j
+        _, label = connected_components(sp.coo_matrix((np.ones(keep.sum()), (f[keep], t[keep])),
+                                                      shape=(len(bus), len(bus))), directed=False)
+        if (label[energized] == label[slack]).all():
+            rows.append(int(live[j]))
+    return rows
+
+
+@pytest.mark.parametrize("seed", range(20))
+def test_random_multigraphs_match_labelling(seed):
+    rng = np.random.default_rng(seed)
+    n = int(rng.integers(2, 30))
+    edges = [tuple(e) for e in rng.integers(n, size=(int(rng.integers(0, 90)), 2))]
+    mpc = _grid(n, edges, [i for i in range(1, n) if rng.random() < .25],
+                [i for i in range(len(edges)) if rng.random() < .2])
+    assert list(contingency.candidates(mpc, str(seed))) == _labelled(mpc, str(seed))
+
+
+@pytest.mark.parametrize("n,edges,isolated,offline,expected", [
+    (2, [(0, 1), (0, 1)], (), (), {0, 1}),      # parallel lines are not bridges
+    (3, [(0, 1), (1, 2)], (), (), set()),
+    (3, [(0, 1), (1, 2)], (2,), (), {1}),       # cutting off only an isolated bus is allowed
+    (4, [(0, 1), (2, 3)], (2, 3), (), {1}),     # an isolated component is irrelevant
+    (3, [(0, 1), (1, 2)], (), (1,), set()),     # an energized bus cut off already: no outage helps
+    (2, [(0, 1), (0, 0), (1, 1)], (), (), {1, 2}),   # self-loops
+    (2, [], (), (), set()),
+])
+def test_topological_boundaries(n, edges, isolated, offline, expected):
+    mpc = _grid(n, edges, isolated, offline)
+    rows = list(contingency.candidates(mpc, "boundary"))
+    assert set(rows) == expected and rows == _labelled(mpc, "boundary")
+
+
+def test_deep_radial_grid():
+    """30 000 levels, deeper than Python's recursion limit; the isolated last
+    bus makes its branch the one candidate, every other branch cuts off an
+    energized bus."""
+    n = 30_000
+    mpc = _grid(n, [(i, i + 1) for i in range(n - 1)], isolated=(n - 1,))
+    assert list(contingency.candidates(mpc, "deep")) == [n - 2]
