@@ -175,6 +175,7 @@ GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu    # into results-docker/g
 GRID_BENCH_RESULTS=gpu docker/run_single.sh gpusim2grid --groups smoke,scaling,feature,large   # with the large batches
 docker compose -f docker/docker-compose.yml run --rm reports   # regenerate reports only
 
+curl -fsSL .../setup-server.sh | bash          # rented server: Docker, clones grid-bench + gridoxide, tmux "bench"
 ./setup.sh                                     # native: oracle and case prep only (tools run in images)
 uv run pytest tests                            # oracle tests
 uv run python -m cases.prep [case ...]         # tool inputs into data/.case-cache/
