@@ -36,9 +36,6 @@ rounds are 3 to 50 % of a run's wall time.
 
 ## GPU tabs
 
-- More CPU baselines with a native batch API: power-grid-model and p3s
-  (timed at 1 to n threads like lightsim2grid and gridoxide), whose large
-  batches say whether 30 cores keep up with a GPU at 10 000 scenarios.
 - examodelspower_gpu: case13659pegase was accepted in one run and stalled
   in the next with the same pins (iteration counts on the device vary by 1
   or 2 between runs). Find where the run-to-run difference comes from
