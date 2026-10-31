@@ -72,15 +72,23 @@ solve, statuses: the CPU adapter's, unchanged (its docstring). Here:
 - Julia single-threaded, ExaPowerIO's log off: as on the CPU.
 
 Results (A100, PGLib cases, results-docker/gpu/, against ExaModelsPower on
-the same machine's CPU, which passes every case): 16 of 18 cases accepted,
+the same machine's CPU, which passes every case): 15 of 18 cases accepted,
 balanced to 1e-5 to 7e-5 MW (the 1e-8 band), objectives within 5e-5 of
 PGLib's reference, about as many iterations as on the CPU.
 case9241pegase and case30000_goc fail: MAXIMUM_ITERATIONS_EXCEEDED (above).
-Per solve the GPU is 15 to 18x slower on case14 and its variants (81
-against 5 ms), behind up to case300, and ahead from case1354pegase on:
-3.0x there, 5.8x on case2869pegase, and on the large cases 12x on
-case13659pegase, 15x on case10000_goc and case10480_goc, 16x on
-case19402_goc, 17x on case24464_goc (3.8 against 65 s).
+So does case13659pegase in this run (de91c8b), accepted in 62 iterations
+in the previous one with the same pins: the iteration counts on the device
+vary from run to run (by 1 or 2 on the cases that converge), and this case
+is on the edge. A stall is quick (case9241pegase's 200 iterations take
+8.2 s); a process's first solve is not (89 s on case14, compiling the CUDA
+kernels), which every fresh process pays: the memory measurement's, once
+per case. Per solve the GPU is 15 to 18x slower on case14's variants (88
+and 141 against 5.8 and 7.8 ms; case14 itself, the session's first solve,
+got one round, 385 ms, as its warm-up included the compilation), behind
+up to case300, and ahead from case1354pegase on: 3.0x there, 5.8x on
+case2869pegase, and on the large cases 15x on case10000_goc and
+case10480_goc, 17x on case19402_goc, 18x on case24464_goc (3.6 against
+65 s).
 """
 from adapters.examodelspower_opf_adapter import ExamodelspowerOptimizer
 

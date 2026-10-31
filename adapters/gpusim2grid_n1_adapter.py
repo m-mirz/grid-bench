@@ -36,11 +36,11 @@ Settings:
   with the case's one slack: the power-flow adapter's.
 - Thread count: not a setting (one GPU).
 
-Results (A100, 416ae9f, `results-docker/gpu/`): every outage accepted on
+Results (A100, e950f8b, `results-docker/gpu/`): every outage accepted on
 case14, case1354pegase (0.52 ms per outage) and case9241pegase (3.7 ms;
-ExaPF.jl on the same GPU 6.9 ms, lightsim2grid 31 ms on one thread of the
-same machine and 2.1 ms on 30). Known loss, reported rather than worked
-around: case2869pegase#n1 fails, 129 to 166 of its 200 outages NaN, a
+ExaPF.jl on the same GPU 6.9 ms, lightsim2grid 28 ms on one thread of the
+same machine and 1.4 ms on 30). Known loss, reported rather than worked
+around: case2869pegase#n1 fails, 129 to 167 of its 200 outages NaN, a
 different set on every run of the same session. ExaPF.jl's GPU N-1 fails
 the same case the same way (adapters/exapf_gpu_n1_adapter.py); the two
 share no code but cuDSS 0.8.0's batched factorization and solve, which
@@ -50,18 +50,18 @@ Full N-1 (`#n1-full`, every outage that converges; A100, batch_size 2048,
 the batch adapter's experiment for the choice; lightsim2grid on 30 threads
 of the same machine, which accepts every outage of all three, in
 parentheses):
-- case1354pegase (1 428 outages, one chunk, 0.11 ms each (0.091)): 128
-  NaN, every finite outage but one accepted; 144 to 232 NaN over five runs
+- case1354pegase (1 428 outages, one chunk, 0.11 ms each (0.092)): 247
+  NaN (128 in an earlier run), every finite outage but one accepted; 144 to 232 NaN over five runs
   of the experiment at one chunk, against 436 to 494 at 512 (chunks of
   512). Not cuDSS's batch size alone: ExaPF.jl's GPU N-1 solves the same
   1 428 outages in one batch of 1 429 blocks with every outage accepted
   (adapters/exapf_gpu_n1_adapter.py).
-- case2869pegase (3 804 outages, 0.26 ms each (0.27)): no NaN, 1 outage
+- case2869pegase (3 804 outages, 0.25 ms each (0.26)): no NaN, 1 outage
   finite and rejected. At batch_size 512, 0.50 ms each, an earlier run lost
   3 324 to 3 380 (87 to 89 %); every run today kept them all at every size,
   cause unknown (see the batch adapter), while case2869pegase#n1 above
-  still loses 154 of its 200.
-- case9241pegase (14 374 outages, 0.87 ms each (1.26), 1.6 ms at 512): no
+  still loses 167 of its 200.
+- case9241pegase (14 374 outages, 0.84 ms each (1.24), 1.6 ms at 512): no
   NaN, but 16 outages finite and wrong at every batch size (worst: outage
   5002, 50 MW off, a bus at 0.29 p.u.): `nb_iter=4` does not bring the
   hardest outages to the tolerance, which none of the default 200 needed.
