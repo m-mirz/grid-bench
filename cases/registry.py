@@ -70,7 +70,8 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   from the base case, for the GPU tabs.
 - `dc-matpower`: DC power flow, MATPOWER's DC model (`oracle/dc.py`). A
   transmission case in the default groups but the hard ones (those are
-  about AC convergence; a DC power flow always solves), keyed `<case>#dc`,
+  about AC convergence; a DC power flow always solves), and in `large`
+  the cases larger than the PEGASE series (`LARGE_DC_FROM`), keyed `<case>#dc`,
   graded on angles (nodal balance) and branch flows. `problem` is "dc".
 - `dcn1-matpower`: DC N-1, the `n1-matpower` cases' outages (the same 200
   per case, `outages_of`) on the DC model, keyed `<case>#dcn1`, every
@@ -91,8 +92,12 @@ Groups say what a case is *for* (a case can be in several):
 - `feature`: exercises modelling details that separate importers (transformer
   line charging, negative reactance, PV buses without generators, offline
   equipment). The accuracy headline.
-- `large` (`OPT_IN_GROUPS`): batches sized for a GPU, and the OPF cases
-  from 9 241 to 30 000 buses (PEGASE and the GO Competition's), run and prepared only
+- `large` (`OPT_IN_GROUPS`): batches sized for a GPU, the OPF cases
+  from 9 241 to 30 000 buses (PEGASE and the GO Competition's), and power
+  flow and DC power flow on grids from 10 000 to 70 000 buses (MATPOWER's
+  case13659pegase, the TAMU ACTIVSg grids, and the GO Competition's PGLib
+  cases at an OPF optimum, `pglib_case*`; AC only where it solves from
+  flat start), run and prepared only
   when asked (`--groups large`; a GPU machine's run, with its CPU
   baselines), published like the default groups: in the GPU tabs, since
   only that run has them.
@@ -100,7 +105,10 @@ Groups say what a case is *for* (a case can be in several):
 A case with no group stays available by name but is not run by default:
 case6515rte, and the RTE cases no tool tested solves from a flat start
 (case1888rte, case2848rte, case6495rte: they diverge, or reach a
-low-voltage root the oracle rejects), which would only add failures.
+low-voltage root the oracle rejects), which would only add failures; and
+for AC, case13659pegase, case_ACTIVSg70k and three of the dispatched PGLib
+cases, which diverge from flat start in a plain Newton-Raphson (their DC
+power flows are in `large`).
 
 Reports are organised by `grid`, the physical grid a case describes:
 `transmission` (the `matpower` family and its conversions, which are the
@@ -117,6 +125,7 @@ MATPOWER_DIR = DATA / "benchmark-grids" / "matpower"
 PLAIN_DIR = DATA / "benchmark-grids" / "matpower-plain"
 GENERATED_DIR = DATA / "benchmark-grids" / "generated"
 PGLIB_DIR = DATA / "benchmark-grids" / "pglib"
+PGLIB_DISPATCHED_DIR = DATA / "benchmark-grids" / "pglib-dispatched"
 CGMES_DIR = DATA / "CGMES-Test-Configurations" / "v3.0"
 SHACL_DIR = DATA / "application-profiles-library" / "CGMES" / "SHACL"
 
@@ -138,6 +147,14 @@ GRIDS = ("transmission", "distribution", "fixtures")
 def _mp(file: str, groups: list[str], source: str, note: str = "") -> dict:
     return {"family": "matpower", "grid": "transmission", "format": "matpower", "file": MATPOWER_DIR / file,
             "groups": groups, "source": source, "note": note}
+
+
+def _pglib_pf(name: str, groups: list[str], note: str = "") -> dict:
+    """A PGLib-OPF case at an AC-OPF optimum (the submodule's `pglib-dispatched/`,
+    see its PROVENANCE.md): PGLib's own setpoints are no operating point."""
+    return {"family": "matpower", "grid": "transmission", "format": "matpower",
+            "file": PGLIB_DISPATCHED_DIR / f"pglib_opf_{name}.m", "groups": groups,
+            "source": "PGLib-OPF v23.07 (GO Competition), OPF dispatch", "note": note}
 
 
 def _dist(name: str, groups: list[str], source: str, note: str = "", where: Path = PLAIN_DIR) -> dict:
@@ -171,6 +188,21 @@ CASES: dict[str, dict] = {
     "case1888rte": _mp("case1888rte.m", [], "RTE", "no tool tested solves it from a flat start"),
     "case6495rte": _mp("case6495rte.m", [], "RTE", "no tool tested solves it from a flat start"),
     "case6515rte": _mp("case6515rte.m", [], "RTE", "same grid and structure as case6495rte, another snapshot"),
+    # Larger than the PEGASE series, for the GPU tabs (`large`): a GPU's
+    # single solve overtakes the CPU tools from a few thousand buses.
+    "case13659pegase": _mp("case13659pegase.m", [], "PEGASE",
+                           "diverges from flat start in a plain Newton-Raphson (its angles span 132 deg; "
+                           "from its own VM/VA it solves in 6 iterations); its DC power flow is in `large`"),
+    "case_ACTIVSg25k": _mp("case_ACTIVSg25k.m", ["large"], "TAMU synthetic", "25,000 buses, the US Northeast"),
+    "case_ACTIVSg70k": _mp("case_ACTIVSg70k.m", [], "TAMU synthetic",
+                           "70,000 buses, the US Eastern interconnection; diverges from flat start in a plain "
+                           "Newton-Raphson (its angles span 213 deg; from its own VM/VA it solves in 6 "
+                           "iterations); its DC power flow is in `large`"),
+    "pglib_case10000_goc": _pglib_pf("case10000_goc", [], "diverges from flat start in a plain Newton-Raphson (from the OPF's voltages it solves); its DC power flow is in `large`"),
+    "pglib_case10480_goc": _pglib_pf("case10480_goc", ["large"]),
+    "pglib_case19402_goc": _pglib_pf("case19402_goc", ["large"]),
+    "pglib_case24464_goc": _pglib_pf("case24464_goc", [], "diverges from flat start in a plain Newton-Raphson (from the OPF's voltages it solves); its DC power flow is in `large`"),
+    "pglib_case30000_goc": _pglib_pf("case30000_goc", [], "diverges from flat start in a plain Newton-Raphson (from the OPF's voltages it solves); its DC power flow is in `large`"),
 
     "case4_dist": _dist("case4_dist", ["feature"], "MATPOWER", "a PV generator and a tap-changing transformer",
                         MATPOWER_DIR),
@@ -205,8 +237,12 @@ CASES: dict[str, dict] = {
 }
 
 
+def _default(c: dict) -> bool:
+    return bool(set(c["groups"]) & set(DEFAULT_GROUPS))
+
+
 # The headline MATPOWER cases, each converted by every converter.
-CONVERTED_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c["groups"]]
+CONVERTED_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and _default(c)]
 for _base in CONVERTED_FROM:
     for _conv in CONVERTERS:
         CASES[f"{_base}@{_conv}"] = {
@@ -221,7 +257,7 @@ for _base in CONVERTED_FROM:
 # State estimation: every headline MATPOWER and distribution case, with each
 # measurement scenario. The family says the case is read with its
 # measurements; grid and groups are the base case's. Only `exact` is smoke.
-SE_FROM = [k for k, c in CASES.items() if c["family"] in ("matpower", "distribution") and c["groups"]]
+SE_FROM = [k for k, c in CASES.items() if c["family"] in ("matpower", "distribution") and _default(c)]
 for _base in SE_FROM:
     for _scen in SCENARIOS:
         CASES[f"{_base}~{_scen}"] = {
@@ -274,12 +310,17 @@ for _base in N1_FROM:
         "source": f"{_base}, N-1 branch outages", "note": CASES[_base]["note"],
     }
 
-# DC power flow: every default transmission MATPOWER case.
-DC_FROM = [k for k, c in CASES.items() if c["family"] == "matpower" and c["groups"]]
-for _base in DC_FROM:
+# DC power flow: every default transmission MATPOWER case, and in `large`
+# the larger ones, those whose AC power flow diverges from flat start too
+# (a DC power flow always solves).
+LARGE_DC_FROM = ("case13659pegase", "case_ACTIVSg25k", "case_ACTIVSg70k", "pglib_case10000_goc",
+                 "pglib_case10480_goc", "pglib_case19402_goc", "pglib_case24464_goc", "pglib_case30000_goc")
+DC_FROM = {k: c["groups"] for k, c in CASES.items() if c["family"] == "matpower" and _default(c)} \
+    | {k: ["large"] for k in LARGE_DC_FROM}
+for _base, _groups in DC_FROM.items():
     CASES[f"{_base}#dc"] = {
         "family": "dc-matpower", "grid": CASES[_base]["grid"], "format": "matpower", "problem": "dc",
-        "file": CASES[_base]["file"], "base_case": _base, "groups": CASES[_base]["groups"],
+        "file": CASES[_base]["file"], "base_case": _base, "groups": _groups,
         "source": f"{_base}, DC power flow", "note": CASES[_base]["note"],
     }
 

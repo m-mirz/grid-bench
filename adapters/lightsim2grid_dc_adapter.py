@@ -7,7 +7,9 @@ branch row with no tap ratio and no phase shift, a transformer of every
 other, each in file order, lines first (the N-1 adapter's join,
 `contingency_ids`); each element has a side 1 and a side 2, and the row's
 from-end flow is the side whose bus is the row's from bus (`sides`, asserted
-for every row).
+for every row). An out-of-service row (status 0) stays in lightsim2grid's
+lists, disconnected and with bus -1 on both sides: asserted disconnected
+exactly where the case says so, its flow 0 from either side.
 
 Settings:
 - `change_algorithm(DC_KLU)`: the DC solver on KLU (lightsim2grid's default
@@ -44,6 +46,14 @@ around): every outage's angles match MATPOWER's model to 1e-11 degrees, but
 all 12, off by up to 73 MW); and in the outage of a shifter itself the shift's
 injection stays in the angles (case1354pegase 1 of 1 such outage,
 case9241pegase 2 of 2). Its single `dc_pf` handles both.
+
+Angles only modulo 360 degrees: `dc_pf` returns complex voltages, and no
+accessor keeps the solved angles (`get_Va` refuses after `dc_pf`; the
+solver's `get_Va_solver` and `get_theta_buses_solver` are empty). On a case
+whose DC angles span more than 360 degrees, the angles returned are the
+solution's wrapped, so the oracle's nodal balance fails while every flow
+is exact (to 3e-8 MW): case13659pegase (870 degrees), case_ACTIVSg70k,
+pglib_case24464_goc and pglib_case30000_goc. Reported, not unwrapped here.
 """
 import numpy as np
 
@@ -52,7 +62,7 @@ from adapters.dc_adapter import DcAdapter, DcContingencyAdapter, DcSolution
 from adapters.lightsim2grid_adapter import Lightsim2gridAdapter, flat_start
 from adapters.lightsim2grid_n1_adapter import contingency_ids
 from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge
-from cases.matpower import ANGLE, BUS_I, F_BUS, RATIO, T_BUS, parse_m
+from cases.matpower import ANGLE, BR_STATUS, BUS_I, F_BUS, RATIO, T_BUS, parse_m
 from cases.registry import CASES, mat_path
 
 
@@ -70,6 +80,10 @@ def sides(case: str, grid) -> tuple[np.ndarray, np.ndarray, list[str]]:
     side1 = np.empty(len(branch), dtype=bool)
     for r in range(len(branch)):
         e = elements[col[r]]
+        assert e.connected_global == (branch[r, BR_STATUS] != 0), f"branch row {r}: status"
+        if not e.connected_global:
+            side1[r] = True
+            continue
         ends = (int(number[e.bus1_id]), int(number[e.bus2_id]))
         assert set(ends) == {int(branch[r, F_BUS]), int(branch[r, T_BUS])}, f"branch row {r}"
         side1[r] = ends[0] == int(branch[r, F_BUS])
