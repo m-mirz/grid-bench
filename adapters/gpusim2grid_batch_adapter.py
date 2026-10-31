@@ -32,11 +32,11 @@ Settings:
   with the case's one slack: the power-flow adapter's.
 - Thread count: not a setting (one GPU).
 
-Results (A100, 416ae9f, 100 scenarios): every scenario accepted on the
+Results (A100, e950f8b, 100 scenarios): every scenario accepted on the
 transmission sweeps, 0.96 ms per scenario on case1354pegase, 2.1 ms on
 case2869pegase, 7.0 ms on case9241pegase (ExaPF.jl's batch on the same GPU
 0.86, 2.0 and 10.2 ms; lightsim2grid on 30 threads of the same machine
-0.27, 0.65 and 3.3 ms), and on mvlv10616 (6.4 ms). mvlv1004#sweep
+0.15, 0.36 and 2.0 ms), and on mvlv10616 (6.4 ms). mvlv1004#sweep
 is rejected: 4 Newton steps from the base case leave 25 of its 100
 scenarios at up to 3.3e-3 MVA, above the oracle's 1e-3 (heavily loaded
 feeders, down to 0.67 p.u.): the fixed step count, reported, not tuned.
@@ -80,16 +80,18 @@ The large sweeps in the benchmark (`results-docker/gpu/`, A100, lightsim2grid
 same machine in parentheses):
 
     case            1 000 scenarios              10 000 scenarios
-    case1354pegase  0.15, 593 NaN (0.12)         0.13, all accepted (0.13)
-    case2869pegase  0.37, all accepted (0.43)    0.28, all accepted (0.33)
-    case9241pegase  1.37, all accepted (1.79)    0.96, all accepted (1.84)
-    mvlv10616       1.32, all accepted (0.92)    0.97, all accepted (0.90)
+    case1354pegase  0.15, 485 NaN (0.16)         0.12, all accepted (0.13)
+    case2869pegase  0.37, all accepted (0.33)    0.27, all accepted (0.33)
+    case9241pegase  1.33, all accepted (1.81)    0.92, all accepted (1.80)
+    mvlv10616       1.27, all accepted (1.05)    0.92, all accepted (0.90)
 
 So among the accepted sweeps gpusim2grid is ahead of 30 cores on
-case2869pegase (1.2x at both sizes) and case9241pegase (1.3x, and 1.9x at
-10 000), level on case1354pegase#sweep-10k (0.128 against 0.130 ms), and
-behind on the feeder. case1354pegase#sweep-1k, one chunk of 1 000, loses 59 % of
-its scenarios to NaN. With batch_size 512 the 10 000-scenario sweeps took
+case9241pegase (1.4x, and 2.0x at 10 000) and case2869pegase#sweep-10k
+(1.2x), level on case1354pegase#sweep-10k (0.122 against 0.128 ms) and
+mvlv10616#sweep-10k, and behind on case2869pegase#sweep-1k (0.37 against
+0.33 ms) and mvlv10616#sweep-1k. case1354pegase#sweep-1k, one chunk of
+1 000, loses 49 % of its scenarios to NaN (485; 507 and 593 in earlier
+runs of the same pins). With batch_size 512 the 10 000-scenario sweeps took
 1.8x as long, and case2869pegase's lost 92 % of its scenarios in that
 earlier run (as did its 1 000), where every run today kept them all
 at both sizes, cause unknown (the same pins; possibly the host's driver,
