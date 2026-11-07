@@ -19,6 +19,7 @@ ADAPTERS = {
     "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",
     "pypowsybl": "adapters.pypowsybl_adapter:PypowsyblAdapter",
     "gridoxide": "adapters.gridoxide_adapter:GridoxideAdapter",
+    "gridoxide_gpu": "adapters.gridoxide_gpu_adapter:GridoxideGpuAdapter",
     "rustpower": "adapters.rustpower_adapter:RustpowerAdapter",
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
@@ -111,6 +112,7 @@ DC = {
     "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDc",
     "toop": "adapters.toop_dc_adapter:ToopDc",
     "gridoxide": "adapters.gridoxide_dc_adapter:GridoxideDc",
+    "gridoxide_gpu": "adapters.gridoxide_gpu_dc_adapter:GridoxideGpuDc",
     "matpower": "adapters.matpower_dc_adapter:MatpowerDc",
 }
 DC_CONTINGENCIES = {

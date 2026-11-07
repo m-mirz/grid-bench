@@ -1,4 +1,4 @@
-"""gridoxide (GPU): batch power flow through `GpuBatchSolver.solve_batch`
+"""gridoxide (GPU): batch power flow through `GpuBatchSolver.solve_sweep`
 (`native`, one GPU).
 
 gridoxide's batched Newton-Raphson on an NVIDIA GPU (its `gpu` feature, the
@@ -37,9 +37,19 @@ Settings:
   on an A100: at 1024 one step keeps the device 99.8 % busy
   (plans/GPU_BATCH_PLAN.md in gridoxide, phase 5), and capacity 2048 timed
   the same on case9241pegase's 10 000.
+- The first step on one Jacobian: every scenario starts from the same
+  voltages on the same network, so it is one matrix, to the bit. It is
+  factored once for the session and the step is one solve with a column per
+  scenario, reading one factor where the batch reads one per system.
+- `chord_steps=12`, `chord_below=0.9`: up to 12 more steps on those factors,
+  each a column of the same solve, then Newton-Raphson. So not Newton-Raphson
+  throughout: a chord method first, linear where Newton is quadratic, left
+  early by a scenario whose mismatch falls by less than a tenth in a step.
+  Every scenario still stops on the same mismatch at the same tolerance, and
+  chord steps do not count towards `max_iteration`. On the distribution
+  feeders the scenarios leave them at once, so they gain nothing.
 - Factor reuse and the CPU hand-off off (`reuse_below=None`,
-  `cpu_handoff=None`, the defaults): Newton-Raphson as stated, every active
-  scenario refactored every step.
+  `cpu_handoff=None`, the defaults).
 - FP64, cuDSS's multiblock factorization and six levels of nested dissection
   (gridoxide's own choice, its scripts/bench/README.md, section 11: 1.3-2.7x
   at 1024 scenarios, half the memory on case9241pegase, the same steps and
@@ -83,7 +93,7 @@ only on case9241pegase's large sweeps (1.1-1.2x).
 import numpy as np
 
 from adapters.batch_adapter import BatchAdapter, BatchSolution, base_case, scenarios
-from adapters.gridoxide_gpu_adapter import CAPACITY, GridoxideGpu, session
+from adapters.gridoxide_gpu_adapter import CAPACITY, CHORD_BELOW, CHORD_STEPS, GridoxideGpu, session
 from adapters.solver_adapter import DidNotConverge
 from cases.matpower import BUS_I, GEN_BUS, PD, PG, QD, parse_m
 from cases.registry import CASES
@@ -123,8 +133,9 @@ def injections(case: str, model) -> list[list[tuple[int, float, float]]]:
 class GridoxideGpuBatch(GridoxideGpu, BatchAdapter):
     mode = "native"
     threaded = False
-    settings = GridoxideGpu.settings | {"mode": "native", "batch_api": "GpuBatchSolver.solve_batch",
-                                        "entry_point": "GpuBatchSolver.solve_batch",
+    settings = GridoxideGpu.settings | {"mode": "native", "batch_api": "GpuBatchSolver.solve_sweep",
+                                        "entry_point": "GpuBatchSolver.solve_sweep",
+                                        "chord_steps": CHORD_STEPS, "chord_below": CHORD_BELOW,
                                         "start": "base-case solution", "capacity": CAPACITY}
 
     def load(self, case):
@@ -135,7 +146,7 @@ class GridoxideGpuBatch(GridoxideGpu, BatchAdapter):
     def solve(self, model, threads=1):
         assert threads == 1, "one GPU: threads are not a setting"
         model["model"].solve(init="flat")
-        results = model["results"] = model["gpu"].solve_batch()
+        results = model["results"] = model["gpu"].solve_sweep()
         failed = sum(not r.converged for r in results)
         if failed:
             raise DidNotConverge(f"{failed} of {len(results)} scenarios not below tolerance")

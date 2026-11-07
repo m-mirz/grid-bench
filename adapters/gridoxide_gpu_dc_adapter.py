@@ -1,5 +1,10 @@
-"""gridoxide (GPU): DC N-1 through `GpuDcSolver.solve_contingencies`
-(`native`, one GPU).
+"""gridoxide (GPU): DC power flow through `GpuDcSolver.solve_single`, and DC
+N-1 through `GpuDcSolver.solve_contingencies` (`native`, one GPU).
+
+The DC power flow is the CPU's `DcSolver` with its reduced solve on the device,
+on the session's cuDSS factorization: input, model and joins as below, one
+right-hand side per solve, so one system's fixed cost, on a session of capacity
+1. The rest of this docstring is DC N-1.
 
 gridoxide's DC N-1 on an NVIDIA GPU (its `gpu` feature, gridoxide-gpu's
 `GpuDcSolver`): the reduced susceptance matrix factored by cuDSS once per
@@ -52,13 +57,42 @@ call (about 35 ms there), which this one keeps in its session.
 import numpy as np
 
 from adapters.batch_adapter import base_case, outages
-from adapters.dc_adapter import DcContingencyAdapter, DcSolution
+from adapters.dc_adapter import DcAdapter, DcContingencyAdapter, DcSolution
 from adapters.gridoxide_gpu_adapter import GridoxideGpu
 from adapters.solver_adapter import DidNotConverge
 from cases.matpower import BUS_I, F_BUS, T_BUS, parse_m
 from cases.registry import CASES
 
 CAPACITY = 1024
+
+
+class GridoxideGpuDc(GridoxideGpu, DcAdapter):
+    settings = {"method": "dc, the reduced solve on the device", "api": "GpuDcSolver.solve_single",
+                "linear_solver": "cudss", "precision": "fp64", "capacity": 1,
+                "shunt_conductance": "as load (MATPOWER)", "reader": "from_matpower (.m)"}
+
+    def load(self, case):
+        import gridoxide
+        path = CASES[base_case(case)]["file"]
+        mpc = parse_m(path)
+        model = gridoxide.PowerFlowModel.from_matpower(str(path), method="dc")
+        numbers = model.bus_numbers()
+        assert numbers == [int(b) for b in mpc["bus"][:, BUS_I]], "one bus per row of mpc.bus, in order"
+        rows = model.branch_rows()
+        assert len(set(rows)) == len(rows) == model.n_branches, "one flat branch per in-service row"
+        return {"model": model, "gpu": gridoxide.GpuDcSolver(model, capacity=1),
+                "bus_ids": [str(b) for b in numbers], "rows": rows, "base": float(mpc["baseMVA"]), "out": None}
+
+    def solve(self, model):
+        try:
+            model["out"] = model["gpu"].solve_single(model["model"])
+        except RuntimeError as e:
+            raise DidNotConverge(str(e)) from e
+
+    def solution(self, model, case):
+        angles, flows, _ = model["out"]
+        return DcSolution(model["bus_ids"], np.rad2deg(np.asarray(angles)), model["rows"],
+                          np.asarray(flows) * model["base"])
 
 
 class GridoxideGpuDcN1(GridoxideGpu, DcContingencyAdapter):
