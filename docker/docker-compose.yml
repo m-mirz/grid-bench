@@ -152,8 +152,8 @@ services:
               device_ids: ["${GRID_BENCH_GPU:-0}"]
               capabilities: [gpu]
 
-  # gridoxide's GPU batch (CUDA, cuDSS 1.0): one NVIDIA GPU, as exapf_gpu; batch
-  # and N-1 only. See adapters/gridoxide_gpu_adapter.py.
+  # gridoxide on the GPU (CUDA, cuDSS 1.0): one NVIDIA GPU, as exapf_gpu; batch,
+  # N-1 and AC-OPF. See adapters/gridoxide_gpu_adapter.py.
   gridoxide_gpu:
     <<: *bench
     image: grid-bench/gridoxide_gpu:latest

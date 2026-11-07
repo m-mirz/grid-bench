@@ -27,7 +27,7 @@ for t in "${targets[@]}"; do
     # checkout and GRIDOXIDE_COMMIT to the commit to build (default HEAD);
     # `git archive` exports exactly that commit, never uncommitted work. Either
     # way the tree becomes the `gridoxide` build context.
-    if [ "$t" = gridoxide ]; then
+    if [ "$t" = gridoxide ] || [ "$t" = gridoxide_gpu ]; then
         src=$(mktemp -d)
         trap 'rm -rf "$src"' EXIT
         if [ -n "${GRIDOXIDE_REPO:-}" ]; then
