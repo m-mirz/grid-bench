@@ -34,6 +34,13 @@ rounds are 3 to 50 % of a run's wall time.
   `run_single.sh`'s prep needs; without it every input is missing and the
   run records only failures.
 
+## OPF at the limit of 500
+
+- veragrid's pglib_opf_case2869_pegase still carries its failure at the old
+  limit of 200 (its rerun hit a 300 s timeout, not the limit). Rerun it at
+  pytest's default timeout, up to 30 minutes, and merge it as the other
+  limit reruns were (`grid_bench.reruns`).
+
 ## GPU tabs
 
 - examodelspower_gpu: case13659pegase was accepted in one run and stalled
