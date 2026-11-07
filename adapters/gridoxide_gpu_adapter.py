@@ -1,8 +1,12 @@
-"""gridoxide (GPU): what the batch and N-1 adapters share, the tool's
-identity and its session. gridoxide has no power-flow adapter here: its
-GPU path solves batches only (a single solve would be one system on a
-device made for thousands). See adapters/gridoxide_gpu_batch_adapter.py
-for the method and its settings.
+"""gridoxide (GPU): what its adapters share, the tool's identity and its
+session, and the power flow. See adapters/gridoxide_gpu_batch_adapter.py for
+the batch's method and its settings.
+
+Power flow: `GpuBatchSolver.solve_single(model, start="flat")`, a batch of one
+on a session of capacity 1, on `PowerFlowModel.from_matpower`'s model and input
+as adapters/gridoxide_adapter.py, flat start and tolerance as there. One system
+is cuDSS's worst case, its cost roughly fixed per system: it is here to compare
+with the other GPU tools, not because a device suits a single solve.
 
 A session (`GpuBatchSolver`) is built from a model whose base case is
 solved: it takes that solution as every scenario's start, gridoxide's
@@ -13,11 +17,18 @@ import ctypes
 import glob
 import os
 
-from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, SolverAdapter
+import numpy as np
+
+from adapters.gridoxide_adapter import GridoxideAdapter
+from adapters.solver_adapter import MAX_ITERATIONS, TOLERANCE_PU, DidNotConverge, Solution, SolverAdapter
 from cases.matpower import parse_m
 from cases.registry import CASES, m_path
 
 CAPACITY = 1024
+# Steps on a sweep's shared first-step factors before Newton's; see
+# adapters/gridoxide_gpu_batch_adapter.py.
+CHORD_STEPS = 12
+CHORD_BELOW = 0.9
 
 
 def cuda_versions() -> dict[str, str]:
@@ -44,7 +55,8 @@ def session(case: str):
     numbers = model.bus_numbers()
     assert len(numbers) == len(parse_m(CASES[case]["file"])["bus"]), "one gridoxide bus per MATPOWER bus"
     model.solve(init="flat")
-    return model, gridoxide.GpuBatchSolver(model, capacity=CAPACITY), [str(b) for b in numbers]
+    gpu = gridoxide.GpuBatchSolver(model, capacity=CAPACITY, chord_steps=CHORD_STEPS, chord_below=CHORD_BELOW)
+    return model, gpu, [str(b) for b in numbers]
 
 
 class GridoxideGpu:
@@ -55,7 +67,42 @@ class GridoxideGpu:
     language = "rust"
     modules = ("gridoxide",)
     settings = {"solver": "NewtonRaphson", "backend": "cuda", "linear_solver": "cudss", "precision": "fp64",
-                "stopping": "per scenario", "tolerance_pu": TOLERANCE_PU, "max_iteration": MAX_ITERATIONS}
+                "stopping": "per scenario", "tolerance_pu": TOLERANCE_PU, "max_iteration": MAX_ITERATIONS,
+                "commit": os.environ.get("GRIDOXIDE_COMMIT", "unknown")}
 
     def dependencies(self):
         return SolverAdapter.dependencies(self) | cuda_versions()
+
+    def step_counts(self, model):
+        """What the last solve's scenarios took, untimed: `iterations` as
+        gridoxide reports it, Newton steps plus one. A fixed-step tool's
+        count would be its fixed steps; this shows what stopping every
+        scenario at the tolerance costs against them."""
+        counts = [r.iterations for r in model["results"]]
+        return {"iterations_mean": sum(counts) / len(counts), "iterations_max": max(counts),
+                "iterations_min": min(counts)}
+
+
+class GridoxideGpuAdapter(GridoxideGpu, SolverAdapter):
+    families = GridoxideAdapter.families
+    settings = GridoxideGpu.settings | {"init": "flat", "reader": "from_matpower (.m)",
+                                        "entry_point": "GpuBatchSolver.solve_single", "capacity": 1}
+
+    def load(self, case):
+        import gridoxide
+        model = gridoxide.PowerFlowModel.from_matpower(
+            str(CASES[case]["file"]), tol=TOLERANCE_PU, max_iter=MAX_ITERATIONS)
+        return {"model": model, "gpu": gridoxide.GpuBatchSolver(model, capacity=1),
+                "ids": [str(b) for b in model.bus_numbers()], "result": None}
+
+    def solve(self, model):
+        result = model["gpu"].solve_single(model["model"], start="flat")
+        if not result.converged:
+            raise DidNotConverge(f"mismatch {result.max_mismatch} after {result.iterations} iterations")
+        model["result"] = result
+
+    def solution(self, model, case):
+        r, ids = model["result"], model["ids"]
+        if len(r.voltage_mag) != len(ids):
+            raise RuntimeError(f"gridoxide has {len(r.voltage_mag)} buses, the case {len(ids)}")
+        return Solution(dict(zip(ids, r.voltage_mag)), dict(zip(ids, np.rad2deg(r.voltage_ang))), r.iterations)

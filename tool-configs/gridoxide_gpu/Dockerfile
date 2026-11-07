@@ -2,9 +2,9 @@
 # built with its `gpu` feature (gridoxide-gpu: CUDA kernels and cuDSS's
 # uniform batch). Built by docker/build.sh in place of docker/tool.dockerfile.
 #
-# gridoxide is built from its v0.3.0 release, the first with the GPU path:
-# GitHub's tarball of the tag by SHA-256, the same source as the gridoxide
-# image's (docker/build.sh). The published wheel has no `gpu` feature.
+# gridoxide comes from the `gridoxide` build context, as the gridoxide image's
+# (docker/build.sh): its pinned release, or the commit of a checkout named by
+# GRIDOXIDE_REPO and GRIDOXIDE_COMMIT. The published wheel has no `gpu` feature.
 #
 # Pinned like everything else, no apt packages: NVIDIA's CUDA 12.9 devel image
 # by digest (nvcc; Ubuntu 22.04, whose glibc 2.35 is older than the base
@@ -32,15 +32,10 @@ ADD --checksum=sha256:b8c882c3ebc8b319886f5a06e74311c5eea09846925ba5a19892de4921
     https://developer.download.nvidia.com/compute/cudss/redist/libcudss/linux-x86_64/libcudss-linux-x86_64-1.0.0.35_cuda12-archive.tar.xz /src/cudss.tar.xz
 RUN mkdir /opt/cudss && tar -xJf /src/cudss.tar.xz -C /opt/cudss --strip-components=1
 
-# gridoxide v0.3.0 (commit e85f808). Its GPU code is that of gpu-batch's
-# d105bf4 (the AC batch, on which results-docker/gpu/gridoxide_gpu-batch.json
-# and -n1.json were measured) and 5d14426 (GpuDcSolver, DC N-1), squash-merged
-# as gridoxide PR #29.
-ADD --checksum=sha256:8e7456120a0929b4fe36c31df770d087b4acfd6a6f00e570d8cb19eeca18c804 \
-    https://github.com/m-mirz/gridoxide/archive/refs/tags/v0.3.0.tar.gz /src/gridoxide.tar.gz
-RUN mkdir /src/gridoxide && tar -xzf /src/gridoxide.tar.gz -C /src/gridoxide --strip-components=1
+COPY --from=gridoxide . /src/gridoxide
 
-# The extension, `--features python,gpu`:
+# The extension, `--features python,gpu,opf,matpower` (`opf` and `matpower`
+# for the AC-OPF, adapters/gridoxide_gpu_opf_adapter.py):
 # - CUDA_ARCH=sm_80: the A100 the GPU tabs run on; gridoxide-gpu compiles its
 #   kernels for one architecture, so another GPU needs this build argument
 #   (sm_90 for an H100) or fails at run time with "no kernel image".
@@ -54,7 +49,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     && export CUDSS_DIR=/opt/cudss CUDA_HOME=/usr/local/cuda CUDA_ARCH=${CUDA_ARCH} \
        LIBCLANG_PATH="$(python -c 'import clang, os; print(os.path.join(os.path.dirname(clang.__file__), "native"))')" \
        BINDGEN_EXTRA_CLANG_ARGS="-I$(dirname "$(gcc -print-libgcc-file-name)")/include" \
-    && maturin build --release --locked --features python,gpu -i /env/.venv/bin/python \
+    && maturin build --release --locked --features python,gpu,opf,matpower -i /env/.venv/bin/python \
        --compatibility linux --auditwheel skip -o /wheels
 
 # The CUDA and cuDSS libraries the extension loads (cuDSS opens some of its
@@ -65,7 +60,8 @@ RUN mkdir -p /opt/cuda-rt \
     && cp -L /usr/local/cuda/lib64/libcudart.so.12 /opt/cuda-rt/ \
     && python -m zipfile -e /wheels/gridoxide-*.whl /tmp/gx \
     && LD_LIBRARY_PATH=/opt/cudss/lib:/usr/local/cuda/lib64 ldd /tmp/gx/gridoxide/*.so /opt/cudss/lib/libcudss.so.1 \
-       | awk '$3 ~ "^/usr/local/cuda" {print $3}' | sort -u | xargs -r cp -L -t /opt/cuda-rt/
+       | awk '$3 ~ "^/usr/local/cuda" {print $3}' | sort -u | xargs -r cp -L -t /opt/cuda-rt/ \
+    && cp -L "$(gcc -print-file-name=libgomp.so.1)" /opt/cuda-rt/
 
 FROM grid-bench/base:latest
 WORKDIR /env
@@ -75,6 +71,11 @@ COPY --from=build /opt/cuda-rt /opt/cuda-rt
 RUN echo /opt/cuda-rt > /etc/ld.so.conf.d/cuda-rt.conf && ldconfig
 RUN --mount=type=bind,from=build,source=/wheels,target=/wheels \
     uv pip install --python /env/.venv/bin/python --no-deps /wheels/*.whl
+# CUDSS_THREADING_LIB: cuDSS's analysis, which runs on the host, on every core
+# (2.2 to 0.7 s on case24464_goc, the same result).
+ARG GRIDOXIDE_COMMIT=unknown
 ENV PATH="/env/.venv/bin:${PATH}" \
-    GRID_BENCH_IMAGE=grid-bench/gridoxide_gpu
+    GRID_BENCH_IMAGE=grid-bench/gridoxide_gpu \
+    GRIDOXIDE_COMMIT=${GRIDOXIDE_COMMIT} \
+    CUDSS_THREADING_LIB=/opt/cuda-rt/libcudss_mtlayer_gomp.so.1
 WORKDIR /bench

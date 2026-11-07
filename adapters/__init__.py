@@ -19,6 +19,7 @@ ADAPTERS = {
     "exapf_gpu": "adapters.exapf_gpu_adapter:ExapfGpuAdapter",
     "pypowsybl": "adapters.pypowsybl_adapter:PypowsyblAdapter",
     "gridoxide": "adapters.gridoxide_adapter:GridoxideAdapter",
+    "gridoxide_gpu": "adapters.gridoxide_gpu_adapter:GridoxideGpuAdapter",
     "rustpower": "adapters.rustpower_adapter:RustpowerAdapter",
     "matpower": "adapters.matpower_adapter:MatpowerAdapter",
 }
@@ -48,6 +49,7 @@ OPTIMIZERS = {
     "examodelspower_gpu": "adapters.examodelspower_gpu_opf_adapter:ExamodelspowerGpuOptimizer",
     "juliagrid": "adapters.juliagrid_opf_adapter:JuliagridOptimizer",
     "gridoxide": "adapters.gridoxide_opf_adapter:GridoxideOptimizer",
+    "gridoxide_gpu": "adapters.gridoxide_gpu_opf_adapter:GridoxideGpuOptimizer",
     "matpower": "adapters.matpower_opf_adapter:MatpowerOptimizer",
     "powermodels": "adapters.powermodels_opf_adapter:PowermodelsOptimizer",
 }
@@ -110,6 +112,7 @@ DC = {
     "pypowsybl": "adapters.pypowsybl_dc_adapter:PypowsyblDc",
     "toop": "adapters.toop_dc_adapter:ToopDc",
     "gridoxide": "adapters.gridoxide_dc_adapter:GridoxideDc",
+    "gridoxide_gpu": "adapters.gridoxide_gpu_dc_adapter:GridoxideGpuDc",
     "matpower": "adapters.matpower_dc_adapter:MatpowerDc",
 }
 DC_CONTINGENCIES = {

@@ -71,7 +71,7 @@ class GridoxideGpuN1(GridoxideGpu, ContingencyAdapter):
     def solve(self, model, threads=1):
         assert threads == 1, "one GPU: threads are not a setting"
         model["model"].solve(init="flat")
-        results = model["gpu"].solve_contingencies(model["contingencies"])
+        results = model["results"] = model["gpu"].solve_contingencies(model["contingencies"])
         failed = sum(r.status != "converged" for r in results)
         if failed:
             raise DidNotConverge(f"{failed} of {len(results)} outages not below tolerance")

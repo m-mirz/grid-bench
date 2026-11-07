@@ -1,4 +1,4 @@
-"""gridoxide (GPU): batch power flow through `GpuBatchSolver.solve_batch`
+"""gridoxide (GPU): batch power flow through `GpuBatchSolver.solve_sweep`
 (`native`, one GPU).
 
 gridoxide's batched Newton-Raphson on an NVIDIA GPU (its `gpu` feature, the
@@ -37,51 +37,58 @@ Settings:
   on an A100: at 1024 one step keeps the device 99.8 % busy
   (plans/GPU_BATCH_PLAN.md in gridoxide, phase 5), and capacity 2048 timed
   the same on case9241pegase's 10 000.
+- The first step on one Jacobian: every scenario starts from the same
+  voltages on the same network, so it is one matrix, to the bit. It is
+  factored once for the session and the step is one solve with a column per
+  scenario, reading one factor where the batch reads one per system.
+- `chord_steps=12`, `chord_below=0.9`: up to 12 more steps on those factors,
+  each a column of the same solve, then Newton-Raphson. So not Newton-Raphson
+  throughout: a chord method first, linear where Newton is quadratic, left
+  early by a scenario whose mismatch falls by less than a tenth in a step.
+  Every scenario still stops on the same mismatch at the same tolerance, and
+  chord steps do not count towards `max_iteration`. On the distribution
+  feeders the scenarios leave them at once, so they gain nothing.
 - Factor reuse and the CPU hand-off off (`reuse_below=None`,
-  `cpu_handoff=None`, the defaults): Newton-Raphson as stated, every active
-  scenario refactored every step.
-- FP64, cuDSS's default settings (reordering, pivoting), no damping, the
-  case's one slack.
+  `cpu_handoff=None`, the defaults).
+- FP64, cuDSS's multiblock factorization and six levels of nested dissection
+  (gridoxide's own choice, its scripts/bench/README.md, section 11: 1.3-2.7x
+  at 1024 scenarios, half the memory on case9241pegase, the same steps and
+  accuracy), no damping, the case's one slack.
 - Thread count: not a setting (one GPU); cuDSS's analysis runs on the host
   in `load`.
 - One GPU, the one docker-compose passes in (`GRID_BENCH_GPU`);
   `dependencies` records it with the driver, the CUDA runtime and cuDSS.
 
-Results (A100-SXM4-40GB, gridoxide d105bf4, cuDSS 1.0.0,
-`results-docker/gpu/`; ms per scenario, gpusim2grid and ExaPF.jl's GPU
-batch run the same day on the same machine, lightsim2grid on its 30
-threads in parentheses): every scenario of every sweep accepted, the only
-GPU tool here of which that holds.
+Results (A100-SXM4-40GB, cuDSS 1.0.0, `results-docker/gpu/`; s a call,
+gpusim2grid and lightsim2grid on its 30 threads as of their last run on the
+same machine, "rejected" where the oracle does): every scenario of every sweep
+accepted, the only GPU tool here of which that holds.
 
-    case                     gridoxide  gpusim2grid      ExaPF (GPU)    (lightsim2grid)
-    case1354pegase#sweep     0.70       0.96             0.86           (0.15)
-    case2869pegase#sweep     1.32       2.08             2.02           (0.37)
-    case9241pegase#sweep     4.43       6.94             10.2           (2.04)
-    mvlv1004#sweep           0.57       25 rejected      0.81           (0.10)
-    case1354pegase#sweep-1k  0.27       0.15, 507 NaN    0.22           (0.12)
-    case2869pegase#sweep-1k  0.44       0.37             0.55           (0.43)
-    case9241pegase#sweep-1k  1.63       1.37             out of memory  (1.79)
-    case1354pegase#sweep-10k 0.30       0.13             out of memory  (0.13)
-    case2869pegase#sweep-10k 0.51       0.28             out of memory  (0.33)
-    case9241pegase#sweep-10k 1.52       0.95             out of memory  (1.84)
-    mvlv10616#sweep-10k      1.34       0.96             out of memory  (0.90)
+    case                     gridoxide  gpusim2grid      (lightsim2grid)
+    case1354pegase#sweep     0.024      0.096            (0.015)
+    case2869pegase#sweep     0.047      0.207            (0.036)
+    case9241pegase#sweep     0.191      0.693            (0.198)
+    mvlv10616#sweep          0.226      0.637            (0.093)
+    case1354pegase#sweep-1k  0.061      0.145, rejected  (0.156)
+    case2869pegase#sweep-1k  0.131      0.367            (0.330)
+    case9241pegase#sweep-1k  0.554      1.330            (1.813)
+    mvlv10616#sweep-1k       0.625      1.273            (1.052)
+    case1354pegase#sweep-10k 0.617      1.220            (1.279)
+    case2869pegase#sweep-10k 1.284      2.703            (3.335)
+    case9241pegase#sweep-10k 5.899      9.209            (17.984)
+    mvlv10616#sweep-10k      6.844      9.226            (9.031)
 
-On 100 scenarios it is the fastest GPU tool (1.4-1.6x gpusim2grid, which
-redoes cuDSS's analysis and its session's setup on every call, where a
-session here keeps them; the analysis alone is 10 % of gpusim2grid's call,
-so that is not the whole difference). On large
-batches gpusim2grid is 1.2-2.3x faster: it runs cuDSS 0.8.0, whose
-factorization and solve cost 1.75-3.7x less per system than 1.0.0's at large
-batches, and four fixed steps where gridoxide takes each scenario to 1e-8
-p.u. But 0.8.0 returns NaN in a uniform batch (case1354pegase#sweep-1k,
-here; gridoxide's plans/GPU_BATCH_PLAN.md, "Correction: A fails on 0.8.0"),
-which is why gridoxide-gpu refuses it. Against 30 CPU threads it is ahead
-only on case9241pegase's large sweeps (1.1-1.2x).
+Faster than gpusim2grid on every sweep, 1.3-2.8x on the large ones, and than
+lightsim2grid on every sweep of 1000 scenarios or more. gpusim2grid runs cuDSS
+0.8.0, cheaper per system than 1.0.0 but NaN in a uniform batch (gridoxide's
+plans/GPU_BATCH_PLAN.md, "Correction: A fails on 0.8.0"), which is why
+gridoxide-gpu refuses it, and four fixed steps. Here a scenario takes 3 to 12
+steps, most of them chord steps, a column of a shared solve each.
 """
 import numpy as np
 
 from adapters.batch_adapter import BatchAdapter, BatchSolution, base_case, scenarios
-from adapters.gridoxide_gpu_adapter import CAPACITY, GridoxideGpu, session
+from adapters.gridoxide_gpu_adapter import CAPACITY, CHORD_BELOW, CHORD_STEPS, GridoxideGpu, session
 from adapters.solver_adapter import DidNotConverge
 from cases.matpower import BUS_I, GEN_BUS, PD, PG, QD, parse_m
 from cases.registry import CASES
@@ -121,8 +128,9 @@ def injections(case: str, model) -> list[list[tuple[int, float, float]]]:
 class GridoxideGpuBatch(GridoxideGpu, BatchAdapter):
     mode = "native"
     threaded = False
-    settings = GridoxideGpu.settings | {"mode": "native", "batch_api": "GpuBatchSolver.solve_batch",
-                                        "entry_point": "GpuBatchSolver.solve_batch",
+    settings = GridoxideGpu.settings | {"mode": "native", "batch_api": "GpuBatchSolver.solve_sweep",
+                                        "entry_point": "GpuBatchSolver.solve_sweep",
+                                        "chord_steps": CHORD_STEPS, "chord_below": CHORD_BELOW,
                                         "start": "base-case solution", "capacity": CAPACITY}
 
     def load(self, case):
@@ -133,7 +141,7 @@ class GridoxideGpuBatch(GridoxideGpu, BatchAdapter):
     def solve(self, model, threads=1):
         assert threads == 1, "one GPU: threads are not a setting"
         model["model"].solve(init="flat")
-        results = model["gpu"].solve_batch()
+        results = model["results"] = model["gpu"].solve_sweep()
         failed = sum(not r.converged for r in results)
         if failed:
             raise DidNotConverge(f"{failed} of {len(results)} scenarios not below tolerance")

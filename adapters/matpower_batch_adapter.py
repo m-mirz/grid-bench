@@ -49,6 +49,9 @@ class MatpowerBatch(MatpowerAdapter):
     def thread_counts(self):
         return (1,)
 
+    def step_counts(self, model):
+        return {}  # runpf's iterations stay in Octave; BatchAdapter's default
+
     def load(self, case):
         import scipy.io
         base = base_case(case)

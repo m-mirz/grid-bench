@@ -118,6 +118,11 @@ class BatchAdapter(SolvingAdapter):
     def thread_counts(self) -> tuple[int, ...]:
         return thread_counts() if self.mode == "native" and self.threaded else (1,)
 
+    def step_counts(self, model) -> dict:
+        """What the last solve's scenarios took, for `extra_info`, if the tool
+        says; informational and untimed."""
+        return {}
+
     @abstractmethod
     def solve(self, model, threads: int = 1) -> None:
         """Every scenario. Raises DidNotConverge if any does not converge."""
