@@ -32,7 +32,10 @@ OPF results go to `<tool>-opf.json`.
 from adapters.solver_adapter import SolvingAdapter
 
 OPF_TOLERANCE = 1e-6   # MATPOWER's default for MIPS; interior-point tolerances are relative
-OPF_MAX_ITERATIONS = 200
+# Well above what any tool needs to solve, so that a verdict is the solve's and not
+# the limit's: gridoxide's interior point takes 206 to 280 on case13659pegase, its
+# run-to-run range, and accepted there. A stalled solve still stops, in seconds.
+OPF_MAX_ITERATIONS = 500
 
 
 class OptimizerAdapter(SolvingAdapter):
