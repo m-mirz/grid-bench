@@ -37,6 +37,9 @@ class MatpowerN1(MatpowerAdapter):
     def thread_counts(self):
         return (1,)
 
+    def step_counts(self, model):
+        return {}  # runpf's iterations stay in Octave; BatchAdapter's default
+
     def load(self, case):
         rows = " ".join(str(int(r) + 1) for r in outages(case)["branch_row"])
         session = self._octave()
