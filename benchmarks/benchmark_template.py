@@ -180,6 +180,7 @@ def create_benchmarks(tool: str, problem: str = "pf") -> None:
         benchmark.pedantic(adapter.solve, args=(model, threads), rounds=rounds, iterations=1)
         sol = adapter.solution(model, case)
         benchmark.extra_info.update(evaluate_batch(case, sol.bus_ids, sol.vm, sol.va_deg))
+        benchmark.extra_info.update(adapter.step_counts(model))
 
     def test_solve_dc(benchmark, case):
         _record(benchmark, adapter, case, "solve")

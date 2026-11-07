@@ -40,8 +40,10 @@ Settings:
 - Factor reuse and the CPU hand-off off (`reuse_below=None`,
   `cpu_handoff=None`, the defaults): Newton-Raphson as stated, every active
   scenario refactored every step.
-- FP64, cuDSS's default settings (reordering, pivoting), no damping, the
-  case's one slack.
+- FP64, cuDSS's multiblock factorization and six levels of nested dissection
+  (gridoxide's own choice, its scripts/bench/README.md, section 11: 1.3-2.7x
+  at 1024 scenarios, half the memory on case9241pegase, the same steps and
+  accuracy), no damping, the case's one slack.
 - Thread count: not a setting (one GPU); cuDSS's analysis runs on the host
   in `load`.
 - One GPU, the one docker-compose passes in (`GRID_BENCH_GPU`);
@@ -133,7 +135,7 @@ class GridoxideGpuBatch(GridoxideGpu, BatchAdapter):
     def solve(self, model, threads=1):
         assert threads == 1, "one GPU: threads are not a setting"
         model["model"].solve(init="flat")
-        results = model["gpu"].solve_batch()
+        results = model["results"] = model["gpu"].solve_batch()
         failed = sum(not r.converged for r in results)
         if failed:
             raise DidNotConverge(f"{failed} of {len(results)} scenarios not below tolerance")

@@ -59,3 +59,12 @@ class GridoxideGpu:
 
     def dependencies(self):
         return SolverAdapter.dependencies(self) | cuda_versions()
+
+    def step_counts(self, model):
+        """What the last solve's scenarios took, untimed: `iterations` as
+        gridoxide reports it, Newton steps plus one. A fixed-step tool's
+        count would be its fixed steps; this shows what stopping every
+        scenario at the tolerance costs against them."""
+        counts = [r.iterations for r in model["results"]]
+        return {"iterations_mean": sum(counts) / len(counts), "iterations_max": max(counts),
+                "iterations_min": min(counts)}
