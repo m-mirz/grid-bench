@@ -34,9 +34,9 @@ for t in "${targets[@]}"; do
             commit=$(git -C "$GRIDOXIDE_REPO" rev-parse "${GRIDOXIDE_COMMIT:-HEAD}")
             git -C "$GRIDOXIDE_REPO" archive "$commit" | tar -x -C "$src"
         else
-            version=0.3.0
-            commit=e85f8082bcb15d494c9c3f4ce92647da079dac0b
-            sha256=8e7456120a0929b4fe36c31df770d087b4acfd6a6f00e570d8cb19eeca18c804
+            version=0.4.0
+            commit=74cd777e2133fa1467cbbd759e115c6416179d20
+            sha256=f35bd9f5df85d15b3bad53c1cdb8a057d923753dd5bb88d4c85cc7012361681f
             curl -sSfL -o "$src/gridoxide.tar.gz" \
                 "https://github.com/m-mirz/gridoxide/archive/refs/tags/v$version.tar.gz"
             echo "$sha256  $src/gridoxide.tar.gz" | sha256sum -c --quiet
