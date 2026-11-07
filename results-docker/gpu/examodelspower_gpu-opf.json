@@ -442,61 +442,6 @@
             }
         },
         {
-            "group": "import:pglib_opf_case9241_pegase",
-            "name": "test_import[pglib_opf_case9241_pegase]",
-            "fullname": "benchmarks/examodelspower_gpu_opf_benchmark.py::test_import[pglib_opf_case9241_pegase]",
-            "params": {
-                "case": "pglib_opf_case9241_pegase"
-            },
-            "param": "pglib_opf_case9241_pegase",
-            "extra_info": {
-                "tool": "examodelspower_gpu",
-                "case": "pglib_opf_case9241_pegase",
-                "family": "opf-pglib",
-                "groups": [
-                    "large"
-                ],
-                "operation": "import",
-                "problem": "opf",
-                "rss_baseline_mb": 1242.83203125,
-                "rss_import_mb": 1745.609375
-            },
-            "options": {
-                "disable_gc": false,
-                "timer": "perf_counter",
-                "min_rounds": 5,
-                "max_time": 1.0,
-                "min_time": 5e-06,
-                "precision": null,
-                "confidence": null,
-                "warmup": false
-            },
-            "stats": {
-                "min": 0.060847243999887723,
-                "max": 0.3511002039995219,
-                "mean": 0.1722863163334599,
-                "stddev": 0.15641681336401353,
-                "rounds": 3,
-                "median": 0.10491150100097002,
-                "iqr": 0.21768971999972564,
-                "q1": 0.0718633082501583,
-                "q3": 0.28955302824988394,
-                "iqr_outliers": 0,
-                "stddev_outliers": 1,
-                "outliers": "1;0",
-                "ld15iqr": 0.060847243999887723,
-                "hd15iqr": 0.3511002039995219,
-                "ops": 5.80429149152218,
-                "total": 0.5168589490003797,
-                "data": [
-                    0.10491150100097002,
-                    0.3511002039995219,
-                    0.060847243999887723
-                ],
-                "iterations": 1
-            }
-        },
-        {
             "group": "import:pglib_opf_case10000_goc",
             "name": "test_import[pglib_opf_case10000_goc]",
             "fullname": "benchmarks/examodelspower_gpu_opf_benchmark.py::test_import[pglib_opf_case10000_goc]",
@@ -609,62 +554,6 @@
             }
         },
         {
-            "group": "import:pglib_opf_case13659_pegase",
-            "name": "test_import[pglib_opf_case13659_pegase]",
-            "fullname": "benchmarks/examodelspower_gpu_opf_benchmark.py::test_import[pglib_opf_case13659_pegase]",
-            "params": {
-                "case": "pglib_opf_case13659_pegase"
-            },
-            "param": "pglib_opf_case13659_pegase",
-            "extra_info": {
-                "tool": "examodelspower_gpu",
-                "case": "pglib_opf_case13659_pegase",
-                "family": "opf-pglib",
-                "groups": [
-                    "large"
-                ],
-                "operation": "import",
-                "problem": "opf",
-                "rss_baseline_mb": 1243.86328125,
-                "rss_import_mb": 1732.80078125,
-                "rss_solve_mb": 2790.37890625
-            },
-            "options": {
-                "disable_gc": false,
-                "timer": "perf_counter",
-                "min_rounds": 5,
-                "max_time": 1.0,
-                "min_time": 5e-06,
-                "precision": null,
-                "confidence": null,
-                "warmup": false
-            },
-            "stats": {
-                "min": 0.07226185100080329,
-                "max": 0.3645993339996494,
-                "mean": 0.16974041966689887,
-                "stddev": 0.1687527771123873,
-                "rounds": 3,
-                "median": 0.07236007400024391,
-                "iqr": 0.21925311224913457,
-                "q1": 0.07228640675066345,
-                "q3": 0.291539518999798,
-                "iqr_outliers": 0,
-                "stddev_outliers": 1,
-                "outliers": "1;0",
-                "ld15iqr": 0.07226185100080329,
-                "hd15iqr": 0.3645993339996494,
-                "ops": 5.891348695628389,
-                "total": 0.5092212590006966,
-                "data": [
-                    0.3645993339996494,
-                    0.07236007400024391,
-                    0.07226185100080329
-                ],
-                "iterations": 1
-            }
-        },
-        {
             "group": "import:pglib_opf_case19402_goc",
             "name": "test_import[pglib_opf_case19402_goc]",
             "fullname": "benchmarks/examodelspower_gpu_opf_benchmark.py::test_import[pglib_opf_case19402_goc]",
@@ -772,61 +661,6 @@
                     0.4636381029995391,
                     0.1165268870008731,
                     0.4511007929995685
-                ],
-                "iterations": 1
-            }
-        },
-        {
-            "group": "import:pglib_opf_case30000_goc",
-            "name": "test_import[pglib_opf_case30000_goc]",
-            "fullname": "benchmarks/examodelspower_gpu_opf_benchmark.py::test_import[pglib_opf_case30000_goc]",
-            "params": {
-                "case": "pglib_opf_case30000_goc"
-            },
-            "param": "pglib_opf_case30000_goc",
-            "extra_info": {
-                "tool": "examodelspower_gpu",
-                "case": "pglib_opf_case30000_goc",
-                "family": "opf-pglib",
-                "groups": [
-                    "large"
-                ],
-                "operation": "import",
-                "problem": "opf",
-                "rss_baseline_mb": 1242.96875,
-                "rss_import_mb": 1728.2109375
-            },
-            "options": {
-                "disable_gc": false,
-                "timer": "perf_counter",
-                "min_rounds": 5,
-                "max_time": 1.0,
-                "min_time": 5e-06,
-                "precision": null,
-                "confidence": null,
-                "warmup": false
-            },
-            "stats": {
-                "min": 0.16088168900023447,
-                "max": 0.42544348599949444,
-                "mean": 0.25281129799986957,
-                "stddev": 0.1496092102806729,
-                "rounds": 3,
-                "median": 0.17210871899987978,
-                "iqr": 0.19842134774944498,
-                "q1": 0.1636884465001458,
-                "q3": 0.3621097942495908,
-                "iqr_outliers": 0,
-                "stddev_outliers": 1,
-                "outliers": "1;0",
-                "ld15iqr": 0.16088168900023447,
-                "hd15iqr": 0.42544348599949444,
-                "ops": 3.955519424612566,
-                "total": 0.7584338939996087,
-                "data": [
-                    0.17210871899987978,
-                    0.42544348599949444,
-                    0.16088168900023447
                 ],
                 "iterations": 1
             }
@@ -2317,6 +2151,243 @@
                 ],
                 "iterations": 1
             }
+        },
+        {
+            "group": "import:pglib_opf_case9241_pegase",
+            "name": "test_import[pglib_opf_case9241_pegase]",
+            "fullname": "benchmarks/examodelspower_gpu_opf_benchmark.py::test_import[pglib_opf_case9241_pegase]",
+            "params": {
+                "case": "pglib_opf_case9241_pegase"
+            },
+            "param": "pglib_opf_case9241_pegase",
+            "extra_info": {
+                "tool": "examodelspower_gpu",
+                "case": "pglib_opf_case9241_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "large"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 1240.125,
+                "rss_import_mb": 1756.546875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.07831762199930381,
+                "max": 0.07831762199930381,
+                "mean": 0.07831762199930381,
+                "stddev": 0,
+                "rounds": 1,
+                "median": 0.07831762199930381,
+                "iqr": 0.0,
+                "q1": 0.07831762199930381,
+                "q3": 0.07831762199930381,
+                "iqr_outliers": 0,
+                "stddev_outliers": 0,
+                "outliers": "0;0",
+                "ld15iqr": 0.07831762199930381,
+                "hd15iqr": 0.07831762199930381,
+                "ops": 12.76851843138048,
+                "total": 0.07831762199930381,
+                "data": [
+                    0.07831762199930381
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case13659_pegase",
+            "name": "test_import[pglib_opf_case13659_pegase]",
+            "fullname": "benchmarks/examodelspower_gpu_opf_benchmark.py::test_import[pglib_opf_case13659_pegase]",
+            "params": {
+                "case": "pglib_opf_case13659_pegase"
+            },
+            "param": "pglib_opf_case13659_pegase",
+            "extra_info": {
+                "tool": "examodelspower_gpu",
+                "case": "pglib_opf_case13659_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "large"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 1246.046875,
+                "rss_import_mb": 1745.92578125,
+                "rss_solve_mb": 2827.79296875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.08612046900088899,
+                "max": 0.3759554520001984,
+                "mean": 0.20631813699947088,
+                "stddev": 0.15111018616997687,
+                "rounds": 3,
+                "median": 0.15687848999732523,
+                "iqr": 0.21737623724948207,
+                "q1": 0.10380997424999805,
+                "q3": 0.3211862114994801,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.08612046900088899,
+                "hd15iqr": 0.3759554520001984,
+                "ops": 4.846883626147538,
+                "total": 0.6189544109984126,
+                "data": [
+                    0.15687848999732523,
+                    0.3759554520001984,
+                    0.08612046900088899
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "import:pglib_opf_case30000_goc",
+            "name": "test_import[pglib_opf_case30000_goc]",
+            "fullname": "benchmarks/examodelspower_gpu_opf_benchmark.py::test_import[pglib_opf_case30000_goc]",
+            "params": {
+                "case": "pglib_opf_case30000_goc"
+            },
+            "param": "pglib_opf_case30000_goc",
+            "extra_info": {
+                "tool": "examodelspower_gpu",
+                "case": "pglib_opf_case30000_goc",
+                "family": "opf-pglib",
+                "groups": [
+                    "large"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 1245.0390625,
+                "rss_import_mb": 1729.1171875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.1236526690008759,
+                "max": 0.46643621799739776,
+                "mean": 0.24081332666537492,
+                "stddev": 0.19544355314201114,
+                "rounds": 3,
+                "median": 0.13235109299785108,
+                "iqr": 0.2570876617473914,
+                "q1": 0.1258272750001197,
+                "q3": 0.3829149367475111,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.1236526690008759,
+                "hd15iqr": 0.46643621799739776,
+                "ops": 4.1525941020264305,
+                "total": 0.7224399799961247,
+                "data": [
+                    0.46643621799739776,
+                    0.1236526690008759,
+                    0.13235109299785108
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case13659_pegase",
+            "name": "test_solve[pglib_opf_case13659_pegase]",
+            "fullname": "benchmarks/examodelspower_gpu_opf_benchmark.py::test_solve[pglib_opf_case13659_pegase]",
+            "params": {
+                "case": "pglib_opf_case13659_pegase"
+            },
+            "param": "pglib_opf_case13659_pegase",
+            "extra_info": {
+                "tool": "examodelspower_gpu",
+                "case": "pglib_opf_case13659_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "large"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": 63,
+                "n_reported": 13659,
+                "opf_n_buses": 13659,
+                "opf_n_reported_buses": 13659,
+                "opf_n_gens": 4092,
+                "opf_n_reported_gens": 4092,
+                "opf_max_dp_mw": 7.327960614134099e-05,
+                "opf_max_dq_mvar": 2.3673478651176083e-05,
+                "opf_max_vm_violation_pu": 1.0415327267310204e-08,
+                "opf_max_pg_violation_mw": 1.9048384501729743e-05,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 3.61523298302302e-05,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 8948047.178730154,
+                "opf_reference": 8948000.0,
+                "opf_gap": 5.272544719983237e-06,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 2.075781981999171,
+                "max": 2.110693495000305,
+                "mean": 2.094512674199359,
+                "stddev": 0.016237180350412907,
+                "rounds": 5,
+                "median": 2.1007986629992956,
+                "iqr": 0.029819642997608753,
+                "q1": 2.077883074750389,
+                "q3": 2.1077027177479977,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 2.075781981999171,
+                "hd15iqr": 2.110693495000305,
+                "ops": 0.4774380276224666,
+                "total": 10.472563370996795,
+                "data": [
+                    2.1067057919972285,
+                    2.1007986629992956,
+                    2.078583439000795,
+                    2.075781981999171,
+                    2.110693495000305
+                ],
+                "iterations": 1
+            }
         }
     ],
     "datetime": "2026-10-31T11:34:02.022865+00:00",
@@ -2363,7 +2434,7 @@
                     "backend": "cuda",
                     "init": "flat",
                     "tol": 1e-06,
-                    "max_iter": 200,
+                    "max_iter": 500,
                     "kkt_system": "sparse condensed",
                     "equality_treatment": "relaxed",
                     "fixed_variable_treatment": "relaxed bounds",
@@ -2374,26 +2445,31 @@
                 ],
                 "problem": "opf"
             }
-        }
+        },
+        "reruns": [
+            {
+                "git_sha": "da21dd4d9d0c54164ab3250497fcfdb20e04eec4",
+                "datetime": "2026-11-07T20:20:50.961270+00:00",
+                "cases": [
+                    "pglib_opf_case13659_pegase",
+                    "pglib_opf_case30000_goc",
+                    "pglib_opf_case9241_pegase"
+                ]
+            }
+        ]
     },
     "failures": [
         {
             "tool": "examodelspower_gpu",
             "case": "pglib_opf_case9241_pegase",
             "operation": "solve",
-            "error": "DidNotConverge: MadNLP: MAXIMUM_ITERATIONS_EXCEEDED after 200 iterations"
-        },
-        {
-            "tool": "examodelspower_gpu",
-            "case": "pglib_opf_case13659_pegase",
-            "operation": "solve",
-            "error": "DidNotConverge: MadNLP: MAXIMUM_ITERATIONS_EXCEEDED after 200 iterations"
+            "error": "DidNotConverge: MadNLP: MAXIMUM_ITERATIONS_EXCEEDED after 500 iterations"
         },
         {
             "tool": "examodelspower_gpu",
             "case": "pglib_opf_case30000_goc",
             "operation": "solve",
-            "error": "DidNotConverge: MadNLP: MAXIMUM_ITERATIONS_EXCEEDED after 200 iterations"
+            "error": "DidNotConverge: MadNLP: MAXIMUM_ITERATIONS_EXCEEDED after 500 iterations"
         }
     ]
 }

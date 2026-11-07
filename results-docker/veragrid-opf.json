@@ -332,61 +332,6 @@
             }
         },
         {
-            "group": "import:pglib_opf_case1354_pegase",
-            "name": "test_import[pglib_opf_case1354_pegase]",
-            "fullname": "benchmarks/veragrid_opf_benchmark.py::test_import[pglib_opf_case1354_pegase]",
-            "params": {
-                "case": "pglib_opf_case1354_pegase"
-            },
-            "param": "pglib_opf_case1354_pegase",
-            "extra_info": {
-                "tool": "veragrid",
-                "case": "pglib_opf_case1354_pegase",
-                "family": "opf-pglib",
-                "groups": [
-                    "scaling"
-                ],
-                "operation": "import",
-                "problem": "opf",
-                "rss_baseline_mb": 435.42578125,
-                "rss_import_mb": 502.76953125
-            },
-            "options": {
-                "disable_gc": false,
-                "timer": "perf_counter",
-                "min_rounds": 5,
-                "max_time": 1.0,
-                "min_time": 5e-06,
-                "precision": null,
-                "confidence": null,
-                "warmup": false
-            },
-            "stats": {
-                "min": 0.9358533930062549,
-                "max": 0.9476316759973997,
-                "mean": 0.9413829666664242,
-                "stddev": 0.005921980634858768,
-                "rounds": 3,
-                "median": 0.9406638309956179,
-                "iqr": 0.008833712243358605,
-                "q1": 0.9370560025035957,
-                "q3": 0.9458897147469543,
-                "iqr_outliers": 0,
-                "stddev_outliers": 1,
-                "outliers": "1;0",
-                "ld15iqr": 0.9358533930062549,
-                "hd15iqr": 0.9476316759973997,
-                "ops": 1.0622669364213668,
-                "total": 2.8241488999992725,
-                "data": [
-                    0.9476316759973997,
-                    0.9406638309956179,
-                    0.9358533930062549
-                ],
-                "iterations": 1
-            }
-        },
-        {
             "group": "import:pglib_opf_case2869_pegase",
             "name": "test_import[pglib_opf_case2869_pegase]",
             "fullname": "benchmarks/veragrid_opf_benchmark.py::test_import[pglib_opf_case2869_pegase]",
@@ -1438,6 +1383,131 @@
                 ],
                 "iterations": 1
             }
+        },
+        {
+            "group": "import:pglib_opf_case1354_pegase",
+            "name": "test_import[pglib_opf_case1354_pegase]",
+            "fullname": "benchmarks/veragrid_opf_benchmark.py::test_import[pglib_opf_case1354_pegase]",
+            "params": {
+                "case": "pglib_opf_case1354_pegase"
+            },
+            "param": "pglib_opf_case1354_pegase",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "pglib_opf_case1354_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "import",
+                "problem": "opf",
+                "rss_baseline_mb": 448.78125,
+                "rss_import_mb": 515.6484375,
+                "rss_solve_mb": 628.69921875
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.7916306619990792,
+                "max": 1.1381427069973142,
+                "mean": 0.9238410976662029,
+                "stddev": 0.18727485129446225,
+                "rounds": 3,
+                "median": 0.8417499240022153,
+                "iqr": 0.2598840337486763,
+                "q1": 0.8041604774998632,
+                "q3": 1.0640445112485395,
+                "iqr_outliers": 0,
+                "stddev_outliers": 1,
+                "outliers": "1;0",
+                "ld15iqr": 0.7916306619990792,
+                "hd15iqr": 1.1381427069973142,
+                "ops": 1.0824372313877233,
+                "total": 2.7715232929986087,
+                "data": [
+                    0.8417499240022153,
+                    1.1381427069973142,
+                    0.7916306619990792
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": "solve:pglib_opf_case1354_pegase",
+            "name": "test_solve[pglib_opf_case1354_pegase]",
+            "fullname": "benchmarks/veragrid_opf_benchmark.py::test_solve[pglib_opf_case1354_pegase]",
+            "params": {
+                "case": "pglib_opf_case1354_pegase"
+            },
+            "param": "pglib_opf_case1354_pegase",
+            "extra_info": {
+                "tool": "veragrid",
+                "case": "pglib_opf_case1354_pegase",
+                "family": "opf-pglib",
+                "groups": [
+                    "scaling"
+                ],
+                "operation": "solve",
+                "problem": "opf",
+                "iterations": null,
+                "n_reported": 1354,
+                "opf_n_buses": 1354,
+                "opf_n_reported_buses": 1354,
+                "opf_n_gens": 260,
+                "opf_n_reported_gens": 260,
+                "opf_max_dp_mw": 1.6377472803696946e-05,
+                "opf_max_dq_mvar": 3.796669090405658e-05,
+                "opf_max_vm_violation_pu": 0.0,
+                "opf_max_pg_violation_mw": 0.0,
+                "opf_max_qg_violation_mvar": 0.0,
+                "opf_max_flow_violation_mva": 0.0,
+                "opf_max_angle_violation_deg": 0.0,
+                "opf_objective": 1258844.7796935039,
+                "opf_reference": 1258800.0,
+                "opf_gap": 3.557331863986663e-05,
+                "oracle_ok": true,
+                "opf_better_than_reference": false
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "precision": null,
+                "confidence": null,
+                "warmup": false
+            },
+            "stats": {
+                "min": 68.29180390300098,
+                "max": 68.29180390300098,
+                "mean": 68.29180390300098,
+                "stddev": 0,
+                "rounds": 1,
+                "median": 68.29180390300098,
+                "iqr": 0.0,
+                "q1": 68.29180390300098,
+                "q3": 68.29180390300098,
+                "iqr_outliers": 0,
+                "stddev_outliers": 0,
+                "outliers": "0;0",
+                "ld15iqr": 68.29180390300098,
+                "hd15iqr": 68.29180390300098,
+                "ops": 0.014643045619652411,
+                "total": 68.29180390300098,
+                "data": [
+                    68.29180390300098
+                ],
+                "iterations": 1
+            }
         }
     ],
     "datetime": "2026-10-11T00:15:19.256467+00:00",
@@ -1500,22 +1570,25 @@
                     "q_capability_curve": false,
                     "angle_limits": false,
                     "ips_tolerance": 1e-06,
-                    "ips_iterations": 200
+                    "ips_iterations": 500
                 },
                 "families": [
                     "opf-pglib"
                 ],
                 "problem": "opf"
             }
-        }
+        },
+        "reruns": [
+            {
+                "git_sha": "9d4baf43fb480c4504ef8f02eea691235903d940",
+                "datetime": "2026-11-07T20:55:37.252466+00:00",
+                "cases": [
+                    "pglib_opf_case1354_pegase"
+                ]
+            }
+        ]
     },
     "failures": [
-        {
-            "tool": "veragrid",
-            "case": "pglib_opf_case1354_pegase",
-            "operation": "solve",
-            "error": "DidNotConverge: NONLINEAR_OPF did not converge in 200 iterations"
-        },
         {
             "tool": "veragrid",
             "case": "pglib_opf_case2869_pegase",
