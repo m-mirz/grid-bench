@@ -69,7 +69,8 @@ CAPACITY = 1024
 class GridoxideGpuDc(GridoxideGpu, DcAdapter):
     settings = {"method": "dc, the reduced solve on the device", "api": "GpuDcSolver.solve_single",
                 "linear_solver": "cudss", "precision": "fp64", "capacity": 1,
-                "shunt_conductance": "as load (MATPOWER)", "reader": "from_matpower (.m)"}
+                "shunt_conductance": "as load (MATPOWER)", "reader": "from_matpower (.m)",
+                "commit": GridoxideGpu.settings["commit"]}
 
     def load(self, case):
         import gridoxide
@@ -100,7 +101,7 @@ class GridoxideGpuDcN1(GridoxideGpu, DcContingencyAdapter):
     threaded = False
     settings = {"method": "LODF, angles and flows, on the device", "api": "GpuDcSolver.solve_contingencies",
                 "linear_solver": "cudss", "precision": "fp64", "capacity": CAPACITY,
-                "reader": "from_matpower (.m)"}
+                "reader": "from_matpower (.m)", "commit": GridoxideGpu.settings["commit"]}
 
     def load(self, case):
         import gridoxide

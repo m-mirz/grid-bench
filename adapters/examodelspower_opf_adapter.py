@@ -53,7 +53,7 @@ Settings:
 What it deliberately does not do: the GPU backend (CUDA, MadNLPGPU and
 cuDSS with the condensed KKT system, what the package is built for) is the
 examodelspower_gpu tool (adapters/examodelspower_gpu_opf_adapter.py), the same
-adapter and Julia code on another backend, in the GPU tabs.
+adapter and Julia code on another backend.
 """
 from importlib import import_module
 from importlib.metadata import version

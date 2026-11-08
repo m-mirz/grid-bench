@@ -36,7 +36,7 @@ COPY --from=gridoxide . /src/gridoxide
 
 # The extension, `--features python,gpu,opf,matpower` (`opf` and `matpower`
 # for the AC-OPF, adapters/gridoxide_gpu_opf_adapter.py):
-# - CUDA_ARCH=sm_80: the A100 the GPU tabs run on; gridoxide-gpu compiles its
+# - CUDA_ARCH=sm_80: the A100 the GPU results run on; gridoxide-gpu compiles its
 #   kernels for one architecture, so another GPU needs this build argument
 #   (sm_90 for an H100) or fails at run time with "no kernel image".
 # - LIBCLANG_PATH: the libclang wheel's library. It ships no compiler

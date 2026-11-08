@@ -159,7 +159,7 @@ tests/       the oracle's own tests (test_wls.py: state estimation, test_opf.py:
 data/        submodules: benchmark-grids (MATPOWER, PGLib-OPF), CGMES-Test-Configurations,
              application-profiles-library (ENTSO-E's CGMES RDFS and SHACL)
 results-docker/  published results: <tool>.json, <tool>-se.json, <tool>-opf.json, <tool>-batch.json, <tool>-n1.json,
-             <tool>-dc.json, <tool>-dcn1.json, <tool>-cim.json; gpu/: GPU tools and the CPU baselines run on their machine
+             <tool>-dc.json, <tool>-dcn1.json, <tool>-cim.json; gpu/: GPU tools (published with the rest) and any CPU baseline run on their machine
              (conversion.json, the conversion check's record, is written there but not tracked)
 docs/index.html  generated site
 ```
@@ -171,7 +171,7 @@ docker/build.sh [tool ...]                     # images (base, harness, tools)
 docker/lock.sh                                 # re-resolve every uv.lock and Julia Manifest.toml (review, then commit)
 docker/run_benchmark.sh [tool ...] [-- --groups smoke]   # prep, oracle tests, tools, reports
 docker/run_single.sh pandapower --cases case14,case300   # one tool, quick iteration
-GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu    # into results-docker/gpu/ (GPU tabs); a baseline likewise
+GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu    # into results-docker/gpu/ (published with the rest); a baseline likewise
 GRID_BENCH_RESULTS=gpu docker/run_single.sh gpusim2grid --groups smoke,scaling,feature,large   # with the large batches
 docker compose -f docker/docker-compose.yml run --rm reports   # regenerate reports only
 
@@ -274,7 +274,7 @@ keyed `<case>#sweep`, each scenario graded by tier 1 in `oracle.batch`),
 and `n1-matpower` (N-1: a transmission case plus its outages, keyed
 `<case>#n1`, each graded the same way against the case with that branch
 out; radial grids have no outage that keeps them connected), both also
-large for the GPU tabs (`<case>#sweep-1k` and `-10k`, 1 000 and 10 000 operating points, and
+large for the GPU tools (`<case>#sweep-1k` and `-10k`, 1 000 and 10 000 operating points, and
 `<case>#n1-full`, every outage that converges; group `large`, an opt-in
 group, `OPT_IN_GROUPS`: prepared and run only when asked for, published
 like the default groups), and
@@ -309,6 +309,23 @@ are drawn in the browser from the data embedded in it) from the JSON in a
 results directory; run it (or the `reports` compose service) after any
 change to `tools/`, and commit what it writes. Conventions:
 
+- The problem tabs are grouped by the model they solve on (AC, DC, CIM:
+  `MODELS` in the template), and every section title names the problem in
+  full (`PROBLEM_TITLE`), so a table read on its own says whether it is AC
+  or DC. A new problem goes in both.
+- A problem's method is a sentence and its facts (start, tolerance, grading:
+  `<dl class="facts">`), with the whole paragraph under "Full method"; change
+  the two together. A control that changes the view belongs in the URL
+  (`readHash`, `writeHash`), so a link opens what its sender saw. What
+  every problem shares, the GPU tools' note included, goes in "How every
+  problem is measured", which keeps the chart near the top.
+- A problem's results read speed first, then correctness: chart, timing table,
+  thread scaling; then scoreboard, accuracy, failures. The chart marks every
+  verdict (hollow: rejected), so no speed number is shown without one.
+- Under the chart, `chartMissing` names the tools with no result on a plotted
+  case: a failing tool has no point, and the scoreboard is further down. The
+  last table lists each tool's version, commit and device; a tool built from
+  an untagged commit records it (`settings` or `dependencies`, "commit").
 - Only cases in the default and opt-in groups (`DEFAULT_GROUPS`,
   `OPT_IN_GROUPS`) are published (`benchmark_data.load`); a case run by
   name stays in its JSON.
@@ -334,16 +351,21 @@ change to `tools/`, and commit what it writes. Conventions:
 - A problem's method is shown with its results (a `data-kind` paragraph of
   the template's `methods`); "How every problem is measured" keeps only what
   all share.
-- GPU tabs (power flow, OPF, batch, N-1; on the page, the "GPU machine"
-  choice next to the problem) read `results-docker/gpu/`, not the
-  top level: GPU tools and the CPU baselines run on the same machine, which
-  need not be the machine behind the other tabs, so they are compared only
-  with each other. A tool is a GPU tool when its JSON records a device
-  (`dependencies.gpu`); every other tool there is a baseline. Run both
-  with `GRID_BENCH_RESULTS=gpu` and `--groups smoke,scaling,feature,large`
-  (`GPU_GROUPS`): the large batches (group `large`) are what a GPU needs to
-  fill, and a run writes each tool's JSON whole, so `--groups large` alone
-  would drop the other cases from it.
+- GPU and CPU tools share one view per problem: each solver runs on the
+  hardware it would be run on, so a comparison is of solver and hardware
+  together, and the page names both machines. `load` reads the top level and
+  the GPU tools of `results-docker/gpu/` (a tool is a GPU tool when its JSON
+  records a device, `dependencies.gpu`); a CPU baseline there compares the
+  two machines and is not published. `machines` stops the report if one
+  problem's CPU tools, or its GPU tools, ran on different CPUs or devices, so
+  a move to other hardware reruns all of them. Run GPU tools with
+  `GRID_BENCH_RESULTS=gpu` and `--groups smoke,scaling,feature,large`; a run
+  writes each tool's JSON whole, so `--groups large` alone would drop the
+  other cases from it. CPU tools chosen to compare with them run the same
+  groups at the top level. A large case a tool was not asked to run shows
+  `·` (`skipped`), never a failure. The default thread view is the fastest
+  count, which is the comparison; GPU tools have no thread count and are
+  left out of the 1-thread view.
 
 ## Adding a case
 

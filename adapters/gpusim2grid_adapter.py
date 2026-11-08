@@ -1,8 +1,8 @@
 """gpusim2grid: AC Newton-Raphson on an NVIDIA GPU (CUDA, cuDSS), seeded
 from a lightsim2grid grid. Its own image (tool-configs/gpusim2grid), built
 from a commit of its main branch (no release yet), with lightsim2grid 1.1.0
-compiled from source next to it; results go to `results-docker/gpu/` (the
-GPU tabs), next to lightsim2grid run on the same machine.
+compiled from source next to it; results go to `results-docker/gpu/`, next to
+lightsim2grid run on the same machine.
 
 Input: lightsim2grid's `init_from_matpower` on the prepared `.mat`, exactly
 as adapters/lightsim2grid_adapter.py, with its documented loss (online
@@ -41,6 +41,8 @@ Settings:
   5.8, solving 2.2, the rest under 1), the copy to the host 0.06 ms; the
   rest is building the session in Python. Setup, not the iteration or the
   transfers, is the cost of a single solve here.
+- `commit`: what ran, since it has no release and its version (0.2.0.rc0)
+  does not say; the one the Dockerfile pins (tests/test_reports.py checks).
 - FP64 (its default, the build's precision), its default cuDSS settings
   (reordering, matching, pivoting), no step damping (off on the
   explicit-array path; lightsim2grid's own solve has none by default).
@@ -100,6 +102,9 @@ def bus_ids(case: str, grid) -> list[str]:
     return [str(number[i]) for i in grid.id_ac_solver_to_me()]
 
 
+COMMIT = "416ae9fc2221965f654e26154e7c628322e172e8"
+
+
 class Gpusim2gridAdapter(SolverAdapter):
     name = "gpusim2grid"
     display_name = "gpusim2grid (GPU)"
@@ -108,7 +113,7 @@ class Gpusim2gridAdapter(SolverAdapter):
     modules = ("gpusim2grid", "lightsim2grid", "lightsim2grid.network", "lightsim2grid.algorithm")
     language = "c++"
     families = ("matpower", "distribution")
-    settings = {"solver": "NewtonRaphson", "backend": "cuda", "linear_solver": "cudss", "precision": "fp64",
+    settings = {"commit": COMMIT, "solver": "NewtonRaphson", "backend": "cuda", "linear_solver": "cudss", "precision": "fp64",
                 "entry_point": "AcPfGPU (explicit arrays)", "init": "flat", "tolerance_pu": TOLERANCE_PU,
                 "max_iteration": MAX_ITERATIONS}
 

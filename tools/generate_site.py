@@ -8,7 +8,7 @@ from pathlib import Path
 
 from cases.registry import CASES
 from oracle.evaluate import VM_FLOOR_PU
-from tools.benchmark_data import GRID_TITLES, Results, case_size, gpu_run, graded, input_label, scoreboard
+from tools.benchmark_data import GRID_TITLES, Results, case_size, gpu, graded, input_label, machines, scoreboard
 from tools.palette import DARK, DASH, LIGHT, LIGHT_TO_DARK
 
 KEEP = ("iterations", "oracle_ok", "residual_max_dp_mw", "residual_max_dq_mvar", "residual_max_dvm_pu",
@@ -45,7 +45,8 @@ def payload(res: Results, kind: str = "pf") -> dict:
     tools = [{"name": t, "display": m["display_name"],
               "color": m["color"],
               "colorDark": LIGHT_TO_DARK.get(m["color"], m["color"]), "dash": DASH.get(m["color"]),
-              "version": m["version"], "tags": m["tags"],
+              "version": m["version"], "tags": m["tags"], "gpu": gpu(m),
+              "commit": m["settings"].get("commit") or m["dependencies"].get("commit"),
               "language": m["language"], "families": m["families"], "settings": m["settings"]}
              for t in res.tool_order() for m in [res.tools[t]]]
     # `order`: the report's row order (by size, each conversion under its source case).
@@ -57,34 +58,23 @@ def payload(res: Results, kind: str = "pf") -> dict:
              for i, c in enumerate(ordered)}
     rows = [{"tool": r.tool, "case": r.case, "op": r.operation, "median": r.median_ms, "min": r.min_ms,
              "rounds": r.rounds, **{k: r.extra[k] for k in KEEP if k in r.extra}} for r in res.records]
-    run = next((r for r in res.runs if r["machine"]), {})
-    cpu = run.get("machine", {}).get("cpu", {})
+    dates = sorted(str(r["datetime"])[:10] for r in res.runs if r["datetime"])
+    kernels = sorted({f"{r['machine'].get('system', '?')} {r['machine'].get('release', '')}" for r in res.runs if r["machine"]})
     grids = [[g, {"transmission": "Transmission", "distribution": "Distribution", "fixtures": "CGMES fixtures"}[g],
               GRID_TITLES[g]] for g in res.grids()]
     columns, board = scoreboard(res)
     return {"kind": kind, "tools": tools, "cases": cases, "rows": rows, "failures": res.failures, "grids": grids,
             "scoreboard": {"columns": [label.replace("`", "") for label in columns], "rows": board},
-            "run": {"cpu": cpu.get("brand_raw", "?"), "cores": cpu.get("count", "?"),
-                    "cpus": next((r["cpus"] for r in res.runs if r.get("cpus")), {}),
-                    "os": f"{run.get('machine', {}).get('system', '?')} {run.get('machine', {}).get('release', '')}",
-                    "git": str(run.get("git_sha", "?"))[:12], "date": str(run.get("datetime", "?"))[:10]}}
+            "run": {"machines": machines(res), "kernels": kernels, "dates": [dates[0], dates[-1]] if dates else ["?", "?"],
+                    # What the thread-scaling text states: only CPU tools have a thread count.
+                    "cpus": next((r["cpus"] for r in res.runs if r.get("cpus") and not gpu(res.tools[r["tool"]])), {})}}
 
 
-def generate(directory: Path, res: Results, gpu: Results | None = None) -> str:
-    """`gpu`: the results of `<directory>/gpu/`, GPU tools and the CPU
-    baselines run on their machine, as four more tabs (power flow, OPF,
-    batch, N-1) that compare only those."""
+def generate(directory: Path, res: Results) -> str:
     part = lambda r, kind: payload(r, kind) if r and (r.records or r.failures) else None
     tabs = {"pf": payload(res), "se": part(res.se, "se"), "opf": part(res.opf, "opf"),
             "batch": part(res.batch, "batch"), "n1": part(res.n1, "n1"), "dc": part(res.dc, "dc"),
             "dcn1": part(res.dcn1, "dcn1"), "cim": part(res.cim, "cim")}
-    if gpu:
-        gpus, baselines, devices = gpu_run(gpu)
-        names = {t: m["display_name"] for p in (gpu, gpu.opf, gpu.batch, gpu.n1) for t, m in p.tools.items()}
-        meta = {"gpus": [names[t] for t in gpus], "baselines": [names[t] for t in baselines], "devices": devices}
-        tabs |= {f"gpu-{k}": p and p | {"gpu": meta} for k, p in
-                 [("pf", part(gpu, "pf")), ("opf", part(gpu.opf, "opf")), ("batch", part(gpu.batch, "batch")),
-                  ("n1", part(gpu.n1, "n1"))]}
     data = json.dumps(tabs, separators=(",", ":")).replace("</", "<\\/")
     return (TEMPLATE.replace("__DATA__", data).replace("__VM_FLOOR__", repr(VM_FLOOR_PU))
             .replace("__LIGHT__", "".join(f"--{k}:{v};" for k, v in LIGHT.items()))
@@ -106,6 +96,7 @@ TEMPLATE = r"""<!doctype html>
 body{margin:0;background:var(--surface);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
 main{max-width:1180px;margin:0 auto;padding:32px 20px 64px}
 h1{font-size:30px;margin:0 0 4px;letter-spacing:-.01em}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 20px}.top a{color:var(--accent);font-size:14px}
 h2{font-size:20px;margin:40px 0 8px}
 p,li{color:var(--text2);max-width:78ch}
 .lede{font-size:17px;margin:0 0 20px}
@@ -114,13 +105,14 @@ p,li{color:var(--text2);max-width:78ch}
 .seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
 .seg button{border:0;background:transparent;color:var(--text2);padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--chip);color:var(--text);font-weight:600}
+.view{margin:24px 0 12px}.view-row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:8px 0}.view-label{font-size:13px;font-weight:600;color:var(--text)}.view-label[hidden]{display:none}.view .seg{flex-wrap:wrap}.view .chips{flex:1 1 300px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:999px;padding:3px 10px;background:transparent;color:var(--text);font:inherit;font-size:13px;cursor:pointer}
 .chip[aria-pressed="false"]{opacity:.45}
 .chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
 .card{border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--surface)}
 #chart{width:100%;height:auto;display:block}
-.tip{position:fixed;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:320px}
+.tip{position:fixed;z-index:3;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.15);max-width:320px}
 .tip b{display:block;color:var(--text)}.tip span{color:var(--text2)}
 .scroll{overflow-x:auto}
 table{border-collapse:collapse;font-size:14px;width:100%;font-variant-numeric:tabular-nums}
@@ -135,8 +127,13 @@ td.na{color:var(--axis)}
 td.best{font-weight:700}
 #chart [data-s]{transition:opacity .12s}#chart .dim{opacity:.12}
 .seg[hidden]{display:none}
+@media (min-width:760px) and (min-height:600px){.pick{position:sticky;top:0;z-index:2;background:var(--surface);padding:8px 0;margin-bottom:4px;border-bottom:1px solid var(--border)}}
+.problems{display:flex;flex-wrap:wrap;gap:8px}.problems[hidden]{display:none}.problems .seg{flex-wrap:wrap}
+.seg-label{display:flex;align-items:center;padding:6px 10px;font-size:13px;font-weight:700;color:var(--text);border-right:1px solid var(--border)}
+.chart-title{font-size:15px;font-weight:600;margin:0 0 8px;color:var(--text)}
 .legend-note{font-size:13px;color:var(--text2);margin:8px 0 0}
 .method{border-left:3px solid var(--border);padding-left:14px}.method p{margin:6px 0}
+.facts{display:grid;grid-template-columns:max-content 1fr;gap:2px 12px;margin:6px 0;max-width:100ch}.facts dt{font-weight:600;color:var(--text)}.facts dd{margin:0;color:var(--text2)}
 .multiples{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-top:12px}
 .multiples .card{padding:10px 12px}.multiples h3{font-size:14px;margin:0 0 4px}.multiples svg{width:100%;height:auto;display:block}
 #s-legend .chip{cursor:default}
@@ -146,39 +143,39 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 </head>
 <body>
 <main>
-<h1>grid-bench</h1>
+<header class="top"><h1>grid-bench</h1><a href="https://github.com/m-mirz/grid-bench">GitHub repository</a></header>
 <p class="lede">Open-source power system tools timed on the same problems, where every result is graded by an oracle that no tool under test takes part in: no speed number without a correctness number. Choose a problem; how it is set up and graded is shown with its results.</p>
 <p class="meta" id="meta"></p>
 
-<div class="controls">
-  <div class="seg" role="group" aria-label="Problem" id="problem"></div>
-  <div class="seg" role="group" aria-label="Machine" id="machine"></div>
+<div class="controls pick">
+  <div class="problems" role="group" aria-label="Problem" id="problem"></div>
 </div>
-<p id="gpu-desc" hidden></p>
+<p id="model-desc"></p>
 <div class="method" id="method"></div>
 
-<h2>Scoreboard</h2>
-<p id="sb-desc"></p>
-<div class="scroll"><table id="scoreboard"></table></div>
-<p class="legend-note" id="sb-legend">Each cell counts its column's cases: ✓ / ✗ / FAILED. ✓: the oracle accepted the result. ✗: the tool returned a result the oracle rejected. FAILED: the tool raised or did not converge (see Failures). ·: the tool reads none of the column's cases.</p>
-
-<div class="controls">
-  <div class="seg" role="group" aria-label="Operation" id="op"></div>
-  <div class="seg" role="group" aria-label="Grid" id="grid"></div>
-  <div class="seg" role="group" aria-label="Input plotted" id="input"></div>
-  <div class="seg" role="group" aria-label="Threads" id="threads"></div>
-  <div class="seg" role="group" aria-label="Memory of" id="memop"></div>
-  <div class="chips" id="toolchips" aria-label="Tools"></div>
+<div class="view">
+  <div class="view-row"><span class="view-label">Measure</span>
+    <div class="seg" role="group" aria-label="Operation" id="op"></div>
+    <div class="seg" role="group" aria-label="Threads" id="threads"></div>
+    <div class="seg" role="group" aria-label="Memory of" id="memop"></div></div>
+  <div class="view-row"><span class="view-label">Grid</span>
+    <div class="seg" role="group" aria-label="Grid" id="grid"></div>
+    <span class="view-label" id="input-label">Chart shows</span>
+    <div class="seg" role="group" aria-label="Chart shows" id="input"></div></div>
+  <div class="view-row"><span class="view-label">Tools</span>
+    <div class="chips" id="toolchips" aria-label="Tools"></div></div>
+  <p class="legend-note" id="threads-note" hidden>GPU tools have no thread count, so this view leaves them out.</p>
 </div>
-<div class="card"><svg id="chart" viewBox="0 0 960 440" role="img" aria-label="Time versus case size, one line per tool"></svg>
-<p class="legend-note" id="legend-note"></p></div>
+<div class="card"><h3 class="chart-title" id="c-title"></h3><svg id="chart" viewBox="0 0 960 440" role="img" aria-label="Time versus case size, one line per tool"></svg>
+<p class="legend-note" id="legend-note"></p>
+<p class="legend-note" id="chart-missing" hidden></p></div>
 
 <h2 id="t-title"></h2>
 <p id="t-desc"></p>
 <div class="scroll"><table id="timing"></table></div>
 
 <section id="scaling-sec" hidden>
-<h2>Thread scaling</h2>
+<h2 id="s-title"></h2>
 <p id="s-desc"></p>
 <div class="chips" id="s-legend"></div>
 <div class="multiples" id="scaling-plots"></div>
@@ -186,30 +183,53 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <details><summary>As a table</summary><div class="scroll"><table id="scaling"></table></div></details>
 </section>
 
-<h2 id="a-title">Accuracy</h2>
+<h2 id="sb-title"></h2>
+<p id="sb-desc"></p>
+<div class="scroll"><table id="scoreboard"></table></div>
+<p class="legend-note" id="sb-legend">Each cell counts its column's cases: ✓ / ✗ / FAILED. ✓: the oracle accepted the result. ✗: the tool returned a result the oracle rejected. FAILED: the tool raised or did not converge (see Failures). ·: the tool reads none of the column's cases, or was not asked to run them (the large cases are opt-in).</p>
+
+<h2 id="a-title"></h2>
 <p id="a-desc"></p>
 <div class="scroll"><table id="accuracy"></table></div>
 
-<h2>Failures</h2>
+<h2 id="f-title"></h2>
 <p>Every run that raised, with the tool's own exception.</p>
 <div class="scroll"><table id="failures"></table></div>
+
+<h2 id="v-title"></h2>
+<p>As each tool's package reports them. A build from an untagged commit reports the last version it was given, so where a commit is listed, the commit is what ran. ·: a pinned release, or a build whose commit its results did not record.</p>
+<div class="scroll"><table id="versions"></table></div>
 
 <h2>How every problem is measured</h2>
 <ul>
 <li><b>Solve</b> is timed warm: one persistent model, one untimed warm-up solve, then repeated solves (median shown). <b>Import</b> is the median of 3 cold loads after one warm-up load.</li>
-<li><b>Oracle.</b> Tier 1 (MATPOWER cases): the residual <code>V·conj(Ybus·V) − S</code> with Ybus built from the <code>.m</code> file by the benchmark itself. Tier 2 (CGMES fixtures): deviation from the case's published SV solution. Each problem's own check builds on these; it is described with the problem, above.</li>
+<li><b>Oracle.</b> Tier 1 (MATPOWER cases): the residual <code>V·conj(Ybus·V) − S</code> with Ybus built from the case's MATPOWER file by the benchmark itself. Tier 2 (CGMES fixtures): deviation from the case's published SV solution. Each problem's own check builds on these; it is described with the problem, above.</li>
 <li><b>Settings.</b> Every setting of every tool is justified in its adapter's docstring, including what it deliberately does not do.</li>
 <li><b>Memory</b> is the peak RSS of a fresh process loading and solving the case, minus the peak after importing the tool (values below 1 MB are drawn at 1 MB on the log axis). Only the benchmark process counts: cgmes2pgm's Fuseki server is not included.</li>
+<li><b>GPU tools</b> solve the same problems, cases and settings under the same oracle, on the machines named at the top of the page: each solver runs on the hardware it would be run on, so a comparison is of solver and hardware together. Its timed call ends with a device synchronize; its memory is host RSS only, not device memory.</li>
 </ul>
 <template id="methods">
-<p data-kind="pf"><b>AC power flow</b>, the same problem for every tool: flat start on every solve, one slack, no reactive limits, no tap/phase-shifter/shunt control, generator voltage regulation as the case defines it, convergence tolerance 1e-8 p.u. MATPOWER cases are also converted to CGMES, and a tool reading a conversion is graded against the original <code>.m</code>. CGMES conformity fixtures are graded against their published SV solution.</p>
-<p data-kind="se"><b>State estimation</b>: weighted least squares on each case with a measurement set generated from its own power flow. <code>exact</code>: |V| and P/Q injections at every bus without noise, so the optimum is the true state. <code>noisy</code>: |V| at generator buses, P/Q injections at every bus, P/Q flows at every branch's from end, with Gaussian noise. Same measurements and sigmas for every tool, flat start, no bad-data handling. The oracle accepts an estimate when one Gauss-Newton step from it moves it by at most 1e-6 and its J is no larger than J at the true state.</p>
-<p data-kind="opf"><b>Optimal power flow</b>: MATPOWER's AC-OPF on PGLib-OPF v23.07 cases (polynomial cost; power-flow equations; voltage, generator, branch MVA and angle-difference limits), flat start, tolerance 1e-6. The oracle checks the solution's feasibility against the <code>.m</code> and recomputes its cost, accepted at most 0.01% above PGLib's published reference (a local optimum given to five digits).</p>
-<p data-kind="batch"><b>Batch power flow</b>: each case with 100 operating points (every bus's demand along a daily curve between 60% and 100% of the case, 5% noise per bus, generators redispatched in proportion), all solved in one timed call with the base case: the base case from a flat start, then each scenario the AC power-flow problem of the Power flow tab, started from the tool's own base-case solution, as a sweep from a solved base case is run (power-grid-model takes no start voltages and starts flat). Tools with a batch API run it at 1, 2, 4, … threads, up to every core available; a tool without one runs a loop of its single solve, on one thread. Times are per scenario. The oracle grades every scenario of every thread count. The GPU machine adds 1,000 and 10,000 operating points on the larger cases: 100 leave a GPU mostly idle. The CPU baselines run these, and its full N-1 cases, at one thread and at every core only.</p>
-<p data-kind="n1"><b>N-1 contingencies</b>: each transmission case with 200 single-branch outages that keep the grid connected (all 19 of case14), solved in one timed call with the base case, each outage started from the tool's own base-case solution (power-grid-model takes no start voltages and starts flat). Contingency APIs that take a thread count run at 1, 2, 4, … threads. Times are per outage. The oracle grades every outage of every thread count against the case with that branch out. The GPU machine adds every outage that keeps the grid connected and converges (input "all outages", up to 14,384 on case9241pegase).</p>
-<p data-kind="dc dcn1"><b>DC power flow</b> and <b>DC N-1</b>: MATPOWER's DC model (branch admittance 1/(x·tap), resistance and charging left out, phase shifts as injections, shunt conductance as load, one reference bus) on the transmission cases, and on the N-1 cases' own outages ("all outages": every outage that keeps the grid connected). A tool reports bus angles and from-end branch flows; the oracle checks the nodal balance |Bθ − P| with the tool's angles (whatever its reference angle) and the flows against its own solution of the model, both to 1e-3 MW. An outage may be solved anew or from the base case's sensitivities (LODF, PTDF): both are exact in DC. A tool that computes flows without angles (PTDF-based) is graded on its flows alone, marked "(flows)".</p>
-<p data-kind="cim"><b>CIM import/export</b>: CIM libraries on the Svedala and RealGrid CGMES 3.0 conformity models, every profile (SV included) read from the published XML. <b>Import</b>: files to the library's model. <b>Export</b>: that model back to CGMES RDF/XML, warm, into an empty directory. <b>Validate</b>: files to violation report in one call, parsing included (cimoxide validates files only); cimoxide runs its own rules, triplets and OpenCGMES (with Jena SHACL) the ENTSO-E CGMES 3.0 SHACL shapes. These are timed, not graded, as in cim-bench: what each tool read and found is shown, but the tools read CGMES into different models and validate against different rules. The Java libraries run in-process through JPype, JVM included in memory.</p>
-<p data-kind="gpu"><b>GPU machine</b>: GPU solvers on the same problems, cases, settings and oracle, against CPU baselines run on the same machine. That machine is not the one behind the CPU tools' results, so its tools are compared only with each other. A GPU tool's timed call ends with a device synchronize; memory is host RSS only, not device memory.</p>
+<div data-kind="pf"><p><b>AC power flow</b>, the same problem for every tool: one slack, no reactive limits, no tap, phase-shifter or shunt control.</p>
+<dl class="facts"><dt>Start</dt><dd>Flat, on every solve.</dd><dt>Tolerance</dt><dd>1e-8 p.u.</dd><dt>Graded</dt><dd>The residual against the original MATPOWER file; CGMES fixtures against their published SV solution.</dd></dl>
+<details><summary>Full method</summary><p><b>AC power flow</b>, the same problem for every tool: flat start on every solve, one slack, no reactive limits, no tap/phase-shifter/shunt control, generator voltage regulation as the case defines it, convergence tolerance 1e-8 p.u. MATPOWER cases are also converted to CGMES, and a tool reading a conversion is graded against the original MATPOWER file. CGMES conformity fixtures are graded against their published SV solution.</p></details></div>
+<div data-kind="se"><p><b>AC state estimation</b>: weighted least squares, with the same measurements and sigmas for every tool and no bad-data handling.</p>
+<dl class="facts"><dt>Start</dt><dd>Flat.</dd><dt>Tolerance</dt><dd>1e-8 on the state update.</dd><dt>Graded</dt><dd>One Gauss-Newton step moves the estimate by at most 1e-6, and its J is no larger than at the true state.</dd></dl>
+<details><summary>Full method</summary><p><b>AC state estimation</b>: weighted least squares on each case with a measurement set generated from its own AC power flow. <code>exact</code>: |V| and P/Q injections at every bus without noise, so the optimum is the true state. <code>noisy</code>: |V| at generator buses, P/Q injections at every bus, P/Q flows at every branch's from end, with Gaussian noise. Same measurements and sigmas for every tool, flat start, no bad-data handling. The oracle accepts an estimate when one Gauss-Newton step from it moves it by at most 1e-6 and its J is no larger than J at the true state.</p></details></div>
+<div data-kind="opf"><p><b>AC optimal power flow</b>: MATPOWER's AC-OPF on PGLib-OPF v23.07 cases.</p>
+<dl class="facts"><dt>Start</dt><dd>Flat, where the tool lets one be set.</dd><dt>Tolerance</dt><dd>1e-6.</dd><dt>Graded</dt><dd>Feasible against the MATPOWER file, with a recomputed cost at most 0.01% above PGLib's reference.</dd></dl>
+<details><summary>Full method</summary><p><b>AC optimal power flow</b>: MATPOWER's AC-OPF on PGLib-OPF v23.07 cases (polynomial cost; power-flow equations; voltage, generator, branch MVA and angle-difference limits), flat start, tolerance 1e-6. The oracle checks the solution's feasibility against the MATPOWER file and recomputes its cost, accepted at most 0.01% above PGLib's published reference (a local optimum given to five digits).</p></details></div>
+<div data-kind="batch"><p><b>AC batch power flow</b>: each case with 100 operating points, solved in one timed call with the base case. Times are per scenario.</p>
+<dl class="facts"><dt>Start</dt><dd>Base case flat, then each scenario from the tool's base-case solution (power-grid-model: flat).</dd><dt>Tolerance</dt><dd>1e-8 p.u.</dd><dt>Threads</dt><dd>1, 2, 4, … up to every core with a batch API; a loop on one thread without one.</dd><dt>Graded</dt><dd>Every scenario of every thread count, by the residual with that scenario's demand.</dd></dl>
+<details><summary>Full method</summary><p><b>AC batch power flow</b>: each case with 100 operating points (every bus's demand along a daily curve between 60% and 100% of the case, 5% noise per bus, generators redispatched in proportion), all solved in one timed call with the base case: the base case from a flat start, then each scenario the problem of the AC power flow tab, started from the tool's own base-case solution, as a sweep from a solved base case is run (power-grid-model takes no start voltages and starts flat). Tools with a batch API run it at 1, 2, 4, … threads, up to every core available; a tool without one runs a loop of its single solve, on one thread. Times are per scenario. The oracle grades every scenario of every thread count. The GPU tools, and the CPU tools chosen to compare with them, also run 1,000 and 10,000 operating points on the larger cases, since 100 leave a GPU mostly idle; CPU tools run these, and the full N-1 cases, at one thread and at every core only.</p></details></div>
+<div data-kind="n1"><p><b>AC N-1 contingencies</b>: each transmission case with 200 single-branch outages that keep the grid connected, solved in one timed call with the base case. Times are per outage.</p>
+<dl class="facts"><dt>Start</dt><dd>Base case flat, then each outage from the tool's base-case solution (power-grid-model: flat).</dd><dt>Tolerance</dt><dd>1e-8 p.u.</dd><dt>Threads</dt><dd>1, 2, 4, … where the contingency API takes a thread count.</dd><dt>Graded</dt><dd>Every outage of every thread count, by the residual with that branch out.</dd></dl>
+<details><summary>Full method</summary><p><b>AC N-1 contingencies</b>: each transmission case with 200 single-branch outages that keep the grid connected (all 19 of case14), solved in one timed call with the base case, each outage started from the tool's own base-case solution (power-grid-model takes no start voltages and starts flat). Contingency APIs that take a thread count run at 1, 2, 4, … threads. Times are per outage. The oracle grades every outage of every thread count against the case with that branch out. The GPU tools, and the CPU tools chosen to compare with them, also run every outage that keeps the grid connected and converges (input "all outages", up to 14,384 on case9241pegase).</p></details></div>
+<div data-kind="dc dcn1"><p><b>DC power flow</b> and <b>DC N-1</b>: MATPOWER's DC model on the transmission cases, and on the N-1 cases' own outages.</p>
+<dl class="facts"><dt>Start</dt><dd>None: the model is linear.</dd><dt>Outages</dt><dd>Solved anew or from the base case's sensitivities: both are exact in DC.</dd><dt>Graded</dt><dd>The balance |Bθ − P| with the tool's angles and the flows against the oracle's solution, to 1e-3 MW.</dd></dl>
+<details><summary>Full method</summary><p><b>DC power flow</b> and <b>DC N-1</b>: MATPOWER's DC model (branch admittance 1/(x·tap), resistance and charging left out, phase shifts as injections, shunt conductance as load, one reference bus) on the transmission cases, and on the N-1 cases' own outages ("all outages": every outage that keeps the grid connected). A tool reports bus angles and from-end branch flows; the oracle checks the nodal balance |Bθ − P| with the tool's angles (whatever its reference angle) and the flows against its own solution of the model, both to 1e-3 MW. An outage may be solved anew or from the base case's sensitivities (LODF, PTDF): both are exact in DC. A tool that computes flows without angles (PTDF-based) is graded on its flows alone, marked "(flows)".</p></details></div>
+<div data-kind="cim"><p><b>CIM import/export</b>: CIM libraries on the Svedala and RealGrid CGMES 3.0 conformity models, every profile read from the published XML.</p>
+<dl class="facts"><dt>Import</dt><dd>Files to the library's model.</dd><dt>Export</dt><dd>That model back to CGMES RDF/XML, warm, into an empty directory.</dd><dt>Validate</dt><dd>Files to violation report in one call, parsing included.</dd><dt>Graded</dt><dd>No, only timed: the tools read CGMES into different models and apply different rules.</dd></dl>
+<details><summary>Full method</summary><p><b>CIM import/export</b>: CIM libraries on the Svedala and RealGrid CGMES 3.0 conformity models, every profile (SV included) read from the published XML. <b>Import</b>: files to the library's model. <b>Export</b>: that model back to CGMES RDF/XML, warm, into an empty directory. <b>Validate</b>: files to violation report in one call, parsing included (cimoxide validates files only); cimoxide runs its own rules, triplets and OpenCGMES (with Jena SHACL) the ENTSO-E CGMES 3.0 SHACL shapes. These are timed, not graded, as in cim-bench: what each tool read and found is shown, but the tools read CGMES into different models and validate against different rules. The Java libraries run in-process through JPype, JVM included in memory.</p></details></div>
 </template>
 <div class="tip" id="tip" hidden></div>
 </main>
@@ -217,7 +237,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 const ALL = __DATA__;
 const VM_FLOOR = __VM_FLOOR__;
 let D = ALL.pf;
-const state = {problem: "pf", machine: "cpu", op: "solve", grid: (D.grids[0] || ["transmission"])[0], input: null, threads: "1", memop: "import", off: new Set()};
+const state = {problem: "pf", op: "solve", grid: (D.grids[0] || ["transmission"])[0], input: null, threads: "best", memop: "import", off: new Set()};
 const se = () => D.kind === "se";
 const cim = () => D.kind === "cim";
 const OP_NAME = {solve: "Solve", import: "Import", export: "Export", validate: "Validate", memory: "Memory"};
@@ -251,6 +271,12 @@ function row(t, c, op) {
 const outages = () => D.kind === "n1" || D.kind === "dcn1";   // per-outage times
 const batch = () => D.kind === "batch" || outages();   // per-scenario times, a thread axis
 const dcKind = () => D.kind === "dc" || D.kind === "dcn1";
+// A GPU tool has no thread count: its one run is no "1 thread" result.
+const shown = t => !state.off.has(t.name) && !(t.gpu && batch() && state.op === "solve" && state.threads === "1");
+const onWhat = (t, r) => t.gpu ? `on ${t.gpu}` : `on ${r.threads} thread${r.threads > 1 ? "s" : ""}`;
+// An opt-in case the tool was not asked to run, which is no failure (benchmark_data.skipped).
+const skipped = (t, c) => D.cases[c].groups.includes("large")
+  && !D.rows.some(r => r.tool === t && r.case === c) && !D.failures.some(f => f.tool === t && f.case === c);
 const ms = r => r.scenarios ? r.median / r.scenarios : r.median;   // batch: per scenario
 const fail = (t, c, op) => D.failures.find(f => f.tool === t && f.case === c && f.operation === op);
 const casesOf = g => Object.keys(D.cases).filter(c => D.cases[c].grid === g).sort((a, b) => D.cases[a].order - D.cases[b].order);
@@ -273,11 +299,9 @@ const rec = (t, c) => row(t, c, recOp());
 const val = r => state.op === "memory" ? memAdded(r) : ms(r);
 
 function meta() {
-  $("#meta").textContent = `Run ${D.run.date} · commit ${D.run.git} · ${D.run.cpu}, ${D.run.cores} logical CPUs${D.gpu ? ` · ${D.gpu.devices.join(", ")}` : ""} · ${D.run.os}`;
-  $("#gpu-desc").hidden = !D.gpu;
-  // The machine's tools of this problem only (ExaModelsPower.jl runs no batch).
-  const here = names => names.filter(n => D.tools.some(t => t.display === n));
-  if (D.gpu) $("#gpu-desc").textContent = `${here(D.gpu.gpus).join(", ")} on ${D.gpu.devices.join(", ")}, against ${here(D.gpu.baselines).join(", ") || "no CPU baseline"} on the same machine's CPU (${D.run.cpu}). A GPU tool runs on one GPU: the thread setting applies to the CPU baselines.`;
+  const {machines: M, dates, kernels} = D.run, hw = m => `${m.cpu}, ${m.cores} logical CPUs`;
+  $("#meta").textContent = [M.cpu && `CPU tools: ${hw(M.cpu)}`, M.gpu && `GPU tools: ${M.gpu.device}, with ${hw(M.gpu)}`,
+    dates[0] === dates[1] ? `Run ${dates[0]}` : `Runs ${dates[0]} to ${dates[1]}`, kernels.join(", ")].filter(Boolean).join(" · ");
 }
 
 function seg(el, key, options) {
@@ -294,16 +318,31 @@ $("#toolchips").onmouseleave = () => focus();
 $("#toolchips").onclick = e => { const b = e.target.closest(".chip"); if (!b) return;
   state.off.has(b.dataset.t) ? state.off.delete(b.dataset.t) : state.off.add(b.dataset.t); render(); };
 
-function chart() {
-  const svg = $("#chart"), W = 960, H = 440, m = {l: 64, r: 200, t: 20, b: 48};
+function chartCases() {
   // Plotted: smoke and scaling cases, and the variants of those (an OPF case's
   // congested or small angle-difference version is the same grid, so it
   // extends no line across grid families; the feature cases that would are
-  // in the tables only), and the GPU tabs' large cases, the only cases of
-  // their inputs (1,000 and 10,000 scenarios, all outages).
+  // in the tables only), and the large cases, the only cases of their inputs
+  // (1,000 and 10,000 scenarios, all outages).
   const plotted = c => (D.cases[D.cases[c].base] || D.cases[c]).groups.some(g => g === "smoke" || g === "scaling" || g === "large");
-  const cases = casesOf(state.grid).filter(c => D.cases[c].input === state.input && plotted(c));
-  const tools = D.tools.filter(t => !state.off.has(t.name) && cases.some(c => reads(t, c)));
+  return casesOf(state.grid).filter(c => D.cases[c].input === state.input && plotted(c));
+}
+
+// A tool that fails has no point: say so where the chart is read, since the line just ends.
+function chartMissing() {
+  const cases = chartCases(), missing = [];
+  for (const t of D.tools.filter(shown)) {
+    const mine = cases.filter(c => reads(t, c) && !skipped(t.name, c) && !(validating() && !validator(t)));
+    const gone = mine.filter(c => { const r = rec(t.name, c); return !r || val(r) === undefined; });
+    if (gone.length) missing.push(`${t.display} (${gone.length} of ${mine.length})`);
+  }
+  $("#chart-missing").hidden = !missing.length;
+  $("#chart-missing").textContent = `Missing points, cases with no result: ${missing.join(", ")}. See Failures below.`;
+}
+
+function chart() {
+  const svg = $("#chart"), W = 960, H = 440, m = {l: 64, r: 200, t: 20, b: 48}, cases = chartCases();
+  const tools = D.tools.filter(t => shown(t) && cases.some(c => reads(t, c)));
   const series = tools.map(t => ({t, pts: cases.map(c => ({c, r: rec(t.name, c)})).filter(p => p.r && val(p.r) !== undefined)
     .map(p => ({x: D.cases[p.c].size, y: state.op === "memory" ? Math.max(val(p.r), MEM_FLOOR) : val(p.r),
                 ok: state.op === "memory" ? cim() || p.r.rss_solve_mb !== undefined : verified(p.r), c: p.c, r: p.r}))})).filter(s => s.pts.length);
@@ -344,7 +383,7 @@ function chart() {
     const what = state.op === "memory"
       ? cim() ? `${MEM_NAME[state.memop]}: +${memAdded(r).toFixed(1)} MB peak over a ${Math.round(r.rss_baseline_mb)} MB baseline`
       : `+${memAdded(r).toFixed(1)} MB peak over a ${Math.round(r.rss_baseline_mb)} MB baseline (import peak +${(r.rss_import_mb - r.rss_baseline_mb).toFixed(1)} MB)`
-      : r.scenarios ? `${fmt(ms(r))} ms per scenario on ${r.threads} thread${r.threads > 1 ? "s" : ""} (batch of ${r.scenarios}: median ${fmt(r.median)} ms, ${r.rounds} rounds)`
+      : r.scenarios ? `${fmt(ms(r))} ms per scenario ${onWhat(t, r)} (batch of ${r.scenarios}: median ${fmt(r.median)} ms, ${r.rounds} rounds)`
       : `median ${fmt(r.median)} ms (min ${fmt(r.min)}, ${r.rounds} rounds)${r.iterations ? ` · ${r.iterations} iterations` : ""}`;
     tip.innerHTML = `<b>${esc(t.display)} · ${esc(p.c)}</b><span>${p.x.toLocaleString()} ${D.cases[p.c].graded ? "buses" : "nodes"} · ${what}<br>${state.op === "memory" ? "" : acc}</span>`;
     tip.hidden = false; tip.style.left = Math.min(e.clientX + 14, innerWidth - 330) + "px"; tip.style.top = (e.clientY + 14) + "px"; };
@@ -381,26 +420,24 @@ function head(c, cases, withInput) {
 
 function tables() {
   const cases = casesOf(state.grid), unit = graded(cases) ? "buses" : "nodes";
-  const tools = D.tools.filter(t => !state.off.has(t.name) && cases.some(c => reads(t, c)));
+  const tools = D.tools.filter(t => shown(t) && cases.some(c => reads(t, c)));
   const withInput = inputsOf(state.grid).length > 1;
   const best = c => { if (state.op !== "solve") return null;
     const ok = tools.map(t => row(t.name, c, "solve")).filter(r => r && r.oracle_ok);
     return ok.length ? ok.reduce((a, b) => a.median <= b.median ? a : b).tool : null; };
-  $("#t-title").textContent = state.op === "memory" ? `Peak memory${cim() ? `, ${MEM_NAME[state.memop].toLowerCase()}` : ""}: ${gridTitle(state.grid)} (MB added)`
-    : `${state.op === "solve" ? (se() ? "Warm estimate" : D.kind === "opf" ? "Warm OPF solve" : batch() ? `${D.kind === "dcn1" ? "DC N-1" : D.kind === "n1" ? "N-1" : "Batch"}, ${state.threads === "1" ? "one thread" : "fastest thread count"}` : "Warm solve") : state.op === "export" ? "Warm export" : OP_NAME[state.op]}: ${gridTitle(state.grid)} (median ms${batch() && state.op === "solve" ? (outages() ? " per outage" : " per scenario") : ""})`;
   $("#t-desc").textContent = state.op === "memory"
     ? (cim() ? {import: "Peak RSS of a fresh process loading the case", export: "Peak RSS of a fresh process loading the case and exporting it once", validate: "Peak RSS of a fresh process validating the case's files once"}[state.memop] + ", minus the RSS after importing the tool (hover for the baseline; for the Java libraries it includes the JVM, and the heap it has taken counts, collected or not)."
       : "Peak RSS of a fresh process loading the case and solving it once, minus the peak after importing the tool (hover for the baseline). The Python process only: cgmes2pgm's Fuseki server is not included.")
     : state.op === "solve" && D.kind === "opf"
-    ? "✓: feasible for the case (balance and every limit, from the .m) and at most 0.01% above PGLib's reference cost (oracle, independent of every tool). ✗: a limit is broken or the cost is higher; hover the cell for which. Bold: the fastest ✓ in the row."
+    ? "✓: feasible for the case (balance and every limit, from the MATPOWER file) and at most 0.01% above PGLib's reference cost (oracle, independent of every tool). ✗: a limit is broken or the cost is higher; hover the cell for which. ·: not run, the large cases are opt-in. Bold: the fastest ✓ in the row."
     : state.op === "solve" && dcKind()
-    ? (D.kind === "dcn1" ? "Time per outage: the median time of one call that solves the base case and every outage, divided by the number of outages. ✓: every outage's angles balance MATPOWER's DC model with that branch out (|Bθ − P| at every bus) and its flows equal that model's own solution on every branch, to 1e-3 MW. ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row." : "✓: the angles balance MATPOWER's DC model (|Bθ − P| at every bus) and the flows equal that model's own solution on every branch, to 1e-3 MW (oracle, independent of every tool). ✗: a model difference; hover the cell for where. Bold: the fastest ✓ in the row.")
+    ? (D.kind === "dcn1" ? "Time per outage: the median time of one call that solves the base case and every outage, divided by the number of outages. ✓: every outage's angles balance MATPOWER's DC model with that branch out (|Bθ − P| at every bus) and its flows equal that model's own solution on every branch, to 1e-3 MW. ✗: at least one does not; hover for how many. @n: the thread count. ·: not run, the large cases are opt-in. Bold: the fastest ✓ in the row." : "✓: the angles balance MATPOWER's DC model (|Bθ − P| at every bus) and the flows equal that model's own solution on every branch, to 1e-3 MW (oracle, independent of every tool). ✗: a model difference; hover the cell for where. Bold: the fastest ✓ in the row.")
     : state.op === "solve" && batch()
-    ? (D.kind === "n1" ? "Time per outage: the median time of one call that solves the base case and every outage, divided by the number of outages. ✓: every outage's solution satisfies the case with that branch out of service (tier 1 per outage). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row." : "Time per scenario: the median time of one call that solves the base case and every scenario, divided by the number of scenarios. ✓: every scenario's solution satisfies the case with that scenario's demand (tier 1 per scenario). ✗: at least one does not; hover for how many. @n: the thread count. Bold: the fastest ✓ in the row.")
+    ? (D.kind === "n1" ? "Time per outage: the median time of one call that solves the base case and every outage, divided by the number of outages. ✓: every outage's solution satisfies the case with that branch out of service (tier 1 per outage). ✗: at least one does not; hover for how many. @n: the thread count. ·: not run, the large cases are opt-in. Bold: the fastest ✓ in the row." : "Time per scenario: the median time of one call that solves the base case and every scenario, divided by the number of scenarios. ✓: every scenario's solution satisfies the case with that scenario's demand (tier 1 per scenario). ✗: at least one does not; hover for how many. @n: the thread count. ·: not run, the large cases are opt-in. Bold: the fastest ✓ in the row.")
     : state.op === "solve" && se()
     ? "✓: the estimate is the weighted least-squares optimum of its measurement set (oracle, independent of every tool). ✗: it is not; hover the cell for how far off. Bold: the fastest ✓ in the row."
     : state.op === "solve"
-    ? (graded(cases) ? "✓: the solution satisfies the original MATPOWER case's equations at every bus (tier 1), whatever the input: a CGMES row is graded against the .m it was converted from. ✗: converged to a different problem; hover the cell for where. Bold: the fastest ✓ in the row. ·: the tool does not read this input." : "Accuracy for CGMES fixtures is judged against the published SV solution, below.")
+    ? (graded(cases) ? "✓: the solution satisfies the original MATPOWER case's equations at every bus (tier 1), whatever the input: a CGMES row is graded against the MATPOWER file it was converted from. ✗: converged to a different problem; hover the cell for where. Bold: the fastest ✓ in the row. ·: the tool does not read this input." : "Accuracy for CGMES fixtures is judged against the published SV solution, below.")
     : state.op === "export"
     ? "The model the import built, written back to CGMES RDF/XML into an empty directory: median of repeated exports after one warm-up. Hover for files and bytes written."
     : state.op === "validate"
@@ -412,6 +449,7 @@ function tables() {
     h += `<tr>${head(c, cases, withInput)}`;
     for (const t of tools) {
       if (!reads(t, c) || (validating() && !validator(t))) { h += `<td class="na" data-v="1e99">·</td>`; continue; }
+      if (skipped(t.name, c)) { h += `<td class="na" data-v="1e99" title="not run: the large cases are opt-in">·</td>`; continue; }
       const r = rec(t.name, c);
       if (!r) { const op = recOp(), f = fail(t.name, c, op); h += `<td class="fail" data-v="1e98" title="${esc(f ? f.error : "not run")}">${f ? "FAILED" : "not run"}</td>`; continue; }
       if (state.op === "memory") {
@@ -419,21 +457,20 @@ function tables() {
         h += mb === undefined ? `<td class="na" data-v="1e97">—</td>` : `<td data-v="${mb}" title="${esc(`peak over a ${Math.round(r.rss_baseline_mb)} MB baseline after importing the tool`)}">${mb.toFixed(mb < 10 ? 1 : 0)}</td>`;
         continue;
       }
-      let cls = "", title = r.scenarios ? `batch of ${r.scenarios} on ${r.threads} thread${r.threads > 1 ? "s" : ""}: median ${fmt(r.median)} ms, ${r.rounds} rounds` : `${r.rounds} rounds, min ${fmt(r.min)} ms`;
+      let cls = "", title = r.scenarios ? `batch of ${r.scenarios} ${onWhat(t, r)}: median ${fmt(r.median)} ms, ${r.rounds} rounds` : `${r.rounds} rounds, min ${fmt(r.min)} ms`;
       if (r.op === "solve" && r.oracle_ok !== undefined) { cls = r.oracle_ok ? (t.name === b ? "ok best" : "ok") : "bad";
         if (!r.oracle_ok || se()) title += ` · ${verdict(r)}`; }
       if (r.violations !== undefined) title += ` · ${r.violations.toLocaleString()} found (${Object.entries(r.by_severity).map(([k, v]) => `${v.toLocaleString()} ${k}`).join(", ")})`;
       if (r.files_written !== undefined) title += ` · ${r.files_written} files, ${(r.bytes_written / 1e6).toFixed(1)} MB written`;
       if (r.read !== undefined) title += ` · read ${r.read.toLocaleString()} ${r.unit}`;
       if (r.op === "import" && r.rss_import_mb) title += ` · peak memory +${Math.round((r.rss_solve_mb || r.rss_import_mb) - r.rss_baseline_mb)} MB over the ${Math.round(r.rss_baseline_mb)} MB import baseline`;
-      h += `<td class="${cls}" data-v="${ms(r)}" title="${esc(title)}">${fmt(ms(r))}${r.op === "solve" && r.threads && state.threads !== "1" ? ` <span class="meta">@${r.threads}</span>` : ""}</td>`;
+      h += `<td class="${cls}" data-v="${ms(r)}" title="${esc(title)}">${fmt(ms(r))}${r.op === "solve" && r.threads && !t.gpu && state.threads !== "1" ? ` <span class="meta">@${r.threads}</span>` : ""}</td>`;
     }
     h += "</tr>";
   }
   $("#timing").innerHTML = h + "</tbody>"; sortable($("#timing"));
 
   const mp = graded(cases);
-  $("#a-title").textContent = !cim() ? "Accuracy" : state.op === "validate" ? "What each validator found" : "What each tool read";
   if (cim()) { whatRead(cases, tools, unit, withInput); } else {
   $("#a-desc").textContent = dcKind()
     ? "Largest of the nodal balance |Bθ − P| with the tool's angles and the flow difference from MATPOWER's DC solution, MW, over every bus and branch (every outage for DC N-1). Hover for both."
@@ -442,14 +479,14 @@ function tables() {
     : se()
     ? "Largest entry of one Gauss-Newton step from the estimate (p.u./rad; 0 at the WLS optimum). Hover for J against J at the true state, and the distance from the true state (information only: with noise the right answer is the optimum, not the truth)."
     : mp
-    ? "Tier 1: largest |ΔP| or |ΔQ| in MVA of V·conj(Ybus·V) − S over the buses where it is specified; Ybus built from the .m file. Every tool was asked for 1e-8 p.u."
+    ? "Tier 1: largest |ΔP| or |ΔQ| in MVA of V·conj(Ybus·V) − S over the buses where it is specified; Ybus built from the case's MATPOWER file. Every tool was asked for 1e-8 p.u."
     : "Tier 2: |ΔV|/V against the published SvVoltage, median / max, with matched / published TopologicalNodes. The published solution is a reference, not ground truth.";
   let a = `<thead><tr><th>case</th><th>${unit}</th>${withInput ? '<th style="text-align:left">input</th>' : ""}${tools.map(t => `<th>${esc(t.display)}</th>`).join("")}</tr></thead><tbody>`;
   for (const c of cases) {
     a += `<tr>${head(c, cases, withInput)}`;
     for (const t of tools) {
       const r = row(t.name, c, "solve");
-      if (!reads(t, c)) { a += `<td class="na" data-v="1e99">·</td>`; continue; }
+      if (!reads(t, c) || skipped(t.name, c)) { a += `<td class="na" data-v="1e99">·</td>`; continue; }
       if (!r) { a += `<td class="fail" data-v="1e98">failed</td>`; continue; }
       if (r.dc_max_dflow_mw !== undefined) { const w = Math.max(r.dc_max_balance_mw ?? 0, r.dc_max_dflow_mw);
         a += `<td class="${r.oracle_ok ? "ok" : "bad"}" data-v="${w}" title="${esc(verdict(r))}">${w.toExponential(1)}${r.dc_angles === false ? " (flows)" : ""}</td>`; }
@@ -472,6 +509,12 @@ function tables() {
   $("#failures").innerHTML = `<thead><tr><th>tool</th><th>case</th><th>operation</th><th style="text-align:left">error</th></tr></thead><tbody>` +
     (fs.map(f => `<tr><td>${esc(D.tools.find(t => t.name === f.tool)?.display || f.tool)}</td><td style="text-align:left">${esc(f.case)}</td><td>${f.operation}</td><td style="text-align:left;white-space:normal"><code>${esc(f.error)}</code></td></tr>`).join("") || `<tr><td colspan="4">None for this selection.</td></tr>`) + "</tbody>";
   sortable($("#failures"));
+}
+
+function versions() {
+  $("#versions").innerHTML = `<thead><tr><th>tool</th><th style="text-align:left">language</th><th style="text-align:left">version</th><th style="text-align:left">commit</th><th style="text-align:left">device</th></tr></thead><tbody>` +
+    D.tools.filter(t => !state.off.has(t.name)).map(t => `<tr><td>${esc(t.display)}</td><td style="text-align:left">${esc(t.language)}</td><td style="text-align:left">${esc(t.version)}</td><td style="text-align:left">${t.commit ? `<code>${esc(t.commit.slice(0, 7))}</code>` : "·"}</td><td style="text-align:left">${esc(t.gpu || "CPU")}</td></tr>`).join("") + "</tbody>";
+  sortable($("#versions"));
 }
 
 // Speedup of each API that takes a thread count over its own one-thread run:
@@ -566,31 +609,88 @@ function legendNote() {
 const SB_DESC = {
   pf: "AC power flow on the default cases, per grid and input. CGMES fixtures have no verdict (their reference is someone else's solution): cases solved of all.",
   opf: "AC optimal power flow on PGLib-OPF cases, per grid. ✓: feasible for the case and at most 0.01% above PGLib's reference cost.",
-  se: "Weighted least-squares state estimation on the default cases, both measurement scenarios, per grid. ✓: the estimate is the optimum of its measurement set.",
-  batch: "Batch power flow at one thread, per grid and number of operating points. ✓: every scenario's solution satisfies the case with that scenario's demand.",
-  n1: "N-1 contingency analysis at one thread, per number of outages. ✓: every outage's solution satisfies the case with that branch out of service.",
+  se: "AC state estimation (weighted least squares) on the default cases, both measurement scenarios, per grid. ✓: the estimate is the optimum of its measurement set.",
+  batch: "AC batch power flow at one thread (a GPU tool on its GPU), per grid and number of operating points. ✓: every scenario's solution satisfies the case with that scenario's demand.",
+  n1: "AC N-1 contingency analysis at one thread (a GPU tool on its GPU), per number of outages. ✓: every outage's solution satisfies the case with that branch out of service.",
   dc: "DC power flow on MATPOWER's DC model, per grid. ✓: angles and branch flows both match the model to 1e-3 MW.",
-  dcn1: "DC N-1, the N-1 cases' outages on MATPOWER's DC model, at one thread, per number of outages. ✓: every outage's angles and flows match the model with that branch out.",
+  dcn1: "DC N-1, the N-1 cases' outages on MATPOWER's DC model, at one thread (a GPU tool on its GPU), per number of outages. ✓: every outage's angles and flows match the model with that branch out.",
   cim: "CIM libraries reading, writing and validating CGMES: cases done of all, per operation. Timed, not graded (see above). ·: the tool has no validator."};
-const PROBLEMS = [["pf", "Power flow"], ["se", "State estimation"], ["opf", "Optimal power flow"], ["batch", "Batch power flow"], ["n1", "N-1 contingencies"], ["dc", "DC power flow"], ["dcn1", "DC N-1"], ["cim", "CIM import/export"]];
-// A problem run on the GPU machine is a tab of its own (`gpu-<problem>`): the
-// machine is a second choice, offered where both have results.
-const MACHINES = [["cpu", "CPU tools"], ["gpu", "GPU machine, with CPU baselines"]];
-const tab = (p, m) => m === "gpu" ? `gpu-${p}` : p;
+// The tabs, by the model a problem is solved on: each group names it once, and
+// `desc` says what it means. DC has no batch, OPF or estimation, which a
+// separate AC/DC switch would offer as empty combinations.
+const MODELS = [
+  {name: "AC", problems: [["pf", "Power flow"], ["batch", "Batch"], ["n1", "N-1"], ["opf", "Optimal power flow"], ["se", "State estimation"]],
+   desc: "AC model: the full nonlinear equations, with voltage magnitudes and reactive power, solved iteratively."},
+  {name: "DC", problems: [["dc", "Power flow"], ["dcn1", "N-1"]],
+   desc: "DC model: a linear approximation with angles and active power only, solved without iteration. It is a simpler problem than AC, so its times do not compare with AC's."},
+  {name: "CIM", problems: [["cim", "Import, export, validate"]],
+   desc: "CIM: reading, writing and validating grid model files. No grid equations are solved."}];
+// A section's title names the problem in full: the tabs scroll out of view, and a table may be read alone.
+const PROBLEM_TITLE = {pf: "AC power flow", batch: "AC batch power flow", n1: "AC N-1", opf: "AC optimal power flow", se: "AC state estimation", dc: "DC power flow", dcn1: "DC N-1", cim: "CIM import/export"};
+const has = p => ALL[p];
+function problemTabs() {
+  const models = MODELS.filter(m => m.problems.some(([p]) => has(p)));
+  $("#problem").hidden = models.flatMap(m => m.problems.filter(([p]) => has(p))).length < 2;
+  $("#problem").innerHTML = models.map(m => `<div class="seg" role="group" aria-label="${m.name}"><span class="seg-label">${m.name}</span>${m.problems.filter(([p]) => has(p))
+    .map(([p, l]) => `<button data-v="${p}" aria-pressed="${state.problem === p}">${l}</button>`).join("")}</div>`).join("");
+  $("#model-desc").textContent = MODELS.find(m => m.problems.some(([p]) => p === state.problem)).desc;
+}
+$("#problem").onclick = e => { const b = e.target.closest("button"); if (!b) return; state.problem = b.dataset.v; render(); };
+const problemTitle = () => PROBLEM_TITLE[D.kind];
+// What the chart and the timing table show. `input`: the chart's, one at a time; the table has them all.
+function viewTitle(input) {
+  const memory = state.op === "memory", per = batch() && state.op === "solve" ? (outages() ? " per outage" : " per scenario") : "";
+  const what = memory ? `peak memory${cim() ? `, ${MEM_NAME[state.memop].toLowerCase()}` : ""}`
+    : state.op === "solve" ? (se() ? "warm estimate" : batch() ? (state.threads === "1" ? "one thread" : "fastest thread count") : "warm solve")
+    : state.op === "export" ? "warm export" : OP_NAME[state.op].toLowerCase();
+  return [`${problemTitle()}: ${what}`, gridTitle(state.grid), input, memory ? "MB added" : `median ms${per}`].filter(Boolean).join(" · ");
+}
+function titles() {
+  const title = (id, what) => { $(id).textContent = `${problemTitle()}: ${what}`; };
+  title("#sb-title", "scoreboard");
+  title("#s-title", "thread scaling");
+  title("#a-title", !cim() ? "accuracy" : state.op === "validate" ? "what each validator found" : "what each tool read");
+  title("#f-title", "failures");
+  title("#v-title", "tool versions");
+  $("#t-title").textContent = viewTitle();
+  $("#c-title").textContent = viewTitle(inputsOf(state.grid).length > 1 ? state.input : null);
+}
+// The view, in the URL's fragment: what differs from the default, so a link opens what its sender saw.
+const hashValue = (q, key, valid, fallback) => valid(q.get(key)) ? q.get(key) : fallback;
+function readHash() {
+  const q = new URLSearchParams(location.hash.slice(1));
+  state.problem = hashValue(q, "problem", has, "pf");
+  state.op = q.get("op") || "solve";
+  state.grid = q.get("grid");
+  state.input = q.get("input");
+  state.threads = hashValue(q, "threads", v => v === "1", "best");
+  state.memop = hashValue(q, "memory", v => v in MEM_NAME, "import");
+  state.off = new Set((q.get("hide") || "").split(",").filter(Boolean));
+}
+function writeHash(ops, inputs) {
+  const q = new URLSearchParams();
+  const put = (key, v, fallback) => { if (v !== fallback) q.set(key, v); };
+  put("problem", state.problem, "pf");
+  put("grid", state.grid, D.grids[0][0]);
+  put("op", state.op, ops[0][0]);
+  put("input", state.input, inputs[0]);
+  if (batch() && state.op === "solve") put("threads", state.threads, "best");
+  if (cim() && state.op === "memory") put("memory", state.memop, "import");
+  if (state.off.size) q.set("hide", [...state.off].join(","));
+  history.replaceState(null, "", "#" + q);
+}
+addEventListener("hashchange", () => { readHash(); render(); });
 function render() {
-  const problems = PROBLEMS.filter(([p]) => ALL[p] || ALL[tab(p, "gpu")]);
-  $("#problem").hidden = problems.length < 2;
-  seg($("#problem"), "problem", problems);
-  const machines = MACHINES.filter(([m]) => ALL[tab(state.problem, m)]);
-  if (!machines.some(([m]) => m === state.machine)) state.machine = machines[0][0];
-  $("#machine").hidden = machines.length < 2;
-  seg($("#machine"), "machine", machines);
-  D = ALL[tab(state.problem, state.machine)];
+  problemTabs();
+  D = ALL[state.problem];
   if (!D.grids.some(([g]) => g === state.grid)) state.grid = D.grids[0][0];
   $("#sb-desc").textContent = SB_DESC[D.kind];
   $("#sb-legend").hidden = cim();
+  // Every control re-renders: an open "Full method" stays open, on this tab and the next.
+  const open = $("#method details")?.open;
   $("#method").innerHTML = [...$("#methods").content.children]
-    .filter(e => e.dataset.kind.split(" ").includes(D.kind) || (e.dataset.kind === "gpu" && D.gpu)).map(e => e.outerHTML).join("");
+    .filter(e => e.dataset.kind.split(" ").includes(D.kind)).map(e => e.outerHTML).join("");
+  $("#method details").open = open;
   meta();
   const ops = (cim() ? ["import", "export", "validate", "memory"] : ["solve", "import", "memory"]).map(o => [o, OP_NAME[o]]);
   if (!ops.some(([o]) => o === state.op)) state.op = ops[0][0];
@@ -599,16 +699,21 @@ function render() {
   const inputs = inputsOf(state.grid);
   if (!inputs.includes(state.input)) state.input = inputs[0];
   $("#input").hidden = inputs.length < 2;
-  seg($("#input"), "input", inputs.map(i => [i, `Chart: ${i}`]));
+  $("#input-label").hidden = inputs.length < 2;
+  seg($("#input"), "input", inputs.map(i => [i, i]));
   $("#threads").hidden = !batch() || state.op !== "solve";
-  seg($("#threads"), "threads", [["1", "1 thread"], ["best", "Fastest thread count"]]);
+  seg($("#threads"), "threads", [["best", "Fastest thread count"], ["1", "1 thread"]]);
   $("#memop").hidden = !cim() || state.op !== "memory";
   seg($("#memop"), "memop", Object.entries(MEM_NAME));
+  titles();
   scoreboard();
-  chips(); chart(); tables(); scaling(); legendNote();
+  $("#threads-note").hidden = !(batch() && state.op === "solve" && state.threads === "1" && D.tools.some(t => t.gpu));
+  chips(); chart(); chartMissing(); tables(); scaling(); legendNote(); versions();
+  writeHash(ops, inputs);
 }
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
 new MutationObserver(render).observe(document.documentElement, {attributes: true, attributeFilter: ["data-theme"]});
+readHash();
 render();
 </script>
 </body>
