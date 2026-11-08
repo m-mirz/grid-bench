@@ -46,6 +46,7 @@ def payload(res: Results, kind: str = "pf") -> dict:
               "color": m["color"],
               "colorDark": LIGHT_TO_DARK.get(m["color"], m["color"]), "dash": DASH.get(m["color"]),
               "version": m["version"], "tags": m["tags"], "gpu": gpu(m),
+              "commit": m["settings"].get("commit") or m["dependencies"].get("commit"),
               "language": m["language"], "families": m["families"], "settings": m["settings"]}
              for t in res.tool_order() for m in [res.tools[t]]]
     # `order`: the report's row order (by size, each conversion under its source case).
@@ -196,7 +197,7 @@ code{font-size:13px;background:var(--chip);padding:1px 5px;border-radius:4px}
 <div class="scroll"><table id="failures"></table></div>
 
 <h2 id="v-title"></h2>
-<p>As each tool's package reports them. A build from an untagged commit reports the last version it was given, so where a commit is listed, the commit is what ran.</p>
+<p>As each tool's package reports them. A build from an untagged commit reports the last version it was given, so where a commit is listed, the commit is what ran. ·: a pinned release, or a build whose commit its results did not record.</p>
 <div class="scroll"><table id="versions"></table></div>
 
 <h2>How every problem is measured</h2>
@@ -512,7 +513,7 @@ function tables() {
 
 function versions() {
   $("#versions").innerHTML = `<thead><tr><th>tool</th><th style="text-align:left">language</th><th style="text-align:left">version</th><th style="text-align:left">commit</th><th style="text-align:left">device</th></tr></thead><tbody>` +
-    D.tools.filter(t => !state.off.has(t.name)).map(t => `<tr><td>${esc(t.display)}</td><td style="text-align:left">${esc(t.language)}</td><td style="text-align:left">${esc(t.version)}</td><td style="text-align:left">${t.settings?.commit ? `<code>${esc(String(t.settings.commit).slice(0, 7))}</code>` : "·"}</td><td style="text-align:left">${esc(t.gpu || "CPU")}</td></tr>`).join("") + "</tbody>";
+    D.tools.filter(t => !state.off.has(t.name)).map(t => `<tr><td>${esc(t.display)}</td><td style="text-align:left">${esc(t.language)}</td><td style="text-align:left">${esc(t.version)}</td><td style="text-align:left">${t.commit ? `<code>${esc(t.commit.slice(0, 7))}</code>` : "·"}</td><td style="text-align:left">${esc(t.gpu || "CPU")}</td></tr>`).join("") + "</tbody>";
   sortable($("#versions"));
 }
 

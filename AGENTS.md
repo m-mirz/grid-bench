@@ -324,7 +324,8 @@ change to `tools/`, and commit what it writes. Conventions:
   verdict (hollow: rejected), so no speed number is shown without one.
 - Under the chart, `chartMissing` names the tools with no result on a plotted
   case: a failing tool has no point, and the scoreboard is further down. The
-  last table lists each tool's version, commit and device.
+  last table lists each tool's version, commit and device; a tool built from
+  an untagged commit records it (`settings` or `dependencies`, "commit").
 - Only cases in the default and opt-in groups (`DEFAULT_GROUPS`,
   `OPT_IN_GROUPS`) are published (`benchmark_data.load`); a case run by
   name stays in its JSON.

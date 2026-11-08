@@ -1,8 +1,10 @@
 """The report's loader: what it publishes, and what it refuses."""
 import json
+from pathlib import Path
 
 import pytest
 
+from adapters.gpusim2grid_adapter import COMMIT
 from cases.registry import CASES
 from tools.benchmark_data import load, machines, scoreboard
 
@@ -69,3 +71,7 @@ def test_scoreboard_separates_not_run_from_failed(tmp_path):
     write(tmp_path / "veragrid-batch.json", "veragrid")
     columns, rows = scoreboard(load(tmp_path).batch)
     assert dict(rows)["veragrid"][columns.index(large)] == "·"   # never asked
+
+
+def test_gpusim2grid_records_the_commit_its_image_builds():
+    assert f"/{COMMIT}.tar.gz" in Path("tool-configs/gpusim2grid/Dockerfile").read_text()
