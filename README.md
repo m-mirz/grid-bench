@@ -155,9 +155,9 @@ takes one sigma per measurement class and injections only at generators.
 AC optimal power flow for MATPOWER (MIPS), pandapower (PIPS), VeraGrid
 (its own interior-point solver), JuliaGrid.jl and PowerModels.jl (both Ipopt with MUMPS) and
 ExaModelsPower.jl (MadNLP with MUMPS, on its CPU backend; on a GPU, with
-MadNLPGPU and cuDSS, in the GPU tabs), on
+MadNLPGPU and cuDSS), on
 PGLib-OPF v23.07: typical conditions
-from 14 to 2,869 buses (case9241 in the GPU tabs' `large` group, runnable by name), and the congested (`__api`) and small
+from 14 to 2,869 buses (case9241 in the `large` group, runnable by name), and the congested (`__api`) and small
 angle-difference (`__sad`) variants of case14, case118 and case300. Every
 tool solves MATPOWER's AC-OPF (polynomial cost; voltage, generator, branch
 MVA and angle-difference limits) from a flat start. The oracle
@@ -366,17 +366,19 @@ the oracle and case preparation for development; the tools run only in their ima
 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/)
 to run, not to build; a default sweep leaves them out where `nvidia-smi` fails.
 `GRID_BENCH_GPU=<n>` picks the device (default 0). Their results go to
-`results-docker/gpu/`, with CPU baselines run on the same machine, and the
-site shows them in tabs of their own:
+`results-docker/gpu/`, and the site shows them with the CPU tools, each solver
+on the hardware it would be run on, with both machines named:
 `GRID_BENCH_RESULTS=gpu docker/run_single.sh exapf_gpu --groups smoke,scaling,feature,large`,
-likewise `gpusim2grid` and a baseline (`lightsim2grid`). The `large` group
+likewise `gpusim2grid`. A CPU baseline run there (`lightsim2grid`) shows what
+the machines change and is not published. The `large` group
 adds batches sized for a GPU (1 000 and 10 000 operating points, every outage of the
 N-1 cases), which a default run neither prepares nor runs: 100 scenarios
 or 200 outages leave a GPU mostly idle. Pass the default groups with it, since
 each run rewrites the tool's JSON.
 
-Published numbers in `results-docker/` come from one full sweep on one
-otherwise idle machine, recorded with its CPU, OS and git commit. CI only
+Published numbers in `results-docker/` come from otherwise idle machines, one
+for the CPU tools and one for the GPU tools (the report stops if either set
+mixes hardware within a problem), recorded with CPU, OS and git commit. CI only
 checks that the harness works. For an A/B comparison, interleave the runs
 (A, B, A, B).
 

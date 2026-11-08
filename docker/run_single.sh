@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One tool, optionally restricted: docker/run_single.sh pandapower --cases case14,case300
 # GRID_BENCH_RESULTS=gpu writes its JSON to results-docker/gpu/ instead: GPU tools,
-# and the CPU baselines run on their machine, reported apart (tools/generate_all.py).
+# published with the rest (tools/benchmark_data.py), and any CPU baseline run on their machine.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 tool="$1"; shift

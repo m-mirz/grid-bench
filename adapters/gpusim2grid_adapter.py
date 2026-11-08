@@ -1,8 +1,8 @@
 """gpusim2grid: AC Newton-Raphson on an NVIDIA GPU (CUDA, cuDSS), seeded
 from a lightsim2grid grid. Its own image (tool-configs/gpusim2grid), built
 from a commit of its main branch (no release yet), with lightsim2grid 1.1.0
-compiled from source next to it; results go to `results-docker/gpu/` (the
-GPU tabs), next to lightsim2grid run on the same machine.
+compiled from source next to it; results go to `results-docker/gpu/`, next to
+lightsim2grid run on the same machine.
 
 Input: lightsim2grid's `init_from_matpower` on the prepared `.mat`, exactly
 as adapters/lightsim2grid_adapter.py, with its documented loss (online

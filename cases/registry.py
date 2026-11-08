@@ -48,7 +48,7 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   `problem` is "opf". Graded by `oracle.opf`: feasibility against the `.m`
   and the objective against PGLib's published reference
   (`cases.pglib.reference_objective`). Typical conditions from 14 to 2,869
-  buses (the timing series; case9241 only in `large`, the GPU tabs, see its
+  buses (the timing series; case9241 only in `large`, see its
   note), and the congested (`__api`) and small
   angle-difference (`__sad`) variants of case14, case118 and case300, which
   bind the limits tools model differently.
@@ -60,14 +60,14 @@ Five families, two input formats (MATPOWER `.m`, CGMES 3.0):
   over single solves still finishes in minutes; mvlv29840 is left out
   (PyPSA's 29 s per solve would make one sweep over an hour).
   `<case>#sweep-1k` and `<case>#sweep-10k` (group `large`): the same with
-  1 000 and 10 000 operating points (`LARGE_SWEEPS`), for the GPU tabs.
+  1 000 and 10 000 operating points (`LARGE_SWEEPS`), for the GPU tools.
 - `n1-matpower`: N-1 contingency analysis. A transmission case plus 200
   single-branch outages that keep the grid connected (`cases/contingency.py`),
   keyed `<case>#n1`, all solved in one timed call from the tool's solution of
   the base case, each graded by tier 1 against the case with that branch out.
   `problem` is "n1". Radial grids have no such outage. `<case>#n1-full`
   (group `large`): every outage that keeps the grid connected and converges
-  from the base case, for the GPU tabs.
+  from the base case, for the GPU tools.
 - `dc-matpower`: DC power flow, MATPOWER's DC model (`oracle/dc.py`). A
   transmission case in the default groups but the hard ones (those are
   about AC convergence; a DC power flow always solves), keyed `<case>#dc`,
@@ -94,8 +94,8 @@ Groups say what a case is *for* (a case can be in several):
 - `large` (`OPT_IN_GROUPS`): batches sized for a GPU, and the OPF cases
   from 9 241 to 30 000 buses (PEGASE and the GO Competition's), run and prepared only
   when asked (`--groups large`; a GPU machine's run, with its CPU
-  baselines), published like the default groups: in the GPU tabs, since
-  only that run has them.
+  baselines), published like the default groups, with `·` for the tools
+  not asked to run them.
 
 A case with no group stays available by name but is not run by default:
 case6515rte, and the RTE cases no tool tested solves from a flat start
@@ -123,9 +123,6 @@ SHACL_DIR = DATA / "application-profiles-library" / "CGMES" / "SHACL"
 DEFAULT_GROUPS = ("smoke", "scaling", "feature")
 # Run and prepared only when asked for by name, published like the default ones.
 OPT_IN_GROUPS = ("large",)
-# The GPU tabs' groups (`--groups smoke,scaling,feature,large`): with the
-# large batches a GPU needs.
-GPU_GROUPS = DEFAULT_GROUPS + OPT_IN_GROUPS
 CONVERTERS = ("cimoxide", "pypowsybl")
 SOLVED_CONVERTERS = ("cimoxide",)  # the others are only graded, see the docstring
 SCENARIOS = ("exact", "noisy")   # see cases/measurements.py
@@ -244,9 +241,9 @@ CASES |= {
     "pglib_opf_case1354_pegase": _pglib("pglib_opf_case1354_pegase", ["scaling"]),
     "pglib_opf_case2869_pegase": _pglib("pglib_opf_case2869_pegase", ["scaling"]),
     "pglib_opf_case9241_pegase": _pglib("pglib_opf_case9241_pegase", ["large"],
-                                        "only in `large` (the GPU tabs): pandapower and VeraGrid fail it after "
+                                        "only in `large`: pandapower and VeraGrid fail it after "
                                         "their full iteration budget, which cost most of an hour per sweep"),
-    # Larger still, for the GPU tabs' OPF: a GPU only pulls ahead from a few
+    # Larger still, for the GPU tools' OPF: a GPU only pulls ahead from a few
     # thousand buses, and the GO Competition's synthetic grids are not PEGASE.
     **{f"pglib_opf_{c}": _pglib(f"pglib_opf_{c}", ["large"])
        for c in ("case10000_goc", "case10480_goc", "case13659_pegase", "case19402_goc", "case24464_goc",
@@ -302,7 +299,7 @@ for _base in N1_FROM[1:]:
         "note": CASES[_base]["note"],
     }
 
-# Large batches for the GPU tabs: 100 scenarios or 200 outages leave a GPU
+# Large batches for the GPU tools: 100 scenarios or 200 outages leave a GPU
 # mostly idle (gpusim2grid's time per scenario falls about 4x up to 1 000,
 # adapters/gpusim2grid_batch_adapter.py). 1 000 and 10 000 operating points
 # on the sweep's larger cases, and every outage of the N-1 cases that keeps

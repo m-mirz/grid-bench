@@ -4,7 +4,7 @@ same model, input, joins, flat start and Julia code as
 adapters/examodelspower_opf_adapter.py, which this subclasses; only the
 backend and MadNLP's linear algebra differ, so the two rows of a case
 compare the hardware and the KKT solve, not two problems. A separate tool
-(own image, own JSON, the GPU tabs) because the image carries CUDA.jl, cuDSS
+(own image, own JSON) because the image carries CUDA.jl, cuDSS
 and MadNLPGPU, which the CPU image does not need.
 
 Input, joins, what the model reads differently from MATPOWER, flat start,

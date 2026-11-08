@@ -25,11 +25,13 @@ rounds are 3 to 50 % of a run's wall time.
   `results-docker/gpu/` only needs power flow, batch and N-1; the rest
   (lightsim2grid's DC, gridoxide's SE, OPF on the large PGLib cases with
   Ipopt, DC) is written there and deleted. A `--problems` option.
-- Where the reference machine is the GPU machine (as now: gridoxide's
-  default cases agree within a few percent, median ratio 0.99 to 1.00),
-  one baseline run with the GPU groups could be split into both result
-  directories instead of running the default cases twice (opt-in; the
-  two machines need not be the same).
+- A CPU-optimized machine for the CPU tools: rerun all of them there (the
+  report stops on a mix), with the large cases for the fastest, since most
+  have not run them. Then publish a baseline's ratio between the two
+  machines as a note, not to rescale anything.
+- gridoxide_gpu's results report version 0.3.0: built from 1dd1c96, which
+  differs from v0.4.0 only in its version numbers. The next rerun at the
+  pinned release corrects the label, and records the commit on DC too.
 - `docker/build.sh <tool>` does not build the harness image, which
   `run_single.sh`'s prep needs; without it every input is missing and the
   run records only failures.
@@ -41,7 +43,7 @@ rounds are 3 to 50 % of a run's wall time.
   pytest's default timeout, up to 30 minutes, and merge it as the other
   limit reruns were (`grid_bench.reruns`).
 
-## GPU tabs
+## GPU tools
 
 - examodelspower_gpu: case13659pegase was accepted in one run and stalled
   in the next with the same pins (iteration counts on the device vary by 1

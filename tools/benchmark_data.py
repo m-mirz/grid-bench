@@ -90,21 +90,23 @@ GRID_TITLES = {
 
 
 def input_label(case: str) -> str:
-    """How a tool reads the case: the `.m`, a converter's CGMES, or a fixture's own CGMES."""
+    """What sets a case apart on the page: how a tool reads it (a MATPOWER file,
+    a converter's CGMES, a fixture's own CGMES), or the size of its batch, where
+    every case is a MATPOWER file."""
     c = CASES[case]
     if "converter" in c:
         return f"CGMES ({c['converter']})"
     if c.get("outages") == "all":
-        return "`.m`, all outages"
+        return "all outages"
     if c["problem"] in ("n1", "dcn1"):   # case14 has only 19; the site's text says so
-        return f"`.m`, {N_OUTAGES} outages"
-    if c["problem"] == "batch":   # the count on every sweep, the default's too, as the GPU tab has three
-        return f"`.m`, {c.get('scenarios', SWEEP_SIZE):,} scenarios"
-    return "CGMES" if c["format"] == "cgmes" else "`.m`"
+        return f"{N_OUTAGES} outages"
+    if c["problem"] == "batch":   # the count on every sweep, the default's too, as there are three
+        return f"{c.get('scenarios', SWEEP_SIZE):,} scenarios"
+    return "CGMES" if c["format"] == "cgmes" else "MATPOWER"
 
 
 def graded(case: str) -> bool:
-    """Tier 1 applies: there is a `.m` to grade against."""
+    """Tier 1 applies: there is a MATPOWER file to grade against."""
     c = CASES[case]
     return c["format"] == "matpower" or "source_case" in c
 
@@ -114,24 +116,39 @@ def gpu(meta: dict) -> str | None:
     return meta.get("dependencies", {}).get("gpu")
 
 
-def gpu_run(res: Results) -> tuple[list[str], list[str], list[str]]:
-    """Of a GPU results directory (power flow, OPF, batch and N-1): the GPU
-    tools, the CPU baselines run next to them, and the devices, in registry order."""
-    parts = [p for p in (res, res.opf, res.batch, res.n1) if p]
-    tools = {t: m for p in parts for t, m in p.tools.items()}
-    order = list(dict.fromkeys(t for p in parts for t in p.tool_order()))
-    return ([t for t in order if gpu(tools[t])], [t for t in order if not gpu(tools[t])],
-            list(dict.fromkeys(gpu(tools[t]) for t in order if gpu(tools[t]))))
+def machines(res: Results) -> dict:
+    """The machine behind one problem's CPU tools and the one behind its GPU
+    tools. Those two may differ: each solver is compared on the hardware it
+    would be run on. Within either they may not, since nothing on the page
+    could show it, so a partial rerun on other hardware stops the report."""
+    found = {}
+    for run in res.runs:
+        if run["machine"]:
+            device, cpu = gpu(res.tools[run["tool"]]), run["machine"].get("cpu", {})
+            key = (cpu.get("brand_raw", "?"), cpu.get("count", "?"), device)
+            found.setdefault("gpu" if device else "cpu", {}).setdefault(key, []).append(run["tool"])
+    for role, seen in found.items():
+        if len(seen) > 1:
+            raise ValueError(f"{role.upper()} tools of one problem ran on different machines: {seen}")
+    return {role: dict(zip(("cpu", "cores", "device"), next(iter(seen)))) for role, seen in found.items()}
 
 
 def reads(res: Results, tool: str, case: str) -> bool:
     return CASES[case]["family"] in res.tools[tool]["families"]
 
 
+def skipped(res: Results, tool: str, case: str) -> bool:
+    """An opt-in case the tool was not asked to run: no result, no failure.
+    Not a failure, unlike a default case with neither, which is a run cut short."""
+    return (bool(set(CASES[case]["groups"]) & set(OPT_IN_GROUPS))
+            and not any((r.tool, r.case) == (tool, case) for r in res.records)
+            and not any((f["tool"], f["case"]) == (tool, case) for f in res.failures))
+
+
 def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
     """Per tool, one cell per grid and input: "✓ / ✗ / FAILED" counts of the
     solves, or "solved of all" where there is no verdict (fixtures). `·`
-    where the tool reads none of them. Returns the column labels and (tool, cells) rows.
+    where the tool reads none of them or was not asked to run them. Returns the column labels and (tool, cells) rows.
     CIM libraries have no solve: one column per operation instead."""
     if any(CASES[c]["problem"] == "cim" for c in res._seen()):
         return _cim_scoreboard(res)
@@ -145,7 +162,7 @@ def scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]]]:
     for t in res.tool_order():
         cells = []
         for _, cases in columns:
-            mine = [c for c in cases if reads(res, t, c)]
+            mine = [c for c in cases if reads(res, t, c) and not skipped(res, t, c)]
             recs = [res.get(t, c, "solve") for c in mine]
             if not mine:
                 cells.append("·")
@@ -180,24 +197,30 @@ def _cim_scoreboard(res: Results) -> tuple[list[str], list[tuple[str, list[str]]
 
 
 def load(directory: Path, groups: tuple[str, ...] = DEFAULT_GROUPS + OPT_IN_GROUPS) -> Results:
-    """Every record of a case in `groups` (the default and opt-in ones; the
-    GPU tabs pass `GPU_GROUPS`). A case run by name (outside them) stays in
-    its JSON but out of the published reports.
+    """Every record of a case in `groups` (the default and opt-in ones). A
+    case run by name (outside them) stays in its JSON but out of the published
+    reports. The directory's results and the GPU tools' of its `gpu/`: the CPU
+    baselines also run there are for comparing the two machines, not published.
     Power flow at the top level, state estimation in `.se`, optimal power
     flow in `.opf`, batch power flow in `.batch`, N-1 contingencies in
     `.n1`, DC power flow in `.dc`, DC N-1 in `.dcn1`, CIM import/export/validation in `.cim`: a tool has an entry in
     each, with that problem's settings."""
     res = Results(se=Results(), opf=Results(), batch=Results(), n1=Results(), dc=Results(), dcn1=Results(),
                   cim=Results())
-    for path in sorted(Path(directory).glob("*.json")):
+    directory = Path(directory)
+    for path in sorted(directory.glob("*.json")) + sorted(directory.glob("gpu/*.json")):
         if path.name == "conversion.json":   # the conversion check's local record, not results
             continue
         data = json.loads(path.read_text())
         if "grid_bench" not in data:
             continue
         gb = data["grid_bench"]
+        if path.parent != directory and not all(gpu(m) for m in gb["tools"].values()):
+            continue
         for tool, meta in gb["tools"].items():
             part = _problem(res, meta.get("problem", "pf"))
+            if tool in part.tools:   # its records would count twice
+                raise ValueError(f"{path}: {tool} already has results for this problem")
             part.tools[tool] = meta
             part.runs.append({"tool": tool, "datetime": data.get("datetime"), "git_sha": gb.get("git_sha"),
                               "image": gb.get("container_image"), "machine": data.get("machine_info", {}),
